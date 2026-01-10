@@ -90,6 +90,13 @@ class StatusBarController: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
+        // Open main window
+        let openItem = NSMenuItem(title: "Open CloudSync Ultra", action: #selector(openMainWindow), keyEquivalent: "o")
+        openItem.target = self
+        menu.addItem(openItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
         // Sync now
         let syncNowItem = NSMenuItem(title: "Sync Now", action: #selector(syncNow), keyEquivalent: "s")
         syncNowItem.target = self
@@ -135,6 +142,16 @@ class StatusBarController: NSObject {
         Task { @MainActor in
             await syncManager.performSync()
             updateMenu()
+        }
+    }
+    
+    @objc private func openMainWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        if let window = NSApp.windows.first(where: { $0.title.contains("CloudSync") || $0.contentView != nil }) {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            // If no window exists, just activate the app
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
     
