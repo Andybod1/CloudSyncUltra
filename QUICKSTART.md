@@ -1,6 +1,6 @@
-# CloudSync 2.0 - Quick Start
+# Quick Start Guide
 
-Get up and running in 5 minutes.
+Get CloudSync Ultra running in 5 minutes!
 
 ## 1. Install rclone
 
@@ -8,66 +8,46 @@ Get up and running in 5 minutes.
 brew install rclone
 ```
 
-## 2. Build & Run
+## 2. Clone & Open
 
 ```bash
-cd ~/Claude
+git clone https://github.com/andybod1-lang/CloudSyncUltra.git
+cd CloudSyncUltra
 open CloudSyncApp.xcodeproj
-# Press ⌘R to build and run
 ```
 
-## 3. Add Cloud Storage
+## 3. Build & Run
 
-1. Click **"Add Cloud..."** in sidebar
-2. Select provider (Proton, Google, Dropbox, etc.)
-3. Name it and click **Add**
-4. Go to **Settings → Accounts**
-5. Enter credentials → **Connect**
+Press **⌘R** in Xcode or click the Play button.
 
-## 4. Transfer Files
+## 4. Connect Your First Cloud
 
-1. Go to **Transfer** view
-2. **Left pane**: Choose source
-3. **Right pane**: Choose destination
-4. Select files → Click **→**
+1. Click a cloud service in the sidebar (e.g., Google Drive)
+2. Click **"Connect Now"**
+3. Follow the authentication flow
+4. Done! Browse your files.
 
-## 5. Setup Auto Sync
+## 5. Transfer Files
 
-1. Go to **Settings → Sync**
-2. Choose local folder
-3. Set remote path
-4. Enable **Auto Sync**
-5. **Save**
+1. Go to **Transfer** in the sidebar
+2. Select source cloud on the left
+3. Select destination cloud on the right
+4. Drag files between panes, or select and click **>>**
 
----
+## Common Tasks
 
-## Quick Reference
+| Task | How |
+|------|-----|
+| Browse files | Click cloud name in sidebar |
+| Download | Right-click → Download |
+| Upload | Click Upload button, select files |
+| Delete | Select files, click 🗑️ or right-click → Delete |
+| New folder | Click 📁+ button |
+| Transfer | Drag between panes in Transfer view |
 
-### Keyboard Shortcuts
-| Action | Shortcut |
-|--------|----------|
-| New Task | ⌘N |
-| Refresh | ⌘R |
-| Preferences | ⌘, |
-| Quit | ⌘Q |
+## Need Help?
 
-### Menu Bar Icons
-| Icon | Status |
-|------|--------|
-| ☁️ | Idle |
-| ↻ | Syncing |
-| ✓ | Complete |
-| ⚠️ | Error |
+- Check [README.md](README.md) for full documentation
+- Open an issue on GitHub
 
-### Views
-- **Dashboard** — Stats & overview
-- **Transfer** — Dual-pane browser
-- **Tasks** — Job queue
-- **History** — Past transfers
-
-### Supported Providers
-Proton Drive, Google Drive, Dropbox, OneDrive, S3, MEGA, Box, pCloud, WebDAV, SFTP, FTP
-
----
-
-**Version**: 2.0.0 | **Platform**: macOS 14.0+
+Enjoy CloudSync Ultra! ☁️

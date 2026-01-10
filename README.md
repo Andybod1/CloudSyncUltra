@@ -1,316 +1,170 @@
-# CloudSync 2.0 - Professional Cloud Sync for macOS
+# CloudSync Ultra v2.0
 
-A powerful, OurClone-style cloud synchronization app for macOS that supports multiple cloud providers with end-to-end encryption.
+A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 
-![CloudSync Dashboard](docs/dashboard.png)
+![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
+![Swift](https://img.shields.io/badge/Swift-5.9-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## ✨ What's New in v2.0
+## ✨ Features
 
-- **Modern UI** — Full application window with sidebar navigation (OurClone-style)
-- **Dashboard** — Quick stats, connected services, and recent activity at a glance
-- **Dual-Pane Transfer** — Side-by-side file browsers for easy drag & drop transfers
-- **Multi-Cloud Support** — 13+ cloud providers ready (Proton Drive, Google Drive, Dropbox, S3, and more)
-- **Task Management** — Queue, pause, and monitor sync jobs with live progress
-- **Activity History** — Complete log of all transfers and syncs
-- **File Browser** — Navigate cloud storage with list/grid views
+### 🌥️ Multi-Cloud Support
+- **Proton Drive** - End-to-end encrypted cloud storage (with 2FA support)
+- **Google Drive** - Full OAuth integration
+- **Dropbox** - Seamless file sync
+- **OneDrive** - Microsoft cloud integration
+- **Amazon S3** - Object storage support
+- **MEGA** - Encrypted cloud storage
+- **Box, pCloud, WebDAV, SFTP, FTP** - And more!
 
-## Features
+### 📁 File Management
+- **Dual-pane file browser** - Source and destination side-by-side
+- **Drag & drop transfers** - Simply drag files between cloud services
+- **Download/Upload** - Transfer files to/from local storage
+- **Create folders** - Organize your cloud storage
+- **Delete files/folders** - Clean up with confirmation dialogs
+- **Search** - Find files quickly across any cloud
 
-### Cloud Storage
-- ✅ **Multi-Provider** — Proton Drive, Google Drive, Dropbox, OneDrive, S3, MEGA, Box, pCloud
-- ✅ **E2E Encryption** — Client-side AES-256 encryption before upload
-- ✅ **Secure Storage** — Credentials stored in macOS Keychain
+### 🔄 Sync & Transfer
+- **Real-time progress bar** - Shows percentage, speed, and file count
+- **Transfer modes** - Sync, Transfer, or Backup
+- **Smart error handling** - Graceful handling of existing files
+- **Cancel transfers** - Stop any operation mid-transfer
 
-### Sync & Transfer
-- ✅ **Dual-Pane Browser** — Source ↔ Destination file management
-- ✅ **One-Way Sync** — Local → Cloud or Cloud → Local
-- ✅ **Bidirectional Sync** — Keep folders in sync both ways
-- ✅ **Backup Mode** — Incremental backups with versioning support
-- ✅ **Real-time Monitoring** — FSEvents-based file change detection
+### 🎨 Modern UI
+- **Native macOS design** - Feels right at home on your Mac
+- **Dark mode support** - Beautiful in any lighting
+- **Dashboard** - Quick overview with stats and activity
+- **Sidebar navigation** - Easy access to all cloud services
 
-### User Experience
-- ✅ **Dashboard** — Overview cards and quick actions
-- ✅ **Task Queue** — Manage multiple sync jobs
-- ✅ **Progress Tracking** — Live percentage, speed, ETA
-- ✅ **Activity Log** — Complete transfer history
-- ✅ **Menu Bar** — Quick access without opening the main window
-- ✅ **Native macOS** — SwiftUI, system notifications, Keychain
+### 📋 Task Management
+- **Scheduled syncs** - Set up recurring backup tasks
+- **Task history** - View past operations
+- **Status tracking** - Monitor active, pending, and completed tasks
 
-## Screenshots
+## 🚀 Getting Started
 
-| Dashboard | Transfer | Tasks |
-|-----------|----------|-------|
-| Stats, services, activity | Dual-pane browser | Job management |
+### Requirements
+- macOS 14.0 (Sonoma) or later
+- Xcode 15.0 or later
+- [rclone](https://rclone.org/) installed via Homebrew
 
-## Prerequisites
+### Installation
 
-### 1. Install Xcode
-Download from the Mac App Store (requires macOS 14.0+)
+1. **Install rclone:**
+   ```bash
+   brew install rclone
+   ```
 
-### 2. Install rclone
-```bash
-brew install rclone
-```
+2. **Clone the repository:**
+   ```bash
+   git clone https://github.com/andybod1-lang/CloudSyncUltra.git
+   cd CloudSyncUltra
+   ```
 
-Or download from: https://rclone.org/downloads/
+3. **Open in Xcode:**
+   ```bash
+   open CloudSyncApp.xcodeproj
+   ```
 
-### 3. Cloud Account
-- Proton Drive: https://proton.me/drive
-- Google Drive: https://drive.google.com
-- Dropbox: https://dropbox.com
-- Or any other supported provider
+4. **Build and run** (⌘R)
 
-## Installation
+### First Launch
 
-### Build from Source
+1. Launch CloudSync Ultra
+2. Click on any cloud service in the sidebar
+3. Click **"Connect Now"** to authenticate
+4. Start browsing and transferring files!
 
-```bash
-# Clone the repository
-cd ~/Claude
-
-# Open in Xcode
-open CloudSyncApp.xcodeproj
-
-# Build and Run (⌘R)
-```
-
-### Quick Build (Command Line)
-
-```bash
-xcodebuild -project CloudSyncApp.xcodeproj \
-           -scheme CloudSyncApp \
-           -configuration Release \
-           build
-
-# Copy to Applications
-cp -r build/Release/CloudSyncApp.app /Applications/
-```
-
-## First-Time Setup
-
-1. **Launch CloudSync** — The main window opens automatically
-2. **Add Cloud Storage** — Click "Add Cloud..." in the sidebar
-3. **Select Provider** — Choose from 13+ cloud services
-4. **Configure Credentials** — Enter username/password or OAuth
-5. **Start Syncing** — Use Transfer view or create a Task
-
-## Usage
+## 📸 Screenshots
 
 ### Dashboard
-- View connected cloud services
-- Monitor active sync tasks
-- See recent transfer activity
-- Access quick actions
+The main dashboard shows connected services, recent activity, and quick stats.
 
-### Transfer (Dual-Pane)
-1. Select source remote (left pane)
-2. Select destination remote (right pane)
-3. Navigate to desired folders
-4. Select files to transfer
-5. Click transfer button (→ or ←)
-
-### Tasks
-- Create scheduled sync jobs
-- Queue multiple transfers
-- Pause/resume running tasks
-- Monitor progress in real-time
+### Transfer View
+Dual-pane interface for easy drag-and-drop transfers between any cloud services.
 
 ### File Browser
-- Click any remote in sidebar
-- Browse files in list or grid view
-- Search, sort, and filter
-- Create folders, upload, download
+Full-featured file browser with list/grid views, search, and context menus.
 
-### Menu Bar
-- Quick sync status
-- Trigger manual sync
-- Pause/resume monitoring
-- Access preferences
-
-## Project Structure
+## 🏗️ Architecture
 
 ```
 CloudSyncApp/
-├── CloudSyncAppApp.swift          # App entry point
+├── CloudSyncApp.swift       # App entry point
 ├── Models/
-│   ├── CloudProvider.swift        # Cloud service definitions
-│   ├── SyncTask.swift             # Task/job model
-│   └── AppTheme.swift             # Design system
+│   ├── CloudProvider.swift  # Cloud service definitions
+│   ├── SyncTask.swift       # Task management
+│   └── FileItem.swift       # File/folder model
 ├── ViewModels/
-│   ├── RemotesViewModel.swift     # Cloud connections
-│   ├── TasksViewModel.swift       # Job queue management
-│   └── FileBrowserViewModel.swift # File listing
+│   ├── RemotesViewModel.swift    # Cloud connections
+│   ├── TasksViewModel.swift      # Task management
+│   └── FileBrowserViewModel.swift # File browsing
 ├── Views/
-│   ├── MainWindow.swift           # Sidebar + navigation
-│   ├── DashboardView.swift        # Overview dashboard
-│   ├── TransferView.swift         # Dual-pane browser
-│   ├── TasksView.swift            # Task management
-│   ├── HistoryView.swift          # Activity log
-│   └── FileBrowserView.swift      # Single remote browser
-├── RcloneManager.swift            # rclone process interface
-├── SyncManager.swift              # Sync orchestration
-├── EncryptionManager.swift        # E2E encryption
-├── StatusBarController.swift      # Menu bar
-└── SettingsView.swift             # Preferences
+│   ├── MainWindow.swift     # Main app window
+│   ├── DashboardView.swift  # Dashboard
+│   ├── TransferView.swift   # Dual-pane transfer
+│   ├── FileBrowserView.swift # Single-pane browser
+│   ├── TasksView.swift      # Task management
+│   └── SettingsView.swift   # App settings
+└── RcloneManager.swift      # rclone integration
 ```
 
-## Supported Cloud Providers
+## 🔧 Configuration
 
-| Provider | Status | Type |
-|----------|--------|------|
-| Proton Drive | ✅ Ready | protondrive |
-| Google Drive | ✅ Ready | drive |
-| Dropbox | ✅ Ready | dropbox |
-| OneDrive | ✅ Ready | onedrive |
-| Amazon S3 | ✅ Ready | s3 |
-| MEGA | ✅ Ready | mega |
-| Box | ✅ Ready | box |
-| pCloud | ✅ Ready | pcloud |
-| WebDAV | ✅ Ready | webdav |
-| SFTP | ✅ Ready | sftp |
-| FTP | ✅ Ready | ftp |
-| Local Storage | ✅ Ready | local |
-| iCloud Drive | 🔜 Coming | — |
+CloudSync Ultra stores its configuration in:
+- `~/Library/Application Support/CloudSyncApp/rclone.conf`
 
-## Architecture
+### Supported Cloud Providers
 
-```
-┌─────────────────────────────────────────────────┐
-│              SwiftUI Main Window                │
-│  ┌─────────┐ ┌────────────────────────────────┐ │
-│  │ Sidebar │ │     Detail View                │ │
-│  │         │ │  (Dashboard/Transfer/Tasks)    │ │
-│  └─────────┘ └────────────────────────────────┘ │
-└────────────────────────┬────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────┐
-│              ViewModels (State)                 │
-│   RemotesVM  │  TasksVM  │  FileBrowserVM       │
-└────────────────────────┬────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────┐
-│              Core Managers                      │
-│   SyncManager  │  RcloneManager  │  Encryption  │
-└────────────────────────┬────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────┐
-│              rclone (Go binary)                 │
-│       File Transfer │ Cloud APIs │ Encryption   │
-└─────────────────────────────────────────────────┘
-```
+| Provider | Auth Type | Status |
+|----------|-----------|--------|
+| Proton Drive | Username/Password + 2FA | ✅ Full Support |
+| Google Drive | OAuth | ✅ Full Support |
+| Dropbox | OAuth | ✅ Full Support |
+| OneDrive | OAuth | ✅ Full Support |
+| Amazon S3 | Access Keys | ✅ Full Support |
+| MEGA | Username/Password | ✅ Full Support |
+| Box | OAuth | ✅ Full Support |
+| pCloud | Username/Password | ✅ Full Support |
+| WebDAV | URL/Password | ✅ Full Support |
+| SFTP | Host/Password | ✅ Full Support |
+| FTP | Host/Password | ✅ Full Support |
 
-## Security
+## 🛠️ Development
 
-- **Credentials** — Stored in macOS Keychain (AES-256)
-- **Encryption** — Optional client-side E2E encryption via rclone crypt
-- **Transport** — All transfers over HTTPS/TLS
-- **Privacy** — No analytics, no tracking, fully local
+### Building from Source
 
-## Performance
-
-| Metric | Value |
-|--------|-------|
-| Memory (idle) | ~30 MB |
-| Memory (active) | ~80-150 MB |
-| CPU (idle) | <1% |
-| CPU (syncing) | 5-15% |
-| File detection | <500ms |
-
-## Configuration
-
-### User Preferences
-Stored in macOS UserDefaults:
-```
-localPath        — Local sync folder
-remotePath       — Remote cloud path
-syncInterval     — Auto-sync interval (seconds)
-autoSync         — Enable automatic sync
-launchAtLogin    — Start on login
-showNotifications — Enable notifications
-```
-
-### rclone Config
-Location: `~/Library/Application Support/CloudSyncApp/rclone.conf`
-
-## Troubleshooting
-
-### "rclone not found"
 ```bash
-brew install rclone
-which rclone  # Should show /opt/homebrew/bin/rclone
+# Clone
+git clone https://github.com/andybod1-lang/CloudSyncUltra.git
+cd CloudSyncUltra
+
+# Build
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -configuration Release build
+
+# Run
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Release/CloudSyncApp.app
 ```
 
-### "Connection failed"
-- Verify credentials in browser first
-- Check internet connection
-- Review Console.app logs
+### Tech Stack
+- **SwiftUI** - Modern declarative UI
+- **Combine** - Reactive data flow
+- **rclone** - Cloud storage backend
+- **async/await** - Modern concurrency
 
-### "Permission denied"
-- Grant Full Disk Access in System Settings → Privacy & Security
-- Ensure rclone has execute permissions
+## 📝 License
 
-### "Sync not starting"
-- Check that local folder exists
-- Verify cloud account has storage space
-- Click "Sync Now" in menu bar
+MIT License - see [LICENSE](LICENSE) for details.
 
-## Development
+## 🤝 Contributing
 
-### Requirements
-- macOS 14.0+
-- Xcode 15.0+
-- Swift 5.9+
-- rclone 1.65+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Building
-```bash
-# Debug build
-xcodebuild -scheme CloudSyncApp -configuration Debug build
+## 📧 Contact
 
-# Release build
-xcodebuild -scheme CloudSyncApp -configuration Release build
-```
-
-### Code Style
-- SwiftUI for all UI
-- MVVM architecture
-- Async/await concurrency
-- @MainActor for UI updates
-
-## Roadmap
-
-### v2.1 (Next)
-- [ ] Drag & drop file transfers
-- [ ] System notifications
-- [ ] Bandwidth throttling UI
-- [ ] Selective sync (exclude patterns)
-
-### v2.2
-- [ ] File versioning
-- [ ] Conflict resolution UI
-- [ ] Scheduled tasks
-- [ ] iOS companion app
-
-### v3.0
-- [ ] Native cloud APIs (optional rclone bypass)
-- [ ] Team collaboration
-- [ ] Share link generation
-- [ ] Advanced scheduling
-
-## License
-
-MIT License — See LICENSE file
-
-## Credits
-
-- **rclone** — https://rclone.org/
-- **Proton Drive** — https://proton.me/drive
-- **SwiftUI** — Apple
-- Inspired by **OurClone.app**
+Created by [@andybod1-lang](https://github.com/andybod1-lang)
 
 ---
 
-**Version**: 2.0.0  
-**Last Updated**: January 2026  
-**Platform**: macOS 14.0+  
-**License**: MIT
+**CloudSync Ultra** - One app. All your clouds. ☁️
