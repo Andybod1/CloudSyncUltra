@@ -1,0 +1,738 @@
+//
+//  RcloneManager.swift
+//  CloudSyncApp
+//
+//  Manages rclone binary, configuration, and process execution
+//
+
+import Foundation
+
+class RcloneManager {
+    static let shared = RcloneManager()
+    
+    private var rclonePath: String
+    private var configPath: String
+    private var process: Process?
+    
+    private init() {
+        // Look for bundled rclone first, fall back to system rclone
+        if let bundledPath = Bundle.main.path(forResource: "rclone", ofType: nil) {
+            self.rclonePath = bundledPath
+            // Make it executable
+            try? FileManager.default.setAttributes(
+                [.posixPermissions: 0o755],
+                ofItemAtPath: bundledPath
+            )
+        } else {
+            // Use system rclone (assumes installed via homebrew)
+            self.rclonePath = "/opt/homebrew/bin/rclone"
+        }
+        
+        // Store config in Application Support
+        let appSupport = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        )[0]
+        let appFolder = appSupport.appendingPathComponent("CloudSyncApp", isDirectory: true)
+        
+        try? FileManager.default.createDirectory(
+            at: appFolder,
+            withIntermediateDirectories: true
+        )
+        
+        self.configPath = appFolder.appendingPathComponent("rclone.conf").path
+    }
+    
+    // MARK: - Configuration
+    
+    func isConfigured() -> Bool {
+        FileManager.default.fileExists(atPath: configPath)
+    }
+    
+    // MARK: - Cloud Provider Setup Methods
+    
+    func setupProtonDrive(username: String, password: String, twoFactorCode: String? = nil) async throws {
+        var params: [String: String] = [
+            "username": username,
+            "password": password
+        ]
+        if let code = twoFactorCode, !code.isEmpty {
+            params["2fa"] = code
+        }
+        try await createRemote(
+            name: "proton",
+            type: "protondrive",
+            parameters: params
+        )
+    }
+    
+    func setupGoogleDrive(remoteName: String) async throws {
+        // Google Drive uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "drive")
+    }
+    
+    func setupDropbox(remoteName: String) async throws {
+        // Dropbox uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "dropbox")
+    }
+    
+    func setupOneDrive(remoteName: String) async throws {
+        // OneDrive uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "onedrive")
+    }
+    
+    func setupS3(remoteName: String, accessKey: String, secretKey: String, region: String = "us-east-1", endpoint: String = "") async throws {
+        var params: [String: String] = [
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "region": region
+        ]
+        if !endpoint.isEmpty {
+            params["endpoint"] = endpoint
+        }
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupMega(remoteName: String, username: String, password: String) async throws {
+        try await createRemote(
+            name: remoteName,
+            type: "mega",
+            parameters: [
+                "user": username,
+                "pass": password
+            ]
+        )
+    }
+    
+    func setupBox(remoteName: String) async throws {
+        // Box uses OAuth
+        try await createRemoteInteractive(name: remoteName, type: "box")
+    }
+    
+    func setupPCloud(remoteName: String, username: String, password: String) async throws {
+        try await createRemote(
+            name: remoteName,
+            type: "pcloud",
+            parameters: [
+                "username": username,
+                "password": password
+            ]
+        )
+    }
+    
+    func setupWebDAV(remoteName: String, url: String, password: String, username: String = "") async throws {
+        var params: [String: String] = [
+            "url": url,
+            "pass": password
+        ]
+        if !username.isEmpty {
+            params["user"] = username
+        }
+        try await createRemote(name: remoteName, type: "webdav", parameters: params)
+    }
+    
+    func setupSFTP(remoteName: String, host: String, password: String, user: String = "", port: String = "22") async throws {
+        var params: [String: String] = [
+            "host": host,
+            "pass": password,
+            "port": port
+        ]
+        if !user.isEmpty {
+            params["user"] = user
+        }
+        try await createRemote(name: remoteName, type: "sftp", parameters: params)
+    }
+    
+    func setupFTP(remoteName: String, host: String, password: String, user: String = "", port: String = "21") async throws {
+        var params: [String: String] = [
+            "host": host,
+            "pass": password,
+            "port": port
+        ]
+        if !user.isEmpty {
+            params["user"] = user
+        }
+        try await createRemote(name: remoteName, type: "ftp", parameters: params)
+    }
+    
+    // MARK: - Generic Remote Creation
+    
+    private func createRemote(name: String, type: String, parameters: [String: String]) async throws {
+        var args = [
+            "config", "create",
+            name,
+            type
+        ]
+        
+        // Add parameters
+        for (key, value) in parameters {
+            args.append(key)
+            args.append(value)
+        }
+        
+        args.append(contentsOf: ["--config", configPath, "--non-interactive"])
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = args
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.configurationFailed(errorString)
+        }
+    }
+    
+    private func createRemoteInteractive(name: String, type: String) async throws {
+        // For OAuth providers, we need to run rclone config interactively
+        // This will open a browser for authentication
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "config", "create",
+            name,
+            type,
+            "--config", configPath
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        // Check if config was created successfully
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            
+            // Some OAuth flows return non-zero but still succeed
+            // Check if the remote was actually created
+            if !isRemoteConfigured(name: name) {
+                throw RcloneError.configurationFailed(errorString)
+            }
+        }
+    }
+    
+    func isRemoteConfigured(name: String) -> Bool {
+        guard FileManager.default.fileExists(atPath: configPath) else { return false }
+        
+        do {
+            let content = try String(contentsOfFile: configPath, encoding: .utf8)
+            return content.contains("[\(name)]")
+        } catch {
+            return false
+        }
+    }
+    
+    func deleteRemote(name: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "config", "delete",
+            name,
+            "--config", configPath
+        ]
+        
+        try process.run()
+        process.waitUntilExit()
+    }
+    
+    // MARK: - Sync Operations
+    
+    func sync(localPath: String, remotePath: String, mode: SyncMode = .oneWay, encrypted: Bool = false, remoteName: String = "proton") async throws -> AsyncStream<SyncProgress> {
+        // Determine which remote to use
+        let remote = encrypted ? EncryptionManager.shared.encryptedRemoteName : remoteName
+        
+        return AsyncStream { continuation in
+            Task {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: rclonePath)
+                
+                // Build arguments based on mode
+                var args: [String] = []
+                
+                switch mode {
+                case .oneWay:
+                    args = [
+                        "sync",
+                        localPath,
+                        "\(remote):\(remotePath)",
+                        "--config", configPath,
+                        "--progress",
+                        "--stats", "1s",
+                        "--transfers", "4",
+                        "--checkers", "8",
+                        "--verbose"
+                    ]
+                case .biDirectional:
+                    args = [
+                        "bisync",
+                        localPath,
+                        "\(remote):\(remotePath)",
+                        "--config", configPath,
+                        "--resilient",
+                        "--recover",
+                        "--conflict-resolve", "newer",
+                        "--conflict-loser", "num",
+                        "--verbose",
+                        "--max-delete", "50"
+                    ]
+                }
+                
+                process.arguments = args
+                
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = pipe
+                
+                // Read output asynchronously
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        if let output = String(data: data, encoding: .utf8) {
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
+                        }
+                    }
+                }
+                
+                try process.run()
+                self.process = process
+                
+                process.waitUntilExit()
+                
+                pipe.fileHandleForReading.readabilityHandler = nil
+                continuation.finish()
+            }
+        }
+    }
+    
+    func copyFiles(from sourcePath: String, to destPath: String, sourceRemote: String, destRemote: String) async throws -> AsyncStream<SyncProgress> {
+        return AsyncStream { continuation in
+            Task {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: self.rclonePath)
+                
+                let source = sourceRemote == "local" ? sourcePath : "\(sourceRemote):\(sourcePath)"
+                let dest = destRemote == "local" ? destPath : "\(destRemote):\(destPath)"
+                
+                process.arguments = [
+                    "copy",
+                    source,
+                    dest,
+                    "--config", self.configPath,
+                    "--progress",
+                    "--stats", "1s",
+                    "--transfers", "4",
+                    "--verbose",
+                    "--ignore-existing"  // Skip files that already exist at destination
+                ]
+                
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = pipe
+                
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        if let output = String(data: data, encoding: .utf8) {
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
+                        }
+                    }
+                }
+                
+                try process.run()
+                self.process = process
+                
+                process.waitUntilExit()
+                
+                pipe.fileHandleForReading.readabilityHandler = nil
+                continuation.finish()
+            }
+        }
+    }
+    
+    func listRemoteFiles(remotePath: String, encrypted: Bool = false, remoteName: String = "proton") async throws -> [RemoteFile] {
+        let remote = encrypted ? EncryptionManager.shared.encryptedRemoteName : remoteName
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "lsjson",
+            "\(remote):\(remotePath)",
+            "--config", configPath
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+        
+        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        
+        // Handle empty response
+        if data.isEmpty {
+            return []
+        }
+        
+        do {
+            let files = try JSONDecoder().decode([RemoteFile].self, from: data)
+            return files
+        } catch {
+            // Return empty array if parsing fails (might be empty folder)
+            return []
+        }
+    }
+    
+    func stopCurrentSync() {
+        process?.terminate()
+        process = nil
+    }
+    
+    // MARK: - Encryption Setup
+    
+    /// Sets up an encrypted (crypt) remote that wraps another remote.
+    /// This provides client-side E2E encryption before files are uploaded.
+    func setupEncryptedRemote(
+        password: String,
+        salt: String,
+        encryptFilenames: Bool = true,
+        wrappedRemote: String = "proton:"
+    ) async throws {
+        // First, obscure the password and salt using rclone
+        let obscuredPassword = try await obscurePassword(password)
+        let obscuredSalt = try await obscurePassword(salt)
+        
+        // Determine filename encryption mode
+        let filenameEncryption = encryptFilenames ? "standard" : "off"
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "config", "create",
+            EncryptionManager.shared.encryptedRemoteName,
+            "crypt",
+            "remote", wrappedRemote,
+            "password", obscuredPassword,
+            "password2", obscuredSalt,
+            "filename_encryption", filenameEncryption,
+            "directory_name_encryption", encryptFilenames ? "true" : "false",
+            "--config", configPath,
+            "--non-interactive"
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.encryptionSetupFailed(errorString)
+        }
+    }
+    
+    /// Removes the encrypted remote configuration
+    func removeEncryptedRemote() async throws {
+        try await deleteRemote(name: EncryptionManager.shared.encryptedRemoteName)
+    }
+    
+    /// Obscures a password using rclone's obscure command.
+    /// Rclone requires passwords in its config to be obscured.
+    private func obscurePassword(_ password: String) async throws -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = ["obscure", password]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.encryptionSetupFailed("Failed to obscure password: \(errorString)")
+        }
+        
+        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let obscured = String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        return obscured
+    }
+    
+    /// Checks if the encrypted remote is configured in rclone
+    func isEncryptedRemoteConfigured() -> Bool {
+        return isRemoteConfigured(name: EncryptionManager.shared.encryptedRemoteName)
+    }
+    
+    // MARK: - File Operations
+    
+    /// Delete a file or folder from a remote
+    func deleteFile(remoteName: String, path: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "deletefile",
+            "\(remoteName):\(path)",
+            "--config", configPath
+        ]
+        
+        let errorPipe = Pipe()
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+    }
+    
+    /// Delete a folder and its contents from a remote
+    func deleteFolder(remoteName: String, path: String) async throws {
+        print("[RcloneManager] deleteFolder called: remoteName=\(remoteName), path=\(path)")
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "purge",
+            "\(remoteName):\(path)",
+            "--config", configPath
+        ]
+        
+        print("[RcloneManager] Running: \(rclonePath) purge \(remoteName):\(path)")
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputString = String(data: outputData, encoding: .utf8) ?? ""
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        // rclone purge returns 0 on success, but may have notices in stderr
+        if process.terminationStatus != 0 {
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Delete failed" : errorString)
+        }
+    }
+    
+    /// Create a new folder on a remote
+    func createFolder(remoteName: String, path: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "mkdir",
+            "\(remoteName):\(path)",
+            "--config", configPath
+        ]
+        
+        let errorPipe = Pipe()
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+    }
+    
+    /// Download a file or folder from a remote to local
+    func download(remoteName: String, remotePath: String, localPath: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "copy",
+            "\(remoteName):\(remotePath)",
+            localPath,
+            "--config", configPath,
+            "--progress",
+            "--ignore-existing"  // Skip files that already exist
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+    }
+    
+    /// Upload a file or folder from local to a remote
+    func upload(localPath: String, remoteName: String, remotePath: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "copy",
+            localPath,
+            "\(remoteName):\(remotePath)",
+            "--config", configPath,
+            "--progress",
+            "--ignore-existing"  // Skip files that already exist
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+    }
+    
+    // MARK: - Progress Parsing
+    
+    private func parseProgress(from output: String) -> SyncProgress? {
+        // Parse rclone output for progress information
+        // Example: "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
+        
+        let lines = output.components(separatedBy: .newlines)
+        
+        for line in lines {
+            if line.contains("Transferred:") {
+                // Extract transferred, total, percentage, speed
+                let components = line.components(separatedBy: ",")
+                
+                if components.count >= 3 {
+                    // Parse percentage
+                    let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
+                    let percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+                    
+                    // Parse speed
+                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
+                    
+                    return SyncProgress(
+                        percentage: percentage,
+                        speed: speedStr,
+                        status: .syncing
+                    )
+                }
+            }
+            
+            if line.contains("Checks:") {
+                return SyncProgress(percentage: 0, speed: "Checking files...", status: .checking)
+            }
+            
+            if line.contains("ERROR") {
+                return SyncProgress(percentage: 0, speed: "", status: .error(line))
+            }
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Supporting Types
+
+enum SyncMode {
+    case oneWay
+    case biDirectional
+}
+
+struct SyncProgress {
+    let percentage: Double
+    let speed: String
+    let status: SyncStatus
+}
+
+enum SyncStatus: Equatable {
+    case idle
+    case checking
+    case syncing
+    case completed
+    case error(String)
+    
+    static func == (lhs: SyncStatus, rhs: SyncStatus) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle), (.checking, .checking), (.syncing, .syncing), (.completed, .completed):
+            return true
+        case (.error(let a), .error(let b)):
+            return a == b
+        default:
+            return false
+        }
+    }
+}
+
+struct RemoteFile: Codable {
+    let Path: String
+    let Name: String
+    let Size: Int64
+    let MimeType: String
+    let ModTime: String
+    let IsDir: Bool
+}
+
+enum RcloneError: LocalizedError {
+    case configurationFailed(String)
+    case syncFailed(String)
+    case notInstalled
+    case encryptionSetupFailed(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .configurationFailed(let message):
+            return "Configuration failed: \(message)"
+        case .syncFailed(let message):
+            return "Sync failed: \(message)"
+        case .notInstalled:
+            return "rclone is not installed. Please install via: brew install rclone"
+        case .encryptionSetupFailed(let message):
+            return "Encryption setup failed: \(message)"
+        }
+    }
+}
