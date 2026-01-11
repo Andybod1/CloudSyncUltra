@@ -19,6 +19,16 @@ class FileBrowserViewModel: ObservableObject {
     @Published var viewMode: ViewMode = .list
     @Published var searchQuery: String = ""
     
+    // Pagination
+    @Published var currentPage: Int = 1
+    @Published var pageSize: Int = 100 {
+        didSet {
+            // Reset to page 1 when page size changes
+            currentPage = 1
+        }
+    }
+    @Published var isPaginationEnabled: Bool = true
+    
     var remote: CloudRemote?
     
     enum SortOrder: String, CaseIterable {
@@ -34,6 +44,74 @@ class FileBrowserViewModel: ObservableObject {
         case list = "List"
         case grid = "Grid"
     }
+    
+    // MARK: - Pagination Computed Properties
+    
+    var totalPages: Int {
+        guard isPaginationEnabled else { return 1 }
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        return max(1, Int(ceil(Double(baseFiles.count) / Double(pageSize))))
+    }
+    
+    var paginatedFiles: [FileItem] {
+        guard isPaginationEnabled else {
+            return searchQuery.isEmpty ? files : filteredFiles
+        }
+        
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        let startIndex = (currentPage - 1) * pageSize
+        let endIndex = min(startIndex + pageSize, baseFiles.count)
+        
+        guard startIndex < baseFiles.count else { return [] }
+        return Array(baseFiles[startIndex..<endIndex])
+    }
+    
+    var canGoToPreviousPage: Bool {
+        currentPage > 1
+    }
+    
+    var canGoToNextPage: Bool {
+        currentPage < totalPages
+    }
+    
+    var pageInfo: String {
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        let startIndex = (currentPage - 1) * pageSize + 1
+        let endIndex = min(currentPage * pageSize, baseFiles.count)
+        return "\(startIndex)-\(endIndex) of \(baseFiles.count)"
+    }
+    
+    // MARK: - Pagination Actions
+    
+    func nextPage() {
+        guard canGoToNextPage else { return }
+        currentPage += 1
+        selectedFiles.removeAll()
+    }
+    
+    func previousPage() {
+        guard canGoToPreviousPage else { return }
+        currentPage -= 1
+        selectedFiles.removeAll()
+    }
+    
+    func goToPage(_ page: Int) {
+        guard page >= 1 && page <= totalPages else { return }
+        currentPage = page
+        selectedFiles.removeAll()
+    }
+    
+    func firstPage() {
+        currentPage = 1
+        selectedFiles.removeAll()
+    }
+    
+    func lastPage() {
+        currentPage = totalPages
+        selectedFiles.removeAll()
+    }
+    
+    // MARK: - Setup
     
     func setRemote(_ remote: CloudRemote) {
         self.remote = remote
@@ -65,6 +143,10 @@ class FileBrowserViewModel: ObservableObject {
                 files = try await loadRemoteFiles(remote: remote, path: currentPath)
             }
             sortFiles()
+            
+            // Reset to first page when loading new directory
+            currentPage = 1
+            selectedFiles.removeAll()
         } catch {
             self.error = error.localizedDescription
         }
@@ -133,6 +215,7 @@ class FileBrowserViewModel: ObservableObject {
     func navigateTo(_ path: String) {
         currentPath = path
         selectedFiles.removeAll()
+        currentPage = 1
         Task { await loadFiles() }
     }
     
@@ -158,6 +241,7 @@ class FileBrowserViewModel: ObservableObject {
     }
     
     func refresh() {
+        currentPage = 1
         Task { await loadFiles() }
     }
     
@@ -192,6 +276,12 @@ class FileBrowserViewModel: ObservableObject {
     }
     
     func selectAll() {
+        // Select all on current page only
+        selectedFiles = Set(paginatedFiles.map { $0.id })
+    }
+    
+    func selectAllInDirectory() {
+        // Select all files in directory (all pages)
         selectedFiles = Set(files.map { $0.id })
     }
     

@@ -32,6 +32,8 @@ struct FileBrowserView: View {
     @State private var newFileName = ""
     @State private var isRenaming = false
     @State private var renameError: String?
+    @State private var showPageSizeMenu = false
+    @State private var jumpToPageString = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -57,6 +59,12 @@ struct FileBrowserView: View {
                     emptyView
                 } else {
                     fileContent
+                }
+                
+                // Pagination Controls
+                if !browser.isLoading && browser.files.count > browser.pageSize {
+                    Divider()
+                    paginationBar
                 }
                 
                 Divider()
@@ -109,6 +117,136 @@ struct FileBrowserView: View {
                 onCancel: { showRenameSheet = false }
             )
         }
+    }
+    
+    // MARK: - Pagination Bar
+    
+    private var paginationBar: some View {
+        HStack(spacing: 12) {
+            // Page size selector
+            Menu {
+                ForEach([50, 100, 200, 500], id: \.self) { size in
+                    Button {
+                        browser.pageSize = size
+                    } label: {
+                        HStack {
+                            Text("\(size) items")
+                            if browser.pageSize == size {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+                
+                Divider()
+                
+                Button {
+                    browser.isPaginationEnabled.toggle()
+                } label: {
+                    HStack {
+                        Text("Show All")
+                        if !browser.isPaginationEnabled {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("\(browser.pageSize) per page")
+                    Image(systemName: "chevron.down")
+                }
+                .font(.caption)
+            }
+            .menuStyle(.borderlessButton)
+            .help("Items per page")
+            
+            Divider()
+                .frame(height: 16)
+            
+            // First page button
+            Button {
+                browser.firstPage()
+            } label: {
+                Image(systemName: "chevron.left.2")
+            }
+            .disabled(!browser.canGoToPreviousPage)
+            .help("First page")
+            
+            // Previous page button
+            Button {
+                browser.previousPage()
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(!browser.canGoToPreviousPage)
+            .help("Previous page")
+            .keyboardShortcut("[", modifiers: [.command])
+            
+            // Page indicator with jump capability
+            HStack(spacing: 4) {
+                Text("Page")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                HStack(spacing: 2) {
+                    TextField("", text: $jumpToPageString, prompt: Text("\(browser.currentPage)"))
+                        .textFieldStyle(.plain)
+                        .frame(width: 30)
+                        .multilineTextAlignment(.center)
+                        .font(.caption.monospacedDigit())
+                        .onSubmit {
+                            if let page = Int(jumpToPageString), page >= 1, page <= browser.totalPages {
+                                browser.goToPage(page)
+                            }
+                            jumpToPageString = ""
+                        }
+                    
+                    if jumpToPageString.isEmpty {
+                        Text("\(browser.currentPage)")
+                            .font(.caption.monospacedDigit())
+                            .frame(width: 30)
+                    }
+                }
+                
+                Text("of \(browser.totalPages)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+            .cornerRadius(4)
+            
+            // Next page button
+            Button {
+                browser.nextPage()
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(!browser.canGoToNextPage)
+            .help("Next page")
+            .keyboardShortcut("]", modifiers: [.command])
+            
+            // Last page button
+            Button {
+                browser.lastPage()
+            } label: {
+                Image(systemName: "chevron.right.2")
+            }
+            .disabled(!browser.canGoToNextPage)
+            .help("Last page")
+            
+            Divider()
+                .frame(height: 16)
+            
+            // Page info
+            Text(browser.pageInfo)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
     }
     
     // MARK: - Not Connected View
@@ -177,6 +315,10 @@ struct FileBrowserView: View {
                     .foregroundColor(.secondary)
                 TextField("Search...", text: $browser.searchQuery)
                     .textFieldStyle(.plain)
+                    .onChange(of: browser.searchQuery) {
+                        // Reset to first page when searching
+                        browser.currentPage = 1
+                    }
                 
                 if !browser.searchQuery.isEmpty {
                     Button {
@@ -370,7 +512,7 @@ struct FileBrowserView: View {
     }
     
     private var listView: some View {
-        Table(browser.filteredFiles, selection: $browser.selectedFiles) {
+        Table(browser.paginatedFiles, selection: $browser.selectedFiles) {
             TableColumn("Name") { file in
                 HStack(spacing: 8) {
                     Image(systemName: file.icon)
@@ -446,7 +588,7 @@ struct FileBrowserView: View {
             LazyVGrid(columns: [
                 GridItem(.adaptive(minimum: 100, maximum: 120), spacing: 16)
             ], spacing: 16) {
-                ForEach(browser.filteredFiles) { file in
+                ForEach(browser.paginatedFiles) { file in
                     FileGridItem(
                         file: file,
                         isSelected: browser.selectedFiles.contains(file.id)
@@ -532,6 +674,28 @@ struct FileBrowserView: View {
             }
             
             Spacer()
+            
+            // Selection controls for pagination
+            if browser.isPaginationEnabled && browser.files.count > browser.pageSize {
+                HStack(spacing: 8) {
+                    Button("Select Page") {
+                        browser.selectAll()
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .help("Select all items on current page")
+                    
+                    Button("Select All (\(browser.files.count))") {
+                        browser.selectAllInDirectory()
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .help("Select all items in directory")
+                }
+                
+                Divider()
+                    .frame(height: 12)
+            }
             
             Menu {
                 ForEach(FileBrowserViewModel.SortOrder.allCases, id: \.self) { order in

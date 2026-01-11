@@ -13,6 +13,7 @@ class StatusBarController: NSObject {
     private var statusItem: NSStatusItem?
     private let syncManager = SyncManager.shared
     private var statusObserver: NSKeyValueObservation?
+    private var updateTimer: Timer?
     
     func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -27,6 +28,24 @@ class StatusBarController: NSObject {
         Task { @MainActor in
             for await _ in NotificationCenter.default.notifications(named: NSNotification.Name("SyncStatusChanged")) {
                 updateIcon(status: syncManager.syncStatus)
+                updateMenu()
+            }
+        }
+        
+        // Update menu every 0.1 seconds for real-time transfer progress (same speed as main window)
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                // Check for active tasks and update icon
+                let tasksVM = TasksViewModel.shared
+                let hasActiveTasks = tasksVM.tasks.contains { $0.state == .running }
+                
+                if hasActiveTasks {
+                    self?.updateIcon(status: .syncing)
+                } else {
+                    self?.updateIcon(status: self?.syncManager.syncStatus ?? .idle)
+                }
+                
+                self?.updateMenu()
             }
         }
         
@@ -36,17 +55,27 @@ class StatusBarController: NSObject {
     private func updateIcon(status: SyncStatus) {
         guard let button = statusItem?.button else { return }
         
+        let symbolName: String
         switch status {
         case .idle:
-            button.image = NSImage(systemSymbolName: "cloud", accessibilityDescription: "Idle")
+            symbolName = "cloud"
         case .checking:
-            button.image = NSImage(systemSymbolName: "cloud.fill", accessibilityDescription: "Checking")
+            symbolName = "cloud.fill"
         case .syncing:
-            button.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "Syncing")
+            symbolName = "arrow.triangle.2.circlepath"
         case .completed:
-            button.image = NSImage(systemSymbolName: "checkmark.circle", accessibilityDescription: "Completed")
+            symbolName = "checkmark.circle"
         case .error:
-            button.image = NSImage(systemSymbolName: "exclamationmark.triangle", accessibilityDescription: "Error")
+            symbolName = "exclamationmark.triangle"
+        }
+        
+        // Create brighter icon with template rendering
+        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil) {
+            image.isTemplate = true
+            button.image = image
+            
+            // Make icon brighter by using white color
+            button.contentTintColor = .white
         }
     }
     
@@ -57,23 +86,56 @@ class StatusBarController: NSObject {
     private func updateMenu() {
         let menu = NSMenu()
         
-        // Status indicator
+        // Configure menu appearance for better visibility
+        menu.font = NSFont.systemFont(ofSize: 14, weight: .medium)
+        
+        // Cloud services count (exclude local storage)
+        let remotes = RemotesViewModel.shared
+        let cloudCount = remotes.cloudRemotes.count  // Only actual cloud services, not local
+        let cloudCountItem = NSMenuItem(title: "\(cloudCount) cloud service\(cloudCount != 1 ? "s" : "")", action: nil, keyEquivalent: "")
+        cloudCountItem.isEnabled = false
+        
+        // Create attributed string for brighter text
+        let attributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: NSColor.labelColor,
+            .font: NSFont.systemFont(ofSize: 14, weight: .semibold)
+        ]
+        cloudCountItem.attributedTitle = NSAttributedString(string: "\(cloudCount) cloud service\(cloudCount != 1 ? "s" : "")", attributes: attributes)
+        menu.addItem(cloudCountItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Status indicator - check both SyncManager status AND active tasks
+        let tasksVM = TasksViewModel.shared
+        let hasActiveTasks = tasksVM.tasks.contains { $0.state == .running }
+        
         let statusMenuItem: NSMenuItem
-        switch syncManager.syncStatus {
-        case .idle:
-            statusMenuItem = NSMenuItem(title: "Idle", action: nil, keyEquivalent: "")
-        case .checking:
-            statusMenuItem = NSMenuItem(title: "Checking...", action: nil, keyEquivalent: "")
-        case .syncing:
-            if let progress = syncManager.currentProgress {
-                statusMenuItem = NSMenuItem(title: "Syncing: \(Int(progress.percentage))%", action: nil, keyEquivalent: "")
+        if hasActiveTasks {
+            // Show active task status
+            if let activeTask = tasksVM.tasks.first(where: { $0.state == .running }) {
+                let progress = Int(activeTask.progress * 100)
+                statusMenuItem = NSMenuItem(title: "Transferring: \(progress)%", action: nil, keyEquivalent: "")
             } else {
-                statusMenuItem = NSMenuItem(title: "Syncing...", action: nil, keyEquivalent: "")
+                statusMenuItem = NSMenuItem(title: "Transferring...", action: nil, keyEquivalent: "")
             }
-        case .completed:
-            statusMenuItem = NSMenuItem(title: "✓ Up to date", action: nil, keyEquivalent: "")
-        case .error(_):
-            statusMenuItem = NSMenuItem(title: "⚠️ Error", action: nil, keyEquivalent: "")
+        } else {
+            // Show sync manager status
+            switch syncManager.syncStatus {
+            case .idle:
+                statusMenuItem = NSMenuItem(title: "Idle", action: nil, keyEquivalent: "")
+            case .checking:
+                statusMenuItem = NSMenuItem(title: "Checking...", action: nil, keyEquivalent: "")
+            case .syncing:
+                if let progress = syncManager.currentProgress {
+                    statusMenuItem = NSMenuItem(title: "Syncing: \(Int(progress.percentage))%", action: nil, keyEquivalent: "")
+                } else {
+                    statusMenuItem = NSMenuItem(title: "Syncing...", action: nil, keyEquivalent: "")
+                }
+            case .completed:
+                statusMenuItem = NSMenuItem(title: "✓ Up to date", action: nil, keyEquivalent: "")
+            case .error(_):
+                statusMenuItem = NSMenuItem(title: "⚠️ Error", action: nil, keyEquivalent: "")
+            }
         }
         statusMenuItem.isEnabled = false
         menu.addItem(statusMenuItem)
