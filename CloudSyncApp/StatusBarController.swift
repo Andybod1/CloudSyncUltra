@@ -123,10 +123,10 @@ class StatusBarController: NSObject {
             menu.addItem(openFolderItem)
         }
         
-        // Preferences
-        let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ",")
-        preferencesItem.target = self
-        menu.addItem(preferencesItem)
+        // Settings
+        let settingsItem = NSMenuItem(title: "Settings...", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
         
         menu.addItem(NSMenuItem.separator())
         
@@ -147,11 +147,12 @@ class StatusBarController: NSObject {
     
     @objc private func openMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
+        
+        // Post notification to open dashboard
+        NotificationCenter.default.post(name: NSNotification.Name("OpenDashboard"), object: nil)
+        
         if let window = NSApp.windows.first(where: { $0.title.contains("CloudSync") || $0.contentView != nil }) {
             window.makeKeyAndOrderFront(nil)
-        } else {
-            // If no window exists, just activate the app
-            NSApp.activate(ignoringOtherApps: true)
         }
     }
     
@@ -174,14 +175,11 @@ class StatusBarController: NSObject {
         NSWorkspace.shared.open(url)
     }
     
-    @objc private func showPreferences() {
+    @objc private func showSettings() {
         NSApp.activate(ignoringOtherApps: true)
         
-        if #available(macOS 13, *) {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        } else {
-            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
+        // Post notification to open settings
+        NotificationCenter.default.post(name: NSNotification.Name("OpenSettings"), object: nil)
         
         updateMenu()
     }

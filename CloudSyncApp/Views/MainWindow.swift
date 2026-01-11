@@ -59,6 +59,12 @@ struct MainWindow: View {
         .onReceive(NotificationCenter.default.publisher(for: .navigateToSettings)) { _ in
             selectedSection = .settings
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenSettings"))) { _ in
+            selectedSection = .settings
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenDashboard"))) { _ in
+            selectedSection = .dashboard
+        }
     }
     
     @ViewBuilder
