@@ -1051,9 +1051,9 @@ class RcloneManager {
                     "\(remoteName):\(remotePath)",
                     "--config", self.configPath,
                     "--progress",
-                    "--stats", "1s",
+                    "--stats", "500ms",  // Update every 500ms instead of 1s
                     "--stats-one-line",
-                    "-vv"
+                    "-v"  // Less verbose to reduce noise
                 ]
                 
                 // Add bandwidth limits
