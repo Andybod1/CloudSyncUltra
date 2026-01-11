@@ -540,35 +540,53 @@ struct FileBrowserView: View {
         panel.message = "Choose files to upload"
         panel.prompt = "Upload"
         
+        NSLog("[FileBrowserView] Opening file picker for upload")
+        
         panel.begin { response in
-            guard response == .OK, !panel.urls.isEmpty else { return }
+            NSLog("[FileBrowserView] File picker response: %d", response.rawValue)
+            guard response == .OK, !panel.urls.isEmpty else { 
+                NSLog("[FileBrowserView] File picker cancelled or no files selected")
+                return 
+            }
+            
+            NSLog("[FileBrowserView] Selected %d files for upload", panel.urls.count)
             
             Task { @MainActor in
                 isUploading = true
                 uploadProgress = 0
                 uploadSpeed = ""
                 
+                NSLog("[FileBrowserView] Starting upload task, remote type: %@", remote.type.rawValue)
+                
                 do {
                     for url in panel.urls {
+                        NSLog("[FileBrowserView] Processing file: %@", url.path)
+                        
                         if remote.type == .local {
                             // Local copy
                             let destPath = (browser.currentPath as NSString).appendingPathComponent(url.lastPathComponent)
                             try FileManager.default.copyItem(atPath: url.path, toPath: destPath)
                         } else {
                             // Cloud upload via rclone with progress
+                            NSLog("[FileBrowserView] Starting cloud upload to %@:%@", remote.rcloneName, browser.currentPath)
+                            
                             let progressStream = try await RcloneManager.shared.uploadWithProgress(
                                 localPath: url.path,
                                 remoteName: remote.rcloneName,
                                 remotePath: browser.currentPath
                             )
                             
+                            NSLog("[FileBrowserView] Got progress stream, starting iteration")
+                            
                             for await progress in progressStream {
                                 await MainActor.run {
                                     uploadProgress = progress.percentage
                                     uploadSpeed = progress.speed
-                                    print("UI Update: \(progress.percentage)% - \(progress.speed)")
+                                    NSLog("[FileBrowserView] UI Update: %.1f%% - %@", progress.percentage, progress.speed)
                                 }
                             }
+                            
+                            NSLog("[FileBrowserView] Progress stream completed")
                         }
                     }
                     
