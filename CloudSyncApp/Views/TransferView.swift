@@ -168,25 +168,55 @@ struct TransferView: View {
             
             for file in files {
                 do {
-                    let tempDir = NSTemporaryDirectory()
-                    try await RcloneManager.shared.download(remoteName: from.rcloneName, remotePath: file.path, localPath: tempDir)
-                    let tempFile = (tempDir as NSString).appendingPathComponent(file.name)
+                    // Determine source and destination paths
+                    let sourcePath = file.path
+                    let sourceRemote = from.type == .local ? "" : from.rcloneName
+                    let destRemote = to.type == .local ? "" : to.rcloneName
+                    let destPath = toPath.isEmpty ? "" : toPath
                     
-                    do {
-                        try await RcloneManager.shared.upload(localPath: tempFile, remoteName: to.rcloneName, remotePath: toPath)
+                    // For direct copy between remotes or from local to remote
+                    if from.type == .local {
+                        // Source is local file system - use absolute path
+                        try await RcloneManager.shared.upload(
+                            localPath: sourcePath,
+                            remoteName: destRemote.isEmpty ? "proton" : destRemote,
+                            remotePath: destPath
+                        )
                         successCount += 1
-                    } catch {
-                        let errStr = error.localizedDescription
-                        if errStr.contains("already exists") {
-                            skipCount += 1  // File exists, count as skipped
-                        } else {
-                            errorMessages.append("\(file.name): \(errStr)")
-                        }
+                    } else if to.type == .local {
+                        // Destination is local file system
+                        try await RcloneManager.shared.download(
+                            remoteName: sourceRemote,
+                            remotePath: sourcePath,
+                            localPath: destPath
+                        )
+                        successCount += 1
+                    } else {
+                        // Both are cloud remotes - use rclone copy between remotes
+                        // This is more efficient than download + upload
+                        let sourceSpec = "\(sourceRemote):\(sourcePath)"
+                        let destSpec = "\(destRemote):\(destPath)"
+                        
+                        // Use rclone copyto for direct cloud-to-cloud transfer
+                        try await RcloneManager.shared.copyBetweenRemotes(
+                            source: sourceSpec,
+                            destination: destSpec
+                        )
+                        successCount += 1
                     }
-                    
-                    try? FileManager.default.removeItem(atPath: tempFile)
                 } catch {
-                    errorMessages.append("\(file.name): \(error.localizedDescription)")
+                    let errStr = error.localizedDescription
+                    if errStr.contains("already exists") || errStr.contains("already exist") {
+                        skipCount += 1  // File exists, count as skipped
+                    } else {
+                        errorMessages.append("\(file.name): \(errStr)")
+                    }
+                }
+                
+                // Update progress
+                let progress = Double(successCount + skipCount + errorMessages.count) / Double(files.count) * 100
+                await MainActor.run {
+                    transferProgress.percentage = progress
                 }
             }
             

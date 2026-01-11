@@ -674,8 +674,20 @@ class RcloneManager {
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: self.rclonePath)
                 
-                let source = sourceRemote == "local" ? sourcePath : "\(sourceRemote):\(sourcePath)"
-                let dest = destRemote == "local" ? destPath : "\(destRemote):\(destPath)"
+                // Handle local paths - don't add remote prefix for local files
+                let source: String
+                if sourceRemote == "local" || sourceRemote.isEmpty {
+                    source = sourcePath
+                } else {
+                    source = "\(sourceRemote):\(sourcePath)"
+                }
+                
+                let dest: String
+                if destRemote == "local" || destRemote.isEmpty {
+                    dest = destPath
+                } else {
+                    dest = "\(destRemote):\(destPath)"
+                }
                 
                 var args = [
                     "copy",
@@ -1004,6 +1016,40 @@ class RcloneManager {
             "copy",
             localPath,
             "\(remoteName):\(remotePath)",
+            "--config", configPath,
+            "--progress",
+            "--ignore-existing"  // Skip files that already exist
+        ]
+        
+        // Add bandwidth limits
+        args.append(contentsOf: getBandwidthArgs())
+        
+        process.arguments = args
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        if process.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.syncFailed(errorString)
+        }
+    }
+    
+    /// Copy directly between two remotes (cloud to cloud) without downloading locally
+    func copyBetweenRemotes(source: String, destination: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        
+        var args = [
+            "copyto",
+            source,
+            destination,
             "--config", configPath,
             "--progress",
             "--ignore-existing"  // Skip files that already exist
