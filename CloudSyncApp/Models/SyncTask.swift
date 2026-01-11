@@ -116,9 +116,12 @@ struct SyncTask: Identifiable, Codable {
     }
     
     var formattedFilesTransferred: String {
-        if state == .running && filesTransferred == 0 && totalFiles > 0 {
-            // During active transfer, show progress differently
-            return "Transferring \(totalFiles) \(totalFiles == 1 ? "file" : "files")"
+        if state == .running && totalFiles > 0 {
+            // During active transfer, show current file being transferred
+            let currentFile = filesTransferred + 1 // Next file being worked on
+            if currentFile <= totalFiles {
+                return "File \(currentFile) of \(totalFiles)"
+            }
         }
         return "\(filesTransferred) / \(totalFiles) files"
     }
