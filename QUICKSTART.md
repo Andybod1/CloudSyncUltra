@@ -42,8 +42,10 @@ Press **⌘R** in Xcode or click the Play button.
 | Download | Right-click → Download |
 | Upload | Click Upload button, select files |
 | Delete | Select files, click 🗑️ or right-click → Delete |
-| New folder | Click 📁+ button |
+| New folder | Click 📁+ button or right-click empty space → New Folder |
+| Rename file | Right-click file → Rename |
 | Transfer | Drag between panes in Transfer view |
+| View modes | Use vertical buttons to switch between List/Grid |
 
 ## Need Help?
 

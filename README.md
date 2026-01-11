@@ -20,17 +20,25 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 ### 📁 File Management
 - **Dual-pane file browser** - Source and destination side-by-side
 - **Drag & drop transfers** - Simply drag files between cloud services
+- **Context menus** - Right-click for New Folder, Rename, Download, Delete
+- **List and Grid views** - Choose your preferred file display
 - **Download/Upload** - Transfer files to/from local storage
-- **Create folders** - Organize your cloud storage
+- **Create folders** - Organize your cloud storage with quick-access buttons
 - **Delete files/folders** - Clean up with confirmation dialogs
+- **Rename files** - Rename any file or folder
 - **Search** - Find files quickly across any cloud
 
 ### 🔄 Sync & Transfer
-- **Real-time progress bar** - Shows percentage, speed, and file count
+- **Real-time progress tracking** - Shows percentage, speed (MB/s), and file count
+- **Accurate file counters** - See exact progress (e.g., 100/100 files)
 - **Transfer modes** - Sync, Transfer, or Backup
+- **Cloud-to-cloud transfers** - Direct transfers between any cloud providers
+- **Local-to-cloud and cloud-to-local** - Full bidirectional support
 - **Smart error handling** - Graceful handling of existing files
 - **Cancel transfers** - Stop any operation mid-transfer
+- **Transfer history** - View all past transfers with speeds and file counts
 - **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
+- **Optimized performance** - Parallel transfers for faster multi-file operations
 
 ### 🔐 Security
 - **End-to-end encryption** - Optional client-side encryption
@@ -43,6 +51,8 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 - **Menu bar icon** - Quick access from anywhere
 - **Dashboard** - Quick overview with stats and activity
 - **Sidebar navigation** - Easy access to all cloud services
+- **Vertical view switchers** - Compact, space-efficient UI controls
+- **Right-click context menus** - Full macOS-style context menus throughout
 
 ### 📋 Task Management
 - **Scheduled syncs** - Set up recurring backup tasks
