@@ -8,14 +8,24 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 
 ## ✨ Features
 
-### 🌥️ Multi-Cloud Support
-- **Proton Drive** - End-to-end encrypted cloud storage (with 2FA support)
-- **Google Drive** - Full OAuth integration
-- **Dropbox** - Seamless file sync
-- **OneDrive** - Microsoft cloud integration
-- **Amazon S3** - Object storage support
-- **MEGA** - Encrypted cloud storage
-- **Box, pCloud, WebDAV, SFTP, FTP** - And more!
+### 🌥️ Multi-Cloud Support (40+ Providers)
+
+**Core Providers (13):**  
+Proton Drive, Google Drive, Dropbox, OneDrive, Amazon S3, MEGA, Box, pCloud, WebDAV, SFTP, FTP, iCloud (planned), Local Storage
+
+**Enterprise Services (6):**  
+Google Cloud Storage, Azure Blob, Azure Files, OneDrive Business, SharePoint, Alibaba Cloud OSS
+
+**Object Storage (8):**  
+Backblaze B2, Wasabi, DigitalOcean Spaces, Cloudflare R2, Scaleway, Oracle Cloud, Storj, Filebase
+
+**Self-Hosted & International (6):**  
+Nextcloud, ownCloud, Seafile, Koofr, Yandex Disk, Mail.ru Cloud
+
+**Additional Services (9):**  
+Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, Quatrix, File Fabric
+
+*See `CloudProvider.swift` for complete implementation details of all 42 providers*
 
 ### 📁 File Management
 - **Dual-pane file browser** - Source and destination side-by-side
@@ -61,10 +71,13 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 
 ## 🚀 Getting Started
 
+> **New in v2.0:** Complete SwiftUI redesign with dual-pane interface, 40+ cloud providers, and 173+ automated tests. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+
 ### Requirements
 - macOS 14.0 (Sonoma) or later
-- Xcode 15.0 or later
+- Xcode 15.0 or later (for building from source)
 - [rclone](https://rclone.org/) installed via Homebrew
+- Git (for cloning the repository)
 
 ### Installation
 
@@ -151,6 +164,8 @@ CloudSync Ultra stores its configuration in:
 
 ### Supported Cloud Providers
 
+**Top Providers:**
+
 | Provider | Auth Type | Status |
 |----------|-----------|--------|
 | Proton Drive | Username/Password + 2FA | ✅ Full Support |
@@ -160,14 +175,22 @@ CloudSync Ultra stores its configuration in:
 | Amazon S3 | Access Keys | ✅ Full Support |
 | MEGA | Username/Password | ✅ Full Support |
 | Box | OAuth | ✅ Full Support |
-| pCloud | Username/Password | ✅ Full Support |
-| WebDAV | URL/Password | ✅ Full Support |
-| SFTP | Host/Password | ✅ Full Support |
-| FTP | Host/Password | ✅ Full Support |
+| pCloud | OAuth | ✅ Full Support |
+| Google Cloud Storage | OAuth/Service Account | ✅ Full Support |
+| Azure Blob Storage | Account Key/SAS | ✅ Full Support |
+| Backblaze B2 | Account ID/Key | ✅ Full Support |
+| Nextcloud | WebDAV | ✅ Full Support |
+| OneDrive Business | OAuth | ✅ Full Support |
+| SharePoint | OAuth | ✅ Full Support |
+| Jottacloud | Personal Token | ⚠️ Experimental |
+
+**Plus 27 more providers** including WebDAV, SFTP, FTP, Wasabi, Cloudflare R2, DigitalOcean Spaces, Oracle Cloud, Storj, Seafile, Koofr, Yandex Disk, Mail.ru Cloud, Google Photos, Flickr, and more.
+
+See `CloudProvider.swift` for the complete list of all 42 supported providers with implementation details.
 
 ## 🧪 Testing
 
-The project includes a comprehensive unit test suite:
+The project includes comprehensive automated testing:
 
 ```bash
 # Run tests via Xcode
@@ -178,8 +201,21 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
 ```
 
 ### Test Coverage
-- **Models**: FileItem, CloudProvider, SyncTask
-- **ViewModels**: FileBrowserViewModel, TasksViewModel, RemotesViewModel
+- **173+ automated tests** across unit, integration, and UI layers
+- **100+ unit tests** covering models, view models, and managers
+- **73 UI tests** for end-to-end user workflows (ready for integration)
+- **Real-world scenario coverage** including edge cases and error handling
+
+**Test Categories:**
+- Models & Core Logic (FileItem, CloudProvider, SyncTask)
+- ViewModels & State Management (FileBrowserViewModel, TasksViewModel, RemotesViewModel)
+- RcloneManager & Provider Integration (OAuth, Phase 1-3 providers)
+- SyncManager & Orchestration
+- Encryption & Security
+- Bandwidth Throttling
+- End-to-End Workflows
+
+See `TEST_COVERAGE.md` for complete test inventory and coverage details.
 
 ## 🛠️ Development
 

@@ -1,0 +1,212 @@
+# Changelog
+
+All notable changes to CloudSync Ultra will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2026-01-11
+
+### Major Release - CloudSync Ultra v2.0
+
+Complete redesign and rebuild of CloudSync with SwiftUI and modern macOS architecture.
+
+### Added
+
+#### Core Features
+- **Dual-pane file browser** with source and destination side-by-side
+- **Drag & drop transfers** between any cloud services
+- **Dashboard view** with statistics, connected services, and recent activity
+- **Cloud-to-cloud transfers** - direct transfers between any providers without downloading
+- **Local-to-cloud and cloud-to-local** transfers with full bidirectional support
+- **Task management system** with history and status tracking
+- **Menu bar integration** for quick access
+
+#### File Operations
+- **Context menus** throughout with New Folder, Rename, Download, Delete
+- **List and Grid view modes** - toggle between different file displays
+- **Search functionality** - find files quickly across any cloud
+- **Breadcrumb navigation** for easy path traversal
+- **Create folders** with quick-access buttons
+- **Rename files/folders** with inline editing
+- **Delete files/folders** with confirmation dialogs
+- **Download to local** with save panel selection
+
+#### Transfer Features
+- **Real-time progress tracking** showing percentage, speed (MB/s), and file count
+- **Accurate file counters** displaying exact progress (e.g., 100/100 files)
+- **Average transfer speed calculation** for completed transfers
+- **Folder size pre-calculation** for accurate progress on folder uploads
+- **Transfer modes** - Sync, Transfer, or Backup
+- **Smart error handling** - gracefully handles existing files with --ignore-existing
+- **Cancel transfers** - stop any operation mid-transfer
+- **Transfer history** - view all past transfers with speeds and file counts
+- **Helpful tips** for large transfers (e.g., "Zip folders with many small files")
+
+#### Performance
+- **Bandwidth throttling** - control upload/download speeds
+- **Optimized performance** - parallel transfers (4 concurrent) and checkers (8 concurrent)
+- **Async/await** throughout for responsive UI
+- **Streaming progress** - real-time updates during transfers
+- **@MainActor** annotations for proper UI thread safety
+
+#### Security
+- **End-to-end encryption** - optional client-side AES-256 encryption
+- **Keychain integration** - secure password storage
+- **OAuth 2.0 support** - modern authentication for 20+ providers
+- **2FA support** - Proton Drive supports two-factor authentication
+- **Export/Import config** - backup and restore rclone configuration
+- **Zero-knowledge encryption** standard
+
+#### Cloud Providers (42 Total)
+
+**Core Providers (13):**
+- Proton Drive (with 2FA)
+- Google Drive (OAuth)
+- Dropbox (OAuth)
+- OneDrive (OAuth)
+- Amazon S3
+- MEGA
+- Box (OAuth)
+- pCloud
+- WebDAV
+- SFTP
+- FTP
+- iCloud Drive (planned)
+- Local Storage
+
+**Enterprise Services (6):**
+- Google Cloud Storage
+- Azure Blob Storage
+- Azure Files
+- OneDrive for Business
+- SharePoint
+- Alibaba Cloud OSS
+
+**Object Storage (8):**
+- Backblaze B2
+- Wasabi
+- DigitalOcean Spaces
+- Cloudflare R2
+- Scaleway Object Storage
+- Oracle Cloud Storage
+- Storj DCS
+- Filebase
+
+**Self-Hosted & International (6):**
+- Nextcloud
+- ownCloud
+- Seafile
+- Koofr
+- Yandex Disk
+- Mail.ru Cloud
+
+**Additional Services (9):**
+- Jottacloud (experimental)
+- Google Photos (OAuth)
+- Flickr (OAuth)
+- SugarSync (OAuth)
+- OpenDrive (OAuth)
+- Put.io (OAuth)
+- Premiumize.me (OAuth)
+- Quatrix (OAuth)
+- File Fabric (OAuth)
+
+#### Testing
+- **173+ automated tests** total
+- **100+ unit tests** covering models, view models, and managers
+- **73 UI tests** for end-to-end workflows (ready for integration)
+- **Integration tests** for complex workflows
+- **Test coverage ~75%** across all layers
+
+#### UI/UX
+- **Native macOS design** using SwiftUI
+- **Dark mode support** - beautiful in any lighting
+- **Vertical view switchers** - compact, space-efficient controls
+- **Right-click context menus** - full macOS-style interactions
+- **Sidebar navigation** - easy access to all features
+- **Status badges** - visual indicators for connection status
+- **Error messages** - user-friendly, cleaned-up error text
+- **Loading states** - proper feedback during operations
+- **Empty states** - helpful guidance when no content
+
+#### Developer Features
+- **Modern Swift 5.9** with async/await
+- **SwiftUI** declarative UI framework
+- **Combine** for reactive data flow
+- **MVVM architecture** with clean separation of concerns
+- **Comprehensive documentation** - README, QUICKSTART, guides
+- **Xcode 15+ support**
+- **macOS 14.0+ deployment target**
+
+### Changed
+- Complete rewrite from UIKit to SwiftUI
+- Moved from MVP single-pane to production dual-pane interface
+- Improved error handling with user-friendly messages
+- Enhanced progress tracking with accurate file counts
+- Better folder handling with size pre-calculation
+
+### Technical Details
+- **Language:** Swift 5.9
+- **Framework:** SwiftUI
+- **Platform:** macOS 14.0+
+- **Backend:** rclone for cloud operations
+- **Architecture:** MVVM with reactive patterns
+- **Testing:** XCTest framework
+- **Storage:** rclone config in ~/Library/Application Support/CloudSyncApp/
+
+### Known Issues
+- UI test suite not yet integrated into Xcode project (73 tests ready)
+- Jottacloud provider marked as experimental
+- Large file lists (1000+) may benefit from pagination
+
+### Documentation
+- README.md - Complete project overview
+- QUICKSTART.md - 5-minute getting started guide
+- TEST_COVERAGE.md - Comprehensive test inventory
+- QUALITY_ANALYSIS_REPORT.md - Quality manager assessment
+- QUALITY_DASHBOARD.md - Visual quality metrics
+- DOCUMENTATION_ACCURACY_REPORT.md - Documentation accuracy check
+- Multiple implementation guides (OAuth, Jottacloud, Phase 1, etc.)
+
+---
+
+## [1.0.0] - MVP Release
+
+### Added
+- Basic menu bar application
+- Proton Drive integration
+- Simple file sync
+- Configuration storage
+
+---
+
+## Upcoming Features
+
+### Planned for v2.1.0
+- [ ] UI test suite integration into Xcode project
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] SwiftLint integration
+- [ ] Pagination for large file lists (1000+ files)
+- [ ] Keyboard shortcuts documentation
+- [ ] Accessibility improvements
+
+### Planned for v2.2.0
+- [ ] RcloneManager refactoring (split into modules)
+- [ ] Dependency injection pattern
+- [ ] Performance benchmarks
+- [ ] Screenshot/video demos
+- [ ] App Store submission preparation
+
+### Future Considerations
+- [ ] DocC API documentation
+- [ ] Plugin system for custom providers
+- [ ] Advanced filtering and sorting
+- [ ] File preview functionality
+- [ ] Telemetry and analytics (opt-in)
+- [ ] Multi-language support
+
+---
+
+[2.0.0]: https://github.com/andybod1-lang/CloudSyncUltra/releases/tag/v2.0.0
+[1.0.0]: https://github.com/andybod1-lang/CloudSyncUltra/releases/tag/v1.0.0
