@@ -242,6 +242,12 @@ struct TransferView: View {
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
                                 transferProgress.speed = progress.speed
+                                
+                                // Update task progress too
+                                task.progress = progress.percentage / 100.0
+                                task.speed = progress.speed
+                                task.filesTransferred = successCount
+                                tasksVM.updateTask(task)
                             }
                         }
                         
