@@ -628,6 +628,13 @@ struct TransferFileBrowserPane: View {
     @State private var isDropTarget = false
     @State private var showingNewFolderDialog = false
     @State private var newFolderName = ""
+    @State private var showRenameSheet = false
+    @State private var renameFile: FileItem?
+    @State private var renameNewName = ""
+    @State private var showDeleteConfirm = false
+    @State private var showDeleteError = false
+    @State private var deleteError: String?
+    @State private var isDeleting = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -720,6 +727,33 @@ struct TransferFileBrowserPane: View {
                 onCreate: { createFolder() }
             )
         }
+        .sheet(isPresented: $showRenameSheet) {
+            if let file = renameFile {
+                RenameFileSheet(
+                    file: file,
+                    newName: $renameNewName,
+                    isRenaming: .constant(false),
+                    error: .constant(nil),
+                    onRename: { performRename() },
+                    onCancel: { showRenameSheet = false }
+                )
+            }
+        }
+        .alert("Delete Files?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                deleteSelectedFiles()
+            }
+        } message: {
+            Text("Are you sure you want to delete \(browser.selectedFiles.count) item(s)? This cannot be undone.")
+        }
+        .alert("Delete Error", isPresented: $showDeleteError) {
+            Button("OK") {
+                deleteError = nil
+            }
+        } message: {
+            Text(deleteError ?? "Unknown error")
+        }
     }
     
     private var fileListView: some View {
@@ -736,6 +770,23 @@ struct TransferFileBrowserPane: View {
                     if let file = browser.files.first(where: { selection.contains($0.id) }) {
                         browser.navigateToFile(file)
                     }
+                }
+                Divider()
+                if selection.count == 1 {
+                    Button("Rename") {
+                        if let file = browser.files.first(where: { selection.contains($0.id) }) {
+                            renameFile = file
+                            renameNewName = file.name
+                            showRenameSheet = true
+                        }
+                    }
+                }
+                Button("Download") {
+                    downloadSelectedFiles()
+                }
+                Divider()
+                Button("Delete", role: .destructive) {
+                    showDeleteConfirm = true
                 }
             } else {
                 // Context menu for empty space
@@ -789,6 +840,131 @@ struct TransferFileBrowserPane: View {
             } catch {
                 await MainActor.run {
                     browser.error = "Failed to create folder: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+    
+    private func downloadSelectedFiles() {
+        guard let remote = selectedRemote else { return }
+        let filesToDownload = browser.files.filter { browser.selectedFiles.contains($0.id) }
+        guard !filesToDownload.isEmpty else { return }
+        
+        // Show save panel
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Choose download location"
+        panel.prompt = "Download Here"
+        
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            
+            Task { @MainActor in
+                for file in filesToDownload {
+                    do {
+                        if remote.type == .local {
+                            // Local copy
+                            let destPath = url.appendingPathComponent(file.name).path
+                            try FileManager.default.copyItem(atPath: file.path, toPath: destPath)
+                        } else {
+                            // Cloud download via rclone
+                            try await RcloneManager.shared.download(
+                                remoteName: remote.rcloneName,
+                                remotePath: file.path,
+                                localPath: url.path
+                            )
+                        }
+                    } catch {
+                        deleteError = error.localizedDescription
+                        showDeleteError = true
+                        return
+                    }
+                }
+                
+                browser.selectedFiles.removeAll()
+                NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: url.path)
+            }
+        }
+    }
+    
+    private func deleteSelectedFiles() {
+        guard let remote = selectedRemote else { return }
+        let filesToDelete = browser.files.filter { browser.selectedFiles.contains($0.id) }
+        guard !filesToDelete.isEmpty else { return }
+        
+        isDeleting = true
+        
+        Task {
+            do {
+                for file in filesToDelete {
+                    if remote.type == .local {
+                        try FileManager.default.removeItem(atPath: file.path)
+                    } else {
+                        if file.isDirectory {
+                            try await RcloneManager.shared.deleteFolder(
+                                remoteName: remote.rcloneName,
+                                path: file.path
+                            )
+                        } else {
+                            try await RcloneManager.shared.deleteFile(
+                                remoteName: remote.rcloneName,
+                                path: file.path
+                            )
+                        }
+                    }
+                }
+                
+                await MainActor.run {
+                    isDeleting = false
+                    browser.selectedFiles.removeAll()
+                    browser.refresh()
+                }
+            } catch {
+                await MainActor.run {
+                    isDeleting = false
+                    deleteError = error.localizedDescription
+                    showDeleteError = true
+                }
+            }
+        }
+    }
+    
+    private func performRename() {
+        guard let remote = selectedRemote, let file = renameFile else { return }
+        guard !renameNewName.isEmpty, renameNewName != file.name else {
+            showRenameSheet = false
+            return
+        }
+        
+        Task {
+            do {
+                let parentPath = (file.path as NSString).deletingLastPathComponent
+                let newPath = parentPath.isEmpty ? renameNewName : "\(parentPath)/\(renameNewName)"
+                
+                if remote.type == .local {
+                    let oldURL = URL(fileURLWithPath: file.path)
+                    let newURL = URL(fileURLWithPath: newPath)
+                    try FileManager.default.moveItem(at: oldURL, to: newURL)
+                } else {
+                    try await RcloneManager.shared.renameFile(
+                        remoteName: remote.rcloneName,
+                        oldPath: file.path,
+                        newPath: newPath
+                    )
+                }
+                
+                await MainActor.run {
+                    showRenameSheet = false
+                    renameFile = nil
+                    renameNewName = ""
+                    browser.refresh()
+                }
+            } catch {
+                await MainActor.run {
+                    deleteError = error.localizedDescription
+                    showDeleteError = true
                 }
             }
         }
