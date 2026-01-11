@@ -626,10 +626,28 @@ struct TransferFileBrowserPane: View {
                 .disabled(selectedRemote == nil)
                 
                 Spacer()
-                Picker("View", selection: $browser.viewMode) {
-                    Image(systemName: "list.bullet").tag(FileBrowserViewModel.ViewMode.list)
-                    Image(systemName: "square.grid.2x2").tag(FileBrowserViewModel.ViewMode.grid)
-                }.pickerStyle(.segmented).frame(width: 80)
+                
+                VStack(spacing: 4) {
+                    Button {
+                        browser.viewMode = .list
+                    } label: {
+                        Image(systemName: "list.bullet")
+                            .frame(width: 24, height: 24)
+                    }
+                    .buttonStyle(.bordered)
+                    .background(browser.viewMode == .list ? Color.accentColor.opacity(0.2) : Color.clear)
+                    .cornerRadius(6)
+                    
+                    Button {
+                        browser.viewMode = .grid
+                    } label: {
+                        Image(systemName: "square.grid.2x2")
+                            .frame(width: 24, height: 24)
+                    }
+                    .buttonStyle(.bordered)
+                    .background(browser.viewMode == .grid ? Color.accentColor.opacity(0.2) : Color.clear)
+                    .cornerRadius(6)
+                }
             }
             .padding(8).background(Color(NSColor.controlBackgroundColor))
             
