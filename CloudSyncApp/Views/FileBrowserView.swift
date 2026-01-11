@@ -246,7 +246,7 @@ struct FileBrowserView: View {
         VStack(spacing: 16) {
             Spacer()
             
-            if isUploading && uploadProgress > 0 {
+            if isUploading {
                 // Show upload progress
                 VStack(spacing: 12) {
                     ProgressView(value: uploadProgress, total: 100)
@@ -264,7 +264,7 @@ struct FileBrowserView: View {
             } else {
                 // Show generic spinner
                 ProgressView()
-                Text(isUploading ? "Uploading..." : (isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading...")))
+                Text(isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading..."))
                     .foregroundColor(.secondary)
             }
             
