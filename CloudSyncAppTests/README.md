@@ -56,6 +56,17 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Configuration changes
    - Real-world scenario tests (video call, mobile hotspot, office hours)
 
+9. **EncryptionManagerTests.swift** - Comprehensive E2EE tests (47 tests)
+   - Keychain integration (password and salt storage)
+   - Secure password/salt generation
+   - Configuration state management
+   - Enable/disable functionality
+   - Credential deletion
+   - Special characters and unicode support
+   - Settings persistence
+   - Complete setup/teardown workflows
+   - Thread safety and edge cases
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode
