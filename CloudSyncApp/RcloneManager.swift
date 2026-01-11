@@ -247,6 +247,116 @@ class RcloneManager {
         )
     }
     
+    // MARK: - Phase 1, Week 2: Object Storage Providers
+    
+    func setupBackblazeB2(remoteName: String, accountId: String, applicationKey: String) async throws {
+        try await createRemote(
+            name: remoteName,
+            type: "b2",
+            parameters: [
+                "account": accountId,
+                "key": applicationKey
+            ]
+        )
+    }
+    
+    func setupWasabi(remoteName: String, accessKey: String, secretKey: String, region: String = "us-east-1", endpoint: String? = nil) async throws {
+        var params: [String: String] = [
+            "type": "s3",
+            "provider": "Wasabi",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "region": region
+        ]
+        
+        // Wasabi endpoint format: s3.{region}.wasabisys.com
+        let wasabiEndpoint = endpoint ?? "https://s3.\(region).wasabisys.com"
+        params["endpoint"] = wasabiEndpoint
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupDigitalOceanSpaces(remoteName: String, accessKey: String, secretKey: String, region: String = "nyc3", endpoint: String? = nil) async throws {
+        var params: [String: String] = [
+            "type": "s3",
+            "provider": "DigitalOcean",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "region": region
+        ]
+        
+        // DO Spaces endpoint format: {region}.digitaloceanspaces.com
+        let doEndpoint = endpoint ?? "https://\(region).digitaloceanspaces.com"
+        params["endpoint"] = doEndpoint
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupCloudflareR2(remoteName: String, accountId: String, accessKey: String, secretKey: String) async throws {
+        let params: [String: String] = [
+            "type": "s3",
+            "provider": "Cloudflare",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "endpoint": "https://\(accountId).r2.cloudflarestorage.com",
+            "region": "auto"
+        ]
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupScaleway(remoteName: String, accessKey: String, secretKey: String, region: String = "fr-par", endpoint: String? = nil) async throws {
+        var params: [String: String] = [
+            "type": "s3",
+            "provider": "Scaleway",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "region": region
+        ]
+        
+        // Scaleway endpoint format: s3.{region}.scw.cloud
+        let scalewayEndpoint = endpoint ?? "https://s3.\(region).scw.cloud"
+        params["endpoint"] = scalewayEndpoint
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupOracleCloud(remoteName: String, namespace: String, compartment: String, region: String, accessKey: String, secretKey: String) async throws {
+        let params: [String: String] = [
+            "type": "s3",
+            "provider": "Other",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "region": region,
+            "endpoint": "https://\(namespace).compat.objectstorage.\(region).oraclecloud.com"
+        ]
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
+    func setupStorj(remoteName: String, accessGrant: String) async throws {
+        try await createRemote(
+            name: remoteName,
+            type: "storj",
+            parameters: [
+                "access_grant": accessGrant
+            ]
+        )
+    }
+    
+    func setupFilebase(remoteName: String, accessKey: String, secretKey: String) async throws {
+        let params: [String: String] = [
+            "type": "s3",
+            "provider": "Other",
+            "access_key_id": accessKey,
+            "secret_access_key": secretKey,
+            "endpoint": "https://s3.filebase.com",
+            "region": "us-east-1"
+        ]
+        
+        try await createRemote(name: remoteName, type: "s3", parameters: params)
+    }
+    
     // MARK: - Generic Remote Creation
     
     private func createRemote(name: String, type: String, parameters: [String: String]) async throws {

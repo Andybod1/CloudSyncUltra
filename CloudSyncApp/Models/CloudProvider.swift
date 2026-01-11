@@ -31,6 +31,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case yandexDisk = "yandex"
     case mailRuCloud = "mailru"
     
+    // Phase 1, Week 2: Object Storage
+    case backblazeB2 = "b2"
+    case wasabi = "wasabi"
+    case digitalOceanSpaces = "spaces"
+    case cloudflareR2 = "r2"
+    case scaleway = "scaleway"
+    case oracleCloud = "oraclecloud"
+    case storj = "storj"
+    case filebase = "filebase"
+    
     var id: String { rawValue }
     
     var displayName: String {
@@ -56,6 +66,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .koofr: return "Koofr"
         case .yandexDisk: return "Yandex Disk"
         case .mailRuCloud: return "Mail.ru Cloud"
+        
+        // Phase 1, Week 2
+        case .backblazeB2: return "Backblaze B2"
+        case .wasabi: return "Wasabi"
+        case .digitalOceanSpaces: return "DigitalOcean Spaces"
+        case .cloudflareR2: return "Cloudflare R2"
+        case .scaleway: return "Scaleway"
+        case .oracleCloud: return "Oracle Cloud"
+        case .storj: return "Storj"
+        case .filebase: return "Filebase"
         }
     }
     
@@ -82,6 +102,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .koofr: return "arrow.triangle.2.circlepath.circle"
         case .yandexDisk: return "y.circle.fill"
         case .mailRuCloud: return "envelope.circle.fill"
+        
+        // Phase 1, Week 2
+        case .backblazeB2: return "b.circle.fill"
+        case .wasabi: return "w.circle.fill"
+        case .digitalOceanSpaces: return "water.waves"
+        case .cloudflareR2: return "r.circle.fill"
+        case .scaleway: return "s.circle.fill"
+        case .oracleCloud: return "o.circle.fill"
+        case .storj: return "lock.trianglebadge.exclamationmark.fill"
+        case .filebase: return "square.stack.3d.up.fill"
         }
     }
     
@@ -108,6 +138,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .koofr: return Color(red: 0.2, green: 0.6, blue: 0.86)
         case .yandexDisk: return Color(red: 1.0, green: 0.2, blue: 0.0)
         case .mailRuCloud: return Color(red: 0.05, green: 0.52, blue: 0.97)
+        
+        // Phase 1, Week 2
+        case .backblazeB2: return Color(red: 0.9, green: 0.11, blue: 0.14)
+        case .wasabi: return Color(red: 0.0, green: 0.71, blue: 0.31)
+        case .digitalOceanSpaces: return Color(red: 0.0, green: 0.42, blue: 0.98)
+        case .cloudflareR2: return Color(red: 0.97, green: 0.49, blue: 0.09)
+        case .scaleway: return Color(red: 0.31, green: 0.15, blue: 0.55)
+        case .oracleCloud: return Color(red: 0.93, green: 0.22, blue: 0.13)
+        case .storj: return Color(red: 0.0, green: 0.47, blue: 1.0)
+        case .filebase: return Color(red: 0.18, green: 0.8, blue: 0.44)
         }
     }
     
@@ -134,6 +174,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .koofr: return "koofr"
         case .yandexDisk: return "yandex"
         case .mailRuCloud: return "mailru"
+        
+        // Phase 1, Week 2
+        case .backblazeB2: return "b2"
+        case .wasabi: return "s3"
+        case .digitalOceanSpaces: return "s3"
+        case .cloudflareR2: return "s3"
+        case .scaleway: return "s3"
+        case .oracleCloud: return "s3"
+        case .storj: return "storj"
+        case .filebase: return "s3"
         }
     }
     
@@ -159,6 +209,16 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .koofr: return "koofr"
         case .yandexDisk: return "yandex"
         case .mailRuCloud: return "mailru"
+        
+        // Phase 1, Week 2
+        case .backblazeB2: return "b2"
+        case .wasabi: return "wasabi"
+        case .digitalOceanSpaces: return "spaces"
+        case .cloudflareR2: return "r2"
+        case .scaleway: return "scaleway"
+        case .oracleCloud: return "oraclecloud"
+        case .storj: return "storj"
+        case .filebase: return "filebase"
         
         default: return rawValue
         }

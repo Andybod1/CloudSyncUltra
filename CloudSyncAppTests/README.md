@@ -111,6 +111,17 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - CloudRemote integration tests
    - Edge cases and sorting
 
+14. **Phase1Week2ProvidersTests.swift** - Object storage providers tests (66 tests)
+   - Provider properties for 8 object storage providers
+   - Provider count verification (19 → 27 providers)
+   - S3 compatibility tests (6 S3-compatible providers)
+   - Native protocol tests (B2, Storj)
+   - Brand color accuracy
+   - Codable support and CloudRemote integration
+   - Protocol conformance tests
+   - S3 endpoint validation for each provider
+   - Comprehensive validation (unique names, non-empty properties)
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode
