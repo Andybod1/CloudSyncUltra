@@ -161,6 +161,22 @@ struct TransferView: View {
         let totalSize = files.reduce(0) { $0 + $1.size }
         transferProgress.start(itemCount: files.count, totalSize: totalSize, sourceName: from.name, destName: to.name)
         
+        // Create task for history
+        let taskName = files.count == 1 ? files[0].name : "\(files.count) items"
+        var task = tasksVM.createTask(
+            name: taskName,
+            type: .transfer,
+            sourceRemote: from.name,
+            sourcePath: fromPath,
+            destinationRemote: to.name,
+            destinationPath: toPath
+        )
+        task.totalFiles = files.count
+        task.totalBytes = totalSize
+        task.startedAt = Date()
+        task.state = .running
+        tasksVM.updateTask(task)
+        
         Task {
             var successCount = 0
             var skipCount = 0
@@ -221,13 +237,29 @@ struct TransferView: View {
             }
             
             await MainActor.run {
+                // Update final task state
+                task.completedAt = Date()
+                task.filesTransferred = successCount
+                task.bytesTransferred = totalSize
+                task.progress = 1.0
+                
                 if errorMessages.isEmpty {
+                    // Mark task as completed
+                    task.state = .completed
+                    tasksVM.updateTask(task)
+                    tasksVM.moveToHistory(task)
+                    
                     if skipCount > 0 {
                         transferProgress.complete(success: true, message: "\(successCount) transferred, \(skipCount) skipped (already exist)")
                     } else {
                         transferProgress.complete(success: true)
                     }
                 } else {
+                    // Mark task as failed
+                    task.state = .failed
+                    task.errorMessage = errorMessages.joined(separator: "; ")
+                    tasksVM.updateTask(task)
+                    tasksVM.moveToHistory(task)
                     transferProgress.complete(success: false, error: errorMessages.first)
                 }
                 srcBrowser.deselectAll()

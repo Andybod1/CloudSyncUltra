@@ -1031,7 +1031,8 @@ class RcloneManager {
             "\(remoteName):\(remotePath)",
             "--config", configPath,
             "--progress",
-            "--verbose"
+            "--verbose",
+            "--stats", "1s"
         ]
         
         // Add bandwidth limits
@@ -1044,6 +1045,8 @@ class RcloneManager {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
         
+        print("[RcloneManager] Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
+        
         try process.run()
         process.waitUntilExit()
         
@@ -1053,12 +1056,18 @@ class RcloneManager {
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
         
+        print("[RcloneManager] Upload output: \(outputString)")
+        print("[RcloneManager] Upload errors: \(errorString)")
+        print("[RcloneManager] Exit code: \(process.terminationStatus)")
+        
         // Check for specific scenarios
         let combinedOutput = outputString + errorString
         
         // If file exists, rclone will show "There was nothing to transfer"
         if combinedOutput.contains("There was nothing to transfer") || 
-           combinedOutput.contains("Unchanged skipping") {
+           combinedOutput.contains("Unchanged skipping") ||
+           combinedOutput.contains("Transferred:") && combinedOutput.contains("0 / 0") {
+            print("[RcloneManager] File appears to already exist")
             throw RcloneError.syncFailed("File already exists at destination")
         }
         
