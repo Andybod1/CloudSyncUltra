@@ -668,6 +668,90 @@ class RcloneManager {
         }
     }
     
+    /// Sync between any two remotes with encryption support
+    /// - Parameters:
+    ///   - sourceRemote: Source remote name (can be crypt remote for decryption)
+    ///   - sourcePath: Path on source remote
+    ///   - destRemote: Destination remote name (can be crypt remote for encryption)
+    ///   - destPath: Path on destination remote
+    ///   - mode: Sync mode (oneWay or biDirectional)
+    func syncBetweenRemotes(
+        sourceRemote: String,
+        sourcePath: String,
+        destRemote: String,
+        destPath: String,
+        mode: SyncMode = .oneWay
+    ) async throws -> AsyncStream<SyncProgress> {
+        return AsyncStream { continuation in
+            Task {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: self.rclonePath)
+                
+                // Build source and destination strings
+                let source = sourceRemote.isEmpty || sourceRemote == "local" ? sourcePath : "\(sourceRemote):\(sourcePath)"
+                let dest = destRemote.isEmpty || destRemote == "local" ? destPath : "\(destRemote):\(destPath)"
+                
+                var args: [String] = []
+                
+                switch mode {
+                case .oneWay:
+                    args = [
+                        "sync",
+                        source,
+                        dest,
+                        "--config", self.configPath,
+                        "--progress",
+                        "--stats", "1s",
+                        "--transfers", "4",
+                        "--checkers", "8",
+                        "--verbose"
+                    ]
+                case .biDirectional:
+                    args = [
+                        "bisync",
+                        source,
+                        dest,
+                        "--config", self.configPath,
+                        "--resilient",
+                        "--recover",
+                        "--conflict-resolve", "newer",
+                        "--conflict-loser", "num",
+                        "--verbose",
+                        "--max-delete", "50"
+                    ]
+                }
+                
+                // Add bandwidth limits
+                args.append(contentsOf: self.getBandwidthArgs())
+                
+                process.arguments = args
+                
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = pipe
+                
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        if let output = String(data: data, encoding: .utf8) {
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
+                        }
+                    }
+                }
+                
+                try process.run()
+                self.process = process
+                
+                process.waitUntilExit()
+                
+                pipe.fileHandleForReading.readabilityHandler = nil
+                continuation.finish()
+            }
+        }
+    }
+    
     func copyFiles(from sourcePath: String, to destPath: String, sourceRemote: String, destRemote: String) async throws -> AsyncStream<SyncProgress> {
         return AsyncStream { continuation in
             Task {

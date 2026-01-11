@@ -18,6 +18,7 @@ struct EncryptionModal: View {
     @State private var encryptFolders = true
     @State private var errorMessage: String?
     @State private var isProcessing = false
+    @State private var showMatchStatus = false
     
     // Password validation states
     private var passwordsMatch: Bool {
@@ -81,16 +82,27 @@ struct EncryptionModal: View {
                         SecureField("Confirm password", text: $confirmPassword)
                             .textFieldStyle(.roundedBorder)
                             .frame(height: 32)
+                            .onChange(of: confirmPassword) { _, _ in
+                                // Reset match status, will show after delay
+                                showMatchStatus = false
+                                
+                                // Delay showing match status by 1 second
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    if !confirmPassword.isEmpty {
+                                        showMatchStatus = true
+                                    }
+                                }
+                            }
                         
-                        if !confirmPassword.isEmpty {
+                        if showMatchStatus && !confirmPassword.isEmpty {
                             Image(systemName: passwordsMatch ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundColor(passwordsMatch ? .green : .red)
                                 .help(passwordsMatch ? "Passwords match" : "Passwords do not match")
                         }
                     }
                     
-                    // Match status text
-                    if !confirmPassword.isEmpty {
+                    // Match status text (with delay)
+                    if showMatchStatus && !confirmPassword.isEmpty {
                         HStack(spacing: 4) {
                             if passwordsMatch {
                                 Image(systemName: "checkmark")

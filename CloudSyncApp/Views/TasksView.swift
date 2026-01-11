@@ -124,14 +124,50 @@ struct TaskCard: View {
                     .frame(width: 32)
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(task.name)
-                        .font(.headline)
+                    HStack(spacing: 6) {
+                        Text(task.name)
+                            .font(.headline)
+                        
+                        // Encryption badge
+                        if task.hasEncryption {
+                            HStack(spacing: 2) {
+                                Image(systemName: "lock.fill")
+                                    .font(.caption2)
+                                Text("E2E")
+                                    .font(.caption2)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(4)
+                        }
+                    }
                     
                     HStack(spacing: 4) {
-                        Text(task.sourceRemote)
+                        // Source with encryption indicator
+                        HStack(spacing: 2) {
+                            if task.encryptSource {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.green)
+                            }
+                            Text(task.sourceRemote)
+                        }
+                        
                         Image(systemName: "arrow.right")
                             .font(.caption)
-                        Text(task.destinationRemote)
+                        
+                        // Destination with encryption indicator
+                        HStack(spacing: 2) {
+                            if task.encryptDestination {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.green)
+                            }
+                            Text(task.destinationRemote)
+                        }
                     }
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -291,6 +327,22 @@ struct NewTaskSheet: View {
     @State private var isScheduled = false
     @State private var scheduleInterval: Double = 3600
     
+    // Encryption
+    @State private var encryptSource = false
+    @State private var encryptDestination = false
+    @State private var showSourceEncryptionSetup = false
+    @State private var showDestEncryptionSetup = false
+    
+    private var sourceHasEncryption: Bool {
+        guard let remote = sourceRemote else { return false }
+        return EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
+    }
+    
+    private var destHasEncryption: Bool {
+        guard let remote = destRemote else { return false }
+        return EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -328,8 +380,36 @@ struct NewTaskSheet: View {
                                 .tag(remote as CloudRemote?)
                         }
                     }
+                    .onChange(of: sourceRemote) { _, newValue in
+                        // Auto-enable encryption if configured
+                        if let remote = newValue {
+                            encryptSource = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+                        }
+                    }
                     
                     TextField("Path", text: $sourcePath)
+                    
+                    // Encryption toggle for source
+                    if sourceRemote != nil {
+                        HStack {
+                            Toggle(isOn: $encryptSource) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: encryptSource ? "lock.fill" : "lock.open")
+                                        .foregroundColor(encryptSource ? .green : .secondary)
+                                    Text("Encrypt Source")
+                                }
+                            }
+                            .disabled(!sourceHasEncryption)
+                            
+                            if !sourceHasEncryption {
+                                Button("Setup") {
+                                    showSourceEncryptionSetup = true
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                            }
+                        }
+                    }
                 }
                 
                 Section("Destination") {
@@ -340,8 +420,54 @@ struct NewTaskSheet: View {
                                 .tag(remote as CloudRemote?)
                         }
                     }
+                    .onChange(of: destRemote) { _, newValue in
+                        // Auto-enable encryption if configured
+                        if let remote = newValue {
+                            encryptDestination = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+                        }
+                    }
                     
                     TextField("Path", text: $destPath)
+                    
+                    // Encryption toggle for destination
+                    if destRemote != nil {
+                        HStack {
+                            Toggle(isOn: $encryptDestination) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: encryptDestination ? "lock.fill" : "lock.open")
+                                        .foregroundColor(encryptDestination ? .green : .secondary)
+                                    Text("Encrypt Destination")
+                                }
+                            }
+                            .disabled(!destHasEncryption)
+                            
+                            if !destHasEncryption {
+                                Button("Setup") {
+                                    showDestEncryptionSetup = true
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                            }
+                        }
+                    }
+                }
+                
+                // Encryption info banner
+                if encryptSource || encryptDestination {
+                    Section {
+                        HStack(spacing: 8) {
+                            Image(systemName: "lock.shield.fill")
+                                .foregroundColor(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("End-to-End Encryption Enabled")
+                                    .fontWeight(.medium)
+                                Text(encryptionDescription)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
                 
                 Section("Schedule") {
@@ -375,7 +501,31 @@ struct NewTaskSheet: View {
             }
             .padding()
         }
-        .frame(width: 500, height: 550)
+        .frame(width: 500, height: 620)
+        .sheet(isPresented: $showSourceEncryptionSetup) {
+            if let remote = sourceRemote {
+                EncryptionSetupSheet(remote: remote) {
+                    encryptSource = true
+                }
+            }
+        }
+        .sheet(isPresented: $showDestEncryptionSetup) {
+            if let remote = destRemote {
+                EncryptionSetupSheet(remote: remote) {
+                    encryptDestination = true
+                }
+            }
+        }
+    }
+    
+    private var encryptionDescription: String {
+        if encryptSource && encryptDestination {
+            return "Files will be decrypted from source and encrypted to destination"
+        } else if encryptSource {
+            return "Files will be decrypted from encrypted source"
+        } else {
+            return "Files will be encrypted before uploading to destination"
+        }
     }
     
     private var isValid: Bool {
@@ -394,6 +544,10 @@ struct NewTaskSheet: View {
             destinationPath: destPath.isEmpty ? "/" : destPath
         )
         
+        // Set encryption flags
+        task.encryptSource = encryptSource
+        task.encryptDestination = encryptDestination
+        
         if isScheduled {
             task.isScheduled = true
             task.scheduleInterval = scheduleInterval
@@ -401,6 +555,68 @@ struct NewTaskSheet: View {
         
         tasksVM.updateTask(task)
         dismiss()
+    }
+}
+
+// MARK: - Encryption Setup Sheet (for Tasks)
+
+struct EncryptionSetupSheet: View {
+    let remote: CloudRemote
+    let onComplete: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Image(systemName: remote.displayIcon)
+                    .foregroundColor(remote.displayColor)
+                Text("Setup Encryption for \(remote.name)")
+                    .font(.headline)
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+            
+            Divider()
+            
+            EncryptionModal { config in
+                Task {
+                    await setupEncryption(config: config)
+                }
+            }
+        }
+    }
+    
+    private func setupEncryption(config: EncryptionConfig) async {
+        do {
+            let remoteName = remote.rcloneName
+            let salt = EncryptionManager.shared.generateSecureSalt()
+            
+            let remoteConfig = RemoteEncryptionConfig(
+                password: config.password,
+                salt: salt,
+                encryptFilenames: config.encryptFilenames,
+                encryptFolders: config.encryptFolders
+            )
+            
+            try await RcloneManager.shared.setupCryptRemote(
+                for: remoteName,
+                config: remoteConfig
+            )
+            
+            EncryptionManager.shared.setEncryptionEnabled(true, for: remoteName)
+            
+            await MainActor.run {
+                onComplete()
+                dismiss()
+            }
+        } catch {
+            print("[EncryptionSetupSheet] Setup failed: \(error)")
+        }
     }
 }
 
@@ -419,8 +635,25 @@ struct TaskDetailSheet: View {
                     .font(.title2)
                 
                 VStack(alignment: .leading) {
-                    Text(task.name)
-                        .font(.headline)
+                    HStack(spacing: 6) {
+                        Text(task.name)
+                            .font(.headline)
+                        
+                        if task.hasEncryption {
+                            HStack(spacing: 2) {
+                                Image(systemName: "lock.fill")
+                                    .font(.caption2)
+                                Text("E2E")
+                                    .font(.caption2)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(4)
+                        }
+                    }
                     Text(task.type.rawValue)
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -446,9 +679,16 @@ struct TaskDetailSheet: View {
                     GroupBox("Route") {
                         HStack {
                             VStack(alignment: .leading) {
-                                Text("Source")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                HStack(spacing: 4) {
+                                    Text("Source")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    if task.encryptSource {
+                                        Image(systemName: "lock.fill")
+                                            .font(.caption2)
+                                            .foregroundColor(.green)
+                                    }
+                                }
                                 Text(task.sourceRemote)
                                     .fontWeight(.medium)
                                 Text(task.sourcePath)
@@ -464,9 +704,16 @@ struct TaskDetailSheet: View {
                             Spacer()
                             
                             VStack(alignment: .trailing) {
-                                Text("Destination")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                HStack(spacing: 4) {
+                                    if task.encryptDestination {
+                                        Image(systemName: "lock.fill")
+                                            .font(.caption2)
+                                            .foregroundColor(.green)
+                                    }
+                                    Text("Destination")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                                 Text(task.destinationRemote)
                                     .fontWeight(.medium)
                                 Text(task.destinationPath)
@@ -475,6 +722,33 @@ struct TaskDetailSheet: View {
                             }
                         }
                         .padding(8)
+                    }
+                    
+                    // Encryption info
+                    if task.hasEncryption {
+                        GroupBox("Encryption") {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "lock.shield.fill")
+                                        .foregroundColor(.green)
+                                    Text("End-to-End Encryption Active")
+                                        .fontWeight(.medium)
+                                }
+                                
+                                if task.encryptSource {
+                                    Label("Source is encrypted (decrypting on read)", systemImage: "arrow.down.circle")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if task.encryptDestination {
+                                    Label("Destination is encrypted (encrypting on write)", systemImage: "arrow.up.circle")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(8)
+                        }
                     }
                     
                     // Progress

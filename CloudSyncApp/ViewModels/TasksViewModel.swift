@@ -82,27 +82,54 @@ class TasksViewModel: ObservableObject {
         updatedTask.startedAt = Date()
         updateTask(updatedTask)
         
+        // Log encryption status
+        if task.hasEncryption {
+            addLog(taskId: task.id, level: .info, message: "🔐 E2E encryption enabled")
+            if task.encryptSource {
+                addLog(taskId: task.id, level: .info, message: "Source: decrypting from \(task.effectiveSourceRemote)")
+            }
+            if task.encryptDestination {
+                addLog(taskId: task.id, level: .info, message: "Destination: encrypting to \(task.effectiveDestinationRemote)")
+            }
+        }
+        
         addLog(taskId: task.id, level: .info, message: "Task started")
+        
+        // Use effective remote names (crypt or base) based on encryption settings
+        let sourceRemote = task.effectiveSourceRemote
+        let destRemote = task.effectiveDestinationRemote
         
         // Execute sync via RcloneManager
         do {
-            let progressStream = try await RcloneManager.shared.sync(
-                localPath: task.sourcePath,
-                remotePath: task.destinationPath,
-                mode: task.type == .sync ? .biDirectional : .oneWay,
-                encrypted: false
+            let progressStream = try await RcloneManager.shared.syncBetweenRemotes(
+                sourceRemote: sourceRemote,
+                sourcePath: task.sourcePath,
+                destRemote: destRemote,
+                destPath: task.destinationPath,
+                mode: task.type == .sync ? .biDirectional : .oneWay
             )
             
             for await progress in progressStream {
                 updatedTask.progress = progress.percentage / 100
                 updatedTask.speed = progress.speed
+                if let transferred = progress.filesTransferred {
+                    updatedTask.filesTransferred = transferred
+                }
+                if let total = progress.totalFiles {
+                    updatedTask.totalFiles = total
+                }
                 updateTask(updatedTask)
             }
             
             updatedTask.state = .completed
             updatedTask.completedAt = Date()
             updatedTask.progress = 1.0
-            addLog(taskId: task.id, level: .info, message: "Task completed successfully")
+            
+            if task.hasEncryption {
+                addLog(taskId: task.id, level: .info, message: "🔐 Task completed with encryption")
+            } else {
+                addLog(taskId: task.id, level: .info, message: "Task completed successfully")
+            }
             
         } catch {
             updatedTask.state = .failed

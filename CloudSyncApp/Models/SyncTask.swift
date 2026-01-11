@@ -67,6 +67,10 @@ struct SyncTask: Identifiable, Codable {
     var nextRunAt: Date?
     var metadata: [String: String]?  // For storing additional information like folder flags
     
+    // Encryption settings
+    var encryptSource: Bool
+    var encryptDestination: Bool
+    
     init(
         id: UUID = UUID(),
         name: String,
@@ -74,7 +78,9 @@ struct SyncTask: Identifiable, Codable {
         sourceRemote: String,
         sourcePath: String,
         destinationRemote: String,
-        destinationPath: String
+        destinationPath: String,
+        encryptSource: Bool = false,
+        encryptDestination: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -94,6 +100,35 @@ struct SyncTask: Identifiable, Codable {
         self.createdAt = Date()
         self.isScheduled = false
         self.metadata = nil
+        self.encryptSource = encryptSource
+        self.encryptDestination = encryptDestination
+    }
+    
+    /// Get effective source remote name (crypt or base)
+    var effectiveSourceRemote: String {
+        if encryptSource {
+            let baseName = sourceRemote.lowercased().replacingOccurrences(of: " ", with: "")
+            if EncryptionManager.shared.isEncryptionConfigured(for: baseName) {
+                return EncryptionManager.shared.getCryptRemoteName(for: baseName)
+            }
+        }
+        return sourceRemote.lowercased().replacingOccurrences(of: " ", with: "")
+    }
+    
+    /// Get effective destination remote name (crypt or base)
+    var effectiveDestinationRemote: String {
+        if encryptDestination {
+            let baseName = destinationRemote.lowercased().replacingOccurrences(of: " ", with: "")
+            if EncryptionManager.shared.isEncryptionConfigured(for: baseName) {
+                return EncryptionManager.shared.getCryptRemoteName(for: baseName)
+            }
+        }
+        return destinationRemote.lowercased().replacingOccurrences(of: " ", with: "")
+    }
+    
+    /// Check if any encryption is enabled
+    var hasEncryption: Bool {
+        encryptSource || encryptDestination
     }
     
     var formattedProgress: String {
