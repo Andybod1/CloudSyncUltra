@@ -268,22 +268,28 @@ struct TransferView: View {
                         var lastProgress: Double = 0
                         for await progress in progressStream {
                             lastProgress = progress.percentage
-                            log("Progress: \(progress.percentage)% - \(progress.speed)")
+                            log("Progress: \(progress.percentage)% - \(progress.speed) - Files: \(progress.filesTransferred ?? 0)/\(progress.totalFiles ?? 0)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
                                 transferProgress.speed = progress.speed
                                 
-                                // Update task progress too
+                                // Update task progress
                                 task.progress = progress.percentage / 100.0
                                 task.speed = progress.speed
                                 
-                                // Calculate bytes transferred for current file
-                                let currentFileBytes = Int64(Double(file.size) * (progress.percentage / 100.0))
-                                let previousFilesBytes = files.prefix(index).reduce(Int64(0)) { $0 + $1.size }
-                                task.bytesTransferred = previousFilesBytes + currentFileBytes
-                                
-                                // Don't update file count during transfer - wait until complete
-                                task.filesTransferred = successCount
+                                // If rclone reports file counts (for directories), use those
+                                if let transferred = progress.filesTransferred, let total = progress.totalFiles {
+                                    task.filesTransferred = transferred
+                                    if task.totalFiles != total {
+                                        task.totalFiles = total  // Update total if rclone found more/fewer files
+                                    }
+                                } else {
+                                    // For single files, calculate bytes transferred
+                                    let currentFileBytes = Int64(Double(file.size) * (progress.percentage / 100.0))
+                                    let previousFilesBytes = files.prefix(index).reduce(Int64(0)) { $0 + $1.size }
+                                    task.bytesTransferred = previousFilesBytes + currentFileBytes
+                                    task.filesTransferred = successCount
+                                }
                                 
                                 tasksVM.updateTask(task)
                             }

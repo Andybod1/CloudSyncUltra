@@ -1248,32 +1248,45 @@ class RcloneManager {
         // Parse rclone output for progress information
         // Format 1: "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
         // Format 2: "18 B / 18 B, 100%, 17 B/s, ETA 0s" (with --stats-one-line)
+        // Format 3: "Transferred:   5 / 100, 5%" (file counts when transferring directories)
         
         let lines = output.components(separatedBy: .newlines)
         
+        var filesTransferred: Int?
+        var totalFiles: Int?
+        var percentage: Double = 0
+        var speed: String = ""
+        
         for line in lines {
-            // Format 1: Look for "Transferred:" line
-            if line.contains("Transferred:") {
+            // Check for file count info: "Transferred: 5 / 100, 5%"
+            if line.contains("Transferred:") && line.contains("/") {
+                // Try to extract "X / Y" pattern
+                let pattern = "Transferred:\\s*(\\d+)\\s*/\\s*(\\d+)"
+                if let regex = try? NSRegularExpression(pattern: pattern),
+                   let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) {
+                    if let transferredRange = Range(match.range(at: 1), in: line),
+                       let totalRange = Range(match.range(at: 2), in: line) {
+                        filesTransferred = Int(line[transferredRange])
+                        totalFiles = Int(line[totalRange])
+                    }
+                }
+            }
+            
+            // Format 1: Look for "Transferred:" line with bytes
+            if line.contains("Transferred:") && line.contains("MiB") || line.contains("KiB") || line.contains("GiB") {
                 let components = line.components(separatedBy: ",")
                 
                 if components.count >= 3 {
                     // Parse percentage
                     let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
-                    let percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+                    percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
                     
                     // Parse speed
-                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
-                    
-                    return SyncProgress(
-                        percentage: percentage,
-                        speed: speedStr,
-                        status: .syncing
-                    )
+                    speed = components[2].trimmingCharacters(in: .whitespaces)
                 }
             }
             
             // Format 2: Look for lines with percentage and speed (e.g., "18 B / 18 B, 100%, 17 B/s, ETA 0s")
-            // This format appears with --stats-one-line
             let trimmedLine = line.trimmingCharacters(in: .whitespaces)
             if trimmedLine.contains("%") && trimmedLine.contains("/") && trimmedLine.contains("B/s") {
                 let components = trimmedLine.components(separatedBy: ",")
@@ -1281,16 +1294,10 @@ class RcloneManager {
                 if components.count >= 3 {
                     // Parse percentage (second component)
                     let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
-                    let percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+                    percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
                     
                     // Parse speed (third component)
-                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
-                    
-                    return SyncProgress(
-                        percentage: percentage,
-                        speed: speedStr,
-                        status: .syncing
-                    )
+                    speed = components[2].trimmingCharacters(in: .whitespaces)
                 }
             }
             
@@ -1301,6 +1308,17 @@ class RcloneManager {
             if line.contains("ERROR") {
                 return SyncProgress(percentage: 0, speed: "", status: .error(line))
             }
+        }
+        
+        // Return progress if we found any useful info
+        if percentage > 0 || !speed.isEmpty || filesTransferred != nil {
+            return SyncProgress(
+                percentage: percentage,
+                speed: speed,
+                status: .syncing,
+                filesTransferred: filesTransferred,
+                totalFiles: totalFiles
+            )
         }
         
         return nil
@@ -1318,6 +1336,16 @@ struct SyncProgress {
     let percentage: Double
     let speed: String
     let status: SyncStatus
+    let filesTransferred: Int?  // Number of files transferred
+    let totalFiles: Int?        // Total number of files
+    
+    init(percentage: Double, speed: String, status: SyncStatus, filesTransferred: Int? = nil, totalFiles: Int? = nil) {
+        self.percentage = percentage
+        self.speed = speed
+        self.status = status
+        self.filesTransferred = filesTransferred
+        self.totalFiles = totalFiles
+    }
 }
 
 enum SyncStatus: Equatable {
