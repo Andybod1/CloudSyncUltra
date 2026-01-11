@@ -18,6 +18,7 @@ struct FileBrowserView: View {
     @State private var isDeleting = false
     @State private var deleteError: String?
     @State private var isDownloading = false
+    @State private var isUploading = false
     @State private var downloadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
@@ -43,7 +44,7 @@ struct FileBrowserView: View {
                 
                 Divider()
                 
-                if browser.isLoading || isDeleting || isDownloading {
+                if browser.isLoading || isDeleting || isDownloading || isUploading {
                     loadingView
                 } else if let error = browser.error {
                     errorView(error)
@@ -243,7 +244,7 @@ struct FileBrowserView: View {
         VStack(spacing: 16) {
             Spacer()
             ProgressView()
-            Text(isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading..."))
+            Text(isUploading ? "Uploading..." : (isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading...")))
                 .foregroundColor(.secondary)
             Spacer()
         }
@@ -521,7 +522,7 @@ struct FileBrowserView: View {
             guard response == .OK, !panel.urls.isEmpty else { return }
             
             Task { @MainActor in
-                isDownloading = true  // Reuse for upload progress
+                isUploading = true
                 
                 do {
                     for url in panel.urls {
@@ -539,10 +540,10 @@ struct FileBrowserView: View {
                         }
                     }
                     
-                    isDownloading = false
+                    isUploading = false
                     browser.refresh()
                 } catch {
-                    isDownloading = false
+                    isUploading = false
                     downloadError = error.localizedDescription
                     showDownloadError = true
                 }
