@@ -237,7 +237,9 @@ struct TransferView: View {
                         
                         log("Got progress stream")
                         
+                        var lastProgress: Double = 0
                         for await progress in progressStream {
+                            lastProgress = progress.percentage
                             log("Progress: \(progress.percentage)% - \(progress.speed)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
@@ -252,12 +254,8 @@ struct TransferView: View {
                                 let previousFilesBytes = files.prefix(index).reduce(Int64(0)) { $0 + $1.size }
                                 task.bytesTransferred = previousFilesBytes + currentFileBytes
                                 
-                                // Files transferred count
-                                if progress.percentage >= 100 {
-                                    task.filesTransferred = successCount + 1
-                                } else {
-                                    task.filesTransferred = successCount
-                                }
+                                // Don't update file count during transfer - wait until complete
+                                task.filesTransferred = successCount
                                 
                                 tasksVM.updateTask(task)
                             }
@@ -265,6 +263,13 @@ struct TransferView: View {
                         
                         log("Upload complete")
                         successCount += 1
+                        
+                        // Update file count after completion
+                        await MainActor.run {
+                            task.filesTransferred = successCount
+                            task.bytesTransferred = files.prefix(successCount).reduce(Int64(0)) { $0 + $1.size }
+                            tasksVM.updateTask(task)
+                        }
                     } else if to.type == .local {
                         // Destination is local file system
                         try await RcloneManager.shared.download(
