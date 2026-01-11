@@ -728,7 +728,31 @@ struct TransferFileBrowserPane: View {
                 TransferFileRow(file: file, isSelected: browser.selectedFiles.contains(file.id), browser: browser,
                                isLeftPane: isLeftPane, dragSourceIsLeft: $dragSourceIsLeft, isDragging: $isDragging).tag(file.id)
             }
-        }.listStyle(.plain)
+        }
+        .listStyle(.plain)
+        .contextMenu(forSelectionType: UUID.self) { selection in
+            if !selection.isEmpty {
+                Button("Open") {
+                    if let file = browser.files.first(where: { selection.contains($0.id) }) {
+                        browser.navigateToFile(file)
+                    }
+                }
+            } else {
+                // Context menu for empty space
+                Button("New Folder") {
+                    showingNewFolderDialog = true
+                    newFolderName = ""
+                }
+                Button("Refresh") {
+                    browser.refresh()
+                }
+            }
+        } primaryAction: { selection in
+            if let fileId = selection.first,
+               let file = browser.files.first(where: { $0.id == fileId }) {
+                browser.navigateToFile(file)
+            }
+        }
     }
     
     private var statusBar: some View {
