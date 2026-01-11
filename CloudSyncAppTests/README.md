@@ -41,6 +41,21 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Add/remove remotes
    - Selection
 
+7. **BandwidthThrottlingTests.swift** - Tests for bandwidth throttling feature
+   - Settings persistence (enable/disable, upload/download limits)
+   - Edge cases (negative values, very high/low limits, decimals)
+   - String conversion for UI
+   - Real-world scenarios (home user, metered connection, nighttime batch)
+   - Integration scenarios
+
+8. **RcloneManagerBandwidthTests.swift** - Integration tests for RcloneManager bandwidth
+   - RcloneManager singleton availability
+   - Bandwidth configuration state
+   - Expected rclone arguments
+   - Command format validation
+   - Configuration changes
+   - Real-world scenario tests (video call, mobile hotspot, office hours)
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode
