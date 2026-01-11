@@ -137,15 +137,9 @@ class RcloneManager {
         try await createRemoteInteractive(name: remoteName, type: "box")
     }
     
-    func setupPCloud(remoteName: String, username: String, password: String) async throws {
-        try await createRemote(
-            name: remoteName,
-            type: "pcloud",
-            parameters: [
-                "username": username,
-                "password": password
-            ]
-        )
+    func setupPCloud(remoteName: String, username: String? = nil, password: String? = nil) async throws {
+        // pCloud requires OAuth token - use interactive setup
+        try await createRemoteInteractive(name: remoteName, type: "pcloud")
     }
     
     func setupWebDAV(remoteName: String, url: String, password: String, username: String = "") async throws {

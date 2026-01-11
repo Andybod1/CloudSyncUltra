@@ -543,7 +543,7 @@ struct ConnectRemoteSheet: View {
         case .box:
             try await rclone.setupBox(remoteName: rcloneName)
         case .pcloud:
-            try await rclone.setupPCloud(remoteName: rcloneName, username: username, password: password)
+            try await rclone.setupPCloud(remoteName: rcloneName)
         case .webdav:
             try await rclone.setupWebDAV(remoteName: rcloneName, url: username, password: password)
         case .sftp:

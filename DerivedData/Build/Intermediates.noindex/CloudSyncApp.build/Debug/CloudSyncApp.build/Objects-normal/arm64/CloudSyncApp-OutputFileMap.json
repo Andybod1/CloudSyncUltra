@@ -1,0 +1,209 @@
+{
+  "" : {
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncApp-primary.dia",
+    "emit-module-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncApp-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncApp-primary-emit-module.dia",
+    "pch" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncApp-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncApp-primary.swiftdeps"
+  },
+  "/Users/antti/Claude/CloudSyncApp/CloudSyncAppApp.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudSyncAppApp~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/ContentView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/EncryptionManager.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/EncryptionManager~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Models/AppTheme.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/AppTheme~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Models/CloudProvider.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/CloudProvider~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Models/SyncTask.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncTask~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/RcloneManager.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RcloneManager~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/SettingsView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/StatusBarController.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/StatusBarController~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/SyncManager.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/SyncManager~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/ViewModels/FileBrowserViewModel.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserViewModel~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/ViewModels/RemotesViewModel.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/RemotesViewModel~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/ViewModels/TasksViewModel.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksViewModel~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/DashboardView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/DashboardView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/FileBrowserView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/FileBrowserView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/HistoryView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/HistoryView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/MainWindow.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/MainWindow~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/TasksView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TasksView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/CloudSyncApp/Views/TransferView.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/TransferView~partial.swiftmodule"
+  },
+  "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/antti/Claude/DerivedData/Build/Intermediates.noindex/CloudSyncApp.build/Debug/CloudSyncApp.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

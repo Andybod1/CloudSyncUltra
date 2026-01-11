@@ -1,0 +1,240 @@
+{
+  "source": "/Users/antti/Claude/CloudSyncApp/Views/MainWindow.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Cloud Storage",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 132
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect...",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reconnect...",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remove",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Cloud...",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 154
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 201
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not connected - click to configure",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 235
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Cloud Storage",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 268
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remote Name",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 305
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 311
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add & Connect",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 314
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect to %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 366
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connected Successfully!",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 394
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ is now ready to use",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 398
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 403
+        }
+      },
+      {
+        "comment": "",
+        "key": "Username / Email",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 413
+        }
+      },
+      {
+        "comment": "",
+        "key": "Password",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 416
+        }
+      },
+      {
+        "comment": "",
+        "key": "2FA Code (6 digits)",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 420
+        }
+      },
+      {
+        "comment": "",
+        "key": "Credentials",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 424
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your Proton account email, password, and 2FA code from your authenticator app.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 484
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your Google account credentials. You may be redirected to authorize access.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 486
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your Dropbox email and password.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 488
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your Microsoft account credentials.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 490
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your AWS Access Key ID and Secret Access Key.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 492
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your MEGA email and password.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 494
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your account credentials for %@.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 496
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 447
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 458
+        }
+      }
+    ]
+  },
+  "version": 1
+}

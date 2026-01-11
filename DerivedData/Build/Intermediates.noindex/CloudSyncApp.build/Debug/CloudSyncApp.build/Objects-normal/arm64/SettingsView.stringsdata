@@ -1,0 +1,904 @@
+{
+  "source": "/Users/antti/Claude/CloudSyncApp/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "General",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accounts",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Security",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sync",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "About",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Launch at Login",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Show in Dock",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "Startup",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Show Notifications",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sound Effects",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notifications",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Config Location",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "~/Library/Application Support/CloudSyncApp",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cache",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "0 MB",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Storage",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local Folder",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose folder...",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose...",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remote Path",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 153
+        }
+      },
+      {
+        "comment": "",
+        "key": "/Documents",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sync Folder",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Automatic Sync",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 164
+        }
+      },
+      {
+        "comment": "",
+        "key": "Interval",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 167
+        }
+      },
+      {
+        "comment": "",
+        "key": "Conflict Resolution",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "When files are deleted",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "Every minute",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 168
+        }
+      },
+      {
+        "comment": "",
+        "key": "Every 5 minutes",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "Every 15 minutes",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "Every hour",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 171
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep newer file",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 176
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep local file",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep remote file",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep both",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 179
+        }
+      },
+      {
+        "comment": "",
+        "key": "Move to Trash",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 183
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete permanently",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep files",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 185
+        }
+      },
+      {
+        "comment": "",
+        "key": "Behavior",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 188
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enable Bandwidth Limits",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 192
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bandwidth limits help prevent saturating your connection during sync operations.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 222
+        }
+      },
+      {
+        "comment": "",
+        "key": "Upload Limit",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 197
+        }
+      },
+      {
+        "comment": "",
+        "key": "MB/s",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 202
+        }
+      },
+      {
+        "comment": "",
+        "key": "(0 = unlimited)",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 204
+        }
+      },
+      {
+        "comment": "",
+        "key": "MB/s",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 199
+        }
+      },
+      {
+        "comment": "",
+        "key": "Download Limit",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 210
+        }
+      },
+      {
+        "comment": "",
+        "key": "MB/s",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 215
+        }
+      },
+      {
+        "comment": "",
+        "key": "(0 = unlimited)",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 217
+        }
+      },
+      {
+        "comment": "",
+        "key": "MB/s",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 212
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bandwidth Throttling",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 228
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save Settings",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 234
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cloud Services",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 303
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select a cloud service",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 322
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Cloud Storage",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 325
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connected",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 392
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not configured",
+        "location": {
+          "startingColumn": 70,
+          "startingLine": 392
+        }
+      },
+      {
+        "comment": "",
+        "key": "Status",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 418
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connected",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 420
+        }
+      },
+      {
+        "comment": "",
+        "key": "Encryption",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 426
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enabled",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 430
+        }
+      },
+      {
+        "comment": "",
+        "key": "Test Connection",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 440
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disconnect",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 447
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your credentials are stored securely in the macOS Keychain.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 501
+        }
+      },
+      {
+        "comment": "",
+        "key": "Credentials",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 457
+        }
+      },
+      {
+        "comment": "",
+        "key": "Username",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 460
+        }
+      },
+      {
+        "comment": "",
+        "key": "user@example.com",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 462
+        }
+      },
+      {
+        "comment": "",
+        "key": "Password",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 467
+        }
+      },
+      {
+        "comment": "",
+        "key": "Password",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 469
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 494
+        }
+      },
+      {
+        "comment": "",
+        "key": "Important: Save Your Password",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 595
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disable Encryption?",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 603
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export Configuration?",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 611
+        }
+      },
+      {
+        "comment": "",
+        "key": "End-to-End Encryption",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 567
+        }
+      },
+      {
+        "comment": "",
+        "key": "Setup Encryption",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 574
+        }
+      },
+      {
+        "comment": "",
+        "key": "Configuration Backup",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 581
+        }
+      },
+      {
+        "comment": "",
+        "key": "About E2E Encryption",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 587
+        }
+      },
+      {
+        "comment": "",
+        "key": "I Understand",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 596
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 599
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your encryption password cannot be recovered. If you lose it, your encrypted files will be permanently inaccessible.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 601
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disable",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 604
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 607
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disabling encryption will not decrypt existing encrypted files.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 609
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 612
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 615
+        }
+      },
+      {
+        "comment": "",
+        "key": "The rclone config file may contain sensitive credentials. Store it securely and do not share it.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 617
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export...",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 636
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export rclone Configuration",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 629
+        }
+      },
+      {
+        "comment": "",
+        "key": "Download your cloud connection settings for backup or migration",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 631
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import...",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 654
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import rclone Configuration",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 647
+        }
+      },
+      {
+        "comment": "",
+        "key": "Restore settings from a previously exported config file",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 649
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disable",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 736
+        }
+      },
+      {
+        "comment": "",
+        "key": "E2E Encryption Active",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 729
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your files are encrypted before upload",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 731
+        }
+      },
+      {
+        "comment": "",
+        "key": "Encryption Not Configured",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 745
+        }
+      },
+      {
+        "comment": "",
+        "key": "Files are synced without client-side encryption",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 747
+        }
+      },
+      {
+        "comment": "",
+        "key": "Encryption Password",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 759
+        }
+      },
+      {
+        "comment": "",
+        "key": "Confirm Password",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 760
+        }
+      },
+      {
+        "comment": "",
+        "key": "Salt (optional)",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 761
+        }
+      },
+      {
+        "comment": "",
+        "key": "Encrypt file and folder names",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 763
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enable Encryption",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 773
+        }
+      },
+      {
+        "comment": "",
+        "key": "Zero-knowledge encryption",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 785
+        }
+      },
+      {
+        "comment": "",
+        "key": "AES-256 encryption standard",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 786
+        }
+      },
+      {
+        "comment": "",
+        "key": "No password recovery possible",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 787
+        }
+      },
+      {
+        "comment": "",
+        "key": "The ultimate cloud backup and sync solution",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 881
+        }
+      },
+      {
+        "comment": "",
+        "key": "© 2026 CloudSync Ultra. All rights reserved.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 910
+        }
+      },
+      {
+        "comment": "",
+        "key": "CloudSync Ultra",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 873
+        }
+      },
+      {
+        "comment": "",
+        "key": "Version 2.0.0",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 877
+        }
+      },
+      {
+        "comment": "",
+        "key": "Powered by rclone",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 897
+        }
+      },
+      {
+        "comment": "",
+        "key": "Website",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 902
+        }
+      },
+      {
+        "comment": "",
+        "key": "Documentation",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 903
+        }
+      }
+    ]
+  },
+  "version": 1
+}
