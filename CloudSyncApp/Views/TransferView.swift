@@ -30,7 +30,9 @@ struct TransferView: View {
             Divider()
             
             if transferProgress.isTransferring {
-                TransferProgressBar(progress: transferProgress)
+                TransferProgressBar(progress: transferProgress) {
+                    cancelTransfer()
+                }
                 Divider()
             }
             
@@ -224,6 +226,11 @@ struct TransferView: View {
             )
         }
         return remote
+    }
+    
+    private func cancelTransfer() {
+        RcloneManager.shared.stopCurrentSync()
+        transferProgress.cancel()
     }
     
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
@@ -637,6 +644,7 @@ class TransferProgressModel: ObservableObject {
 
 struct TransferProgressBar: View {
     @ObservedObject var progress: TransferProgressModel
+    var onCancel: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 8) {
@@ -662,6 +670,20 @@ struct TransferProgressBar: View {
                     }
                 }
                 Spacer()
+                
+                // Cancel button
+                if progress.isTransferring && !progress.isCompleted {
+                    Button {
+                        onCancel?()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.secondary.opacity(0.8))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Cancel transfer")
+                }
+                
                 Text("\(Int(progress.percentage))%").font(.title2).fontWeight(.bold).foregroundColor(statusColor)
             }
             GeometryReader { geo in
