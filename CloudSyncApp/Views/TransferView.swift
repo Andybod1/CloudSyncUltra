@@ -246,7 +246,19 @@ struct TransferView: View {
                                 // Update task progress too
                                 task.progress = progress.percentage / 100.0
                                 task.speed = progress.speed
-                                task.filesTransferred = successCount
+                                
+                                // Calculate bytes transferred for current file
+                                let currentFileBytes = Int64(Double(file.size) * (progress.percentage / 100.0))
+                                let previousFilesBytes = files.prefix(index).reduce(Int64(0)) { $0 + $1.size }
+                                task.bytesTransferred = previousFilesBytes + currentFileBytes
+                                
+                                // Files transferred count
+                                if progress.percentage >= 100 {
+                                    task.filesTransferred = successCount + 1
+                                } else {
+                                    task.filesTransferred = successCount
+                                }
+                                
                                 tasksVM.updateTask(task)
                             }
                         }
