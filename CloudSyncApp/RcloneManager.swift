@@ -1020,7 +1020,73 @@ class RcloneManager {
         }
     }
     
-    /// Upload a file or folder from local to a remote
+    /// Upload a file or folder from local to a remote with progress streaming
+    func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncStream<SyncProgress> {
+        return AsyncStream { continuation in
+            Task {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: self.rclonePath)
+                
+                var args = [
+                    "copy",
+                    localPath,
+                    "\(remoteName):\(remotePath)",
+                    "--config", self.configPath,
+                    "--progress",
+                    "--stats", "1s",
+                    "--verbose"
+                ]
+                
+                // Add bandwidth limits
+                args.append(contentsOf: self.getBandwidthArgs())
+                
+                process.arguments = args
+                
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = pipe
+                
+                print("[RcloneManager] Starting upload with progress: \(localPath) -> \(remoteName):\(remotePath)")
+                
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        if let output = String(data: data, encoding: .utf8) {
+                            print("[RcloneManager] Upload output: \(output)")
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
+                        }
+                    }
+                }
+                
+                do {
+                    try process.run()
+                    self.process = process
+                    
+                    process.waitUntilExit()
+                    
+                    pipe.fileHandleForReading.readabilityHandler = nil
+                    
+                    // Check exit status
+                    if process.terminationStatus != 0 {
+                        let errorData = pipe.fileHandleForReading.readDataToEndOfFile()
+                        let errorString = String(data: errorData, encoding: .utf8) ?? "Upload failed"
+                        print("[RcloneManager] Upload failed with exit code \(process.terminationStatus): \(errorString)")
+                        continuation.finish()
+                    } else {
+                        print("[RcloneManager] Upload completed successfully")
+                        continuation.finish()
+                    }
+                } catch {
+                    print("[RcloneManager] Upload error: \(error)")
+                    continuation.finish()
+                }
+            }
+        }
+    }
+    
+    /// Upload a file or folder from local to a remote (blocking version)
     func upload(localPath: String, remoteName: String, remotePath: String) async throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)

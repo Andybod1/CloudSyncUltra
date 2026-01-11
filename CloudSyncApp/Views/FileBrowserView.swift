@@ -19,6 +19,8 @@ struct FileBrowserView: View {
     @State private var deleteError: String?
     @State private var isDownloading = false
     @State private var isUploading = false
+    @State private var uploadProgress: Double = 0
+    @State private var uploadSpeed: String = ""
     @State private var downloadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
@@ -243,9 +245,29 @@ struct FileBrowserView: View {
     private var loadingView: some View {
         VStack(spacing: 16) {
             Spacer()
-            ProgressView()
-            Text(isUploading ? "Uploading..." : (isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading...")))
-                .foregroundColor(.secondary)
+            
+            if isUploading && uploadProgress > 0 {
+                // Show upload progress
+                VStack(spacing: 12) {
+                    ProgressView(value: uploadProgress, total: 100)
+                        .frame(width: 200)
+                    
+                    Text("Uploading... \(Int(uploadProgress))%")
+                        .foregroundColor(.secondary)
+                    
+                    if !uploadSpeed.isEmpty {
+                        Text(uploadSpeed)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            } else {
+                // Show generic spinner
+                ProgressView()
+                Text(isUploading ? "Uploading..." : (isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading...")))
+                    .foregroundColor(.secondary)
+            }
+            
             Spacer()
         }
     }
@@ -523,6 +545,8 @@ struct FileBrowserView: View {
             
             Task { @MainActor in
                 isUploading = true
+                uploadProgress = 0
+                uploadSpeed = ""
                 
                 do {
                     for url in panel.urls {
@@ -531,19 +555,28 @@ struct FileBrowserView: View {
                             let destPath = (browser.currentPath as NSString).appendingPathComponent(url.lastPathComponent)
                             try FileManager.default.copyItem(atPath: url.path, toPath: destPath)
                         } else {
-                            // Cloud upload via rclone
-                            try await RcloneManager.shared.upload(
+                            // Cloud upload via rclone with progress
+                            let progressStream = try await RcloneManager.shared.uploadWithProgress(
                                 localPath: url.path,
                                 remoteName: remote.rcloneName,
                                 remotePath: browser.currentPath
                             )
+                            
+                            for await progress in progressStream {
+                                uploadProgress = progress.percentage
+                                uploadSpeed = progress.speed
+                            }
                         }
                     }
                     
                     isUploading = false
+                    uploadProgress = 0
+                    uploadSpeed = ""
                     browser.refresh()
                 } catch {
                     isUploading = false
+                    uploadProgress = 0
+                    uploadSpeed = ""
                     downloadError = error.localizedDescription
                     showDownloadError = true
                 }
