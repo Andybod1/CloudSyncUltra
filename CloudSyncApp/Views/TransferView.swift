@@ -182,8 +182,13 @@ struct TransferView: View {
             var skipCount = 0
             var errorMessages: [String] = []
             
-            for file in files {
+            for (index, file) in files.enumerated() {
                 do {
+                    // Update which file we're on
+                    await MainActor.run {
+                        transferProgress.sourceName = "\(index + 1)/\(files.count): \(file.name)"
+                    }
+                    
                     // Determine source and destination paths
                     let sourcePath = file.path
                     let sourceRemote = from.type == .local ? "" : from.rcloneName
@@ -192,12 +197,20 @@ struct TransferView: View {
                     
                     // For direct copy between remotes or from local to remote
                     if from.type == .local {
-                        // Source is local file system - use absolute path
-                        try await RcloneManager.shared.upload(
+                        // Source is local file system - use streaming upload with progress
+                        let progressStream = try await RcloneManager.shared.uploadWithProgress(
                             localPath: sourcePath,
                             remoteName: destRemote.isEmpty ? "proton" : destRemote,
                             remotePath: destPath
                         )
+                        
+                        for await progress in progressStream {
+                            await MainActor.run {
+                                transferProgress.percentage = progress.percentage
+                                transferProgress.speed = progress.speed
+                            }
+                        }
+                        
                         successCount += 1
                     } else if to.type == .local {
                         // Destination is local file system
@@ -209,11 +222,9 @@ struct TransferView: View {
                         successCount += 1
                     } else {
                         // Both are cloud remotes - use rclone copy between remotes
-                        // This is more efficient than download + upload
                         let sourceSpec = "\(sourceRemote):\(sourcePath)"
                         let destSpec = "\(destRemote):\(destPath)"
                         
-                        // Use rclone copyto for direct cloud-to-cloud transfer
                         try await RcloneManager.shared.copyBetweenRemotes(
                             source: sourceSpec,
                             destination: destSpec
@@ -223,16 +234,19 @@ struct TransferView: View {
                 } catch {
                     let errStr = error.localizedDescription
                     if errStr.contains("already exists") || errStr.contains("already exist") {
-                        skipCount += 1  // File exists, count as skipped
+                        skipCount += 1
                     } else {
                         errorMessages.append("\(file.name): \(errStr)")
                     }
                 }
                 
-                // Update progress
-                let progress = Double(successCount + skipCount + errorMessages.count) / Double(files.count) * 100
+                // Update overall progress based on files completed
+                let overallProgress = Double(successCount + skipCount + errorMessages.count) / Double(files.count) * 100
                 await MainActor.run {
-                    transferProgress.percentage = progress
+                    // Only update if we're between files (not during individual file progress)
+                    if successCount + skipCount + errorMessages.count == index + 1 {
+                        transferProgress.percentage = overallProgress
+                    }
                 }
             }
             
