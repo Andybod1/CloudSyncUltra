@@ -907,6 +907,37 @@ class RcloneManager {
         }
     }
     
+    /// Rename/move a file or folder on a remote
+    func renameFile(remoteName: String, oldPath: String, newPath: String) async throws {
+        print("[RcloneManager] renameFile called: remoteName=\(remoteName), oldPath=\(oldPath), newPath=\(newPath)")
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "moveto",
+            "\(remoteName):\(oldPath)",
+            "\(remoteName):\(newPath)",
+            "--config", configPath
+        ]
+        
+        print("[RcloneManager] Running: \(rclonePath) moveto \(remoteName):\(oldPath) \(remoteName):\(newPath)")
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        if process.terminationStatus != 0 {
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Rename failed" : errorString)
+        }
+    }
+    
     /// Create a new folder on a remote
     func createFolder(remoteName: String, path: String) async throws {
         let process = Process()

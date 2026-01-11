@@ -21,6 +21,11 @@ struct FileBrowserView: View {
     @State private var downloadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
+    @State private var showRenameSheet = false
+    @State private var renameFile: FileItem?
+    @State private var newFileName = ""
+    @State private var isRenaming = false
+    @State private var renameError: String?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -87,6 +92,16 @@ struct FileBrowserView: View {
         }
         .sheet(isPresented: $showConnectSheet) {
             ConnectRemoteSheet(remote: remote)
+        }
+        .sheet(isPresented: $showRenameSheet) {
+            RenameFileSheet(
+                file: renameFile,
+                newName: $newFileName,
+                isRenaming: $isRenaming,
+                error: $renameError,
+                onRename: { performRename() },
+                onCancel: { showRenameSheet = false }
+            )
         }
     }
     
@@ -334,6 +349,15 @@ struct FileBrowserView: View {
                     }
                 }
                 Divider()
+                if selection.count == 1 {
+                    Button("Rename") {
+                        if let file = browser.files.first(where: { selection.contains($0.id) }) {
+                            renameFile = file
+                            newFileName = file.name
+                            showRenameSheet = true
+                        }
+                    }
+                }
                 Button("Download") {
                     downloadSelectedFiles()
                 }
@@ -566,6 +590,42 @@ struct FileBrowserView: View {
             }
         }
     }
+    
+    private func performRename() {
+        guard let file = renameFile, !newFileName.isEmpty, newFileName != file.name else {
+            showRenameSheet = false
+            return
+        }
+        
+        isRenaming = true
+        
+        Task {
+            do {
+                // Calculate the new path
+                let parentPath = (file.path as NSString).deletingLastPathComponent
+                let newPath = parentPath.isEmpty ? newFileName : "\(parentPath)/\(newFileName)"
+                
+                try await RcloneManager.shared.renameFile(
+                    remoteName: remote.rcloneName,
+                    oldPath: file.path,
+                    newPath: newPath
+                )
+                
+                await MainActor.run {
+                    isRenaming = false
+                    showRenameSheet = false
+                    renameFile = nil
+                    newFileName = ""
+                    browser.refresh()
+                }
+            } catch {
+                await MainActor.run {
+                    isRenaming = false
+                    renameError = error.localizedDescription
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Grid Item
@@ -684,6 +744,66 @@ struct NewFolderSheet: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Rename File Sheet
+
+struct RenameFileSheet: View {
+    let file: FileItem?
+    @Binding var newName: String
+    @Binding var isRenaming: Bool
+    @Binding var error: String?
+    let onRename: () -> Void
+    let onCancel: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: file?.isDirectory == true ? "folder.fill" : "doc.fill")
+                    .foregroundColor(.accentColor)
+                    .font(.title2)
+                Text("Rename")
+                    .font(.headline)
+            }
+            
+            TextField("New name", text: $newName)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    if !isRenaming && !newName.isEmpty {
+                        onRename()
+                    }
+                }
+            
+            if let error = error {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
+            
+            HStack {
+                Button("Cancel") {
+                    onCancel()
+                }
+                .keyboardShortcut(.escape)
+                
+                Spacer()
+                
+                Button("Rename") {
+                    onRename()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(newName.isEmpty || newName == file?.name || isRenaming)
+                .keyboardShortcut(.return)
+            }
+            
+            if isRenaming {
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+        }
+        .padding()
+        .frame(width: 300)
     }
 }
 
