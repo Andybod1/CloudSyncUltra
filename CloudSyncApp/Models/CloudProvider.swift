@@ -49,6 +49,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case sharepoint = "sharepoint"
     case alibabaOSS = "oss"
     
+    // Additional Providers: Nordic & Unlimited Storage
+    case jottacloud = "jottacloud"
+    
     var id: String { rawValue }
     
     var displayName: String {
@@ -92,6 +95,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oneDriveBusiness: return "OneDrive for Business"
         case .sharepoint: return "SharePoint"
         case .alibabaOSS: return "Alibaba Cloud OSS"
+        
+        // Additional Providers
+        case .jottacloud: return "Jottacloud"
         }
     }
     
@@ -136,6 +142,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oneDriveBusiness: return "briefcase.fill"
         case .sharepoint: return "folder.badge.person.crop"
         case .alibabaOSS: return "a.circle.fill"
+        
+        // Additional Providers
+        case .jottacloud: return "j.circle.fill"
         }
     }
     
@@ -180,6 +189,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oneDriveBusiness: return Color(red: 0.0, green: 0.35, blue: 0.67)
         case .sharepoint: return Color(red: 0.01, green: 0.53, blue: 0.75)
         case .alibabaOSS: return Color(red: 1.0, green: 0.42, blue: 0.0)
+        
+        // Additional Providers
+        case .jottacloud: return Color(red: 0.0, green: 0.58, blue: 0.77)
         }
     }
     
@@ -224,6 +236,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oneDriveBusiness: return "onedrive"
         case .sharepoint: return "sharepoint"
         case .alibabaOSS: return "oss"
+        
+        // Additional Providers
+        case .jottacloud: return "jottacloud"
         }
     }
     
@@ -267,6 +282,9 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oneDriveBusiness: return "onedrive-business"
         case .sharepoint: return "sharepoint"
         case .alibabaOSS: return "oss"
+        
+        // Additional Providers
+        case .jottacloud: return "jottacloud"
         
         default: return rawValue
         }
