@@ -18,9 +18,8 @@ class KeychainManager {
     private let accessGroup: String?
     
     private init() {
-        // Use bundle identifier as service name
         self.service = Bundle.main.bundleIdentifier ?? "com.cloudsync.app"
-        self.accessGroup = nil // Can be configured for keychain sharing
+        self.accessGroup = nil
     }
     
     // MARK: - Keychain Errors
@@ -54,10 +53,6 @@ class KeychainManager {
     // MARK: - Save Operations
     
     /// Save a string value securely
-    /// - Parameters:
-    ///   - value: The string to save
-    ///   - key: Unique identifier for this value
-    /// - Throws: KeychainError if save fails
     func save(_ value: String, forKey key: String) throws {
         guard let data = value.data(using: .utf8) else {
             throw KeychainError.encodingFailed
@@ -66,12 +61,7 @@ class KeychainManager {
     }
     
     /// Save data securely
-    /// - Parameters:
-    ///   - data: The data to save
-    ///   - key: Unique identifier for this data
-    /// - Throws: KeychainError if save fails
     func save(_ data: Data, forKey key: String) throws {
-        // Try to update existing item first
         var query = buildQuery(forKey: key)
         let attributes: [String: Any] = [
             kSecValueData as String: data,
@@ -81,34 +71,22 @@ class KeychainManager {
         let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         
         if updateStatus == errSecItemNotFound {
-            // Item doesn't exist, create it
             query[kSecValueData as String] = data
             query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlocked
             
             let status = SecItemAdd(query as CFDictionary, nil)
-            
             guard status == errSecSuccess else {
-                Logger.auth.error("Failed to save keychain item: \(key, privacy: .private) - status: \(status)")
                 if status == errSecDuplicateItem {
                     throw KeychainError.duplicateItem
                 }
                 throw KeychainError.unexpectedStatus(status)
             }
-            
-            Logger.auth.debug("Saved keychain item: \(key, privacy: .private)")
-        } else if updateStatus == errSecSuccess {
-            Logger.auth.debug("Updated keychain item: \(key, privacy: .private)")
-        } else {
-            Logger.auth.error("Failed to update keychain item: \(key, privacy: .private) - status: \(updateStatus)")
+        } else if updateStatus != errSecSuccess {
             throw KeychainError.unexpectedStatus(updateStatus)
         }
     }
     
     /// Save a Codable object securely
-    /// - Parameters:
-    ///   - object: The object to save
-    ///   - key: Unique identifier
-    /// - Throws: KeychainError if save fails
     func save<T: Codable>(_ object: T, forKey key: String) throws {
         let encoder = JSONEncoder()
         guard let data = try? encoder.encode(object) else {
@@ -120,25 +98,17 @@ class KeychainManager {
     // MARK: - Retrieve Operations
     
     /// Retrieve a string value
-    /// - Parameter key: Unique identifier
-    /// - Returns: The stored string, or nil if not found
-    /// - Throws: KeychainError if retrieval fails
     func getString(forKey key: String) throws -> String? {
         guard let data = try getData(forKey: key) else {
             return nil
         }
-        
         guard let string = String(data: data, encoding: .utf8) else {
             throw KeychainError.decodingFailed
         }
-        
         return string
     }
     
     /// Retrieve data
-    /// - Parameter key: Unique identifier
-    /// - Returns: The stored data, or nil if not found
-    /// - Throws: KeychainError if retrieval fails
     func getData(forKey key: String) throws -> Data? {
         var query = buildQuery(forKey: key)
         query[kSecReturnData as String] = true
@@ -148,64 +118,44 @@ class KeychainManager {
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         
         if status == errSecItemNotFound {
-            Logger.auth.debug("Keychain item not found: \(key, privacy: .private)")
             return nil
         }
         
         guard status == errSecSuccess else {
-            Logger.auth.error("Failed to retrieve keychain item: \(key, privacy: .private) - status: \(status)")
             throw KeychainError.unexpectedStatus(status)
         }
         
         guard let data = result as? Data else {
             throw KeychainError.invalidData
         }
-        
-        Logger.auth.debug("Retrieved keychain item: \(key, privacy: .private)")
         return data
     }
     
     /// Retrieve a Codable object
-    /// - Parameter key: Unique identifier
-    /// - Returns: The decoded object, or nil if not found
-    /// - Throws: KeychainError if retrieval fails
     func getObject<T: Codable>(forKey key: String) throws -> T? {
         guard let data = try getData(forKey: key) else {
             return nil
         }
-        
         let decoder = JSONDecoder()
         guard let object = try? decoder.decode(T.self, from: data) else {
             throw KeychainError.decodingFailed
         }
-        
         return object
     }
     
     // MARK: - Delete Operations
     
     /// Delete an item from keychain
-    /// - Parameter key: Unique identifier
-    /// - Throws: KeychainError if deletion fails
     func delete(forKey key: String) throws {
         let query = buildQuery(forKey: key)
         let status = SecItemDelete(query as CFDictionary)
         
-        if status == errSecItemNotFound {
-            Logger.auth.debug("Keychain item not found for deletion: \(key, privacy: .private)")
-            return // Not an error if item doesn't exist
-        }
-        
-        guard status == errSecSuccess else {
-            Logger.auth.error("Failed to delete keychain item: \(key, privacy: .private) - status: \(status)")
+        guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError.unexpectedStatus(status)
         }
-        
-        Logger.auth.info("Deleted keychain item: \(key, privacy: .private)")
     }
     
     /// Delete all items for this app
-    /// - Throws: KeychainError if deletion fails
     func deleteAll() throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -213,13 +163,9 @@ class KeychainManager {
         ]
         
         let status = SecItemDelete(query as CFDictionary)
-        
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            Logger.auth.error("Failed to delete all keychain items - status: \(status)")
             throw KeychainError.unexpectedStatus(status)
         }
-        
-        Logger.auth.info("Deleted all keychain items")
     }
     
     // MARK: - Helper Methods
@@ -234,128 +180,13 @@ class KeychainManager {
         if let accessGroup = accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
-        
         return query
     }
 }
 
-// MARK: - Convenience Extensions
+// MARK: - Proton Drive Credentials Model
 
-extension KeychainManager {
-    // MARK: - Cloud Provider Credentials
-    
-    /// Save cloud provider credentials
-    func saveCredentials(provider: String, username: String, password: String) throws {
-        let credentials = CloudCredentials(username: username, password: password)
-        try save(credentials, forKey: "credentials_\(provider)")
-        Logger.auth.info("Saved credentials for provider: \(provider)")
-    }
-    
-    /// Retrieve cloud provider credentials
-    func getCredentials(provider: String) throws -> CloudCredentials? {
-        return try getObject(forKey: "credentials_\(provider)")
-    }
-    
-    /// Delete cloud provider credentials
-    func deleteCredentials(provider: String) throws {
-        try delete(forKey: "credentials_\(provider)")
-        Logger.auth.info("Deleted credentials for provider: \(provider)")
-    }
-    
-    // MARK: - OAuth Tokens
-    
-    /// Save OAuth token
-    func saveToken(provider: String, token: String) throws {
-        try save(token, forKey: "token_\(provider)")
-        Logger.auth.info("Saved OAuth token for provider: \(provider)")
-    }
-    
-    /// Retrieve OAuth token
-    func getToken(provider: String) throws -> String? {
-        return try getString(forKey: "token_\(provider)")
-    }
-    
-    /// Delete OAuth token
-    func deleteToken(provider: String) throws {
-        try delete(forKey: "token_\(provider)")
-        Logger.auth.info("Deleted OAuth token for provider: \(provider)")
-    }
-    
-    // MARK: - Encryption Keys
-    
-    /// Save encryption key
-    func saveEncryptionKey(_ key: String) throws {
-        try save(key, forKey: "encryption_key")
-        Logger.auth.info("Saved encryption key")
-    }
-    
-    /// Retrieve encryption key
-    func getEncryptionKey() throws -> String? {
-        return try getString(forKey: "encryption_key")
-    }
-    
-    /// Delete encryption key
-    func deleteEncryptionKey() throws {
-        try delete(forKey: "encryption_key")
-        Logger.auth.warning("Deleted encryption key")
-    }
-}
-
-// MARK: - Models
-
-/// Cloud provider credentials
-struct CloudCredentials: Codable {
-    let username: String
-    let password: String
-    let createdAt: Date
-    
-    init(username: String, password: String) {
-        self.username = username
-        self.password = password
-        self.createdAt = Date()
-    }
-}
-
-// MARK: - Migration Helper
-
-extension KeychainManager {
-    /// Migrate credentials from UserDefaults to Keychain
-    /// This should be called once during app upgrade
-    func migrateFromUserDefaults() {
-        Logger.config.info("Starting keychain migration from UserDefaults")
-        
-        let defaults = UserDefaults.standard
-        var migratedCount = 0
-        
-        // List of known credential keys in UserDefaults
-        let keysToMigrate = [
-            "proton_username", "proton_password",
-            "mega_username", "mega_password",
-            "webdav_username", "webdav_password"
-            // Add more as needed
-        ]
-        
-        for key in keysToMigrate {
-            if let value = defaults.string(forKey: key) {
-                do {
-                    try save(value, forKey: key)
-                    defaults.removeObject(forKey: key)
-                    migratedCount += 1
-                } catch {
-                    Logger.config.error("Failed to migrate \(key, privacy: .private): \(error.localizedDescription)")
-                }
-            }
-        }
-        
-        if migratedCount > 0 {
-            Logger.config.info("Successfully migrated \(migratedCount) credentials to keychain")
-        }
-    }
-}
-
-// MARK: - Proton Drive Credentials
-
-/// Proton Drive credentials with optional 2FA support
+/// Proton Drive credentials with full 2FA support
 struct ProtonDriveCredentials: Codable {
     let username: String
     let password: String
@@ -370,19 +201,24 @@ struct ProtonDriveCredentials: Codable {
         self.mailboxPassword = mailboxPassword
         self.createdAt = Date()
     }
+    
+    /// Check if 2FA is configured
+    var has2FA: Bool {
+        otpSecretKey != nil && !otpSecretKey!.isEmpty
+    }
+    
+    /// Check if mailbox password is set (two-password account)
+    var hasTwoPassword: Bool {
+        mailboxPassword != nil && !mailboxPassword!.isEmpty
+    }
 }
 
+// MARK: - Proton Drive Keychain Extension
+
 extension KeychainManager {
-    // MARK: - Proton Drive Specific
-    
     private static let protonCredentialsKey = "proton_drive_credentials"
     
     /// Save Proton Drive credentials securely
-    /// - Parameters:
-    ///   - username: Proton account email
-    ///   - password: Account password
-    ///   - otpSecretKey: TOTP secret for 2FA (optional)
-    ///   - mailboxPassword: Mailbox password for two-password accounts (optional)
     func saveProtonCredentials(
         username: String,
         password: String,
@@ -396,11 +232,9 @@ extension KeychainManager {
             mailboxPassword: mailboxPassword
         )
         try save(credentials, forKey: Self.protonCredentialsKey)
-        Logger.auth.info("Saved Proton Drive credentials for: \(username, privacy: .private)")
     }
     
     /// Retrieve Proton Drive credentials
-    /// - Returns: Stored credentials or nil if not found
     func getProtonCredentials() throws -> ProtonDriveCredentials? {
         return try getObject(forKey: Self.protonCredentialsKey)
     }
@@ -408,7 +242,6 @@ extension KeychainManager {
     /// Delete Proton Drive credentials
     func deleteProtonCredentials() throws {
         try delete(forKey: Self.protonCredentialsKey)
-        Logger.auth.info("Deleted Proton Drive credentials")
     }
     
     /// Check if Proton Drive credentials exist
@@ -419,38 +252,69 @@ extension KeychainManager {
             return false
         }
     }
+    
+    /// Update just the OTP secret (for session refresh)
+    func updateProtonOTPSecret(_ otpSecretKey: String) throws {
+        guard let existing = try getProtonCredentials() else {
+            throw KeychainError.itemNotFound
+        }
+        try saveProtonCredentials(
+            username: existing.username,
+            password: existing.password,
+            otpSecretKey: otpSecretKey,
+            mailboxPassword: existing.mailboxPassword
+        )
+    }
 }
 
-// MARK: - Usage Examples
+// MARK: - Generic Cloud Credentials
 
-/*
- // Save credentials
- try KeychainManager.shared.saveCredentials(
-     provider: "google_drive",
-     username: "user@example.com",
-     password: "secret123"
- )
- 
- // Retrieve credentials
- if let creds = try KeychainManager.shared.getCredentials(provider: "google_drive") {
-     print("Username: \(creds.username)")
-     // Use credentials...
- }
- 
- // Save OAuth token
- try KeychainManager.shared.saveToken(provider: "dropbox", token: "abc123xyz")
- 
- // Retrieve OAuth token
- if let token = try KeychainManager.shared.getToken(provider: "dropbox") {
-     // Use token...
- }
- 
- // Save encryption key
- try KeychainManager.shared.saveEncryptionKey("my-super-secret-key")
- 
- // Delete specific credentials
- try KeychainManager.shared.deleteCredentials(provider: "google_drive")
- 
- // Delete all keychain data (use with caution!)
- try KeychainManager.shared.deleteAll()
- */
+/// Generic cloud provider credentials
+struct CloudCredentials: Codable {
+    let username: String
+    let password: String
+    let createdAt: Date
+    
+    init(username: String, password: String) {
+        self.username = username
+        self.password = password
+        self.createdAt = Date()
+    }
+}
+
+extension KeychainManager {
+    // MARK: - Cloud Provider Credentials
+    
+    /// Save cloud provider credentials
+    func saveCredentials(provider: String, username: String, password: String) throws {
+        let credentials = CloudCredentials(username: username, password: password)
+        try save(credentials, forKey: "credentials_\(provider)")
+    }
+    
+    /// Retrieve cloud provider credentials
+    func getCredentials(provider: String) throws -> CloudCredentials? {
+        return try getObject(forKey: "credentials_\(provider)")
+    }
+    
+    /// Delete cloud provider credentials
+    func deleteCredentials(provider: String) throws {
+        try delete(forKey: "credentials_\(provider)")
+    }
+    
+    // MARK: - OAuth Tokens
+    
+    /// Save OAuth token
+    func saveToken(provider: String, token: String) throws {
+        try save(token, forKey: "token_\(provider)")
+    }
+    
+    /// Retrieve OAuth token
+    func getToken(provider: String) throws -> String? {
+        return try getString(forKey: "token_\(provider)")
+    }
+    
+    /// Delete OAuth token
+    func deleteToken(provider: String) throws {
+        try delete(forKey: "token_\(provider)")
+    }
+}

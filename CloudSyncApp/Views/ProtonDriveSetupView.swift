@@ -247,7 +247,7 @@ struct ProtonDriveSetupView: View {
             .buttonStyle(.plain)
             
             // Check for saved credentials
-            if protonManager.hasSavedCredentials() {
+            if protonManager.hasSavedCredentials {
                 savedCredentialsCard
             }
         }
@@ -281,8 +281,8 @@ struct ProtonDriveSetupView: View {
                     Text("Saved Credentials Found")
                         .fontWeight(.semibold)
                     
-                    if let creds = protonManager.getSavedCredentials() {
-                        Text(creds.username)
+                    if let savedUsername = protonManager.getSavedUsername() {
+                        Text(savedUsername)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -681,7 +681,7 @@ struct ProtonDriveSetupView: View {
     private func checkExistingConnection() {
         if protonManager.connectionState.isConnected {
             currentStep = .connected
-        } else if protonManager.hasSavedCredentials() {
+        } else if protonManager.hasSavedCredentials {
             // Stay on prerequisites but show reconnect option
             currentStep = .prerequisites
         }

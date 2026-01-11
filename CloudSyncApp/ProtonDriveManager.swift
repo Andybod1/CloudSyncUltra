@@ -2,8 +2,8 @@
 //  ProtonDriveManager.swift
 //  CloudSyncApp
 //
-//  Dedicated manager for Proton Drive operations with credential storage,
-//  session management, and connection health monitoring.
+//  Dedicated manager for Proton Drive operations with
+//  session management and connection health monitoring.
 //
 
 import Foundation
@@ -25,7 +25,6 @@ class ProtonDriveManager: ObservableObject {
     // MARK: - Configuration
     
     private let rclone = RcloneManager.shared
-    private let keychain = KeychainManager.shared
     private var healthCheckTimer: Timer?
     
     private let remoteName = "proton"
@@ -87,18 +86,6 @@ class ProtonDriveManager: ObservableObject {
         }
     }
     
-    struct ProtonCredentials: Codable {
-        let username: String
-        let password: String  // Obscured password
-        let otpSecretKey: String?
-        let mailboxPassword: String?  // Obscured
-        let savedAt: Date
-        
-        var hasOTPSecret: Bool {
-            otpSecretKey != nil && !otpSecretKey!.isEmpty
-        }
-    }
-    
     // MARK: - Initialization
     
     private init() {
@@ -114,6 +101,10 @@ class ProtonDriveManager: ObservableObject {
             Task {
                 await verifyConnection()
             }
+        } else if hasSavedCredentials {
+            // Has saved credentials but not configured - try to reconnect
+            connectionState = .sessionExpired
+            Logger.sync.info("Found saved Proton credentials, session may need refresh")
         } else {
             connectionState = .disconnected
         }
@@ -182,14 +173,19 @@ class ProtonDriveManager: ObservableObject {
             connectionState = .connected
             lastConnectionCheck = Date()
             
-            // Save credentials for reconnection if requested
+            // Save credentials to Keychain if requested
             if saveCredentials {
-                await saveCredentialsToKeychain(
-                    username: username,
-                    password: password,
-                    otpSecretKey: otpSecretKey,
-                    mailboxPassword: mailboxPassword
-                )
+                do {
+                    try KeychainManager.shared.saveProtonCredentials(
+                        username: username,
+                        password: password,
+                        otpSecretKey: otpSecretKey,
+                        mailboxPassword: mailboxPassword
+                    )
+                    Logger.auth.info("Proton Drive credentials saved to Keychain")
+                } catch {
+                    Logger.auth.warning("Failed to save credentials to Keychain: \(error.localizedDescription)")
+                }
             }
             
             // Fetch storage info
@@ -208,93 +204,24 @@ class ProtonDriveManager: ObservableObject {
         }
     }
     
-    /// Reconnect using saved credentials
-    func reconnect() async throws {
-        guard let credentials = getSavedCredentials() else {
-            throw ProtonDriveError.noSavedCredentials
-        }
-        
-        connectionState = .connecting
-        
-        // For reconnection, we use the saved (already obscured) credentials
-        // We need to pass them directly to rclone without re-obscuring
-        try await reconnectWithSavedCredentials(credentials)
-    }
-    
-    private func reconnectWithSavedCredentials(_ credentials: ProtonCredentials) async throws {
-        // Create remote with pre-obscured passwords
-        var params: [String: String] = [
-            "username": credentials.username,
-            "password": credentials.password  // Already obscured
-        ]
-        
-        if let otpSecret = credentials.otpSecretKey, !otpSecret.isEmpty {
-            params["otp_secret_key"] = otpSecret  // Already obscured
-        }
-        
-        if let mailbox = credentials.mailboxPassword, !mailbox.isEmpty {
-            params["mailbox_password"] = mailbox  // Already obscured
-        }
-        
-        params["replace_existing_draft"] = "true"
-        params["enable_caching"] = "true"
-        
-        // Delete and recreate the remote
-        try? await rclone.deleteRemote(name: remoteName)
-        
-        // Use rclone config create directly with pre-obscured values
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/rclone")
-        
-        var args = ["config", "create", remoteName, "protondrive", "--non-interactive"]
-        for (key, value) in params {
-            args.append(key)
-            args.append(value)
-        }
-        
-        let configPath = FileManager.default.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        )[0].appendingPathComponent("CloudSyncApp/rclone.conf").path
-        
-        args.append("--config")
-        args.append(configPath)
-        
-        process.arguments = args
-        
-        let errorPipe = Pipe()
-        process.standardError = errorPipe
-        
-        try process.run()
-        process.waitUntilExit()
-        
-        if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.configurationFailed(errorString)
-        }
-        
-        // Verify connection
-        _ = try await rclone.listRemoteFiles(remotePath: "", remoteName: remoteName)
-        
-        connectionState = .connected
-        lastConnectionCheck = Date()
-        
-        await fetchStorageInfo()
-        startHealthMonitoring()
-        
-        Logger.sync.info("Proton Drive reconnected successfully")
-    }
-    
     /// Disconnect from Proton Drive
-    func disconnect() async {
+    func disconnect(clearCredentials: Bool = true) async {
         stopHealthMonitoring()
         
         do {
             try await rclone.deleteRemote(name: remoteName)
-            deleteCredentialsFromKeychain()
         } catch {
             Logger.sync.error("Error disconnecting: \(error.localizedDescription)")
+        }
+        
+        // Clear saved credentials if requested
+        if clearCredentials {
+            do {
+                try KeychainManager.shared.deleteProtonCredentials()
+                Logger.auth.info("Proton Drive credentials cleared from Keychain")
+            } catch {
+                Logger.auth.warning("Failed to clear credentials: \(error.localizedDescription)")
+            }
         }
         
         connectionState = .disconnected
@@ -302,6 +229,65 @@ class ProtonDriveManager: ObservableObject {
         lastConnectionCheck = nil
         
         Logger.sync.info("Proton Drive disconnected")
+    }
+    
+    /// Check if saved credentials exist in Keychain
+    var hasSavedCredentials: Bool {
+        KeychainManager.shared.hasProtonCredentials
+    }
+    
+    /// Get saved credentials (for display purposes - username only)
+    func getSavedUsername() -> String? {
+        do {
+            return try KeychainManager.shared.getProtonCredentials()?.username
+        } catch {
+            return nil
+        }
+    }
+    
+    /// Reconnect using saved credentials from Keychain
+    func reconnect() async throws {
+        guard let credentials = try KeychainManager.shared.getProtonCredentials() else {
+            throw ProtonDriveError.noSavedCredentials
+        }
+        
+        connectionState = .connecting
+        errorMessage = nil
+        
+        do {
+            try await rclone.setupProtonDrive(
+                username: credentials.username,
+                password: credentials.password,
+                twoFactorCode: nil, // Can't use single code for reconnect
+                otpSecretKey: credentials.otpSecretKey,
+                mailboxPassword: credentials.mailboxPassword,
+                remoteName: remoteName
+            )
+            
+            // Verify the connection works
+            _ = try await rclone.listRemoteFiles(remotePath: "", remoteName: remoteName)
+            
+            connectionState = .connected
+            lastConnectionCheck = Date()
+            
+            await fetchStorageInfo()
+            startHealthMonitoring()
+            
+            Logger.sync.info("Proton Drive reconnected using saved credentials")
+            
+        } catch {
+            connectionState = .error(error.localizedDescription)
+            errorMessage = error.localizedDescription
+            
+            // If session expired, we need fresh credentials
+            if error.localizedDescription.contains("401") || 
+               error.localizedDescription.contains("invalid") {
+                connectionState = .sessionExpired
+            }
+            
+            Logger.sync.error("Proton Drive reconnect failed: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     // MARK: - Storage Info
@@ -367,66 +353,6 @@ class ProtonDriveManager: ObservableObject {
         healthCheckTimer = nil
     }
     
-    // MARK: - Credential Storage
-    
-    private func saveCredentialsToKeychain(
-        username: String,
-        password: String,
-        otpSecretKey: String?,
-        mailboxPassword: String?
-    ) async {
-        do {
-            // Obscure passwords for storage
-            let obscuredPassword = try await rclone.obscurePassword(password)
-            var obscuredOTP: String? = nil
-            var obscuredMailbox: String? = nil
-            
-            if let otp = otpSecretKey, !otp.isEmpty {
-                obscuredOTP = try await rclone.obscurePassword(otp)
-            }
-            
-            if let mailbox = mailboxPassword, !mailbox.isEmpty {
-                obscuredMailbox = try await rclone.obscurePassword(mailbox)
-            }
-            
-            let credentials = ProtonCredentials(
-                username: username,
-                password: obscuredPassword,
-                otpSecretKey: obscuredOTP,
-                mailboxPassword: obscuredMailbox,
-                savedAt: Date()
-            )
-            
-            try keychain.save(credentials, forKey: "proton_credentials")
-            Logger.auth.info("Saved Proton credentials to keychain")
-            
-        } catch {
-            Logger.auth.error("Failed to save Proton credentials: \(error.localizedDescription)")
-        }
-    }
-    
-    func getSavedCredentials() -> ProtonCredentials? {
-        do {
-            return try keychain.getObject(forKey: "proton_credentials")
-        } catch {
-            Logger.auth.debug("No saved Proton credentials found")
-            return nil
-        }
-    }
-    
-    func hasSavedCredentials() -> Bool {
-        return getSavedCredentials() != nil
-    }
-    
-    private func deleteCredentialsFromKeychain() {
-        do {
-            try keychain.delete(forKey: "proton_credentials")
-            Logger.auth.info("Deleted Proton credentials from keychain")
-        } catch {
-            Logger.auth.debug("No Proton credentials to delete")
-        }
-    }
-    
     // MARK: - Test Connection
     
     func testConnection(
@@ -445,36 +371,5 @@ class ProtonDriveManager: ObservableObject {
         } catch {
             return (false, error.localizedDescription)
         }
-    }
-}
-
-// MARK: - RcloneManager Extension
-
-extension RcloneManager {
-    /// Public method to obscure a password (for credential storage)
-    func obscurePasswordPublic(_ password: String) async throws -> String {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/rclone")
-        process.arguments = ["obscure", password]
-        
-        let outputPipe = Pipe()
-        let errorPipe = Pipe()
-        process.standardOutput = outputPipe
-        process.standardError = errorPipe
-        
-        try process.run()
-        process.waitUntilExit()
-        
-        if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.encryptionSetupFailed("Failed to obscure password: \(errorString)")
-        }
-        
-        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        let obscured = String(data: data, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
-        return obscured
     }
 }
