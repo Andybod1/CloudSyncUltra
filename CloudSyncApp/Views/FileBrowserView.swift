@@ -593,6 +593,13 @@ struct FileBrowserView: View {
                 
                 Spacer()
                 
+                // Percentage
+                Text("\(Int(uploadProgress))%")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(uploadStatusColor)
+                    .frame(width: 70, alignment: .trailing)
+                
                 // Cancel button
                 if uploadProgress < 100 {
                     Button {
@@ -605,13 +612,6 @@ struct FileBrowserView: View {
                     .buttonStyle(.plain)
                     .help("Cancel upload")
                 }
-                
-                // Percentage
-                Text("\(Int(uploadProgress))%")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(uploadStatusColor)
-                    .frame(width: 70, alignment: .trailing)
             }
             
             // Progress bar
