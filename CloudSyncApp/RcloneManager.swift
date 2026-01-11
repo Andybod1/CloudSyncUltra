@@ -1034,7 +1034,9 @@ class RcloneManager {
                     "--config", self.configPath,
                     "--progress",
                     "--stats", "1s",
-                    "--verbose"
+                    "--stats-one-line",
+                    "--use-json-log",
+                    "-vv"
                 ]
                 
                 // Add bandwidth limits
@@ -1042,18 +1044,24 @@ class RcloneManager {
                 
                 process.arguments = args
                 
-                let pipe = Pipe()
-                process.standardOutput = pipe
-                process.standardError = pipe
+                let stdoutPipe = Pipe()
+                let stderrPipe = Pipe()
+                process.standardOutput = stdoutPipe
+                process.standardError = stderrPipe
                 
                 print("[RcloneManager] Starting upload with progress: \(localPath) -> \(remoteName):\(remotePath)")
                 
-                pipe.fileHandleForReading.readabilityHandler = { handle in
+                // Monitor stderr for progress updates (rclone outputs progress to stderr)
+                stderrPipe.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
                     if !data.isEmpty {
                         if let output = String(data: data, encoding: .utf8) {
-                            print("[RcloneManager] Upload output: \(output)")
+                            // Print raw output for debugging
+                            if !output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                print("[RcloneManager] Upload stderr: \(output)")
+                            }
                             if let progress = self.parseProgress(from: output) {
+                                print("[RcloneManager] Parsed progress: \(progress.percentage)% - \(progress.speed)")
                                 continuation.yield(progress)
                             }
                         }
@@ -1066,16 +1074,18 @@ class RcloneManager {
                     
                     process.waitUntilExit()
                     
-                    pipe.fileHandleForReading.readabilityHandler = nil
+                    stderrPipe.fileHandleForReading.readabilityHandler = nil
                     
                     // Check exit status
                     if process.terminationStatus != 0 {
-                        let errorData = pipe.fileHandleForReading.readDataToEndOfFile()
+                        let errorData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
                         let errorString = String(data: errorData, encoding: .utf8) ?? "Upload failed"
                         print("[RcloneManager] Upload failed with exit code \(process.terminationStatus): \(errorString)")
                         continuation.finish()
                     } else {
                         print("[RcloneManager] Upload completed successfully")
+                        // Yield 100% completion
+                        continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
                         continuation.finish()
                     }
                 } catch {
