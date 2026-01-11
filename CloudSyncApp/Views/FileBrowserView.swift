@@ -593,6 +593,19 @@ struct FileBrowserView: View {
                 
                 Spacer()
                 
+                // Cancel button
+                if uploadProgress < 100 {
+                    Button {
+                        cancelUpload()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Cancel upload")
+                }
+                
                 // Percentage
                 Text("\(Int(uploadProgress))%")
                     .font(.title)
@@ -632,6 +645,16 @@ struct FileBrowserView: View {
         .frame(maxWidth: 500)
         .background(uploadStatusColor.opacity(0.05))
         .cornerRadius(12)
+    }
+    
+    private func cancelUpload() {
+        RcloneManager.shared.stopCurrentSync()
+        isUploading = false
+        uploadProgress = 0
+        uploadSpeed = ""
+        uploadCurrentFile = ""
+        uploadFileIndex = 0
+        uploadTotalFiles = 0
     }
     
     private var uploadStatusColor: Color {
