@@ -1023,7 +1023,7 @@ class RcloneManager {
     /// Upload a file or folder from local to a remote with progress streaming
     func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncStream<SyncProgress> {
         return AsyncStream { continuation in
-            Task {
+            Task.detached {
                 let logPath = "/tmp/cloudsync_upload_debug.log"
                 let log = { (msg: String) in
                     let timestamp = Date().description
@@ -1051,80 +1051,77 @@ class RcloneManager {
                     "\(remoteName):\(remotePath)",
                     "--config", self.configPath,
                     "--progress",
-                    "--stats", "500ms",  // Update every 500ms instead of 1s
+                    "--stats", "500ms",
                     "--stats-one-line",
-                    "-v"  // Less verbose to reduce noise
+                    "-v"
                 ]
                 
-                // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
                 
                 process.arguments = args
                 
                 let stderrPipe = Pipe()
-                process.standardOutput = stderrPipe  // Redirect both to same pipe
+                process.standardOutput = stderrPipe
                 process.standardError = stderrPipe
                 
                 log("Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
                 
-                // Read stderr in chunks
                 let handle = stderrPipe.fileHandleForReading
-                var buffer = Data()
-                
-                handle.readabilityHandler = { fileHandle in
-                    let data = fileHandle.availableData
-                    if !data.isEmpty {
-                        buffer.append(data)
-                        
-                        // Process complete lines (split by both \n and \r)
-                        if let output = String(data: buffer, encoding: .utf8) {
-                            // Split by newline OR carriage return
-                            let lines = output.components(separatedBy: CharacterSet(charactersIn: "\n\r"))
-                            
-                            // Process all complete lines (all but last)
-                            for i in 0..<(lines.count - 1) {
-                                let line = lines[i]
-                                if !line.trimmingCharacters(in: .whitespaces).isEmpty {
-                                    log("Raw line: \(line)")
-                                    if let progress = self.parseProgress(from: line) {
-                                        log("Parsed progress: \(progress.percentage)% - \(progress.speed)")
-                                        continuation.yield(progress)
-                                    } else {
-                                        log("Line did not parse as progress")
-                                    }
-                                }
-                            }
-                            
-                            // Keep incomplete line in buffer
-                            if let lastLine = lines.last?.data(using: .utf8) {
-                                buffer = lastLine
-                            } else {
-                                buffer = Data()
-                            }
-                        }
-                    }
-                }
                 
                 do {
                     try process.run()
                     self.process = process
                     
-                    process.waitUntilExit()
+                    log("Process started, beginning to read output")
                     
-                    handle.readabilityHandler = nil
+                    // Read output in a loop while process is running
+                    var buffer = Data()
                     
-                    // Process any remaining buffer
-                    if !buffer.isEmpty, let output = String(data: buffer, encoding: .utf8) {
-                        log("Final buffer: \(output)")
-                        if let progress = self.parseProgress(from: output) {
-                            continuation.yield(progress)
+                    while process.isRunning {
+                        // Non-blocking read with small chunks
+                        if let data = try? handle.availableData, !data.isEmpty {
+                            buffer.append(data)
+                            
+                            if let output = String(data: buffer, encoding: .utf8) {
+                                let lines = output.components(separatedBy: CharacterSet(charactersIn: "\n\r"))
+                                
+                                for i in 0..<(lines.count - 1) {
+                                    let line = lines[i]
+                                    if !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                                        log("Raw line: \(line)")
+                                        if let progress = self.parseProgress(from: line) {
+                                            log("Parsed progress: \(progress.percentage)% - \(progress.speed)")
+                                            continuation.yield(progress)
+                                        }
+                                    }
+                                }
+                                
+                                if let lastLine = lines.last?.data(using: .utf8) {
+                                    buffer = lastLine
+                                } else {
+                                    buffer = Data()
+                                }
+                            }
+                        }
+                        
+                        // Small sleep to avoid busy-waiting
+                        try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                    }
+                    
+                    // Read any remaining data
+                    if let data = try? handle.readToEnd(), !data.isEmpty {
+                        buffer.append(data)
+                        if let output = String(data: buffer, encoding: .utf8) {
+                            log("Final output: \(output)")
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
                         }
                     }
                     
                     log("Upload exit code: \(process.terminationStatus)")
                     
                     if process.terminationStatus == 0 {
-                        // Yield 100% completion
                         continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
                     }
                     
