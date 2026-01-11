@@ -567,7 +567,7 @@ struct ProviderCard: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(provider.brandColor.opacity(0.15))
@@ -582,9 +582,20 @@ struct ProviderCard: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
+                
+                if provider.isExperimental {
+                    Text("EXPERIMENTAL")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.2))
+                        .clipShape(Capsule())
+                }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ? provider.brandColor.opacity(0.1) : Color(NSColor.controlBackgroundColor))

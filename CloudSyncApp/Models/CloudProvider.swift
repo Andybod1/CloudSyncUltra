@@ -296,6 +296,20 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         default: return true
         }
     }
+    
+    var isExperimental: Bool {
+        switch self {
+        case .jottacloud: return true
+        default: return false
+        }
+    }
+    
+    var experimentalNote: String? {
+        switch self {
+        case .jottacloud: return "⚠️ Experimental: Requires manual rclone OAuth setup due to backend limitations"
+        default: return nil
+        }
+    }
 }
 
 struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
