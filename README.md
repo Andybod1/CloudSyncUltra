@@ -31,9 +31,15 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 - **Smart error handling** - Graceful handling of existing files
 - **Cancel transfers** - Stop any operation mid-transfer
 
+### 🔐 Security
+- **End-to-end encryption** - Optional client-side encryption
+- **Export/Import config** - Backup your rclone configuration
+- **Zero-knowledge encryption** - AES-256 standard
+
 ### 🎨 Modern UI
 - **Native macOS design** - Feels right at home on your Mac
 - **Dark mode support** - Beautiful in any lighting
+- **Menu bar icon** - Quick access from anywhere
 - **Dashboard** - Quick overview with stats and activity
 - **Sidebar navigation** - Easy access to all cloud services
 
@@ -90,30 +96,47 @@ Full-featured file browser with list/grid views, search, and context menus.
 ## 🏗️ Architecture
 
 ```
-CloudSyncApp/
-├── CloudSyncApp.swift       # App entry point
-├── Models/
-│   ├── CloudProvider.swift  # Cloud service definitions
-│   ├── SyncTask.swift       # Task management
-│   └── FileItem.swift       # File/folder model
-├── ViewModels/
-│   ├── RemotesViewModel.swift    # Cloud connections
-│   ├── TasksViewModel.swift      # Task management
-│   └── FileBrowserViewModel.swift # File browsing
-├── Views/
-│   ├── MainWindow.swift     # Main app window
-│   ├── DashboardView.swift  # Dashboard
-│   ├── TransferView.swift   # Dual-pane transfer
-│   ├── FileBrowserView.swift # Single-pane browser
-│   ├── TasksView.swift      # Task management
-│   └── SettingsView.swift   # App settings
-└── RcloneManager.swift      # rclone integration
+CloudSyncUltra/
+├── CloudSyncApp/
+│   ├── CloudSyncAppApp.swift    # App entry point
+│   ├── Models/
+│   │   ├── CloudProvider.swift  # Cloud service definitions
+│   │   ├── SyncTask.swift       # Task management
+│   │   └── AppTheme.swift       # Theme settings
+│   ├── ViewModels/
+│   │   ├── RemotesViewModel.swift    # Cloud connections
+│   │   ├── TasksViewModel.swift      # Task management
+│   │   └── FileBrowserViewModel.swift # File browsing
+│   ├── Views/
+│   │   ├── MainWindow.swift     # Main app window
+│   │   ├── DashboardView.swift  # Dashboard
+│   │   ├── TransferView.swift   # Dual-pane transfer
+│   │   ├── FileBrowserView.swift # Single-pane browser
+│   │   ├── TasksView.swift      # Task management
+│   │   └── SettingsView.swift   # App settings
+│   ├── RcloneManager.swift      # rclone integration
+│   ├── SyncManager.swift        # Sync orchestration
+│   └── StatusBarController.swift # Menu bar
+├── CloudSyncAppTests/           # Unit tests
+│   ├── FileItemTests.swift
+│   ├── CloudProviderTests.swift
+│   ├── SyncTaskTests.swift
+│   ├── FileBrowserViewModelTests.swift
+│   ├── TasksViewModelTests.swift
+│   └── RemotesViewModelTests.swift
+└── README.md
 ```
 
 ## 🔧 Configuration
 
 CloudSync Ultra stores its configuration in:
 - `~/Library/Application Support/CloudSyncApp/rclone.conf`
+
+### Backup & Restore Config
+
+1. Go to **Settings → Security**
+2. Use **Export** to save your configuration
+3. Use **Import** to restore from a backup
 
 ### Supported Cloud Providers
 
@@ -130,6 +153,22 @@ CloudSync Ultra stores its configuration in:
 | WebDAV | URL/Password | ✅ Full Support |
 | SFTP | Host/Password | ✅ Full Support |
 | FTP | Host/Password | ✅ Full Support |
+
+## 🧪 Testing
+
+The project includes a comprehensive unit test suite:
+
+```bash
+# Run tests via Xcode
+⌘U
+
+# Or via command line
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
+```
+
+### Test Coverage
+- **Models**: FileItem, CloudProvider, SyncTask
+- **ViewModels**: FileBrowserViewModel, TasksViewModel, RemotesViewModel
 
 ## 🛠️ Development
 

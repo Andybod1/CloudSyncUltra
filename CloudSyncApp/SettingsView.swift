@@ -500,6 +500,7 @@ struct EncryptionSettingsView: View {
     @State private var errorMessage: String?
     @State private var showPasswordWarning = false
     @State private var showDisableConfirmation = false
+    @State private var showExportConfirmation = false
     
     private let encryptionManager = EncryptionManager.shared
     
@@ -517,6 +518,12 @@ struct EncryptionSettingsView: View {
                 } header: {
                     Label("Setup Encryption", systemImage: "key")
                 }
+            }
+            
+            Section {
+                configExportView
+            } header: {
+                Label("Configuration Backup", systemImage: "square.and.arrow.up")
             }
             
             Section {
@@ -545,6 +552,114 @@ struct EncryptionSettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Disabling encryption will not decrypt existing encrypted files.")
+        }
+        .alert("Export Configuration?", isPresented: $showExportConfirmation) {
+            Button("Export", role: .destructive) {
+                exportRcloneConfig()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The rclone config file may contain sensitive credentials. Store it securely and do not share it.")
+        }
+    }
+    
+    @ViewBuilder
+    private var configExportView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "doc.text")
+                    .foregroundColor(.secondary)
+                    .font(.title2)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Export rclone Configuration")
+                        .fontWeight(.medium)
+                    Text("Download your cloud connection settings for backup or migration")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Export...") {
+                    showExportConfirmation = true
+                }
+                .buttonStyle(.bordered)
+            }
+            
+            HStack {
+                Image(systemName: "square.and.arrow.down")
+                    .foregroundColor(.secondary)
+                    .font(.title2)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Import rclone Configuration")
+                        .fontWeight(.medium)
+                    Text("Restore settings from a previously exported config file")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Import...") {
+                    importRcloneConfig()
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+    
+    private func exportRcloneConfig() {
+        let panel = NSSavePanel()
+        panel.title = "Export rclone Configuration"
+        panel.nameFieldStringValue = "rclone.conf"
+        panel.allowedContentTypes = [.text]
+        panel.canCreateDirectories = true
+        
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            
+            let configPath = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            )[0].appendingPathComponent("CloudSyncApp/rclone.conf")
+            
+            do {
+                try FileManager.default.copyItem(at: configPath, to: url)
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            } catch {
+                print("Export failed: \(error)")
+            }
+        }
+    }
+    
+    private func importRcloneConfig() {
+        let panel = NSOpenPanel()
+        panel.title = "Import rclone Configuration"
+        panel.allowedContentTypes = [.text]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            
+            let configPath = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            )[0].appendingPathComponent("CloudSyncApp/rclone.conf")
+            
+            do {
+                // Backup existing config
+                let backupPath = configPath.deletingLastPathComponent().appendingPathComponent("rclone.conf.backup")
+                if FileManager.default.fileExists(atPath: configPath.path) {
+                    try? FileManager.default.removeItem(at: backupPath)
+                    try FileManager.default.copyItem(at: configPath, to: backupPath)
+                }
+                
+                // Import new config
+                try? FileManager.default.removeItem(at: configPath)
+                try FileManager.default.copyItem(at: url, to: configPath)
+                
+                // Reload remotes
+                RemotesViewModel.shared.loadRemotes()
+            } catch {
+                print("Import failed: \(error)")
+            }
         }
     }
     

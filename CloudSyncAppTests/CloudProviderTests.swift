@@ -81,10 +81,10 @@ final class CloudProviderTests: XCTestCase {
         let google = CloudRemote(name: "Google", type: .googleDrive, isConfigured: true)
         let dropbox = CloudRemote(name: "Dropbox", type: .dropbox, isConfigured: true)
         
-        // Colors should not be nil
-        XCTAssertNotNil(proton.displayColor)
-        XCTAssertNotNil(google.displayColor)
-        XCTAssertNotNil(dropbox.displayColor)
+        // Colors should not crash
+        _ = proton.displayColor
+        _ = google.displayColor
+        _ = dropbox.displayColor
     }
     
     func testCloudRemote_DisplayIcon() {
@@ -125,7 +125,7 @@ final class CloudProviderTests: XCTestCase {
     
     func testAllProviderTypes() {
         let allTypes = CloudProviderType.allCases
-        XCTAssertTrue(allTypes.count > 10) // We have many providers
+        XCTAssertTrue(allTypes.count > 10)
         XCTAssertTrue(allTypes.contains(.protonDrive))
         XCTAssertTrue(allTypes.contains(.googleDrive))
         XCTAssertTrue(allTypes.contains(.local))

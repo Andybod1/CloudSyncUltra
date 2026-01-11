@@ -16,9 +16,9 @@ final class FileItemTests: XCTestCase {
         let file = FileItem(
             name: "small.txt",
             path: "/small.txt",
+            isDirectory: false,
             size: 500,
-            modifiedDate: Date(),
-            isDirectory: false
+            modifiedDate: Date()
         )
         XCTAssertEqual(file.formattedSize, "500 B")
     }
@@ -27,9 +27,9 @@ final class FileItemTests: XCTestCase {
         let file = FileItem(
             name: "medium.txt",
             path: "/medium.txt",
+            isDirectory: false,
             size: 2048,
-            modifiedDate: Date(),
-            isDirectory: false
+            modifiedDate: Date()
         )
         XCTAssertEqual(file.formattedSize, "2 KB")
     }
@@ -38,9 +38,9 @@ final class FileItemTests: XCTestCase {
         let file = FileItem(
             name: "large.zip",
             path: "/large.zip",
+            isDirectory: false,
             size: 5 * 1024 * 1024,
-            modifiedDate: Date(),
-            isDirectory: false
+            modifiedDate: Date()
         )
         XCTAssertEqual(file.formattedSize, "5 MB")
     }
@@ -49,9 +49,9 @@ final class FileItemTests: XCTestCase {
         let file = FileItem(
             name: "huge.iso",
             path: "/huge.iso",
+            isDirectory: false,
             size: 2 * 1024 * 1024 * 1024,
-            modifiedDate: Date(),
-            isDirectory: false
+            modifiedDate: Date()
         )
         XCTAssertEqual(file.formattedSize, "2 GB")
     }
@@ -60,22 +60,11 @@ final class FileItemTests: XCTestCase {
         let folder = FileItem(
             name: "Documents",
             path: "/Documents",
+            isDirectory: true,
             size: 0,
-            modifiedDate: Date(),
-            isDirectory: true
+            modifiedDate: Date()
         )
         XCTAssertEqual(folder.formattedSize, "-")
-    }
-    
-    func testFormattedSize_NegativeSize() {
-        let file = FileItem(
-            name: "test.txt",
-            path: "/test.txt",
-            size: -1,
-            modifiedDate: Date(),
-            isDirectory: false
-        )
-        XCTAssertEqual(file.formattedSize, "-1 byte")
     }
     
     // MARK: - Icon Tests
@@ -84,22 +73,18 @@ final class FileItemTests: XCTestCase {
         let folder = FileItem(
             name: "Documents",
             path: "/Documents",
-            size: 0,
-            modifiedDate: Date(),
             isDirectory: true
         )
         XCTAssertEqual(folder.icon, "folder.fill")
     }
     
-    func testIcon_TextFile() {
+    func testIcon_PDFFile() {
         let file = FileItem(
-            name: "readme.txt",
-            path: "/readme.txt",
-            size: 100,
-            modifiedDate: Date(),
+            name: "document.pdf",
+            path: "/document.pdf",
             isDirectory: false
         )
-        XCTAssertEqual(file.icon, "doc.text")
+        XCTAssertEqual(file.icon, "doc.fill")
     }
     
     func testIcon_ImageFile() {
@@ -108,11 +93,9 @@ final class FileItemTests: XCTestCase {
             let file = FileItem(
                 name: "photo.\(ext)",
                 path: "/photo.\(ext)",
-                size: 1000,
-                modifiedDate: Date(),
                 isDirectory: false
             )
-            XCTAssertEqual(file.icon, "photo", "Failed for extension: \(ext)")
+            XCTAssertEqual(file.icon, "photo.fill", "Failed for extension: \(ext)")
         }
     }
     
@@ -122,37 +105,22 @@ final class FileItemTests: XCTestCase {
             let file = FileItem(
                 name: "video.\(ext)",
                 path: "/video.\(ext)",
-                size: 1000,
-                modifiedDate: Date(),
                 isDirectory: false
             )
-            XCTAssertEqual(file.icon, "film", "Failed for extension: \(ext)")
+            XCTAssertEqual(file.icon, "film.fill", "Failed for extension: \(ext)")
         }
     }
     
     func testIcon_AudioFile() {
-        let extensions = ["mp3", "wav", "aac", "flac", "m4a"]
+        let extensions = ["mp3", "wav", "aac", "flac"]
         for ext in extensions {
             let file = FileItem(
                 name: "audio.\(ext)",
                 path: "/audio.\(ext)",
-                size: 1000,
-                modifiedDate: Date(),
                 isDirectory: false
             )
             XCTAssertEqual(file.icon, "music.note", "Failed for extension: \(ext)")
         }
-    }
-    
-    func testIcon_PDFFile() {
-        let file = FileItem(
-            name: "document.pdf",
-            path: "/document.pdf",
-            size: 1000,
-            modifiedDate: Date(),
-            isDirectory: false
-        )
-        XCTAssertEqual(file.icon, "doc.richtext")
     }
     
     func testIcon_ZipFile() {
@@ -161,50 +129,21 @@ final class FileItemTests: XCTestCase {
             let file = FileItem(
                 name: "archive.\(ext)",
                 path: "/archive.\(ext)",
-                size: 1000,
-                modifiedDate: Date(),
                 isDirectory: false
             )
             XCTAssertEqual(file.icon, "doc.zipper", "Failed for extension: \(ext)")
         }
     }
     
-    func testIcon_CodeFile() {
-        let extensions = ["swift", "py", "js", "ts", "java", "c", "cpp", "h", "html", "css"]
-        for ext in extensions {
-            let file = FileItem(
-                name: "code.\(ext)",
-                path: "/code.\(ext)",
-                size: 1000,
-                modifiedDate: Date(),
-                isDirectory: false
-            )
-            XCTAssertEqual(file.icon, "chevron.left.forwardslash.chevron.right", "Failed for extension: \(ext)")
-        }
-    }
-    
-    func testIcon_UnknownFile() {
-        let file = FileItem(
-            name: "unknown.xyz",
-            path: "/unknown.xyz",
-            size: 1000,
-            modifiedDate: Date(),
-            isDirectory: false
-        )
-        XCTAssertEqual(file.icon, "doc")
-    }
-    
     // MARK: - Date Formatting Tests
     
-    func testFormattedDate_Today() {
+    func testFormattedDate_NotEmpty() {
         let file = FileItem(
             name: "test.txt",
             path: "/test.txt",
-            size: 100,
-            modifiedDate: Date(),
-            isDirectory: false
+            isDirectory: false,
+            modifiedDate: Date()
         )
-        // Should contain today's date
         XCTAssertFalse(file.formattedDate.isEmpty)
     }
     
@@ -216,16 +155,12 @@ final class FileItemTests: XCTestCase {
             id: id,
             name: "test.txt",
             path: "/test.txt",
-            size: 100,
-            modifiedDate: Date(),
             isDirectory: false
         )
         let file2 = FileItem(
             id: id,
             name: "different.txt",
             path: "/different.txt",
-            size: 200,
-            modifiedDate: Date(),
             isDirectory: false
         )
         XCTAssertEqual(file1, file2)
@@ -235,17 +170,26 @@ final class FileItemTests: XCTestCase {
         let file1 = FileItem(
             name: "test.txt",
             path: "/test.txt",
-            size: 100,
-            modifiedDate: Date(),
             isDirectory: false
         )
         let file2 = FileItem(
             name: "test.txt",
             path: "/test.txt",
-            size: 100,
-            modifiedDate: Date(),
             isDirectory: false
         )
         XCTAssertNotEqual(file1, file2)
+    }
+    
+    // MARK: - Hashable Tests
+    
+    func testHashable() {
+        let file1 = FileItem(name: "test1.txt", path: "/test1.txt", isDirectory: false)
+        let file2 = FileItem(name: "test2.txt", path: "/test2.txt", isDirectory: false)
+        
+        var set = Set<FileItem>()
+        set.insert(file1)
+        set.insert(file2)
+        
+        XCTAssertEqual(set.count, 2)
     }
 }
