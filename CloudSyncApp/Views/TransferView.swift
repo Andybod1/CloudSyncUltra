@@ -379,8 +379,12 @@ struct TransferView: View {
                             )
                         } else {
                             // For files, use copyto for exact destination
+                            // If destination path is empty, use just the filename
+                            let fileName = (sourcePath as NSString).lastPathComponent
+                            let finalDestPath = destPath.isEmpty ? fileName : (destPath as NSString).appendingPathComponent(fileName)
+                            
                             let sourceSpec = "\(sourceRemote):\(sourcePath)"
-                            let destSpec = "\(destRemote):\(destPath)"
+                            let destSpec = "\(destRemote):\(finalDestPath)"
                             
                             log("Cloud-to-cloud file: \(sourceSpec) -> \(destSpec)")
                             
