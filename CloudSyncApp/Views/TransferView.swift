@@ -159,6 +159,29 @@ struct TransferView: View {
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
                                to: CloudRemote, toPath: String, srcBrowser: FileBrowserViewModel, dstBrowser: FileBrowserViewModel) {
         let totalSize = files.reduce(0) { $0 + $1.size }
+        
+        let logPath = "/tmp/cloudsync_transfer_debug.log"
+        let log = { (msg: String) in
+            let timestamp = Date().description
+            let line = "\(timestamp): [Transfer] \(msg)\n"
+            if let data = line.data(using: .utf8) {
+                let fileURL = URL(fileURLWithPath: logPath)
+                if FileManager.default.fileExists(atPath: logPath) {
+                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
+                        fileHandle.seekToEndOfFile()
+                        fileHandle.write(data)
+                        fileHandle.closeFile()
+                    }
+                } else {
+                    try? data.write(to: fileURL)
+                }
+            }
+        }
+        
+        log("Starting transfer: \(files.count) files, \(totalSize) bytes")
+        log("From: \(from.name) (\(from.type)) - \(fromPath)")
+        log("To: \(to.name) (\(to.type)) - \(toPath)")
+        
         transferProgress.start(itemCount: files.count, totalSize: totalSize, sourceName: from.name, destName: to.name)
         
         // Create task for history
@@ -182,7 +205,11 @@ struct TransferView: View {
             var skipCount = 0
             var errorMessages: [String] = []
             
+            log("Starting Task loop with \(files.count) files")
+            
             for (index, file) in files.enumerated() {
+                log("Processing file \(index + 1)/\(files.count): \(file.name)")
+                
                 do {
                     // Update which file we're on
                     await MainActor.run {
@@ -195,22 +222,30 @@ struct TransferView: View {
                     let destRemote = to.type == .local ? "" : to.rcloneName
                     let destPath = toPath.isEmpty ? "" : toPath
                     
+                    log("Source: remote=\(sourceRemote), path=\(sourcePath)")
+                    log("Dest: remote=\(destRemote), path=\(destPath)")
+                    
                     // For direct copy between remotes or from local to remote
                     if from.type == .local {
                         // Source is local file system - use streaming upload with progress
+                        log("Upload: local -> cloud")
                         let progressStream = try await RcloneManager.shared.uploadWithProgress(
                             localPath: sourcePath,
                             remoteName: destRemote.isEmpty ? "proton" : destRemote,
                             remotePath: destPath
                         )
                         
+                        log("Got progress stream")
+                        
                         for await progress in progressStream {
+                            log("Progress: \(progress.percentage)% - \(progress.speed)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
                                 transferProgress.speed = progress.speed
                             }
                         }
                         
+                        log("Upload complete")
                         successCount += 1
                     } else if to.type == .local {
                         // Destination is local file system
@@ -358,7 +393,13 @@ struct TransferProgressBar: View {
                         Image(systemName: "arrow.right").font(.caption).foregroundColor(.secondary)
                         Text(progress.destName).fontWeight(.medium)
                     }.font(.subheadline)
-                    Text(progress.statusMessage).font(.caption).foregroundColor(.secondary)
+                    HStack(spacing: 8) {
+                        Text(progress.statusMessage).font(.caption).foregroundColor(.secondary)
+                        if !progress.speed.isEmpty && progress.isTransferring {
+                            Text("•").foregroundColor(.secondary)
+                            Text(progress.speed).font(.caption).foregroundColor(.secondary)
+                        }
+                    }
                 }
                 Spacer()
                 Text("\(Int(progress.percentage))%").font(.title2).fontWeight(.bold).foregroundColor(statusColor)
