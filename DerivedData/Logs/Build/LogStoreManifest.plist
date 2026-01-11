@@ -6,7 +6,7 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>EF32E4FE-8F26-4EBA-979B-8AC1DB6DA0C9</key>
+		<key>5ED4DEFF-AA45-4F93-8F9B-A0D83D192B21</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>EF32E4FE-8F26-4EBA-979B-8AC1DB6DA0C9.xcactivitylog</string>
+			<string>5ED4DEFF-AA45-4F93-8F9B-A0D83D192B21.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -40,13 +40,13 @@
 			<key>signature</key>
 			<string>Cleaning project CloudSyncApp with scheme CloudSyncApp and configuration Debug</string>
 			<key>timeStartedRecording</key>
-			<real>789812165.16495097</real>
+			<real>789814189.78496003</real>
 			<key>timeStoppedRecording</key>
-			<real>789812165.34085906</real>
+			<real>789814190.02821302</real>
 			<key>title</key>
 			<string>Cleaning project CloudSyncApp with scheme CloudSyncApp and configuration Debug</string>
 			<key>uniqueIdentifier</key>
-			<string>EF32E4FE-8F26-4EBA-979B-8AC1DB6DA0C9</string>
+			<string>5ED4DEFF-AA45-4F93-8F9B-A0D83D192B21</string>
 		</dict>
 	</dict>
 </dict>
