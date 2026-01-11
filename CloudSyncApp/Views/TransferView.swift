@@ -250,6 +250,8 @@ struct TransferView: View {
                     let destRemote = to.type == .local ? "" : to.rcloneName
                     var destPath = toPath.isEmpty ? "" : toPath
                     
+                    log("File isDirectory: \(file.isDirectory), name: \(file.name), size: \(file.size)")
+                    
                     // If transferring a directory, append the directory name to destination
                     // so it creates the folder at destination instead of copying contents into root
                     if file.isDirectory {

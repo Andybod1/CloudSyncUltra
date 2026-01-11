@@ -603,18 +603,31 @@ struct FileBrowserView: View {
                         
                         log("Processing file \(uploadFileIndex)/\(uploadTotalFiles): \(url.path)")
                         
+                        // Check if this is a directory
+                        var isDirectory: ObjCBool = false
+                        FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
+                        
+                        log("Is directory: \(isDirectory.boolValue)")
+                        
                         if remote.type == .local {
                             // Local copy
                             let destPath = (browser.currentPath as NSString).appendingPathComponent(url.lastPathComponent)
                             try FileManager.default.copyItem(atPath: url.path, toPath: destPath)
                         } else {
                             // Cloud upload via rclone with progress
-                            log("Starting cloud upload to \(remote.rcloneName):\(browser.currentPath)")
+                            // For directories, append folder name to destination to preserve structure
+                            var destPath = browser.currentPath
+                            if isDirectory.boolValue {
+                                destPath = (destPath as NSString).appendingPathComponent(url.lastPathComponent)
+                                log("Directory detected - uploading to: \(destPath)")
+                            }
+                            
+                            log("Starting cloud upload to \(remote.rcloneName):\(destPath)")
                             
                             let progressStream = try await RcloneManager.shared.uploadWithProgress(
                                 localPath: url.path,
                                 remoteName: remote.rcloneName,
-                                remotePath: browser.currentPath
+                                remotePath: destPath
                             )
                             
                             log("Got progress stream, starting iteration")
