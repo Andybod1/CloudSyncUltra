@@ -2,7 +2,7 @@
 
 ## Overview
 
-CloudSync Ultra v2.0 includes full support for Proton Drive, Proton's end-to-end encrypted cloud storage service. This integration uses rclone's `protondrive` backend.
+CloudSync Ultra v2.0 includes full support for Proton Drive, Proton's end-to-end encrypted cloud storage service. This integration uses rclone's `protondrive` backend with secure credential storage in macOS Keychain.
 
 ## Prerequisites
 
@@ -51,6 +51,41 @@ If you use Proton's two-password mode (separate login and mailbox passwords):
 7. Click **Test Connection** to verify
 8. Click **Connect** to save
 
+## Credential Storage & Auto-Reconnect
+
+### Secure Keychain Storage
+
+CloudSync Ultra securely stores your Proton Drive credentials in the macOS Keychain:
+
+- **Username**: Stored for display and reconnection
+- **Password**: Encrypted in Keychain (never stored in plain text)
+- **TOTP Secret**: Stored securely for automatic 2FA code generation
+- **Mailbox Password**: Stored for two-password accounts
+
+### Auto-Reconnect Feature
+
+When your session expires or the app restarts:
+
+1. CloudSync detects saved credentials in Keychain
+2. Shows "Saved Credentials Found" with your username
+3. Click **Reconnect** for one-click authentication
+4. If using TOTP Secret, 2FA codes are generated automatically
+
+### Managing Saved Credentials
+
+| Action | What Happens |
+|--------|--------------|
+| **Reconnect** | Uses saved credentials to re-authenticate |
+| **Disconnect** | Removes rclone config AND clears Keychain |
+| **Disconnect (Keep Credentials)** | Removes rclone config, keeps Keychain data |
+
+### Keychain Security
+
+- Uses `kSecAttrAccessibleWhenUnlocked` - only accessible when Mac is unlocked
+- Stored in app-specific Keychain space
+- Protected by macOS Keychain Services (Secure Enclave on Apple Silicon)
+- Never transmitted over network - only used locally
+
 ## Troubleshooting
 
 ### "Encryption keys not found"
@@ -67,8 +102,14 @@ If you use Proton's two-password mode (separate login and mailbox passwords):
 
 ### "Session expired"
 - Your authentication session has expired
-- Re-connect using the setup wizard
+- Click **Reconnect** if you have saved credentials
+- Or re-connect using the setup wizard
 - Consider using TOTP Secret for persistent authentication
+
+### "No saved credentials found"
+- You haven't connected Proton Drive before
+- Or credentials were cleared on disconnect
+- Use the setup wizard to connect
 
 ### "Too many requests"
 - Wait a few minutes before trying again
@@ -91,6 +132,13 @@ The rclone configuration is stored at:
 ~/Library/Application Support/CloudSyncApp/rclone.conf
 ```
 
+### Keychain Storage
+
+Credentials are stored in the macOS Keychain with:
+- Service: `com.cloudsync.app` (or bundle identifier)
+- Account: `proton_drive_credentials`
+- Data: JSON-encoded `ProtonDriveCredentials` struct
+
 ### Supported Operations
 
 | Operation | Supported |
@@ -103,16 +151,61 @@ The rclone configuration is stored at:
 | Create folder | ✅ |
 | Bi-directional sync | ✅ |
 | E2E encryption (app-level) | ✅ |
+| Keychain credential storage | ✅ |
+| Auto-reconnect with TOTP | ✅ |
 
 ## Security Notes
 
-1. Credentials are stored in the macOS Keychain
-2. Passwords are obscured before being written to rclone config
-3. Proton Drive itself provides end-to-end encryption
-4. You can add CloudSync Ultra's additional encryption layer on top
+1. **Keychain Storage**: Credentials are stored in macOS Keychain, not in files
+2. **Password Obscuring**: Passwords are obscured before being written to rclone config
+3. **Proton E2E Encryption**: Proton Drive itself provides end-to-end encryption
+4. **Additional Encryption**: You can add CloudSync Ultra's encryption layer on top
+5. **No Plain Text**: Passwords are never stored in plain text or UserDefaults
+
+## API Reference
+
+### ProtonDriveManager
+
+```swift
+// Check connection state
+ProtonDriveManager.shared.connectionState  // .connected, .disconnected, etc.
+
+// Check for saved credentials
+ProtonDriveManager.shared.hasSavedCredentials  // Bool
+
+// Get saved username (for display)
+ProtonDriveManager.shared.getSavedUsername()  // String?
+
+// Reconnect using saved credentials
+try await ProtonDriveManager.shared.reconnect()
+
+// Disconnect and optionally clear credentials
+await ProtonDriveManager.shared.disconnect(clearCredentials: true)
+```
+
+### KeychainManager
+
+```swift
+// Save Proton credentials
+try KeychainManager.shared.saveProtonCredentials(
+    username: "user@proton.me",
+    password: "password",
+    otpSecretKey: "TOTP_SECRET",      // Optional
+    mailboxPassword: "mailbox_pass"    // Optional
+)
+
+// Check if credentials exist
+KeychainManager.shared.hasProtonCredentials  // Bool
+
+// Get credentials
+let creds = try KeychainManager.shared.getProtonCredentials()
+
+// Delete credentials
+try KeychainManager.shared.deleteProtonCredentials()
+```
 
 ## Version Requirements
 
 - rclone: v1.62.0 or later (protondrive backend was added in v1.62.0)
-- macOS: 12.0 (Monterey) or later
+- macOS: 14.0 (Sonoma) or later
 - CloudSync Ultra: 2.0.0 or later

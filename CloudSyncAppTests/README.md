@@ -68,81 +68,110 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Thread safety and edge cases
 
 10. **SyncManagerTests.swift** - Core sync orchestration tests (62 tests)
-   - Singleton pattern validation
-   - Property management (localPath, remotePath, syncInterval, autoSync)
-   - Published properties (syncStatus, lastSyncTime, currentProgress, isMonitoring)
-   - UserDefaults persistence for all settings
-   - State management and lifecycle
-   - Complete workflow tests (setup, reset)
-   - Edge cases (long paths, unicode, special characters, rapid changes)
-   - Settings persistence integration
+    - Singleton pattern validation
+    - Property management (localPath, remotePath, syncInterval, autoSync)
+    - Published properties (syncStatus, lastSyncTime, currentProgress, isMonitoring)
+    - UserDefaults persistence for all settings
+    - State management and lifecycle
+    - Complete workflow tests (setup, reset)
+    - Edge cases (long paths, unicode, special characters, rapid changes)
+    - Settings persistence integration
 
 11. **SyncManagerPhase2Tests.swift** - Advanced integration tests (50 tests)
-   - Monitoring lifecycle (start, stop, cleanup)
-   - Sync status transitions (idle→checking→syncing→completed→error)
-   - Progress tracking (0% to 100% incremental updates)
-   - Auto sync configuration and behavior
-   - Sync interval configuration (1s to 7 days)
-   - Error handling and recovery
-   - State machine validation
-   - Resource cleanup
-   - Async operation patterns
-   - Complete workflow integration
+    - Monitoring lifecycle (start, stop, cleanup)
+    - Sync status transitions (idle→checking→syncing→completed→error)
+    - Progress tracking (0% to 100% incremental updates)
+    - Auto sync configuration and behavior
+    - Sync interval configuration (1s to 7 days)
+    - Error handling and recovery
+    - State machine validation
+    - Resource cleanup
+    - Async operation patterns
+    - Complete workflow integration
 
 12. **RcloneManagerPhase1Tests.swift** - Core RcloneManager unit tests (60 tests)
-   - Singleton pattern validation
-   - Remote configuration and name handling (12 tests)
-   - Progress parsing from rclone output (15 tests)
-   - Encryption integration points (3 tests)
-   - Error type definitions and descriptions (5 tests)
-   - Edge cases (unicode, special chars, very long names, concurrent access)
-   - Performance baseline testing
-   - Robustness and stress testing
+    - Singleton pattern validation
+    - Remote configuration and name handling (12 tests)
+    - Progress parsing from rclone output (15 tests)
+    - Encryption integration points (3 tests)
+    - Error type definitions and descriptions (5 tests)
+    - Edge cases (unicode, special chars, very long names, concurrent access)
+    - Performance baseline testing
+    - Robustness and stress testing
 
 13. **Phase1Week1ProvidersTests.swift** - New cloud providers tests (50 tests)
-   - Provider properties (display name, rclone type, icons, colors) for 6 new providers
-   - Provider count verification (13 → 19 providers)
-   - Brand color accuracy tests
-   - Codable support for all new providers
-   - Raw value and ID tests
-   - Icon validation (SF Symbols)
-   - WebDAV vendor-specific tests (Nextcloud, ownCloud)
-   - Protocol conformance (Hashable, Equatable, Identifiable)
-   - CloudRemote integration tests
-   - Edge cases and sorting
+    - Provider properties (display name, rclone type, icons, colors) for 6 new providers
+    - Provider count verification (13 → 19 providers)
+    - Brand color accuracy tests
+    - Codable support for all new providers
+    - Raw value and ID tests
+    - Icon validation (SF Symbols)
+    - WebDAV vendor-specific tests (Nextcloud, ownCloud)
+    - Protocol conformance (Hashable, Equatable, Identifiable)
+    - CloudRemote integration tests
+    - Edge cases and sorting
 
 14. **Phase1Week2ProvidersTests.swift** - Object storage providers tests (66 tests)
-   - Provider properties for 8 object storage providers
-   - Provider count verification (19 → 27 providers)
-   - S3 compatibility tests (6 S3-compatible providers)
-   - Native protocol tests (B2, Storj)
-   - Brand color accuracy
-   - Codable support and CloudRemote integration
-   - Protocol conformance tests
-   - S3 endpoint validation for each provider
-   - Comprehensive validation (unique names, non-empty properties)
+    - Provider properties for 8 object storage providers
+    - Provider count verification (19 → 27 providers)
+    - S3 compatibility tests (6 S3-compatible providers)
+    - Native protocol tests (B2, Storj)
+    - Brand color accuracy
+    - Codable support and CloudRemote integration
+    - Protocol conformance tests
+    - S3 endpoint validation for each provider
+    - Comprehensive validation (unique names, non-empty properties)
 
 15. **Phase1Week3ProvidersTests.swift** - Enterprise services tests (45 tests)
-   - Provider properties for 6 enterprise providers
-   - Provider count verification (27 → 33 providers - Phase 1 COMPLETE!)
-   - Microsoft ecosystem tests (Azure Blob, Azure Files, OneDrive Business, SharePoint)
-   - Google Cloud Storage tests
-   - Alibaba Cloud OSS tests
-   - Brand color accuracy
-   - Codable support and CloudRemote integration
-   - Protocol conformance tests
-   - Phase 1 completion validation (33 providers total)
+    - Provider properties for 6 enterprise providers
+    - Provider count verification (27 → 33 providers - Phase 1 COMPLETE!)
+    - Microsoft ecosystem tests (Azure Blob, Azure Files, OneDrive Business, SharePoint)
+    - Google Cloud Storage tests
+    - Alibaba Cloud OSS tests
+    - Brand color accuracy
+    - Codable support and CloudRemote integration
+    - Protocol conformance tests
+    - Phase 1 completion validation (33 providers total)
 
 16. **JottacloudProviderTests.swift** - Jottacloud provider tests (23 tests)
-   - Provider properties (display name, rclone type, icon, brand color)
-   - Provider count verification (33 → 34 providers)
-   - Norwegian unlimited storage provider
-   - Nordic market relevance tests
-   - European/GDPR compliance validation
-   - Codable support and CloudRemote integration
-   - Protocol conformance (Hashable, Equatable, Identifiable)
-   - Unique features (unlimited storage)
-   - Comprehensive validation (unique values, all properties)
+    - Provider properties (display name, rclone type, icon, brand color)
+    - Provider count verification (33 → 34 providers)
+    - Norwegian unlimited storage provider
+    - Nordic market relevance tests
+    - European/GDPR compliance validation
+    - Codable support and CloudRemote integration
+    - Protocol conformance (Hashable, Equatable, Identifiable)
+    - Unique features (unlimited storage)
+    - Comprehensive validation (unique values, all properties)
+
+17. **KeychainManagerTests.swift** - Keychain credential storage tests (25+ tests)
+    - String storage (save, retrieve, update, delete)
+    - Data storage and Codable object storage
+    - ProtonDriveCredentials model tests
+      - Basic creation
+      - 2FA configuration (TOTP secret)
+      - Mailbox password (two-password accounts)
+      - Full configuration (all fields)
+      - Empty OTP handling
+    - Proton Drive Keychain integration
+      - Save/retrieve credentials
+      - Delete credentials
+      - hasProtonCredentials property
+      - Credential updates
+    - Generic cloud credentials
+    - OAuth token storage
+    - Edge cases (special chars, unicode, empty strings, long passwords)
+    - CloudCredentials model and Codable support
+
+18. **ProtonDriveTests.swift** - Proton Drive integration tests (30+ tests)
+    - CloudProviderType properties
+    - CloudRemote creation and configuration
+    - Encryption support
+    - 2FA mode enum tests
+    - RcloneError types
+    - FileItem creation and icons
+    - OAuth provider categorization
+    - Sync modes and status types
 
 ## How to Add Test Target in Xcode
 

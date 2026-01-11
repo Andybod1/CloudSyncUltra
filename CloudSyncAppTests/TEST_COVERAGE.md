@@ -4,7 +4,7 @@
 
 CloudSync Ultra v2.0 has comprehensive test coverage across all core functionality.
 
-### Unit Test Files (Total: 24 files)
+### Unit Test Files (Total: 25 files)
 
 **Location:** `/Users/antti/Claude/CloudSyncAppTests/`
 
@@ -39,10 +39,12 @@ CloudSync Ultra v2.0 has comprehensive test coverage across all core functionali
 - ✅ **Phase1Week3ProvidersTests.swift** - Extended providers
 - ✅ **OAuthExpansionProvidersTests.swift** - OAuth expansion
 - ✅ **JottacloudProviderTests.swift** - Jottacloud specific
+- ✅ **ProtonDriveTests.swift** - Proton Drive integration
 
 #### Security Tests
 - ✅ **EncryptionManagerTests.swift** - End-to-end encryption
 - ✅ **BandwidthThrottlingTests.swift** - Network control
+- ✅ **KeychainManagerTests.swift** - Secure credential storage
 
 ## New Features Test Coverage (Jan 11, 2026)
 
@@ -82,11 +84,56 @@ CloudSync Ultra v2.0 has comprehensive test coverage across all core functionali
   - Speed display formatting
   - Completion state transitions
 
+## Keychain & Credential Storage (Jan 11, 2026)
+
+### ✅ KeychainManager Core
+- **Tests:** 8 test cases
+- **Coverage:**
+  - String storage (save, retrieve, update)
+  - Data storage and Codable objects
+  - Delete operations
+  - Non-existent key handling
+
+### ✅ ProtonDriveCredentials Model
+- **Tests:** 5 test cases
+- **Coverage:**
+  - Basic credential creation
+  - 2FA configuration (TOTP secret)
+  - Mailbox password (two-password accounts)
+  - Full configuration with all fields
+  - Empty OTP handling edge case
+
+### ✅ Proton Drive Keychain Integration
+- **Tests:** 5 test cases
+- **Coverage:**
+  - Save/retrieve credentials
+  - Delete credentials
+  - hasProtonCredentials property
+  - Credential updates
+  - Auto-reconnect workflow
+
+### ✅ Generic Credential Storage
+- **Tests:** 4 test cases
+- **Coverage:**
+  - Cloud provider credentials
+  - OAuth token storage
+  - Delete operations
+  - Multi-provider support
+
+### ✅ Edge Cases & Security
+- **Tests:** 5 test cases
+- **Coverage:**
+  - Special characters in passwords
+  - Unicode character support
+  - Empty string handling
+  - Long password support (10,000+ chars)
+  - CloudCredentials Codable compliance
+
 ## Test Statistics
 
-**Unit Tests:** 100+ test cases
+**Unit Tests:** 125+ test cases
 **UI Tests:** 73 test cases ✅ NEW
-**Total Tests:** 173+ automated tests
+**Total Tests:** 198+ automated tests
 **Test Success Rate:** 100%
 
 **Coverage Areas:**
@@ -95,7 +142,8 @@ CloudSync Ultra v2.0 has comprehensive test coverage across all core functionali
 - Integration: ✅ Full coverage
 - Rclone: ✅ Full coverage
 - Security: ✅ Full coverage
-- **UI Automation: ✅ Full coverage** ✨ NEW
+- Keychain: ✅ Full coverage ✨ NEW
+- **UI Automation: ✅ Full coverage**
 - **New Features (Jan 2026): ✅ Full coverage**
 
 ## Running Tests
@@ -206,6 +254,6 @@ Complete UI testing guides:
 ---
 
 **Last Updated:** January 11, 2026
-**Unit Test Status:** ✅ All 100+ tests passing
+**Unit Test Status:** ✅ All 125+ tests passing
 **UI Test Status:** ✅ 73 tests created, ready for integration
 **Production Ready:** Yes
