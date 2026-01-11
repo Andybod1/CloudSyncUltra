@@ -89,6 +89,16 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Async operation patterns
    - Complete workflow integration
 
+12. **RcloneManagerPhase1Tests.swift** - Core RcloneManager unit tests (60 tests)
+   - Singleton pattern validation
+   - Remote configuration and name handling (12 tests)
+   - Progress parsing from rclone output (15 tests)
+   - Encryption integration points (3 tests)
+   - Error type definitions and descriptions (5 tests)
+   - Edge cases (unicode, special chars, very long names, concurrent access)
+   - Performance baseline testing
+   - Robustness and stress testing
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode
