@@ -248,7 +248,15 @@ struct TransferView: View {
                     let sourcePath = file.path
                     let sourceRemote = from.type == .local ? "" : from.rcloneName
                     let destRemote = to.type == .local ? "" : to.rcloneName
-                    let destPath = toPath.isEmpty ? "" : toPath
+                    var destPath = toPath.isEmpty ? "" : toPath
+                    
+                    // If transferring a directory, append the directory name to destination
+                    // so it creates the folder at destination instead of copying contents into root
+                    if file.isDirectory {
+                        let folderName = (sourcePath as NSString).lastPathComponent
+                        destPath = (destPath as NSString).appendingPathComponent(folderName)
+                        log("Directory detected - adjusted dest path to: \(destPath)")
+                    }
                     
                     log("Source: remote=\(sourceRemote), path=\(sourcePath)")
                     log("Dest: remote=\(destRemote), path=\(destPath)")
