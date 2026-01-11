@@ -1256,6 +1256,8 @@ class RcloneManager {
         var totalFiles: Int?
         var percentage: Double = 0
         var speed: String = ""
+        var bytesTransferred: Int64?
+        var totalBytes: Int64?
         
         for line in lines {
             // Check for file count info: "Transferred: 5 / 100, 5%"
@@ -1287,11 +1289,22 @@ class RcloneManager {
             }
             
             // Format 2: Look for lines with percentage and speed (e.g., "18 B / 18 B, 100%, 17 B/s, ETA 0s")
+            // Also extract bytes: "1.371 MiB / 1 GiB, 0%, ..."
             let trimmedLine = line.trimmingCharacters(in: .whitespaces)
             if trimmedLine.contains("%") && trimmedLine.contains("/") && trimmedLine.contains("B/s") {
                 let components = trimmedLine.components(separatedBy: ",")
                 
                 if components.count >= 3 {
+                    // Extract bytes from first component: "transferred / total"
+                    let bytesPart = components[0].trimmingCharacters(in: .whitespaces)
+                    let bytesComponents = bytesPart.components(separatedBy: "/")
+                    if bytesComponents.count == 2 {
+                        let transferredStr = bytesComponents[0].trimmingCharacters(in: .whitespaces)
+                        let totalStr = bytesComponents[1].trimmingCharacters(in: .whitespaces)
+                        bytesTransferred = parseSizeString(transferredStr)
+                        totalBytes = parseSizeString(totalStr)
+                    }
+                    
                     // Parse percentage (second component)
                     let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
                     percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
@@ -1317,11 +1330,36 @@ class RcloneManager {
                 speed: speed,
                 status: .syncing,
                 filesTransferred: filesTransferred,
-                totalFiles: totalFiles
+                totalFiles: totalFiles,
+                bytesTransferred: bytesTransferred,
+                totalBytes: totalBytes
             )
         }
         
         return nil
+    }
+    
+    // Helper to parse size strings like "1.5 MiB", "652.6 MB", "128 B"
+    private func parseSizeString(_ sizeStr: String) -> Int64? {
+        let parts = sizeStr.components(separatedBy: " ")
+        guard parts.count == 2,
+              let value = Double(parts[0]) else {
+            return nil
+        }
+        
+        let unit = parts[1].uppercased()
+        let multiplier: Double
+        
+        switch unit {
+        case "B": multiplier = 1
+        case "KB", "KIB": multiplier = 1024
+        case "MB", "MIB": multiplier = 1024 * 1024
+        case "GB", "GIB": multiplier = 1024 * 1024 * 1024
+        case "TB", "TIB": multiplier = 1024 * 1024 * 1024 * 1024
+        default: return nil
+        }
+        
+        return Int64(value * multiplier)
     }
 }
 
@@ -1338,13 +1376,17 @@ struct SyncProgress {
     let status: SyncStatus
     let filesTransferred: Int?  // Number of files transferred
     let totalFiles: Int?        // Total number of files
+    let bytesTransferred: Int64? // Bytes transferred so far
+    let totalBytes: Int64?      // Total bytes to transfer
     
-    init(percentage: Double, speed: String, status: SyncStatus, filesTransferred: Int? = nil, totalFiles: Int? = nil) {
+    init(percentage: Double, speed: String, status: SyncStatus, filesTransferred: Int? = nil, totalFiles: Int? = nil, bytesTransferred: Int64? = nil, totalBytes: Int64? = nil) {
         self.percentage = percentage
         self.speed = speed
         self.status = status
         self.filesTransferred = filesTransferred
         self.totalFiles = totalFiles
+        self.bytesTransferred = bytesTransferred
+        self.totalBytes = totalBytes
     }
 }
 

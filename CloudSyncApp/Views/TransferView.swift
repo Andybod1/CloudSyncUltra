@@ -283,11 +283,29 @@ struct TransferView: View {
                                     if task.totalFiles != total {
                                         task.totalFiles = total  // Update total if rclone found more/fewer files
                                     }
+                                }
+                                
+                                // If rclone reports total bytes (for directories), use that
+                                if let totalBytes = progress.totalBytes {
+                                    if task.totalBytes != totalBytes {
+                                        log("Updating totalBytes from \(task.totalBytes) to \(totalBytes)")
+                                        task.totalBytes = totalBytes
+                                    }
+                                }
+                                
+                                // Calculate bytes transferred
+                                if let bytesTransferred = progress.bytesTransferred {
+                                    // Use rclone's reported bytes if available
+                                    task.bytesTransferred = bytesTransferred
                                 } else {
-                                    // For single files, calculate bytes transferred
+                                    // Fallback: calculate from file size and percentage
                                     let currentFileBytes = Int64(Double(file.size) * (progress.percentage / 100.0))
                                     let previousFilesBytes = files.prefix(index).reduce(Int64(0)) { $0 + $1.size }
                                     task.bytesTransferred = previousFilesBytes + currentFileBytes
+                                }
+                                
+                                // File count (only for non-directory transfers)
+                                if progress.filesTransferred == nil {
                                     task.filesTransferred = successCount
                                 }
                                 
