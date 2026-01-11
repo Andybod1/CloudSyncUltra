@@ -1083,24 +1083,29 @@ class RcloneManager {
                             buffer.append(data)
                             
                             if let output = String(data: buffer, encoding: .utf8) {
+                                // Split by newline OR carriage return - this handles both \n and \r separated lines
                                 let lines = output.components(separatedBy: CharacterSet(charactersIn: "\n\r"))
                                 
-                                for i in 0..<(lines.count - 1) {
-                                    let line = lines[i]
-                                    if !line.trimmingCharacters(in: .whitespaces).isEmpty {
-                                        log("Raw line: \(line)")
-                                        if let progress = self.parseProgress(from: line) {
-                                            log("Parsed progress: \(progress.percentage)% - \(progress.speed)")
-                                            continuation.yield(progress)
+                                // Process ALL lines, including the last one if it's complete
+                                for line in lines {
+                                    let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+                                    if !trimmedLine.isEmpty {
+                                        // Check if this looks like a progress line (has percentage and slashes)
+                                        if trimmedLine.contains("%") && trimmedLine.contains("/") {
+                                            log("Progress line: \(trimmedLine)")
+                                            if let progress = self.parseProgress(from: trimmedLine) {
+                                                log("Parsed progress: \(progress.percentage)% - \(progress.speed)")
+                                                continuation.yield(progress)
+                                            }
+                                        } else if !trimmedLine.starts(with: "2026/") { // Skip debug timestamps
+                                            log("Non-progress line: \(trimmedLine)")
                                         }
                                     }
                                 }
                                 
-                                if let lastLine = lines.last?.data(using: .utf8) {
-                                    buffer = lastLine
-                                } else {
-                                    buffer = Data()
-                                }
+                                // Clear buffer after processing - we don't need to keep incomplete lines
+                                // since progress lines are self-contained
+                                buffer = Data()
                             }
                         }
                         
