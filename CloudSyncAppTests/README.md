@@ -67,6 +67,16 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Complete setup/teardown workflows
    - Thread safety and edge cases
 
+10. **SyncManagerTests.swift** - Core sync orchestration tests (62 tests)
+   - Singleton pattern validation
+   - Property management (localPath, remotePath, syncInterval, autoSync)
+   - Published properties (syncStatus, lastSyncTime, currentProgress, isMonitoring)
+   - UserDefaults persistence for all settings
+   - State management and lifecycle
+   - Complete workflow tests (setup, reset)
+   - Edge cases (long paths, unicode, special characters, rapid changes)
+   - Settings persistence integration
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode
