@@ -362,13 +362,33 @@ struct TransferView: View {
                         successCount += 1
                     } else {
                         // Both are cloud remotes - use rclone copy between remotes
-                        let sourceSpec = "\(sourceRemote):\(sourcePath)"
-                        let destSpec = "\(destRemote):\(destPath)"
+                        log("Cloud to cloud transfer")
                         
-                        try await RcloneManager.shared.copyBetweenRemotes(
-                            source: sourceSpec,
-                            destination: destSpec
-                        )
+                        if file.isDirectory {
+                            // For directories, use rclone copy (not copyto)
+                            // This copies the entire directory structure
+                            let sourceSpec = "\(sourceRemote):\(sourcePath)"
+                            let destSpec = "\(destRemote):\(destPath)"
+                            
+                            log("Cloud-to-cloud folder: \(sourceSpec) -> \(destSpec)")
+                            
+                            // Use regular copy for directories
+                            try await RcloneManager.shared.copy(
+                                source: sourceSpec,
+                                destination: destSpec
+                            )
+                        } else {
+                            // For files, use copyto for exact destination
+                            let sourceSpec = "\(sourceRemote):\(sourcePath)"
+                            let destSpec = "\(destRemote):\(destPath)"
+                            
+                            log("Cloud-to-cloud file: \(sourceSpec) -> \(destSpec)")
+                            
+                            try await RcloneManager.shared.copyBetweenRemotes(
+                                source: sourceSpec,
+                                destination: destSpec
+                            )
+                        }
                         successCount += 1
                     }
                 } catch {

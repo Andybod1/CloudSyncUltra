@@ -1277,6 +1277,42 @@ class RcloneManager {
         }
     }
     
+    /// Copy files/folders between remotes using rclone copy (for directories)
+    func copy(source: String, destination: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        
+        var args = [
+            "copy",
+            source,
+            destination,
+            "--config", configPath,
+            "--progress",
+            "--verbose"
+        ]
+        
+        // Add bandwidth limits
+        args.append(contentsOf: getBandwidthArgs())
+        
+        process.arguments = args
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        // Get error output
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        if process.terminationStatus != 0 {
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Copy failed" : errorString)
+        }
+    }
+    
     // MARK: - Progress Parsing
     
     private func parseProgress(from output: String) -> SyncProgress? {
