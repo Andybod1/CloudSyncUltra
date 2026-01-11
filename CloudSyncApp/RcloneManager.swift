@@ -1085,7 +1085,7 @@ class RcloneManager {
     
     /// Obscures a password using rclone's obscure command.
     /// Rclone requires passwords in its config to be obscured.
-    private func obscurePassword(_ password: String) async throws -> String {
+    func obscurePassword(_ password: String) async throws -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
         process.arguments = ["obscure", password]
@@ -1818,24 +1818,4 @@ struct RemoteFile: Codable {
     let MimeType: String
     let ModTime: String
     let IsDir: Bool
-}
-
-enum RcloneError: LocalizedError {
-    case configurationFailed(String)
-    case syncFailed(String)
-    case notInstalled
-    case encryptionSetupFailed(String)
-    
-    var errorDescription: String? {
-        switch self {
-        case .configurationFailed(let message):
-            return "Configuration failed: \(message)"
-        case .syncFailed(let message):
-            return "Sync failed: \(message)"
-        case .notInstalled:
-            return "rclone is not installed. Please install via: brew install rclone"
-        case .encryptionSetupFailed(let message):
-            return "Encryption setup failed: \(message)"
-        }
-    }
 }

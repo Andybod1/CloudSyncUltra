@@ -2,7 +2,8 @@
 //  ProtonDriveSetupView.swift
 //  CloudSyncApp
 //
-//  Dedicated setup view for Proton Drive with full authentication support
+//  Dedicated setup view for Proton Drive with full authentication support,
+//  credential storage, and connection management.
 //
 
 import SwiftUI
@@ -10,6 +11,7 @@ import SwiftUI
 struct ProtonDriveSetupView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var remotesVM: RemotesViewModel
+    @StateObject private var protonManager = ProtonDriveManager.shared
     
     // Form fields
     @State private var username = ""
@@ -19,13 +21,14 @@ struct ProtonDriveSetupView: View {
     @State private var otpSecretKey = ""
     @State private var mailboxPassword = ""
     @State private var showAdvanced = false
+    @State private var rememberCredentials = true
     
     // State
     @State private var isConfiguring = false
     @State private var isTesting = false
-    @State private var errorMessage: String?
-    @State private var successMessage: String?
+    @State private var testResult: TestResult?
     @State private var showPrerequisites = true
+    @State private var currentStep: SetupStep = .prerequisites
     
     let remote: CloudRemote
     var onSuccess: ((CloudRemote) -> Void)?
@@ -37,392 +40,727 @@ struct ProtonDriveSetupView: View {
         
         var id: String { rawValue }
         
+        var icon: String {
+            switch self {
+            case .none: return "lock.open"
+            case .code: return "number.circle"
+            case .totp: return "key.fill"
+            }
+        }
+        
         var description: String {
             switch self {
-            case .none: return "No 2FA configured"
-            case .code: return "Enter a 6-digit code from your authenticator"
-            case .totp: return "Enter your TOTP secret for automatic code generation (recommended)"
+            case .none: return "No two-factor authentication"
+            case .code: return "Enter a 6-digit code from your authenticator app"
+            case .totp: return "Enter your TOTP secret for automatic code generation"
             }
         }
     }
     
+    enum SetupStep {
+        case prerequisites
+        case credentials
+        case connected
+    }
+    
+    struct TestResult {
+        let success: Bool
+        let message: String
+    }
+    
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                headerSection
-                
-                if showPrerequisites {
-                    prerequisitesSection
+        VStack(spacing: 0) {
+            // Header
+            headerSection
+                .padding()
+            
+            Divider()
+            
+            // Content based on step
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    switch currentStep {
+                    case .prerequisites:
+                        prerequisitesSection
+                    case .credentials:
+                        credentialsForm
+                    case .connected:
+                        connectedSection
+                    }
                 }
-                
-                // Credentials Section
-                credentialsSection
-                
-                // 2FA Section
-                twoFactorSection
-                
-                // Advanced Section
-                advancedSection
-                
-                // Messages
-                messagesSection
-                
-                // Actions
-                actionsSection
+                .padding()
             }
-            .padding()
+            
+            Divider()
+            
+            // Footer actions
+            footerActions
+                .padding()
         }
-        .frame(width: 500, height: 650)
+        .frame(width: 520, height: 680)
+        .onAppear {
+            checkExistingConnection()
+        }
     }
     
     // MARK: - Header
     
     private var headerSection: some View {
         HStack(spacing: 16) {
+            // Logo
             ZStack {
                 Circle()
-                    .fill(Color(red: 0.42, green: 0.31, blue: 0.78).opacity(0.15))
-                    .frame(width: 64, height: 64)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.42, green: 0.31, blue: 0.78),
+                                Color(red: 0.55, green: 0.35, blue: 0.85)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 56, height: 56)
                 
                 Image(systemName: "shield.checkered")
-                    .font(.system(size: 28))
-                    .foregroundColor(Color(red: 0.42, green: 0.31, blue: 0.78))
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(.white)
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("Connect Proton Drive")
+                Text("Proton Drive")
                     .font(.title2)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                 
-                Text("End-to-end encrypted cloud storage")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 6) {
+                    connectionStatusBadge
+                    
+                    if let lastCheck = protonManager.lastConnectionCheck {
+                        Text("• Last checked \(lastCheck.formatted(.relative(presentation: .named)))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             
             Spacer()
             
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
-                    .font(.title2)
+            // Step indicator
+            stepIndicator
+        }
+    }
+    
+    private var connectionStatusBadge: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(statusColor)
+                .frame(width: 8, height: 8)
+            
+            Text(protonManager.connectionState.statusText)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(statusColor.opacity(0.1))
+        .cornerRadius(12)
+    }
+    
+    private var statusColor: Color {
+        switch protonManager.connectionState {
+        case .connected: return .green
+        case .connecting: return .orange
+        case .disconnected: return .gray
+        case .error, .sessionExpired: return .red
+        }
+    }
+    
+    private var stepIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<3) { index in
+                Circle()
+                    .fill(stepIndex >= index ? Color.accentColor : Color.secondary.opacity(0.3))
+                    .frame(width: 8, height: 8)
             }
-            .buttonStyle(.plain)
+        }
+    }
+    
+    private var stepIndex: Int {
+        switch currentStep {
+        case .prerequisites: return 0
+        case .credentials: return 1
+        case .connected: return 2
         }
     }
     
     // MARK: - Prerequisites
     
     private var prerequisitesSection: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.orange)
-                    Text("Before You Begin")
-                        .fontWeight(.semibold)
+        VStack(alignment: .leading, spacing: 20) {
+            // Warning card
+            GroupBox {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        
+                        Text("Before You Connect")
+                            .font(.headline)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        prerequisiteRow(
+                            icon: "globe",
+                            title: "Log in via Browser First",
+                            description: "Visit drive.proton.me and log in to generate encryption keys"
+                        )
+                        
+                        prerequisiteRow(
+                            icon: "key.fill",
+                            title: "Encryption Keys Required",
+                            description: "Proton generates keys on first browser login - this can't be done via API"
+                        )
+                        
+                        prerequisiteRow(
+                            icon: "iphone",
+                            title: "Have 2FA Ready",
+                            description: "If you use two-factor authentication, have your authenticator ready"
+                        )
+                    }
                 }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    prerequisiteItem(
-                        number: "1",
-                        text: "Log in to Proton Drive via your web browser at least once"
-                    )
-                    prerequisiteItem(
-                        number: "2",
-                        text: "This generates the encryption keys required by rclone"
-                    )
-                    prerequisiteItem(
-                        number: "3",
-                        text: "If you have 2FA enabled, have your authenticator ready"
-                    )
-                }
-                
+                .padding(8)
+            }
+            
+            // Quick link to Proton Drive
+            Link(destination: URL(string: "https://drive.proton.me")!) {
                 HStack {
+                    Image(systemName: "safari")
+                    Text("Open Proton Drive in Browser")
                     Spacer()
-                    Button("I've Done This") {
-                        withAnimation {
-                            showPrerequisites = false
+                    Image(systemName: "arrow.up.right")
+                }
+                .padding(12)
+                .background(Color.accentColor.opacity(0.1))
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            
+            // Check for saved credentials
+            if protonManager.hasSavedCredentials() {
+                savedCredentialsCard
+            }
+        }
+    }
+    
+    private func prerequisiteRow(icon: String, title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(.accentColor)
+                .frame(width: 24)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .fontWeight(.medium)
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    private var savedCredentialsCard: some View {
+        GroupBox {
+            HStack(spacing: 12) {
+                Image(systemName: "person.badge.key.fill")
+                    .font(.title2)
+                    .foregroundColor(.green)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Saved Credentials Found")
+                        .fontWeight(.semibold)
+                    
+                    if let creds = protonManager.getSavedCredentials() {
+                        Text(creds.username)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                Button("Reconnect") {
+                    Task { await quickReconnect() }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isConfiguring)
+            }
+            .padding(4)
+        }
+    }
+    
+    // MARK: - Credentials Form
+    
+    private var credentialsForm: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Email & Password
+            GroupBox {
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("Account Credentials", systemImage: "person.circle")
+                        .font(.headline)
+                    
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Email")
+                                .frame(width: 110, alignment: .trailing)
+                            TextField("you@proton.me", text: $username)
+                                .textFieldStyle(.roundedBorder)
+                                .textContentType(.emailAddress)
+                                .autocorrectionDisabled()
+                        }
+                        
+                        HStack {
+                            Text("Password")
+                                .frame(width: 110, alignment: .trailing)
+                            SecureField("Account password", text: $password)
+                                .textFieldStyle(.roundedBorder)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color(red: 0.42, green: 0.31, blue: 0.78))
                 }
+                .padding(8)
             }
-            .padding(8)
-        }
-    }
-    
-    private func prerequisiteItem(number: String, text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text(number)
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(width: 18, height: 18)
-                .background(Color(red: 0.42, green: 0.31, blue: 0.78))
-                .clipShape(Circle())
             
-            Text(text)
-                .font(.callout)
-                .foregroundColor(.secondary)
-        }
-    }
-    
-    // MARK: - Credentials
-    
-    private var credentialsSection: some View {
-        GroupBox("Account Credentials") {
-            VStack(spacing: 16) {
-                HStack {
-                    Text("Email")
-                        .frame(width: 100, alignment: .trailing)
-                    TextField("your@proton.me", text: $username)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.emailAddress)
-                        .autocorrectionDisabled()
-                }
-                
-                HStack {
-                    Text("Password")
-                        .frame(width: 100, alignment: .trailing)
-                    SecureField("Account password", text: $password)
-                        .textFieldStyle(.roundedBorder)
-                }
-            }
-            .padding(8)
-        }
-    }
-    
-    // MARK: - Two Factor
-    
-    private var twoFactorSection: some View {
-        GroupBox("Two-Factor Authentication") {
-            VStack(alignment: .leading, spacing: 12) {
-                Picker("2FA Mode", selection: $twoFactorMode) {
-                    ForEach(TwoFactorMode.allCases) { mode in
-                        Text(mode.rawValue).tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
-                Text(twoFactorMode.description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                switch twoFactorMode {
-                case .none:
-                    EmptyView()
+            // 2FA Section
+            GroupBox {
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("Two-Factor Authentication", systemImage: "lock.shield")
+                        .font(.headline)
                     
-                case .code:
-                    HStack {
-                        Text("Code")
-                            .frame(width: 100, alignment: .trailing)
-                        TextField("123456", text: $twoFactorCode)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 120)
-                        
-                        Text("from authenticator app")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    // Mode selector
+                    HStack(spacing: 0) {
+                        ForEach(TwoFactorMode.allCases) { mode in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    twoFactorMode = mode
+                                }
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: mode.icon)
+                                        .font(.caption)
+                                    Text(mode.rawValue)
+                                        .font(.caption)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .frame(maxWidth: .infinity)
+                                .background(twoFactorMode == mode ? Color.accentColor : Color.clear)
+                                .foregroundColor(twoFactorMode == mode ? .white : .primary)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
+                    .background(Color.secondary.opacity(0.1))
+                    .cornerRadius(8)
                     
-                    Text("⚠️ Single codes expire. You may need to re-authenticate when the session ends.")
+                    // Description
+                    Text(twoFactorMode.description)
                         .font(.caption)
-                        .foregroundColor(.orange)
+                        .foregroundColor(.secondary)
                     
-                case .totp:
+                    // 2FA input
+                    switch twoFactorMode {
+                    case .none:
+                        EmptyView()
+                        
+                    case .code:
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Code")
+                                    .frame(width: 110, alignment: .trailing)
+                                TextField("123456", text: $twoFactorCode)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 120)
+                            }
+                            
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.circle")
+                                    .foregroundColor(.orange)
+                                Text("Single-use codes expire. Consider using TOTP secret for persistent auth.")
+                                    .foregroundColor(.orange)
+                            }
+                            .font(.caption)
+                        }
+                        
+                    case .totp:
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("TOTP Secret")
+                                    .frame(width: 110, alignment: .trailing)
+                                SecureField("Base32 secret key", text: $otpSecretKey)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+                            
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundColor(.green)
+                                Text("Recommended: Allows automatic code generation for persistent auth.")
+                                    .foregroundColor(.green)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                }
+                .padding(8)
+            }
+            
+            // Advanced options
+            DisclosureGroup(isExpanded: $showAdvanced) {
+                VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("TOTP Secret")
-                            .frame(width: 100, alignment: .trailing)
-                        SecureField("ABCDEFGHIJKLMNOP...", text: $otpSecretKey)
+                        Text("Mailbox Password")
+                            .frame(width: 110, alignment: .trailing)
+                        SecureField("For two-password accounts", text: $mailboxPassword)
                             .textFieldStyle(.roundedBorder)
                     }
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("✅ Recommended: The secret allows automatic code generation")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                        Text("Find this in your Proton account security settings when you set up 2FA")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    Text("Only required if you use Proton's two-password mode")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top, 8)
+            } label: {
+                Label("Advanced Options", systemImage: "gearshape.2")
+                    .font(.headline)
+            }
+            
+            // Remember credentials toggle
+            Toggle(isOn: $rememberCredentials) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Remember credentials")
+                    Text("Securely stored in macOS Keychain for quick reconnection")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 8)
+            
+            // Test result
+            if let result = testResult {
+                testResultCard(result)
+            }
+        }
+    }
+    
+    private func testResultCard(_ result: TestResult) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .font(.title2)
+                .foregroundColor(result.success ? .green : .red)
+            
+            Text(result.message)
+                .font(.callout)
+                .foregroundColor(result.success ? .green : .red)
+            
+            Spacer()
+            
+            if !result.success {
+                Button("Dismiss") {
+                    testResult = nil
+                }
+                .font(.caption)
+            }
+        }
+        .padding(12)
+        .background((result.success ? Color.green : Color.red).opacity(0.1))
+        .cornerRadius(8)
+    }
+    
+    // MARK: - Connected Section
+    
+    private var connectedSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Success card
+            GroupBox {
+                VStack(spacing: 16) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.green)
+                    
+                    Text("Successfully Connected!")
+                        .font(.headline)
+                    
+                    Text("Your Proton Drive is now linked to CloudSync Ultra")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+            }
+            
+            // Storage info
+            if let storage = protonManager.storageInfo {
+                storageInfoCard(storage)
+            }
+            
+            // Quick actions
+            GroupBox {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Quick Actions", systemImage: "bolt.fill")
+                        .font(.headline)
+                    
+                    HStack(spacing: 12) {
+                        quickActionButton(
+                            icon: "folder",
+                            title: "Browse Files",
+                            action: { dismiss() }
+                        )
+                        
+                        quickActionButton(
+                            icon: "arrow.triangle.2.circlepath",
+                            title: "Start Sync",
+                            action: { dismiss() }
+                        )
+                        
+                        quickActionButton(
+                            icon: "lock.shield",
+                            title: "Setup Encryption",
+                            action: { dismiss() }
+                        )
                     }
                 }
+                .padding(8)
+            }
+        }
+    }
+    
+    private func storageInfoCard(_ storage: ProtonDriveManager.StorageInfo) -> some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Storage", systemImage: "externaldrive.fill")
+                    .font(.headline)
+                
+                // Progress bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.secondary.opacity(0.2))
+                            .frame(height: 8)
+                        
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(storage.usagePercentage > 90 ? Color.red : Color.accentColor)
+                            .frame(width: geo.size.width * CGFloat(storage.usagePercentage / 100), height: 8)
+                    }
+                }
+                .frame(height: 8)
+                
+                HStack {
+                    Text("\(storage.usedFormatted) used")
+                    Spacer()
+                    Text("\(storage.freeFormatted) free")
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(storage.totalFormatted) total")
+                        .foregroundColor(.secondary)
+                }
+                .font(.caption)
             }
             .padding(8)
         }
     }
     
-    // MARK: - Advanced
-    
-    private var advancedSection: some View {
-        DisclosureGroup("Advanced Options", isExpanded: $showAdvanced) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("Mailbox Password")
-                        .frame(width: 120, alignment: .trailing)
-                    SecureField("For two-password accounts", text: $mailboxPassword)
-                        .textFieldStyle(.roundedBorder)
-                }
-                
-                Text("Only needed if you use Proton's two-password mode (separate login and mailbox passwords)")
+    private func quickActionButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                Text(title)
                     .font(.caption)
-                    .foregroundColor(.secondary)
             }
-            .padding(.top, 8)
-        }
-    }
-    
-    // MARK: - Messages
-    
-    @ViewBuilder
-    private var messagesSection: some View {
-        if let error = errorMessage {
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.red)
-                Text(error)
-                    .foregroundColor(.red)
-            }
-            .font(.callout)
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.red.opacity(0.1))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(Color.secondary.opacity(0.1))
             .cornerRadius(8)
         }
-        
-        if let success = successMessage {
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Text(success)
-                    .foregroundColor(.green)
-            }
-            .font(.callout)
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.green.opacity(0.1))
-            .cornerRadius(8)
-        }
+        .buttonStyle(.plain)
     }
     
-    // MARK: - Actions
+    // MARK: - Footer Actions
     
-    private var actionsSection: some View {
+    private var footerActions: some View {
         HStack {
             Button("Cancel") {
                 dismiss()
             }
-            .buttonStyle(.bordered)
+            .keyboardShortcut(.escape)
             
             Spacer()
             
-            // Test Connection
-            Button {
-                Task { await testConnection() }
-            } label: {
-                HStack(spacing: 4) {
-                    if isTesting {
-                        ProgressView()
-                            .scaleEffect(0.7)
+            switch currentStep {
+            case .prerequisites:
+                Button("Continue") {
+                    withAnimation {
+                        currentStep = .credentials
                     }
-                    Text("Test Connection")
                 }
-            }
-            .buttonStyle(.bordered)
-            .disabled(username.isEmpty || password.isEmpty || isTesting || isConfiguring)
-            
-            // Connect
-            Button {
-                Task { await connect() }
-            } label: {
-                HStack(spacing: 4) {
-                    if isConfiguring {
-                        ProgressView()
-                            .scaleEffect(0.7)
+                .buttonStyle(.borderedProminent)
+                
+            case .credentials:
+                HStack(spacing: 12) {
+                    Button {
+                        withAnimation {
+                            currentStep = .prerequisites
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
                     }
-                    Text("Connect")
+                    
+                    Button {
+                        Task { await testConnection() }
+                    } label: {
+                        if isTesting {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .frame(width: 16)
+                        } else {
+                            Image(systemName: "network")
+                        }
+                        Text("Test")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!canTest || isTesting || isConfiguring)
+                    
+                    Button {
+                        Task { await connect() }
+                    } label: {
+                        if isConfiguring {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .frame(width: 16)
+                        } else {
+                            Image(systemName: "link")
+                        }
+                        Text("Connect")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canConnect || isTesting || isConfiguring)
                 }
+                
+            case .connected:
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.return)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color(red: 0.42, green: 0.31, blue: 0.78))
-            .disabled(username.isEmpty || password.isEmpty || isTesting || isConfiguring)
+        }
+    }
+    
+    // MARK: - Validation
+    
+    private var canTest: Bool {
+        !username.isEmpty && !password.isEmpty && is2FAValid
+    }
+    
+    private var canConnect: Bool {
+        canTest
+    }
+    
+    private var is2FAValid: Bool {
+        switch twoFactorMode {
+        case .none: return true
+        case .code: return twoFactorCode.count == 6
+        case .totp: return !otpSecretKey.isEmpty
         }
     }
     
     // MARK: - Actions
     
-    private func testConnection() async {
-        isTesting = true
-        errorMessage = nil
-        successMessage = nil
-        
-        do {
-            let result = try await RcloneManager.shared.testProtonDriveConnection(
-                username: username,
-                password: password,
-                twoFactorCode: get2FACode(),
-                mailboxPassword: mailboxPassword.isEmpty ? nil : mailboxPassword
-            )
-            
-            if result.success {
-                successMessage = result.message
-            } else {
-                errorMessage = result.message
-            }
-        } catch {
-            errorMessage = error.localizedDescription
+    private func checkExistingConnection() {
+        if protonManager.connectionState.isConnected {
+            currentStep = .connected
+        } else if protonManager.hasSavedCredentials() {
+            // Stay on prerequisites but show reconnect option
+            currentStep = .prerequisites
         }
-        
-        isTesting = false
     }
     
-    private func connect() async {
+    private func quickReconnect() async {
         isConfiguring = true
-        errorMessage = nil
-        successMessage = nil
         
         do {
-            try await RcloneManager.shared.setupProtonDrive(
-                username: username,
-                password: password,
-                twoFactorCode: twoFactorMode == .code ? twoFactorCode : nil,
-                otpSecretKey: twoFactorMode == .totp ? otpSecretKey : nil,
-                mailboxPassword: mailboxPassword.isEmpty ? nil : mailboxPassword
-            )
+            try await protonManager.reconnect()
             
-            // Update the remote
             var updated = remote
             updated.isConfigured = true
             updated.customRcloneName = "proton"
-            
             onSuccess?(updated)
             
-            successMessage = "Connected successfully!"
-            
-            // Auto-dismiss after success
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            dismiss()
-            
+            withAnimation {
+                currentStep = .connected
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            testResult = TestResult(success: false, message: error.localizedDescription)
+            withAnimation {
+                currentStep = .credentials
+            }
         }
         
         isConfiguring = false
     }
     
-    private func get2FACode() -> String? {
+    private func testConnection() async {
+        isTesting = true
+        testResult = nil
+        
+        let result = await protonManager.testConnection(
+            username: username,
+            password: password,
+            twoFactorCode: get2FAValue(),
+            mailboxPassword: mailboxPassword.isEmpty ? nil : mailboxPassword
+        )
+        
+        testResult = TestResult(success: result.success, message: result.message)
+        isTesting = false
+    }
+    
+    private func connect() async {
+        isConfiguring = true
+        testResult = nil
+        
+        do {
+            try await protonManager.connect(
+                username: username,
+                password: password,
+                twoFactorCode: twoFactorMode == .code ? twoFactorCode : nil,
+                otpSecretKey: twoFactorMode == .totp ? otpSecretKey : nil,
+                mailboxPassword: mailboxPassword.isEmpty ? nil : mailboxPassword,
+                saveCredentials: rememberCredentials
+            )
+            
+            var updated = remote
+            updated.isConfigured = true
+            updated.customRcloneName = "proton"
+            onSuccess?(updated)
+            
+            withAnimation {
+                currentStep = .connected
+            }
+            
+        } catch {
+            testResult = TestResult(success: false, message: error.localizedDescription)
+        }
+        
+        isConfiguring = false
+    }
+    
+    private func get2FAValue() -> String? {
         switch twoFactorMode {
-        case .none:
-            return nil
-        case .code:
-            return twoFactorCode.isEmpty ? nil : twoFactorCode
-        case .totp:
-            // For testing, we pass the OTP secret as the 2FA code
-            // The test method will handle it appropriately
-            return otpSecretKey.isEmpty ? nil : otpSecretKey
+        case .none: return nil
+        case .code: return twoFactorCode.isEmpty ? nil : twoFactorCode
+        case .totp: return otpSecretKey.isEmpty ? nil : otpSecretKey
         }
     }
 }
@@ -433,4 +771,5 @@ struct ProtonDriveSetupView: View {
     ProtonDriveSetupView(
         remote: CloudRemote(name: "Proton Drive", type: .protonDrive)
     )
+    .environmentObject(RemotesViewModel.shared)
 }

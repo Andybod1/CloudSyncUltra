@@ -353,6 +353,74 @@ extension KeychainManager {
     }
 }
 
+// MARK: - Proton Drive Credentials
+
+/// Proton Drive credentials with optional 2FA support
+struct ProtonDriveCredentials: Codable {
+    let username: String
+    let password: String
+    let otpSecretKey: String?
+    let mailboxPassword: String?
+    let createdAt: Date
+    
+    init(username: String, password: String, otpSecretKey: String? = nil, mailboxPassword: String? = nil) {
+        self.username = username
+        self.password = password
+        self.otpSecretKey = otpSecretKey
+        self.mailboxPassword = mailboxPassword
+        self.createdAt = Date()
+    }
+}
+
+extension KeychainManager {
+    // MARK: - Proton Drive Specific
+    
+    private static let protonCredentialsKey = "proton_drive_credentials"
+    
+    /// Save Proton Drive credentials securely
+    /// - Parameters:
+    ///   - username: Proton account email
+    ///   - password: Account password
+    ///   - otpSecretKey: TOTP secret for 2FA (optional)
+    ///   - mailboxPassword: Mailbox password for two-password accounts (optional)
+    func saveProtonCredentials(
+        username: String,
+        password: String,
+        otpSecretKey: String? = nil,
+        mailboxPassword: String? = nil
+    ) throws {
+        let credentials = ProtonDriveCredentials(
+            username: username,
+            password: password,
+            otpSecretKey: otpSecretKey,
+            mailboxPassword: mailboxPassword
+        )
+        try save(credentials, forKey: Self.protonCredentialsKey)
+        Logger.auth.info("Saved Proton Drive credentials for: \(username, privacy: .private)")
+    }
+    
+    /// Retrieve Proton Drive credentials
+    /// - Returns: Stored credentials or nil if not found
+    func getProtonCredentials() throws -> ProtonDriveCredentials? {
+        return try getObject(forKey: Self.protonCredentialsKey)
+    }
+    
+    /// Delete Proton Drive credentials
+    func deleteProtonCredentials() throws {
+        try delete(forKey: Self.protonCredentialsKey)
+        Logger.auth.info("Deleted Proton Drive credentials")
+    }
+    
+    /// Check if Proton Drive credentials exist
+    var hasProtonCredentials: Bool {
+        do {
+            return try getProtonCredentials() != nil
+        } catch {
+            return false
+        }
+    }
+}
+
 // MARK: - Usage Examples
 
 /*

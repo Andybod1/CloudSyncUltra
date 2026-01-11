@@ -176,7 +176,7 @@ struct TaskCard: View {
                 Spacer()
                 
                 // Status Badge
-                StatusBadge(state: task.state)
+                TaskStatusBadge(state: task.state)
                 
                 // Actions
                 taskActions
@@ -285,7 +285,7 @@ struct TaskCard: View {
     }
 }
 
-struct StatusBadge: View {
+struct TaskStatusBadge: View {
     let state: TaskState
     
     var body: some View {
@@ -661,7 +661,7 @@ struct TaskDetailSheet: View {
                 
                 Spacer()
                 
-                StatusBadge(state: task.state)
+                TaskStatusBadge(state: task.state)
                 
                 Button { dismiss() } label: {
                     Image(systemName: "xmark.circle.fill")
