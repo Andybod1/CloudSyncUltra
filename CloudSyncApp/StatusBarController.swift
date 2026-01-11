@@ -146,13 +146,28 @@ class StatusBarController: NSObject {
     }
     
     @objc private func openMainWindow() {
+        // First, activate the app
         NSApp.activate(ignoringOtherApps: true)
         
         // Post notification to open dashboard
         NotificationCenter.default.post(name: NSNotification.Name("OpenDashboard"), object: nil)
         
-        if let window = NSApp.windows.first(where: { $0.title.contains("CloudSync") || $0.contentView != nil }) {
-            window.makeKeyAndOrderFront(nil)
+        // Bring window to front with delay to ensure activation happens
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Try to find and show the main window
+            if let mainWindow = NSApp.windows.first(where: { 
+                $0.contentViewController != nil && 
+                $0.isVisible || !$0.isVisible 
+            }) {
+                mainWindow.makeKeyAndOrderFront(nil)
+                mainWindow.orderFrontRegardless()
+            } else {
+                // If no window found, try to open a new one
+                NSApp.keyWindow?.makeKeyAndOrderFront(nil)
+            }
+            
+            // Force app to front again
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
     
@@ -176,10 +191,22 @@ class StatusBarController: NSObject {
     }
     
     @objc private func showSettings() {
+        // Bring app to front
         NSApp.activate(ignoringOtherApps: true)
         
         // Post notification to open settings
         NotificationCenter.default.post(name: NSNotification.Name("OpenSettings"), object: nil)
+        
+        // Bring main window to front
+        DispatchQueue.main.async {
+            for window in NSApp.windows {
+                if window.contentView != nil && !window.title.isEmpty {
+                    window.makeKeyAndOrderFront(nil)
+                    NSApp.activate(ignoringOtherApps: true)
+                    break
+                }
+            }
+        }
         
         updateMenu()
     }
