@@ -1058,6 +1058,7 @@ class RcloneManager {
                     "--progress",
                     "--stats", "500ms",
                     "--stats-one-line",
+                    "--stats-file-name-length", "0",  // Show full filenames
                     "-v"
                 ]
                 

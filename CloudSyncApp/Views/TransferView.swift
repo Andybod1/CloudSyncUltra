@@ -247,7 +247,12 @@ struct TransferView: View {
                 do {
                     // Update which file we're on
                     await MainActor.run {
-                        transferProgress.sourceName = "\(index + 1)/\(files.count): \(file.name)"
+                        // Show our pre-calculated file count since rclone doesn't report it for folders
+                        if file.isDirectory && totalFileCount > 1 {
+                            transferProgress.sourceName = "Uploading \(totalFileCount) files: \(file.name)"
+                        } else {
+                            transferProgress.sourceName = "\(index + 1)/\(files.count): \(file.name)"
+                        }
                     }
                     
                     // Determine source and destination paths
@@ -291,11 +296,16 @@ struct TransferView: View {
                                 task.progress = progress.percentage / 100.0
                                 task.speed = progress.speed
                                 
-                                // If rclone reports file counts (for directories), use those
-                                if let transferred = progress.filesTransferred, let total = progress.totalFiles {
-                                    task.filesTransferred = transferred
-                                    if task.totalFiles != total {
-                                        task.totalFiles = total  // Update total if rclone found more/fewer files
+                                // For folders, estimate files transferred based on percentage
+                                if file.isDirectory && totalFileCount > 1 {
+                                    let estimatedFilesTransferred = Int(Double(totalFileCount) * (progress.percentage / 100.0))
+                                    task.filesTransferred = max(1, estimatedFilesTransferred) // At least 1
+                                    // Update display
+                                    transferProgress.sourceName = "\(task.filesTransferred)/\(totalFileCount): \(file.name)"
+                                } else {
+                                    // Use rclone's file count if available
+                                    if let transferred = progress.filesTransferred {
+                                        task.filesTransferred = transferred
                                     }
                                 }
                                 
@@ -318,11 +328,6 @@ struct TransferView: View {
                                     task.bytesTransferred = previousFilesBytes + currentFileBytes
                                 }
                                 
-                                // File count (only for non-directory transfers)
-                                if progress.filesTransferred == nil {
-                                    task.filesTransferred = successCount
-                                }
-                                
                                 tasksVM.updateTask(task)
                             }
                         }
@@ -332,7 +337,12 @@ struct TransferView: View {
                         
                         // Update file count after completion
                         await MainActor.run {
-                            task.filesTransferred = successCount
+                            // For folders, set to total file count; for single files, increment
+                            if file.isDirectory && totalFileCount > 1 {
+                                task.filesTransferred = totalFileCount
+                            } else {
+                                task.filesTransferred = successCount
+                            }
                             task.bytesTransferred = files.prefix(successCount).reduce(Int64(0)) { $0 + $1.size }
                             tasksVM.updateTask(task)
                         }
