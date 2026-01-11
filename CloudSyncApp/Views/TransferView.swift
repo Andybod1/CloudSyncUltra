@@ -286,7 +286,9 @@ struct TransferView: View {
             log("  [\(i+1)] \(file.name) - \(file.size) bytes")
         }
         
-        transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name)
+        // Check if encryption is enabled on either side
+        let isEncrypted = from.isEncrypted || to.isEncrypted
+        transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name, encrypted: isEncrypted)
         
         // Show tip for many small files
         if totalFileCount > 50 {
@@ -602,12 +604,13 @@ class TransferProgressModel: ObservableObject {
     @Published var isCompleted = false
     @Published var hasError = false
     @Published var errorMessage: String?
+    @Published var isEncrypted = false
     
-    func start(itemCount: Int, totalSize: Int64, sourceName: String, destName: String) {
+    func start(itemCount: Int, totalSize: Int64, sourceName: String, destName: String, encrypted: Bool = false) {
         isTransferring = true; percentage = 0; speed = ""; self.itemCount = itemCount
         self.totalSize = totalSize; transferredSize = 0; self.sourceName = sourceName
         self.destName = destName; statusMessage = "Transferring..."; isCancelled = false
-        isCompleted = false; hasError = false; errorMessage = nil
+        isCompleted = false; hasError = false; errorMessage = nil; isEncrypted = encrypted
     }
     
     func complete(success: Bool, error: String? = nil, message: String? = nil) {
@@ -656,10 +659,26 @@ struct TransferProgressBar: View {
                     } else { ProgressView().scaleEffect(0.8) }
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack {
+                    HStack(spacing: 8) {
                         Text(progress.sourceName).fontWeight(.medium)
                         Image(systemName: "arrow.right").font(.caption).foregroundColor(.secondary)
                         Text(progress.destName).fontWeight(.medium)
+                        
+                        // Encryption badge
+                        if progress.isEncrypted {
+                            HStack(spacing: 3) {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 9))
+                                Text("E2E")
+                                    .font(.caption2)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(4)
+                        }
                     }.font(.subheadline)
                     HStack(spacing: 8) {
                         Text(progress.statusMessage).font(.caption).foregroundColor(.secondary)
