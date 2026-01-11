@@ -183,6 +183,70 @@ class RcloneManager {
         try await createRemote(name: remoteName, type: "ftp", parameters: params)
     }
     
+    // MARK: - Phase 1, Week 1: Self-Hosted & International Providers
+    
+    func setupNextcloud(remoteName: String, url: String, username: String, password: String) async throws {
+        let params: [String: String] = [
+            "url": url,
+            "vendor": "nextcloud",
+            "user": username,
+            "pass": password
+        ]
+        try await createRemote(name: remoteName, type: "webdav", parameters: params)
+    }
+    
+    func setupOwnCloud(remoteName: String, url: String, username: String, password: String) async throws {
+        let params: [String: String] = [
+            "url": url,
+            "vendor": "owncloud",
+            "user": username,
+            "pass": password
+        ]
+        try await createRemote(name: remoteName, type: "webdav", parameters: params)
+    }
+    
+    func setupSeafile(remoteName: String, url: String, username: String, password: String, library: String? = nil, authToken: String? = nil) async throws {
+        var params: [String: String] = [
+            "url": url,
+            "user": username,
+            "pass": password
+        ]
+        if let library = library, !library.isEmpty {
+            params["library"] = library
+        }
+        if let authToken = authToken, !authToken.isEmpty {
+            params["auth_token"] = authToken
+        }
+        try await createRemote(name: remoteName, type: "seafile", parameters: params)
+    }
+    
+    func setupKoofr(remoteName: String, username: String, password: String, endpoint: String? = nil) async throws {
+        var params: [String: String] = [
+            "user": username,
+            "password": password
+        ]
+        if let endpoint = endpoint, !endpoint.isEmpty {
+            params["endpoint"] = endpoint
+        }
+        try await createRemote(name: remoteName, type: "koofr", parameters: params)
+    }
+    
+    func setupYandexDisk(remoteName: String) async throws {
+        // Yandex Disk uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "yandex")
+    }
+    
+    func setupMailRuCloud(remoteName: String, username: String, password: String) async throws {
+        try await createRemote(
+            name: remoteName,
+            type: "mailru",
+            parameters: [
+                "user": username,
+                "pass": password
+            ]
+        )
+    }
+    
     // MARK: - Generic Remote Creation
     
     private func createRemote(name: String, type: String, parameters: [String: String]) async throws {

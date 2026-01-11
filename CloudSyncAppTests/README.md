@@ -99,6 +99,18 @@ The following test files have been created in `/Users/antti/Claude/CloudSyncAppT
    - Performance baseline testing
    - Robustness and stress testing
 
+13. **Phase1Week1ProvidersTests.swift** - New cloud providers tests (50 tests)
+   - Provider properties (display name, rclone type, icons, colors) for 6 new providers
+   - Provider count verification (13 → 19 providers)
+   - Brand color accuracy tests
+   - Codable support for all new providers
+   - Raw value and ID tests
+   - Icon validation (SF Symbols)
+   - WebDAV vendor-specific tests (Nextcloud, ownCloud)
+   - Protocol conformance (Hashable, Equatable, Identifiable)
+   - CloudRemote integration tests
+   - Edge cases and sorting
+
 ## How to Add Test Target in Xcode
 
 1. Open **CloudSyncApp.xcodeproj** in Xcode

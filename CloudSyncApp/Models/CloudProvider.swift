@@ -8,6 +8,7 @@
 import SwiftUI
 
 enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
+    // Original providers
     case protonDrive = "proton"
     case googleDrive = "gdrive"
     case dropbox = "dropbox"
@@ -21,6 +22,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case sftp = "sftp"
     case ftp = "ftp"
     case local = "local"
+    
+    // Phase 1, Week 1: Self-Hosted & International
+    case nextcloud = "nextcloud"
+    case owncloud = "owncloud"
+    case seafile = "seafile"
+    case koofr = "koofr"
+    case yandexDisk = "yandex"
+    case mailRuCloud = "mailru"
     
     var id: String { rawValue }
     
@@ -39,6 +48,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .sftp: return "SFTP"
         case .ftp: return "FTP"
         case .local: return "Local Storage"
+        
+        // Phase 1, Week 1
+        case .nextcloud: return "Nextcloud"
+        case .owncloud: return "ownCloud"
+        case .seafile: return "Seafile"
+        case .koofr: return "Koofr"
+        case .yandexDisk: return "Yandex Disk"
+        case .mailRuCloud: return "Mail.ru Cloud"
         }
     }
     
@@ -57,6 +74,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .sftp: return "terminal.fill"
         case .ftp: return "network"
         case .local: return "folder.fill"
+        
+        // Phase 1, Week 1
+        case .nextcloud: return "cloud.circle"
+        case .owncloud: return "cloud.circle.fill"
+        case .seafile: return "server.rack"
+        case .koofr: return "arrow.triangle.2.circlepath.circle"
+        case .yandexDisk: return "y.circle.fill"
+        case .mailRuCloud: return "envelope.circle.fill"
         }
     }
     
@@ -75,6 +100,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .sftp: return Color.green
         case .ftp: return Color.orange
         case .local: return Color.secondary
+        
+        // Phase 1, Week 1
+        case .nextcloud: return Color(red: 0.0, green: 0.51, blue: 0.79)
+        case .owncloud: return Color(red: 0.04, green: 0.26, blue: 0.49)
+        case .seafile: return Color(red: 0.0, green: 0.62, blue: 0.42)
+        case .koofr: return Color(red: 0.2, green: 0.6, blue: 0.86)
+        case .yandexDisk: return Color(red: 1.0, green: 0.2, blue: 0.0)
+        case .mailRuCloud: return Color(red: 0.05, green: 0.52, blue: 0.97)
         }
     }
     
@@ -93,6 +126,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .sftp: return "sftp"
         case .ftp: return "ftp"
         case .local: return "local"
+        
+        // Phase 1, Week 1
+        case .nextcloud: return "webdav"
+        case .owncloud: return "webdav"
+        case .seafile: return "seafile"
+        case .koofr: return "koofr"
+        case .yandexDisk: return "yandex"
+        case .mailRuCloud: return "mailru"
         }
     }
     
@@ -110,6 +151,15 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .webdav: return "webdav"
         case .sftp: return "sftp"
         case .ftp: return "ftp"
+        
+        // Phase 1, Week 1
+        case .nextcloud: return "nextcloud"
+        case .owncloud: return "owncloud"
+        case .seafile: return "seafile"
+        case .koofr: return "koofr"
+        case .yandexDisk: return "yandex"
+        case .mailRuCloud: return "mailru"
+        
         default: return rawValue
         }
     }
