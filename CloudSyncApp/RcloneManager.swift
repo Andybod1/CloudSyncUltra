@@ -1203,13 +1203,14 @@ class RcloneManager {
     
     private func parseProgress(from output: String) -> SyncProgress? {
         // Parse rclone output for progress information
-        // Example: "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
+        // Format 1: "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
+        // Format 2: "18 B / 18 B, 100%, 17 B/s, ETA 0s" (with --stats-one-line)
         
         let lines = output.components(separatedBy: .newlines)
         
         for line in lines {
+            // Format 1: Look for "Transferred:" line
             if line.contains("Transferred:") {
-                // Extract transferred, total, percentage, speed
                 let components = line.components(separatedBy: ",")
                 
                 if components.count >= 3 {
@@ -1228,7 +1229,29 @@ class RcloneManager {
                 }
             }
             
-            if line.contains("Checks:") {
+            // Format 2: Look for lines with percentage and speed (e.g., "18 B / 18 B, 100%, 17 B/s, ETA 0s")
+            // This format appears with --stats-one-line
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            if trimmedLine.contains("%") && trimmedLine.contains("/") && trimmedLine.contains("B/s") {
+                let components = trimmedLine.components(separatedBy: ",")
+                
+                if components.count >= 3 {
+                    // Parse percentage (second component)
+                    let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
+                    let percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+                    
+                    // Parse speed (third component)
+                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
+                    
+                    return SyncProgress(
+                        percentage: percentage,
+                        speed: speedStr,
+                        status: .syncing
+                    )
+                }
+            }
+            
+            if line.contains("Checks:") || line.contains("Need to transfer") {
                 return SyncProgress(percentage: 0, speed: "Checking files...", status: .checking)
             }
             
