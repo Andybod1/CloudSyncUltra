@@ -984,7 +984,7 @@ class RcloneManager {
             localPath,
             "--config", configPath,
             "--progress",
-            "--ignore-existing"  // Skip files that already exist
+            "--verbose"
         ]
         
         // Add bandwidth limits
@@ -1000,10 +1000,23 @@ class RcloneManager {
         try process.run()
         process.waitUntilExit()
         
+        // Get both output and error data
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputString = String(data: outputData, encoding: .utf8) ?? ""
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        // Check for specific scenarios
+        let combinedOutput = outputString + errorString
+        
+        // If file exists, rclone will show "There was nothing to transfer"
+        if combinedOutput.contains("There was nothing to transfer") || 
+           combinedOutput.contains("Unchanged skipping") {
+            throw RcloneError.syncFailed("File already exists at destination")
+        }
+        
         if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.syncFailed(errorString)
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Download failed" : errorString)
         }
     }
     
@@ -1018,7 +1031,7 @@ class RcloneManager {
             "\(remoteName):\(remotePath)",
             "--config", configPath,
             "--progress",
-            "--ignore-existing"  // Skip files that already exist
+            "--verbose"
         ]
         
         // Add bandwidth limits
@@ -1034,10 +1047,23 @@ class RcloneManager {
         try process.run()
         process.waitUntilExit()
         
+        // Get both output and error data
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputString = String(data: outputData, encoding: .utf8) ?? ""
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        // Check for specific scenarios
+        let combinedOutput = outputString + errorString
+        
+        // If file exists, rclone will show "There was nothing to transfer"
+        if combinedOutput.contains("There was nothing to transfer") || 
+           combinedOutput.contains("Unchanged skipping") {
+            throw RcloneError.syncFailed("File already exists at destination")
+        }
+        
         if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.syncFailed(errorString)
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Upload failed" : errorString)
         }
     }
     
@@ -1052,7 +1078,7 @@ class RcloneManager {
             destination,
             "--config", configPath,
             "--progress",
-            "--ignore-existing"  // Skip files that already exist
+            "--verbose"
         ]
         
         // Add bandwidth limits
@@ -1068,10 +1094,23 @@ class RcloneManager {
         try process.run()
         process.waitUntilExit()
         
+        // Get both output and error data
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputString = String(data: outputData, encoding: .utf8) ?? ""
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        // Check for specific scenarios
+        let combinedOutput = outputString + errorString
+        
+        // If file exists, rclone will show "There was nothing to transfer"
+        if combinedOutput.contains("There was nothing to transfer") || 
+           combinedOutput.contains("Unchanged skipping") {
+            throw RcloneError.syncFailed("File already exists at destination")
+        }
+        
         if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.syncFailed(errorString)
+            throw RcloneError.syncFailed(errorString.isEmpty ? "Copy failed" : errorString)
         }
     }
     

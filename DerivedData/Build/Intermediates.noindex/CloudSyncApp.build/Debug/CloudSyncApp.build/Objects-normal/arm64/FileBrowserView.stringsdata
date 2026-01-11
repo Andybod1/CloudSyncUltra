@@ -7,7 +7,7 @@
         "key": "Delete Files?",
         "location": {
           "startingColumn": 16,
-          "startingLine": 63
+          "startingLine": 68
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Delete Error",
         "location": {
           "startingColumn": 16,
-          "startingLine": 71
+          "startingLine": 76
         }
       },
       {
@@ -23,7 +23,7 @@
         "key": "Download Error",
         "location": {
           "startingColumn": 16,
-          "startingLine": 78
+          "startingLine": 83
         }
       },
       {
@@ -31,7 +31,7 @@
         "key": "Cancel",
         "location": {
           "startingColumn": 20,
-          "startingLine": 64
+          "startingLine": 69
         }
       },
       {
@@ -39,7 +39,7 @@
         "key": "Delete",
         "location": {
           "startingColumn": 20,
-          "startingLine": 65
+          "startingLine": 70
         }
       },
       {
@@ -47,7 +47,7 @@
         "key": "Are you sure you want to delete %lld item(s)? This cannot be undone.",
         "location": {
           "startingColumn": 18,
-          "startingLine": 69
+          "startingLine": 74
         }
       },
       {
@@ -55,7 +55,7 @@
         "key": "OK",
         "location": {
           "startingColumn": 20,
-          "startingLine": 72
+          "startingLine": 77
         }
       },
       {
@@ -63,7 +63,7 @@
         "key": "OK",
         "location": {
           "startingColumn": 20,
-          "startingLine": 79
+          "startingLine": 84
         }
       },
       {
@@ -71,7 +71,7 @@
         "key": "Not Connected",
         "location": {
           "startingColumn": 18,
-          "startingLine": 113
+          "startingLine": 128
         }
       },
       {
@@ -79,7 +79,7 @@
         "key": "Connect your %@ account to browse files",
         "location": {
           "startingColumn": 18,
-          "startingLine": 117
+          "startingLine": 132
         }
       },
       {
@@ -87,7 +87,7 @@
         "key": "Connect Now",
         "location": {
           "startingColumn": 20,
-          "startingLine": 121
+          "startingLine": 136
         }
       },
       {
@@ -95,7 +95,7 @@
         "key": "View",
         "location": {
           "startingColumn": 20,
-          "startingLine": 215
+          "startingLine": 230
         }
       },
       {
@@ -103,28 +103,12 @@
         "key": "Search...",
         "location": {
           "startingColumn": 27,
-          "startingLine": 157
+          "startingLine": 172
         }
       },
       {
         "comment": "",
         "key": "New Folder",
-        "location": {
-          "startingColumn": 23,
-          "startingLine": 183
-        }
-      },
-      {
-        "comment": "",
-        "key": "Upload",
-        "location": {
-          "startingColumn": 23,
-          "startingLine": 190
-        }
-      },
-      {
-        "comment": "",
-        "key": "Download",
         "location": {
           "startingColumn": 23,
           "startingLine": 198
@@ -132,10 +116,26 @@
       },
       {
         "comment": "",
+        "key": "Upload",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "Download",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 213
+        }
+      },
+      {
+        "comment": "",
         "key": "Delete",
         "location": {
           "startingColumn": 23,
-          "startingLine": 209
+          "startingLine": 224
         }
       },
       {
@@ -143,7 +143,7 @@
         "key": "Downloading...",
         "location": {
           "startingColumn": 34,
-          "startingLine": 231
+          "startingLine": 246
         }
       },
       {
@@ -151,7 +151,7 @@
         "key": "Deleting...",
         "location": {
           "startingColumn": 67,
-          "startingLine": 231
+          "startingLine": 246
         }
       },
       {
@@ -159,7 +159,7 @@
         "key": "Loading...",
         "location": {
           "startingColumn": 83,
-          "startingLine": 231
+          "startingLine": 246
         }
       },
       {
@@ -167,7 +167,7 @@
         "key": "Error Loading Files",
         "location": {
           "startingColumn": 18,
-          "startingLine": 245
+          "startingLine": 260
         }
       },
       {
@@ -175,7 +175,7 @@
         "key": "Retry",
         "location": {
           "startingColumn": 20,
-          "startingLine": 252
+          "startingLine": 267
         }
       },
       {
@@ -183,7 +183,7 @@
         "key": "Empty Folder",
         "location": {
           "startingColumn": 18,
-          "startingLine": 270
+          "startingLine": 285
         }
       },
       {
@@ -191,7 +191,7 @@
         "key": "This folder doesn't contain any files",
         "location": {
           "startingColumn": 18,
-          "startingLine": 273
+          "startingLine": 288
         }
       },
       {
@@ -199,7 +199,7 @@
         "key": "New Folder",
         "location": {
           "startingColumn": 24,
-          "startingLine": 277
+          "startingLine": 292
         }
       },
       {
@@ -207,7 +207,7 @@
         "key": "Upload Files",
         "location": {
           "startingColumn": 24,
-          "startingLine": 282
+          "startingLine": 297
         }
       },
       {
@@ -215,7 +215,7 @@
         "key": "Name",
         "location": {
           "startingColumn": 25,
-          "startingLine": 304
+          "startingLine": 319
         }
       },
       {
@@ -223,7 +223,7 @@
         "key": "Size",
         "location": {
           "startingColumn": 25,
-          "startingLine": 316
+          "startingLine": 331
         }
       },
       {
@@ -231,7 +231,7 @@
         "key": "Modified",
         "location": {
           "startingColumn": 25,
-          "startingLine": 322
+          "startingLine": 337
         }
       },
       {
@@ -239,7 +239,15 @@
         "key": "Open",
         "location": {
           "startingColumn": 24,
-          "startingLine": 331
+          "startingLine": 346
+        }
+      },
+      {
+        "comment": "",
+        "key": "Rename",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 353
         }
       },
       {
@@ -247,7 +255,7 @@
         "key": "Download",
         "location": {
           "startingColumn": 24,
-          "startingLine": 337
+          "startingLine": 361
         }
       },
       {
@@ -255,7 +263,7 @@
         "key": "Delete",
         "location": {
           "startingColumn": 24,
-          "startingLine": 341
+          "startingLine": 365
         }
       },
       {
@@ -263,7 +271,7 @@
         "key": "%lld items",
         "location": {
           "startingColumn": 18,
-          "startingLine": 398
+          "startingLine": 422
         }
       },
       {
@@ -271,7 +279,7 @@
         "key": "• %lld selected",
         "location": {
           "startingColumn": 22,
-          "startingLine": 403
+          "startingLine": 427
         }
       },
       {
@@ -279,7 +287,7 @@
         "key": "Encrypted",
         "location": {
           "startingColumn": 26,
-          "startingLine": 389
+          "startingLine": 413
         }
       },
       {
@@ -287,7 +295,7 @@
         "key": "Sort: %@",
         "location": {
           "startingColumn": 26,
-          "startingLine": 426
+          "startingLine": 450
         }
       },
       {
@@ -295,7 +303,7 @@
         "key": "New Folder",
         "location": {
           "startingColumn": 18,
-          "startingLine": 615
+          "startingLine": 675
         }
       },
       {
@@ -303,7 +311,7 @@
         "key": "Folder Name",
         "location": {
           "startingColumn": 23,
-          "startingLine": 618
+          "startingLine": 678
         }
       },
       {
@@ -311,7 +319,7 @@
         "key": "Cancel",
         "location": {
           "startingColumn": 24,
-          "startingLine": 628
+          "startingLine": 688
         }
       },
       {
@@ -319,7 +327,39 @@
         "key": "Create",
         "location": {
           "startingColumn": 24,
-          "startingLine": 640
+          "startingLine": 700
+        }
+      },
+      {
+        "comment": "",
+        "key": "New name",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 770
+        }
+      },
+      {
+        "comment": "",
+        "key": "Rename",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 766
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 785
+        }
+      },
+      {
+        "comment": "",
+        "key": "Rename",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 792
         }
       }
     ]

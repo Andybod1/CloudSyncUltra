@@ -47,7 +47,7 @@
         "key": "%lld%%",
         "location": {
           "startingColumn": 22,
-          "startingLine": 288
+          "startingLine": 318
         }
       },
       {
@@ -55,7 +55,7 @@
         "key": "View",
         "location": {
           "startingColumn": 24,
-          "startingLine": 335
+          "startingLine": 365
         }
       },
       {
@@ -63,7 +63,7 @@
         "key": "Select...",
         "location": {
           "startingColumn": 26,
-          "startingLine": 329
+          "startingLine": 359
         }
       },
       {
@@ -71,7 +71,7 @@
         "key": "Search files...",
         "location": {
           "startingColumn": 27,
-          "startingLine": 348
+          "startingLine": 378
         }
       },
       {
@@ -79,7 +79,7 @@
         "key": "Loading...",
         "location": {
           "startingColumn": 53,
-          "startingLine": 355
+          "startingLine": 385
         }
       },
       {
@@ -87,7 +87,7 @@
         "key": "Empty folder",
         "location": {
           "startingColumn": 30,
-          "startingLine": 361
+          "startingLine": 391
         }
       },
       {
@@ -95,7 +95,7 @@
         "key": "Drop files here",
         "location": {
           "startingColumn": 80,
-          "startingLine": 361
+          "startingLine": 391
         }
       },
       {
@@ -103,7 +103,7 @@
         "key": "%lld items",
         "location": {
           "startingColumn": 18,
-          "startingLine": 392
+          "startingLine": 422
         }
       },
       {
@@ -111,7 +111,7 @@
         "key": "• %lld selected",
         "location": {
           "startingColumn": 54,
-          "startingLine": 393
+          "startingLine": 423
         }
       }
     ]
