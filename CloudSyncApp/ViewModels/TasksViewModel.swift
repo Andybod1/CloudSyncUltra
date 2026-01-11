@@ -141,6 +141,7 @@ class TasksViewModel: ObservableObject {
     func updateTask(_ task: SyncTask) {
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
             tasks[index] = task
+            objectWillChange.send()  // Force UI update
             saveTasks()
         }
         activeTasks = tasks.filter { $0.state == .running || $0.state == .pending }
