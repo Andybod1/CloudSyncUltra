@@ -505,44 +505,8 @@ struct FileBrowserView: View {
             Spacer()
             
             if isUploading {
-                // Show upload progress
-                VStack(spacing: 12) {
-                    if uploadTotalFiles > 1 {
-                        Text("File \(uploadFileIndex) of \(uploadTotalFiles)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        if !uploadCurrentFile.isEmpty {
-                            Text(uploadCurrentFile)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                        }
-                    }
-                    
-                    ProgressView(value: uploadProgress, total: 100)
-                        .frame(width: 200)
-                    
-                    Text("Uploading... \(Int(uploadProgress))%")
-                        .foregroundColor(.secondary)
-                    
-                    if encryptionEnabled {
-                        HStack(spacing: 4) {
-                            Image(systemName: "lock.fill")
-                                .font(.caption)
-                            Text("Encrypting")
-                                .font(.caption)
-                        }
-                        .foregroundColor(.green)
-                    }
-                    
-                    if !uploadSpeed.isEmpty {
-                        Text(uploadSpeed)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
+                // Enhanced upload progress bar (similar to TransferView)
+                uploadProgressBar
             } else {
                 // Show generic spinner
                 ProgressView()
@@ -552,6 +516,129 @@ struct FileBrowserView: View {
             
             Spacer()
         }
+    }
+    
+    private var uploadProgressBar: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 16) {
+                // Status icon
+                ZStack {
+                    Circle()
+                        .fill(uploadStatusColor.opacity(0.15))
+                        .frame(width: 48, height: 48)
+                    
+                    if uploadProgress >= 100 {
+                        Image(systemName: "checkmark")
+                            .font(.title2)
+                            .foregroundColor(.green)
+                    } else {
+                        ProgressView()
+                            .scaleEffect(0.9)
+                    }
+                }
+                
+                // Info section
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text("Uploading to \(remote.name)")
+                            .fontWeight(.medium)
+                        
+                        // Encryption indicator
+                        if encryptionEnabled {
+                            HStack(spacing: 4) {
+                                Image(systemName: "lock.fill")
+                                    .font(.caption2)
+                                Text("E2E")
+                                    .font(.caption2)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(4)
+                        }
+                    }
+                    
+                    HStack(spacing: 8) {
+                        // File info
+                        if uploadTotalFiles > 1 {
+                            Text("File \(uploadFileIndex)/\(uploadTotalFiles)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            Text("•")
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        // Current file name
+                        if !uploadCurrentFile.isEmpty {
+                            Text(uploadCurrentFile)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                        
+                        // Speed
+                        if !uploadSpeed.isEmpty {
+                            Text("•")
+                                .foregroundColor(.secondary)
+                            Text(uploadSpeed)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Percentage
+                Text("\(Int(uploadProgress))%")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(uploadStatusColor)
+                    .frame(width: 70, alignment: .trailing)
+            }
+            
+            // Progress bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.secondary.opacity(0.2))
+                        .frame(height: 8)
+                    
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(uploadStatusColor)
+                        .frame(width: max(0, geo.size.width * CGFloat(uploadProgress / 100)), height: 8)
+                        .animation(.easeInOut(duration: 0.3), value: uploadProgress)
+                }
+            }
+            .frame(height: 8)
+            
+            // Encryption notice
+            if encryptionEnabled {
+                HStack(spacing: 6) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.caption)
+                    Text("Files are being encrypted before upload")
+                        .font(.caption)
+                }
+                .foregroundColor(.green)
+                .padding(.top, 4)
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: 500)
+        .background(uploadStatusColor.opacity(0.05))
+        .cornerRadius(12)
+    }
+    
+    private var uploadStatusColor: Color {
+        if uploadProgress >= 100 {
+            return .green
+        }
+        return encryptionEnabled ? .green : .accentColor
     }
     
     private func errorView(_ error: String) -> some View {
