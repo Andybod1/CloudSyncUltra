@@ -79,19 +79,160 @@ class RcloneManager {
     
     // MARK: - Cloud Provider Setup Methods
     
-    func setupProtonDrive(username: String, password: String, twoFactorCode: String? = nil) async throws {
+    /// Setup Proton Drive with proper password obscuring and full authentication support
+    /// - Parameters:
+    ///   - username: Proton account email
+    ///   - password: Account password (will be obscured)
+    ///   - twoFactorCode: Single-use 2FA code (optional, use for one-time setup)
+    ///   - otpSecretKey: TOTP secret key for persistent 2FA (optional, recommended for 2FA accounts)
+    ///   - mailboxPassword: Mailbox password for two-password accounts (optional)
+    ///   - remoteName: Name for the remote in rclone config (default: "proton")
+    func setupProtonDrive(
+        username: String,
+        password: String,
+        twoFactorCode: String? = nil,
+        otpSecretKey: String? = nil,
+        mailboxPassword: String? = nil,
+        remoteName: String = "proton"
+    ) async throws {
+        print("[RcloneManager] Setting up Proton Drive for: \(username)")
+        
+        // CRITICAL: Obscure the password - rclone requires this for protondrive
+        let obscuredPassword = try await obscurePassword(password)
+        print("[RcloneManager] Password obscured successfully")
+        
         var params: [String: String] = [
             "username": username,
-            "password": password
+            "password": obscuredPassword
         ]
-        if let code = twoFactorCode, !code.isEmpty {
+        
+        // Handle 2FA - prefer OTP secret for persistent auth
+        if let otpSecret = otpSecretKey, !otpSecret.isEmpty {
+            // OTP secret allows rclone to generate TOTP codes automatically
+            let obscuredOTP = try await obscurePassword(otpSecret)
+            params["otp_secret_key"] = obscuredOTP
+            print("[RcloneManager] Using OTP secret key for persistent 2FA")
+        } else if let code = twoFactorCode, !code.isEmpty {
+            // Single-use 2FA code (works once, then session may expire)
             params["2fa"] = code
+            print("[RcloneManager] Using single-use 2FA code")
         }
+        
+        // Handle two-password Proton accounts
+        if let mailbox = mailboxPassword, !mailbox.isEmpty {
+            let obscuredMailbox = try await obscurePassword(mailbox)
+            params["mailbox_password"] = obscuredMailbox
+            print("[RcloneManager] Mailbox password configured")
+        }
+        
+        // Recommended settings for better reliability
+        params["replace_existing_draft"] = "true"  // Handle interrupted uploads
+        params["enable_caching"] = "true"          // Improve performance
+        
+        // Delete existing remote if it exists (clean reconfigure)
+        if isRemoteConfigured(name: remoteName) {
+            print("[RcloneManager] Removing existing '\(remoteName)' remote")
+            try? await deleteRemote(name: remoteName)
+        }
+        
         try await createRemote(
-            name: "proton",
+            name: remoteName,
             type: "protondrive",
             parameters: params
         )
+        
+        print("[RcloneManager] Proton Drive remote '\(remoteName)' created successfully!")
+    }
+    
+    /// Test Proton Drive connection without creating a persistent remote
+    /// Use this to validate credentials before full setup
+    /// - Returns: Tuple of (success, errorMessage)
+    func testProtonDriveConnection(
+        username: String,
+        password: String,
+        twoFactorCode: String? = nil,
+        mailboxPassword: String? = nil
+    ) async throws -> (success: Bool, message: String) {
+        print("[RcloneManager] Testing Proton Drive connection for: \(username)")
+        
+        let obscuredPassword = try await obscurePassword(password)
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        
+        // Build connection string with inline config
+        var backendConfig = "protondrive,username=\(username),password=\(obscuredPassword)"
+        
+        if let code = twoFactorCode, !code.isEmpty {
+            backendConfig += ",2fa=\(code)"
+        }
+        
+        if let mailbox = mailboxPassword, !mailbox.isEmpty {
+            let obscuredMailbox = try await obscurePassword(mailbox)
+            backendConfig += ",mailbox_password=\(obscuredMailbox)"
+        }
+        
+        process.arguments = [
+            "lsd",
+            ":\(backendConfig):",
+            "--config", "/dev/null"  // Don't use any config file
+        ]
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        if process.terminationStatus == 0 {
+            print("[RcloneManager] Proton Drive connection test: SUCCESS")
+            return (true, "Connection successful!")
+        } else {
+            print("[RcloneManager] Proton Drive connection test: FAILED")
+            print("[RcloneManager] Error: \(errorString)")
+            
+            // Parse error for user-friendly message
+            let friendlyError = parseProtonDriveError(errorString)
+            return (false, friendlyError)
+        }
+    }
+    
+    /// Parse Proton Drive errors into user-friendly messages
+    private func parseProtonDriveError(_ error: String) -> String {
+        let lowercased = error.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("no valid keyring") || lowercased.contains("keyring") {
+            return "Proton Drive encryption keys not found. Please log in to Proton Drive via your web browser first to generate encryption keys."
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return "Session expired or invalid credentials. Please check your username and password."
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") || lowercased.contains("wrong password") {
+            return "Invalid password. Please check your credentials."
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return "Two-factor authentication required. Please provide your 2FA code or OTP secret."
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") || lowercased.contains("too many") {
+            return "Too many requests. Please wait a moment before trying again."
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return "Network error. Please check your internet connection."
+        }
+        if lowercased.contains("mailbox password") {
+            return "This is a two-password Proton account. Please provide your mailbox password."
+        }
+        
+        // Return cleaned up error for unknown cases
+        let cleanedError = error
+            .components(separatedBy: .newlines)
+            .first { !$0.isEmpty } ?? error
+        return cleanedError.count > 150 ? String(cleanedError.prefix(150)) + "..." : cleanedError
     }
     
     func setupGoogleDrive(remoteName: String) async throws {

@@ -25,6 +25,7 @@
 		AD /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE; };
 		AF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0; };
 		B1 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2; };
+		4C7842DABAEA664FF9FCF0C7 /* ProtonDriveSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */; };
 		B3 /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4; };
 		B5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6; };
 		B7 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8; };
@@ -51,6 +52,7 @@
 		AE /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		B0 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		B2 /* TransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
+		055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveSetupView.swift; sourceTree = "<group>"; };
 		B4 /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
 		B6 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		B8 /* FileBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				AE /* MainWindow.swift */,
 				B0 /* DashboardView.swift */,
 				B2 /* TransferView.swift */,
+				055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */,
 				B4 /* TasksView.swift */,
 				B6 /* HistoryView.swift */,
 				B8 /* FileBrowserView.swift */,
@@ -202,6 +205,7 @@
 				AD /* MainWindow.swift in Sources */,
 				AF /* DashboardView.swift in Sources */,
 				B1 /* TransferView.swift in Sources */,
+				4C7842DABAEA664FF9FCF0C7 /* ProtonDriveSetupView.swift in Sources */,
 				B3 /* TasksView.swift in Sources */,
 				B5 /* HistoryView.swift in Sources */,
 				B7 /* FileBrowserView.swift in Sources */,

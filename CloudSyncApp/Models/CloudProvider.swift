@@ -382,6 +382,19 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         default: return nil
         }
     }
+    
+    /// Whether this provider uses OAuth for authentication
+    var requiresOAuth: Bool {
+        switch self {
+        case .googleDrive, .dropbox, .oneDrive, .box, .yandexDisk,
+             .googleCloudStorage, .oneDriveBusiness, .sharepoint,
+             .googlePhotos, .flickr, .sugarsync, .opendrive,
+             .putio, .premiumizeme, .quatrix, .filefabric, .pcloud:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 struct CloudRemote: Identifiable, Codable, Equatable, Hashable {

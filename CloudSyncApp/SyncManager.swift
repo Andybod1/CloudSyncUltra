@@ -141,9 +141,46 @@ class SyncManager: ObservableObject {
     
     // MARK: - Configuration
     
-    func configureProtonDrive(username: String, password: String) async throws {
-        try await rclone.setupProtonDrive(username: username, password: password)
+    /// Configure Proton Drive with full authentication support
+    /// - Parameters:
+    ///   - username: Proton account email
+    ///   - password: Account password
+    ///   - twoFactorCode: Single-use 2FA code (optional)
+    ///   - otpSecretKey: TOTP secret for persistent 2FA (recommended)
+    ///   - mailboxPassword: For two-password accounts (optional)
+    ///   - remoteName: Remote name in rclone config (default: "proton")
+    func configureProtonDrive(
+        username: String,
+        password: String,
+        twoFactorCode: String? = nil,
+        otpSecretKey: String? = nil,
+        mailboxPassword: String? = nil,
+        remoteName: String = "proton"
+    ) async throws {
+        try await rclone.setupProtonDrive(
+            username: username,
+            password: password,
+            twoFactorCode: twoFactorCode,
+            otpSecretKey: otpSecretKey,
+            mailboxPassword: mailboxPassword,
+            remoteName: remoteName
+        )
         UserDefaults.standard.set(true, forKey: "isConfigured")
+    }
+    
+    /// Test Proton Drive connection before full setup
+    func testProtonDriveConnection(
+        username: String,
+        password: String,
+        twoFactorCode: String? = nil,
+        mailboxPassword: String? = nil
+    ) async throws -> (success: Bool, message: String) {
+        return try await rclone.testProtonDriveConnection(
+            username: username,
+            password: password,
+            twoFactorCode: twoFactorCode,
+            mailboxPassword: mailboxPassword
+        )
     }
     
     func isConfigured() -> Bool {

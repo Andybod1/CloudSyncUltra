@@ -259,6 +259,9702 @@ enum AuthError: CloudSyncError {
     }
 }
 
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - Proton Drive Errors
+
+/// Errors specific to Proton Drive authentication and operations
+enum ProtonDriveError: CloudSyncError {
+    case encryptionKeysNotGenerated
+    case invalidCredentials
+    case twoFactorRequired
+    case twoFactorInvalid
+    case mailboxPasswordRequired
+    case sessionExpired
+    case rateLimited(retryAfter: TimeInterval?)
+    case networkError(String)
+    case draftConflict
+    case unknownError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Proton Drive encryption keys not found"
+        case .invalidCredentials:
+            return "Invalid Proton account credentials"
+        case .twoFactorRequired:
+            return "Two-factor authentication required"
+        case .twoFactorInvalid:
+            return "Invalid 2FA code or TOTP secret"
+        case .mailboxPasswordRequired:
+            return "This account requires a mailbox password"
+        case .sessionExpired:
+            return "Proton Drive session has expired"
+        case .rateLimited(let retryAfter):
+            if let seconds = retryAfter {
+                return "Rate limited. Retry in \(Int(seconds)) seconds"
+            }
+            return "Rate limited. Please wait before trying again"
+        case .networkError(let detail):
+            return "Network error: \(detail)"
+        case .draftConflict:
+            return "Upload conflict: a draft already exists for this file"
+        case .unknownError(let message):
+            return message
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .encryptionKeysNotGenerated:
+            return "Log in to Proton Drive via your web browser first. This generates the encryption keys needed for the app."
+        case .invalidCredentials:
+            return "Double-check your email and password. Make sure you're using your Proton account credentials."
+        case .twoFactorRequired:
+            return "Enable 2FA in the setup wizard. Use either a single code or enter your TOTP secret for persistent authentication."
+        case .twoFactorInvalid:
+            return "Check your authenticator app for the current code. If using TOTP secret, ensure it matches your Proton security settings."
+        case .mailboxPasswordRequired:
+            return "This is a two-password Proton account. Enter your mailbox password in Advanced Options."
+        case .sessionExpired:
+            return "Re-authenticate by clicking Disconnect, then Connect again in Settings."
+        case .rateLimited:
+            return "Proton Drive has rate limits. Wait a few minutes before trying again."
+        case .networkError:
+            return "Check your internet connection. Proton Drive requires a stable connection."
+        case .draftConflict:
+            return "Another upload may be in progress. Wait a moment and try again."
+        case .unknownError:
+            return "Check the Settings > About for logs, or try reconnecting."
+        }
+    }
+    
+    /// Parse rclone error output into a ProtonDriveError
+    static func parse(from errorOutput: String) -> ProtonDriveError? {
+        let lowercased = errorOutput.lowercased()
+        
+        if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {
+            return .encryptionKeysNotGenerated
+        }
+        if lowercased.contains("invalid access token") || lowercased.contains("401") {
+            return .sessionExpired
+        }
+        if lowercased.contains("invalid password") || lowercased.contains("incorrect password") {
+            return .invalidCredentials
+        }
+        if lowercased.contains("2fa") || lowercased.contains("two-factor") || lowercased.contains("totp") {
+            return .twoFactorRequired
+        }
+        if lowercased.contains("mailbox password") {
+            return .mailboxPasswordRequired
+        }
+        if lowercased.contains("429") || lowercased.contains("rate limit") {
+            return .rateLimited(retryAfter: nil)
+        }
+        if lowercased.contains("draft exist") {
+            return .draftConflict
+        }
+        if lowercased.contains("network") || lowercased.contains("connection") || lowercased.contains("timeout") {
+            return .networkError(errorOutput)
+        }
+        
+        return nil
+    }
+}
+
 // MARK: - Configuration Errors
 
 /// Errors related to app configuration

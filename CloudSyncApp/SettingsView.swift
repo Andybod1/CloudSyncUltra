@@ -357,6 +357,7 @@ struct RemoteDetailView: View {
     @State private var password = ""
     @State private var isConfiguring = false
     @State private var errorMessage: String?
+    @State private var showProtonSetup = false
     
     var body: some View {
         ScrollView {
@@ -448,6 +449,123 @@ struct RemoteDetailView: View {
     
     private var configurationForm: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // Provider-specific setup
+            if remote.type == .protonDrive {
+                protonDriveSetup
+            } else if remote.type.requiresOAuth {
+                oauthSetup
+            } else {
+                genericCredentialsForm
+            }
+        }
+        .sheet(isPresented: $showProtonSetup) {
+            ProtonDriveSetupView(remote: remote) { updatedRemote in
+                remotesVM.updateRemote(updatedRemote)
+            }
+            .environmentObject(remotesVM)
+        }
+    }
+    
+    // MARK: - Proton Drive Setup
+    
+    private var protonDriveSetup: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            GroupBox {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "shield.checkered")
+                            .foregroundColor(Color(red: 0.42, green: 0.31, blue: 0.78))
+                            .font(.title2)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("End-to-End Encrypted Storage")
+                                .fontWeight(.semibold)
+                            Text("Proton Drive requires special setup for 2FA and encryption keys")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Supports two-factor authentication", systemImage: "lock.fill")
+                        Label("TOTP secret for persistent auth", systemImage: "key.fill")
+                        Label("Mailbox password support", systemImage: "envelope.fill")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+                .padding(8)
+            }
+            
+            Button {
+                showProtonSetup = true
+            } label: {
+                HStack {
+                    Image(systemName: "gearshape.fill")
+                    Text("Open Setup Wizard")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            
+            Text("The setup wizard will guide you through connecting to Proton Drive.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // MARK: - OAuth Setup
+    
+    private var oauthSetup: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            GroupBox {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "safari")
+                            .foregroundColor(.blue)
+                        Text("Browser Authentication")
+                            .fontWeight(.semibold)
+                    }
+                    
+                    Text("This service uses OAuth. Clicking Connect will open your browser to authenticate.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(8)
+            }
+            
+            Button {
+                Task { await connectOAuth() }
+            } label: {
+                HStack {
+                    if isConfiguring {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    }
+                    Text("Connect with \(remote.type.displayName)")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isConfiguring)
+            
+            if let error = errorMessage {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text(error)
+                        .foregroundColor(.red)
+                }
+                .font(.caption)
+            }
+        }
+    }
+    
+    // MARK: - Generic Credentials Form
+    
+    private var genericCredentialsForm: some View {
+        VStack(alignment: .leading, spacing: 16) {
             GroupBox("Credentials") {
                 VStack(spacing: 12) {
                     HStack {
@@ -514,6 +632,48 @@ struct RemoteDetailView: View {
             
             username = ""
             password = ""
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isConfiguring = false
+    }
+    
+    private func connectOAuth() async {
+        isConfiguring = true
+        errorMessage = nil
+        
+        do {
+            let remoteName = remote.type.defaultRcloneName
+            
+            switch remote.type {
+            case .googleDrive:
+                try await RcloneManager.shared.setupGoogleDrive(remoteName: remoteName)
+            case .dropbox:
+                try await RcloneManager.shared.setupDropbox(remoteName: remoteName)
+            case .oneDrive, .oneDriveBusiness:
+                try await RcloneManager.shared.setupOneDrive(remoteName: remoteName)
+            case .box:
+                try await RcloneManager.shared.setupBox(remoteName: remoteName)
+            case .pcloud:
+                try await RcloneManager.shared.setupPCloud(remoteName: remoteName)
+            case .yandexDisk:
+                try await RcloneManager.shared.setupYandexDisk(remoteName: remoteName)
+            case .googlePhotos:
+                try await RcloneManager.shared.setupGooglePhotos(remoteName: remoteName)
+            case .flickr:
+                try await RcloneManager.shared.setupFlickr(remoteName: remoteName)
+            case .putio:
+                try await RcloneManager.shared.setupPutio(remoteName: remoteName)
+            default:
+                throw RcloneError.configurationFailed("OAuth not supported for \(remote.type.displayName)")
+            }
+            
+            var updated = remote
+            updated.isConfigured = true
+            updated.customRcloneName = remoteName
+            remotesVM.updateRemote(updated)
+            
         } catch {
             errorMessage = error.localizedDescription
         }
