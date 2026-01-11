@@ -424,8 +424,22 @@ class RcloneManager {
     // MARK: - Additional Providers: Nordic & Unlimited Storage
     
     func setupJottacloud(remoteName: String, username: String? = nil, password: String? = nil, device: String? = nil) async throws {
-        // Jottacloud works best with OAuth - use interactive setup
-        try await createRemoteInteractive(name: remoteName, type: "jottacloud")
+        if let username = username, let password = password {
+            // Use personal login token (password field contains the token)
+            var params: [String: String] = [
+                "user": username,
+                "pass": password  // This should be the personal login token from jottacloud.com
+            ]
+            
+            if let device = device {
+                params["device"] = device
+            }
+            
+            try await createRemote(name: remoteName, type: "jottacloud", parameters: params)
+        } else {
+            // OAuth authentication (alternative)
+            try await createRemoteInteractive(name: remoteName, type: "jottacloud")
+        }
     }
     
     // MARK: - Generic Remote Creation

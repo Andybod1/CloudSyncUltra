@@ -212,10 +212,18 @@
       },
       {
         "comment": "",
-        "key": "Enter your account credentials for %@.",
+        "key": "Enter your Jottacloud email and Personal Login Token. Generate a token at Settings → Security → Personal Login Token on jottacloud.com",
         "location": {
           "startingColumn": 18,
           "startingLine": 496
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter your account credentials for %@.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 498
         }
       },
       {

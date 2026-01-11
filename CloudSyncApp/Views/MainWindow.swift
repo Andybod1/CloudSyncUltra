@@ -492,6 +492,8 @@ struct ConnectRemoteSheet: View {
             Text("Enter your AWS Access Key ID and Secret Access Key.")
         case .mega:
             Text("Enter your MEGA email and password.")
+        case .jottacloud:
+            Text("Enter your Jottacloud email and Personal Login Token. Generate a token at Settings → Security → Personal Login Token on jottacloud.com")
         default:
             Text("Enter your account credentials for \(remote.type.displayName).")
         }
@@ -551,7 +553,7 @@ struct ConnectRemoteSheet: View {
         case .ftp:
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
         case .jottacloud:
-            try await rclone.setupJottacloud(remoteName: rcloneName)
+            try await rclone.setupJottacloud(remoteName: rcloneName, username: username, password: password)
         default:
             throw RcloneError.configurationFailed("Provider \(remote.type.displayName) not yet supported")
         }
