@@ -30,6 +30,7 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 - **Transfer modes** - Sync, Transfer, or Backup
 - **Smart error handling** - Graceful handling of existing files
 - **Cancel transfers** - Stop any operation mid-transfer
+- **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
 
 ### 🔐 Security
 - **End-to-end encryption** - Optional client-side encryption

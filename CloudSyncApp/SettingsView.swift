@@ -126,6 +126,13 @@ struct SyncSettingsView: View {
     @State private var conflictResolution: String = "newer"
     @State private var deleteMode: String = "trash"
     
+    // Bandwidth throttling
+    @AppStorage("bandwidthLimitEnabled") private var bandwidthLimitEnabled = false
+    @AppStorage("uploadLimit") private var uploadLimit: Double = 0
+    @AppStorage("downloadLimit") private var downloadLimit: Double = 0
+    @State private var uploadLimitText = ""
+    @State private var downloadLimitText = ""
+    
     var body: some View {
         Form {
             Section {
@@ -182,6 +189,46 @@ struct SyncSettingsView: View {
             }
             
             Section {
+                Toggle("Enable Bandwidth Limits", isOn: $bandwidthLimitEnabled)
+                
+                if bandwidthLimitEnabled {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Upload Limit")
+                                .frame(width: 100, alignment: .leading)
+                            TextField("MB/s", text: $uploadLimitText)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            Text("MB/s")
+                                .foregroundColor(.secondary)
+                            Text("(0 = unlimited)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack {
+                            Text("Download Limit")
+                                .frame(width: 100, alignment: .leading)
+                            TextField("MB/s", text: $downloadLimitText)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            Text("MB/s")
+                                .foregroundColor(.secondary)
+                            Text("(0 = unlimited)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Text("Bandwidth limits help prevent saturating your connection during sync operations.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            } header: {
+                Label("Bandwidth Throttling", systemImage: "gauge")
+            }
+            
+            Section {
                 HStack {
                     Spacer()
                     Button("Save Settings") {
@@ -215,6 +262,10 @@ struct SyncSettingsView: View {
         remotePath = syncManager.remotePath
         autoSync = syncManager.autoSync
         syncInterval = syncManager.syncInterval
+        
+        // Load bandwidth limits
+        uploadLimitText = uploadLimit > 0 ? String(format: "%.1f", uploadLimit) : ""
+        downloadLimitText = downloadLimit > 0 ? String(format: "%.1f", downloadLimit) : ""
     }
     
     private func saveSettings() {
@@ -222,6 +273,10 @@ struct SyncSettingsView: View {
         syncManager.remotePath = remotePath
         syncManager.autoSync = autoSync
         syncManager.syncInterval = syncInterval
+        
+        // Save bandwidth limits
+        uploadLimit = Double(uploadLimitText) ?? 0
+        downloadLimit = Double(downloadLimitText) ?? 0
         
         Task {
             if syncManager.isMonitoring {

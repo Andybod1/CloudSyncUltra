@@ -43,6 +43,34 @@ class RcloneManager {
         self.configPath = appFolder.appendingPathComponent("rclone.conf").path
     }
     
+    // MARK: - Bandwidth Throttling
+    
+    /// Get bandwidth limit arguments if enabled
+    private func getBandwidthArgs() -> [String] {
+        var args: [String] = []
+        
+        // Check if bandwidth limits are enabled
+        if UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled") {
+            let uploadLimit = UserDefaults.standard.double(forKey: "uploadLimit")
+            let downloadLimit = UserDefaults.standard.double(forKey: "downloadLimit")
+            
+            // Add upload limit (--bwlimit-file for upload)
+            if uploadLimit > 0 {
+                args.append("--bwlimit")
+                args.append("\(uploadLimit)M")
+            }
+            
+            // rclone uses --bwlimit for both, but we can set different limits per operation
+            // For now, we'll use the more restrictive of the two
+            if downloadLimit > 0 && (uploadLimit == 0 || downloadLimit < uploadLimit) {
+                args.append("--bwlimit")
+                args.append("\(downloadLimit)M")
+            }
+        }
+        
+        return args
+    }
+    
     // MARK: - Configuration
     
     func isConfigured() -> Bool {
@@ -275,6 +303,8 @@ class RcloneManager {
                         "--checkers", "8",
                         "--verbose"
                     ]
+                    // Add bandwidth limits
+                    args.append(contentsOf: self.getBandwidthArgs())
                 case .biDirectional:
                     args = [
                         "bisync",
@@ -288,6 +318,8 @@ class RcloneManager {
                         "--verbose",
                         "--max-delete", "50"
                     ]
+                    // Add bandwidth limits
+                    args.append(contentsOf: self.getBandwidthArgs())
                 }
                 
                 process.arguments = args
@@ -328,7 +360,7 @@ class RcloneManager {
                 let source = sourceRemote == "local" ? sourcePath : "\(sourceRemote):\(sourcePath)"
                 let dest = destRemote == "local" ? destPath : "\(destRemote):\(destPath)"
                 
-                process.arguments = [
+                var args = [
                     "copy",
                     source,
                     dest,
@@ -339,6 +371,11 @@ class RcloneManager {
                     "--verbose",
                     "--ignore-existing"  // Skip files that already exist at destination
                 ]
+                
+                // Add bandwidth limits
+                args.append(contentsOf: self.getBandwidthArgs())
+                
+                process.arguments = args
                 
                 let pipe = Pipe()
                 process.standardOutput = pipe
@@ -580,7 +617,8 @@ class RcloneManager {
     func download(remoteName: String, remotePath: String, localPath: String) async throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        process.arguments = [
+        
+        var args = [
             "copy",
             "\(remoteName):\(remotePath)",
             localPath,
@@ -588,6 +626,11 @@ class RcloneManager {
             "--progress",
             "--ignore-existing"  // Skip files that already exist
         ]
+        
+        // Add bandwidth limits
+        args.append(contentsOf: getBandwidthArgs())
+        
+        process.arguments = args
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -608,7 +651,8 @@ class RcloneManager {
     func upload(localPath: String, remoteName: String, remotePath: String) async throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        process.arguments = [
+        
+        var args = [
             "copy",
             localPath,
             "\(remoteName):\(remotePath)",
@@ -616,6 +660,11 @@ class RcloneManager {
             "--progress",
             "--ignore-existing"  // Skip files that already exist
         ]
+        
+        // Add bandwidth limits
+        args.append(contentsOf: getBandwidthArgs())
+        
+        process.arguments = args
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
