@@ -387,7 +387,14 @@ struct TransferView: View {
             await MainActor.run {
                 // Update final task state
                 task.completedAt = Date()
-                task.filesTransferred = successCount
+                
+                // For folders, use the actual file count; otherwise use successCount
+                if hasFolder {
+                    task.filesTransferred = totalFileCount
+                } else {
+                    task.filesTransferred = successCount
+                }
+                
                 task.bytesTransferred = totalSize
                 task.progress = 1.0
                 
