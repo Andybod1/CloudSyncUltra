@@ -1035,7 +1035,6 @@ class RcloneManager {
                     "--progress",
                     "--stats", "1s",
                     "--stats-one-line",
-                    "--use-json-log",
                     "-vv"
                 ]
                 
@@ -1044,25 +1043,42 @@ class RcloneManager {
                 
                 process.arguments = args
                 
-                let stdoutPipe = Pipe()
                 let stderrPipe = Pipe()
-                process.standardOutput = stdoutPipe
+                process.standardOutput = stderrPipe  // Redirect both to same pipe
                 process.standardError = stderrPipe
                 
-                print("[RcloneManager] Starting upload with progress: \(localPath) -> \(remoteName):\(remotePath)")
+                NSLog("[RcloneManager] Starting upload with progress: %@ -> %@:%@", localPath, remoteName, remotePath)
                 
-                // Monitor stderr for progress updates (rclone outputs progress to stderr)
-                stderrPipe.fileHandleForReading.readabilityHandler = { handle in
-                    let data = handle.availableData
+                // Read stderr in chunks
+                let handle = stderrPipe.fileHandleForReading
+                var buffer = Data()
+                
+                handle.readabilityHandler = { fileHandle in
+                    let data = fileHandle.availableData
                     if !data.isEmpty {
-                        if let output = String(data: data, encoding: .utf8) {
-                            // Print raw output for debugging
-                            if !output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                print("[RcloneManager] Upload stderr: \(output)")
+                        buffer.append(data)
+                        
+                        // Process complete lines
+                        if let output = String(data: buffer, encoding: .utf8) {
+                            let lines = output.components(separatedBy: "\n")
+                            
+                            // Process all complete lines (all but last)
+                            for i in 0..<(lines.count - 1) {
+                                let line = lines[i]
+                                if !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                                    NSLog("[RcloneManager] Line: %@", line)
+                                    if let progress = self.parseProgress(from: line) {
+                                        NSLog("[RcloneManager] Yielding progress: %.1f%% - %@", progress.percentage, progress.speed)
+                                        continuation.yield(progress)
+                                    }
+                                }
                             }
-                            if let progress = self.parseProgress(from: output) {
-                                print("[RcloneManager] Parsed progress: \(progress.percentage)% - \(progress.speed)")
-                                continuation.yield(progress)
+                            
+                            // Keep incomplete line in buffer
+                            if let lastLine = lines.last?.data(using: .utf8) {
+                                buffer = lastLine
+                            } else {
+                                buffer = Data()
                             }
                         }
                     }
@@ -1074,22 +1090,25 @@ class RcloneManager {
                     
                     process.waitUntilExit()
                     
-                    stderrPipe.fileHandleForReading.readabilityHandler = nil
+                    handle.readabilityHandler = nil
                     
-                    // Check exit status
-                    if process.terminationStatus != 0 {
-                        let errorData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-                        let errorString = String(data: errorData, encoding: .utf8) ?? "Upload failed"
-                        print("[RcloneManager] Upload failed with exit code \(process.terminationStatus): \(errorString)")
-                        continuation.finish()
-                    } else {
-                        print("[RcloneManager] Upload completed successfully")
+                    // Process any remaining buffer
+                    if !buffer.isEmpty, let output = String(data: buffer, encoding: .utf8) {
+                        if let progress = self.parseProgress(from: output) {
+                            continuation.yield(progress)
+                        }
+                    }
+                    
+                    NSLog("[RcloneManager] Upload exit code: %d", process.terminationStatus)
+                    
+                    if process.terminationStatus == 0 {
                         // Yield 100% completion
                         continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
-                        continuation.finish()
                     }
+                    
+                    continuation.finish()
                 } catch {
-                    print("[RcloneManager] Upload error: \(error)")
+                    NSLog("[RcloneManager] Upload error: %@", error.localizedDescription)
                     continuation.finish()
                 }
             }

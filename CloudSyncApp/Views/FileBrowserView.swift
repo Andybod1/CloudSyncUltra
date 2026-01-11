@@ -563,8 +563,11 @@ struct FileBrowserView: View {
                             )
                             
                             for await progress in progressStream {
-                                uploadProgress = progress.percentage
-                                uploadSpeed = progress.speed
+                                await MainActor.run {
+                                    uploadProgress = progress.percentage
+                                    uploadSpeed = progress.speed
+                                    print("UI Update: \(progress.percentage)% - \(progress.speed)")
+                                }
                             }
                         }
                     }
