@@ -41,6 +41,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case storj = "storj"
     case filebase = "filebase"
     
+    // Phase 1, Week 3: Enterprise Services
+    case googleCloudStorage = "gcs"
+    case azureBlob = "azureblob"
+    case azureFiles = "azurefiles"
+    case oneDriveBusiness = "onedrive-business"
+    case sharepoint = "sharepoint"
+    case alibabaOSS = "oss"
+    
     var id: String { rawValue }
     
     var displayName: String {
@@ -76,6 +84,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oracleCloud: return "Oracle Cloud"
         case .storj: return "Storj"
         case .filebase: return "Filebase"
+        
+        // Phase 1, Week 3
+        case .googleCloudStorage: return "Google Cloud Storage"
+        case .azureBlob: return "Azure Blob Storage"
+        case .azureFiles: return "Azure Files"
+        case .oneDriveBusiness: return "OneDrive for Business"
+        case .sharepoint: return "SharePoint"
+        case .alibabaOSS: return "Alibaba Cloud OSS"
         }
     }
     
@@ -112,6 +128,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oracleCloud: return "o.circle.fill"
         case .storj: return "lock.trianglebadge.exclamationmark.fill"
         case .filebase: return "square.stack.3d.up.fill"
+        
+        // Phase 1, Week 3
+        case .googleCloudStorage: return "cloud.fill"
+        case .azureBlob: return "cylinder.fill"
+        case .azureFiles: return "doc.on.doc.fill"
+        case .oneDriveBusiness: return "briefcase.fill"
+        case .sharepoint: return "folder.badge.person.crop"
+        case .alibabaOSS: return "a.circle.fill"
         }
     }
     
@@ -148,6 +172,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oracleCloud: return Color(red: 0.93, green: 0.22, blue: 0.13)
         case .storj: return Color(red: 0.0, green: 0.47, blue: 1.0)
         case .filebase: return Color(red: 0.18, green: 0.8, blue: 0.44)
+        
+        // Phase 1, Week 3
+        case .googleCloudStorage: return Color(red: 0.26, green: 0.52, blue: 0.96)
+        case .azureBlob: return Color(red: 0.0, green: 0.47, blue: 0.84)
+        case .azureFiles: return Color(red: 0.0, green: 0.62, blue: 0.89)
+        case .oneDriveBusiness: return Color(red: 0.0, green: 0.35, blue: 0.67)
+        case .sharepoint: return Color(red: 0.01, green: 0.53, blue: 0.75)
+        case .alibabaOSS: return Color(red: 1.0, green: 0.42, blue: 0.0)
         }
     }
     
@@ -184,6 +216,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oracleCloud: return "s3"
         case .storj: return "storj"
         case .filebase: return "s3"
+        
+        // Phase 1, Week 3
+        case .googleCloudStorage: return "google cloud storage"
+        case .azureBlob: return "azureblob"
+        case .azureFiles: return "azurefiles"
+        case .oneDriveBusiness: return "onedrive"
+        case .sharepoint: return "sharepoint"
+        case .alibabaOSS: return "oss"
         }
     }
     
@@ -219,6 +259,14 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .oracleCloud: return "oraclecloud"
         case .storj: return "storj"
         case .filebase: return "filebase"
+        
+        // Phase 1, Week 3
+        case .googleCloudStorage: return "gcs"
+        case .azureBlob: return "azureblob"
+        case .azureFiles: return "azurefiles"
+        case .oneDriveBusiness: return "onedrive-business"
+        case .sharepoint: return "sharepoint"
+        case .alibabaOSS: return "oss"
         
         default: return rawValue
         }

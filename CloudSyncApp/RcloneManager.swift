@@ -357,6 +357,76 @@ class RcloneManager {
         try await createRemote(name: remoteName, type: "s3", parameters: params)
     }
     
+    // MARK: - Phase 1, Week 3: Enterprise Services
+    
+    func setupGoogleCloudStorage(remoteName: String, projectId: String, serviceAccountKey: String? = nil) async throws {
+        // Google Cloud Storage can use OAuth or service account
+        if let serviceAccountKey = serviceAccountKey {
+            // Service account authentication
+            try await createRemote(
+                name: remoteName,
+                type: "google cloud storage",
+                parameters: [
+                    "project_number": projectId,
+                    "service_account_credentials": serviceAccountKey
+                ]
+            )
+        } else {
+            // OAuth authentication
+            try await createRemoteInteractive(name: remoteName, type: "google cloud storage")
+        }
+    }
+    
+    func setupAzureBlob(remoteName: String, accountName: String, accountKey: String? = nil, sasURL: String? = nil) async throws {
+        var params: [String: String] = [
+            "account": accountName
+        ]
+        
+        if let accountKey = accountKey {
+            params["key"] = accountKey
+        } else if let sasURL = sasURL {
+            params["sas_url"] = sasURL
+        }
+        
+        try await createRemote(name: remoteName, type: "azureblob", parameters: params)
+    }
+    
+    func setupAzureFiles(remoteName: String, accountName: String, accountKey: String, shareName: String? = nil) async throws {
+        var params: [String: String] = [
+            "account": accountName,
+            "key": accountKey
+        ]
+        
+        if let shareName = shareName {
+            params["share_name"] = shareName
+        }
+        
+        try await createRemote(name: remoteName, type: "azurefiles", parameters: params)
+    }
+    
+    func setupOneDriveBusiness(remoteName: String, driveType: String = "business") async throws {
+        // OneDrive for Business uses OAuth with drive_type parameter
+        // We'll use the interactive setup and document the drive_type in config
+        try await createRemoteInteractive(name: remoteName, type: "onedrive")
+        // Note: drive_type should be set to "business" in the config
+    }
+    
+    func setupSharePoint(remoteName: String) async throws {
+        // SharePoint uses OneDrive backend with different configuration
+        try await createRemoteInteractive(name: remoteName, type: "sharepoint")
+    }
+    
+    func setupAlibabaOSS(remoteName: String, accessKey: String, secretKey: String, endpoint: String, region: String = "oss-cn-hangzhou") async throws {
+        let params: [String: String] = [
+            "access_key_id": accessKey,
+            "access_key_secret": secretKey,
+            "endpoint": endpoint,
+            "region": region
+        ]
+        
+        try await createRemote(name: remoteName, type: "oss", parameters: params)
+    }
+    
     // MARK: - Generic Remote Creation
     
     private func createRemote(name: String, type: String, parameters: [String: String]) async throws {
