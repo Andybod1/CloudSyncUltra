@@ -544,9 +544,7 @@ class RcloneManager {
         try process.run()
         process.waitUntilExit()
         
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        let outputString = String(data: outputData, encoding: .utf8) ?? ""
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
         
         // rclone purge returns 0 on success, but may have notices in stderr
