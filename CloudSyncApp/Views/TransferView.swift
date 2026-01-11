@@ -669,7 +669,7 @@ struct TransferProgressBar: View {
                             HStack(spacing: 3) {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 9))
-                                Text("E2E")
+                                Text("E2E Encrypted")
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }

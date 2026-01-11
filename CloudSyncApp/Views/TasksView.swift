@@ -133,7 +133,7 @@ struct TaskCard: View {
                             HStack(spacing: 2) {
                                 Image(systemName: "lock.fill")
                                     .font(.caption2)
-                                Text("E2E")
+                                Text("E2E Encrypted")
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }
@@ -643,7 +643,7 @@ struct TaskDetailSheet: View {
                             HStack(spacing: 2) {
                                 Image(systemName: "lock.fill")
                                     .font(.caption2)
-                                Text("E2E")
+                                Text("E2E Encrypted")
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }

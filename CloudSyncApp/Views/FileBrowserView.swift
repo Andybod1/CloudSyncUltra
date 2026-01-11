@@ -548,7 +548,7 @@ struct FileBrowserView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "lock.fill")
                                     .font(.caption2)
-                                Text("E2E")
+                                Text("E2E Encrypted")
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }
