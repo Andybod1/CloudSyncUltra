@@ -442,6 +442,50 @@ class RcloneManager {
         }
     }
     
+    // MARK: - OAuth Services Expansion: Media & Consumer
+    
+    func setupGooglePhotos(remoteName: String) async throws {
+        // Google Photos uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "gphotos")
+    }
+    
+    func setupFlickr(remoteName: String) async throws {
+        // Flickr uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "flickr")
+    }
+    
+    func setupSugarSync(remoteName: String) async throws {
+        // SugarSync uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "sugarsync")
+    }
+    
+    func setupOpenDrive(remoteName: String) async throws {
+        // OpenDrive uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "opendrive")
+    }
+    
+    // MARK: - OAuth Services Expansion: Specialized & Enterprise
+    
+    func setupPutio(remoteName: String) async throws {
+        // Put.io uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "putio")
+    }
+    
+    func setupPremiumizeme(remoteName: String) async throws {
+        // Premiumize.me uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "premiumizeme")
+    }
+    
+    func setupQuatrix(remoteName: String) async throws {
+        // Quatrix uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "quatrix")
+    }
+    
+    func setupFileFabric(remoteName: String) async throws {
+        // File Fabric uses OAuth - opens browser for authentication
+        try await createRemoteInteractive(name: remoteName, type: "filefabric")
+    }
+    
     // MARK: - Generic Remote Creation
     
     private func createRemote(name: String, type: String, parameters: [String: String]) async throws {

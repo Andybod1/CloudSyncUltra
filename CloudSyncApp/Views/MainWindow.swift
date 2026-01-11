@@ -554,6 +554,27 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
         case .jottacloud:
             try await rclone.setupJottacloud(remoteName: rcloneName, username: username, password: password)
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos:
+            try await rclone.setupGooglePhotos(remoteName: rcloneName)
+        case .flickr:
+            try await rclone.setupFlickr(remoteName: rcloneName)
+        case .sugarsync:
+            try await rclone.setupSugarSync(remoteName: rcloneName)
+        case .opendrive:
+            try await rclone.setupOpenDrive(remoteName: rcloneName)
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio:
+            try await rclone.setupPutio(remoteName: rcloneName)
+        case .premiumizeme:
+            try await rclone.setupPremiumizeme(remoteName: rcloneName)
+        case .quatrix:
+            try await rclone.setupQuatrix(remoteName: rcloneName)
+        case .filefabric:
+            try await rclone.setupFileFabric(remoteName: rcloneName)
+        
         default:
             throw RcloneError.configurationFailed("Provider \(remote.type.displayName) not yet supported")
         }

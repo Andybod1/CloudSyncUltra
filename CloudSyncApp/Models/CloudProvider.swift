@@ -52,6 +52,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     // Additional Providers: Nordic & Unlimited Storage
     case jottacloud = "jottacloud"
     
+    // OAuth Services Expansion: Media & Consumer
+    case googlePhotos = "gphotos"
+    case flickr = "flickr"
+    case sugarsync = "sugarsync"
+    case opendrive = "opendrive"
+    
+    // OAuth Services Expansion: Specialized & Enterprise
+    case putio = "putio"
+    case premiumizeme = "premiumizeme"
+    case quatrix = "quatrix"
+    case filefabric = "filefabric"
+    
     var id: String { rawValue }
     
     var displayName: String {
@@ -98,6 +110,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "Jottacloud"
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "Google Photos"
+        case .flickr: return "Flickr"
+        case .sugarsync: return "SugarSync"
+        case .opendrive: return "OpenDrive"
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio: return "Put.io"
+        case .premiumizeme: return "Premiumize.me"
+        case .quatrix: return "Quatrix"
+        case .filefabric: return "File Fabric"
         }
     }
     
@@ -145,6 +169,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "j.circle.fill"
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "photo.stack.fill"
+        case .flickr: return "camera.fill"
+        case .sugarsync: return "arrow.triangle.2.circlepath"
+        case .opendrive: return "externaldrive.fill"
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio: return "arrow.down.circle.fill"
+        case .premiumizeme: return "star.circle.fill"
+        case .quatrix: return "q.circle.fill"
+        case .filefabric: return "fabric.circle.fill"
         }
     }
     
@@ -192,6 +228,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return Color(red: 0.0, green: 0.58, blue: 0.77)
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return Color(red: 0.93, green: 0.35, blue: 0.35)
+        case .flickr: return Color(red: 0.0, green: 0.42, blue: 0.98)
+        case .sugarsync: return Color(red: 0.0, green: 0.67, blue: 0.93)
+        case .opendrive: return Color(red: 0.29, green: 0.67, blue: 0.31)
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio: return Color(red: 0.96, green: 0.65, blue: 0.14)
+        case .premiumizeme: return Color(red: 0.85, green: 0.33, blue: 0.0)
+        case .quatrix: return Color(red: 0.2, green: 0.4, blue: 0.8)
+        case .filefabric: return Color(red: 0.4, green: 0.2, blue: 0.6)
         }
     }
     
@@ -239,6 +287,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "jottacloud"
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "gphotos"
+        case .flickr: return "flickr"
+        case .sugarsync: return "sugarsync"
+        case .opendrive: return "opendrive"
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio: return "putio"
+        case .premiumizeme: return "premiumizeme"
+        case .quatrix: return "quatrix"
+        case .filefabric: return "filefabric"
         }
     }
     
@@ -285,6 +345,18 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "jottacloud"
+        
+        // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "gphotos"
+        case .flickr: return "flickr"
+        case .sugarsync: return "sugarsync"
+        case .opendrive: return "opendrive"
+        
+        // OAuth Expansion: Specialized & Enterprise
+        case .putio: return "putio"
+        case .premiumizeme: return "premiumizeme"
+        case .quatrix: return "quatrix"
+        case .filefabric: return "filefabric"
         
         default: return rawValue
         }
