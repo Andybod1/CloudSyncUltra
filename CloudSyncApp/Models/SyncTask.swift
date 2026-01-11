@@ -99,13 +99,28 @@ struct SyncTask: Identifiable, Codable {
     }
     
     var formattedBytesTransferred: String {
+        if totalBytes == 0 {
+            return "No data"
+        }
+        
         let transferred = ByteCountFormatter.string(fromByteCount: bytesTransferred, countStyle: .file)
         let total = ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
+        
+        if state == .running {
+            // During transfer, show as progress
+            let percentage = totalBytes > 0 ? Int((Double(bytesTransferred) / Double(totalBytes)) * 100) : 0
+            return "\(transferred) of \(total) (\(percentage)%)"
+        }
+        
         return "\(transferred) / \(total)"
     }
     
     var formattedFilesTransferred: String {
-        "\(filesTransferred) / \(totalFiles) files"
+        if state == .running && filesTransferred == 0 && totalFiles > 0 {
+            // During active transfer, show progress differently
+            return "Transferring \(totalFiles) \(totalFiles == 1 ? "file" : "files")"
+        }
+        return "\(filesTransferred) / \(totalFiles) files"
     }
     
     var duration: TimeInterval? {
