@@ -158,22 +158,28 @@ struct TransferView: View {
     
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
                                to: CloudRemote, toPath: String, srcBrowser: FileBrowserViewModel, dstBrowser: FileBrowserViewModel) {
-        // Calculate total size, including folder contents
+        // Calculate total size and file count, including folder contents
         var totalSize: Int64 = 0
+        var totalFileCount = 0
         var hasFolder = false
         
         for file in files {
             if file.isDirectory {
                 hasFolder = true
-                // Calculate actual folder size
+                // Calculate actual folder size and count files
                 if from.type == .local {
-                    totalSize += getFolderSize(path: file.path)
+                    let (size, fileCount) = getFolderSizeAndCount(path: file.path)
+                    totalSize += size
+                    totalFileCount += fileCount
                 } else {
                     // For cloud folders, use the reported size (may be inaccurate)
+                    // We can't accurately count files in cloud folders without fetching
                     totalSize += file.size
+                    totalFileCount += 1 // Count the folder itself
                 }
             } else {
                 totalSize += file.size
+                totalFileCount += 1
             }
         }
         
@@ -203,7 +209,7 @@ struct TransferView: View {
             log("  [\(i+1)] \(file.name) - \(file.size) bytes")
         }
         
-        transferProgress.start(itemCount: files.count, totalSize: totalSize, sourceName: from.name, destName: to.name)
+        transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name)
         
         // Create task for history
         let taskName = files.count == 1 ? files[0].name : "\(files.count) items"
@@ -216,7 +222,7 @@ struct TransferView: View {
             destinationRemote: to.name,
             destinationPath: toPath
         )
-        task.totalFiles = files.count
+        task.totalFiles = totalFileCount
         task.totalBytes = totalSize
         task.startedAt = Date()
         task.state = .running
@@ -477,6 +483,35 @@ class TransferProgressModel: ObservableObject {
         }
         
         return totalSize
+    }
+    
+    // Helper function to calculate folder size AND count files
+    private func getFolderSizeAndCount(path: String) -> (size: Int64, fileCount: Int) {
+        let fileManager = FileManager.default
+        var totalSize: Int64 = 0
+        var fileCount = 0
+        
+        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
+                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
+                                                      options: [.skipsHiddenFiles]) else {
+            return (0, 0)
+        }
+        
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+                  let isDirectory = resourceValues.isDirectory else {
+                continue
+            }
+            
+            if !isDirectory {
+                if let fileSize = resourceValues.fileSize {
+                    totalSize += Int64(fileSize)
+                }
+                fileCount += 1
+            }
+        }
+        
+        return (totalSize, fileCount)
     }
 
 // MARK: - Transfer Progress Bar
