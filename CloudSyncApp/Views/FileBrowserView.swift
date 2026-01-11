@@ -34,98 +34,144 @@ struct FileBrowserView: View {
     @State private var renameError: String?
     @State private var showPageSizeMenu = false
     @State private var jumpToPageString = ""
-    @State private var encryptUploads = false
+    
+    // MARK: - Encryption State
+    /// When true: uploads are encrypted, view shows decrypted content (transparent encryption)
+    /// When false: view shows raw encrypted content (gibberish filenames)
+    @State private var encryptionEnabled = false
     @State private var showEncryptionModal = false
     
+    // The actual remote being used for operations (may be encrypted version)
+    @State private var activeRemote: CloudRemote?
+    
+    // Track if we're viewing raw encrypted data
+    private var isViewingRawEncrypted: Bool {
+        !encryptionEnabled && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
+    }
+    
     var body: some View {
+        mainContent
+            .background(Color(NSColor.windowBackgroundColor))
+            .navigationTitle(remote.name)
+            .task(id: remote.id) {
+                await initializeEncryptionState()
+            }
+            .onChange(of: encryptionEnabled) { _, isEnabled in
+                handleEncryptionToggle(isEnabled)
+            }
+            .modifier(AlertsModifier(
+                showDeleteConfirm: $showDeleteConfirm,
+                showDeleteError: $showDeleteError,
+                showDownloadError: $showDownloadError,
+                selectedCount: browser.selectedFiles.count,
+                deleteError: deleteError,
+                downloadError: downloadError,
+                onDeleteConfirm: deleteSelectedFiles,
+                onDeleteErrorDismiss: { deleteError = nil },
+                onDownloadErrorDismiss: { downloadError = nil }
+            ))
+            .modifier(SheetsModifier(
+                showNewFolderSheet: $showNewFolderSheet,
+                showConnectSheet: $showConnectSheet,
+                showRenameSheet: $showRenameSheet,
+                showEncryptionModal: $showEncryptionModal,
+                browser: browser,
+                remote: remote,
+                activeRemote: activeRemote,
+                renameFile: renameFile,
+                newFileName: $newFileName,
+                isRenaming: $isRenaming,
+                renameError: $renameError,
+                performRename: performRename,
+                configureEncryption: configureEncryption
+            ))
+    }
+    
+    // MARK: - Main Content
+    
+    private var mainContent: some View {
         VStack(spacing: 0) {
             if !remote.isConfigured {
                 notConnectedView
             } else {
-                browserToolbar
-                
-                Divider()
-                
-                BreadcrumbBar(
-                    components: browser.pathComponents,
-                    onNavigate: { browser.navigateTo($0) }
-                )
-                
-                Divider()
-                
-                if browser.isLoading || isDeleting || isDownloading || isUploading {
-                    loadingView
-                } else if let error = browser.error {
-                    errorView(error)
-                } else if browser.files.isEmpty {
-                    emptyView
-                } else {
-                    fileContent
-                }
-                
-                // Pagination Controls
-                if !browser.isLoading && browser.files.count > browser.pageSize {
-                    Divider()
-                    paginationBar
-                }
-                
-                Divider()
-                
-                statusBar
+                connectedContent
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
-        .navigationTitle(remote.name)
-        .task(id: remote.id) {
-            if remote.isConfigured {
-                browser.setRemote(remote)
+    }
+    
+    @ViewBuilder
+    private var connectedContent: some View {
+        browserToolbar
+        
+        Divider()
+        
+        // Show encryption status banner when viewing raw encrypted data
+        if isViewingRawEncrypted {
+            rawEncryptionBanner
+        }
+        
+        BreadcrumbBar(
+            components: browser.pathComponents,
+            onNavigate: { browser.navigateTo($0) }
+        )
+        
+        Divider()
+        
+        contentArea
+        
+        // Pagination Controls
+        if !browser.isLoading && browser.files.count > browser.pageSize {
+            Divider()
+            paginationBar
+        }
+        
+        Divider()
+        
+        statusBar
+    }
+    
+    @ViewBuilder
+    private var contentArea: some View {
+        if browser.isLoading || isDeleting || isDownloading || isUploading {
+            loadingView
+        } else if let error = browser.error {
+            errorView(error)
+        } else if browser.files.isEmpty {
+            emptyView
+        } else {
+            fileContent
+        }
+    }
+    
+    // MARK: - Encryption Banner
+    
+    private var rawEncryptionBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "eye.slash")
+                .foregroundColor(.orange)
+            
+            Text("Viewing raw encrypted data")
+                .font(.caption)
+                .foregroundColor(.orange)
+            
+            Text("•")
+                .foregroundColor(.secondary)
+            
+            Text("Enable encryption toggle to see decrypted filenames")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Button("Enable Decryption") {
+                encryptionEnabled = true
             }
+            .font(.caption)
+            .buttonStyle(.bordered)
         }
-        .alert("Delete Files?", isPresented: $showDeleteConfirm) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                deleteSelectedFiles()
-            }
-        } message: {
-            Text("Are you sure you want to delete \(browser.selectedFiles.count) item(s)? This cannot be undone.")
-        }
-        .alert("Delete Error", isPresented: $showDeleteError) {
-            Button("OK") {
-                deleteError = nil
-            }
-        } message: {
-            Text(deleteError ?? "Unknown error")
-        }
-        .alert("Download Error", isPresented: $showDownloadError) {
-            Button("OK") {
-                downloadError = nil
-            }
-        } message: {
-            Text(downloadError ?? "Unknown error")
-        }
-        .sheet(isPresented: $showNewFolderSheet) {
-            NewFolderSheet(browser: browser, remote: remote)
-        }
-        .sheet(isPresented: $showConnectSheet) {
-            ConnectRemoteSheet(remote: remote)
-        }
-        .sheet(isPresented: $showRenameSheet) {
-            RenameFileSheet(
-                file: renameFile,
-                newName: $newFileName,
-                isRenaming: $isRenaming,
-                error: $renameError,
-                onRename: { performRename() },
-                onCancel: { showRenameSheet = false }
-            )
-        }
-        .sheet(isPresented: $showEncryptionModal) {
-            EncryptionModal { config in
-                Task {
-                    await configureEncryption(config: config)
-                }
-            }
-        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .background(Color.orange.opacity(0.1))
     }
     
     // MARK: - Pagination Bar
@@ -372,22 +418,8 @@ struct FileBrowserView: View {
                 Divider()
                     .frame(height: 20)
                 
-                // Encryption toggle
-                Toggle(isOn: $encryptUploads) {
-                    HStack(spacing: 6) {
-                        Image(systemName: encryptUploads ? "lock.fill" : "lock.open")
-                            .foregroundColor(encryptUploads ? .green : .secondary)
-                        Text("Encrypt")
-                            .font(.caption)
-                    }
-                }
-                .toggleStyle(.switch)
-                .help("Encrypt uploads with E2E encryption")
-                .onChange(of: encryptUploads) { _, isEnabled in
-                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured {
-                        showEncryptionModal = true
-                    }
-                }
+                // Encryption toggle with enhanced visuals
+                encryptionToggle
                 
                 Divider()
                     .frame(height: 20)
@@ -429,6 +461,43 @@ struct FileBrowserView: View {
         .padding()
     }
     
+    // MARK: - Encryption Toggle
+    
+    private var encryptionToggle: some View {
+        HStack(spacing: 6) {
+            // Lock icon with color based on state
+            Image(systemName: encryptionEnabled ? "lock.fill" : "lock.open")
+                .foregroundColor(encryptionEnabled ? .green : (isViewingRawEncrypted ? .orange : .secondary))
+            
+            Toggle(isOn: $encryptionEnabled) {
+                Text("Encrypt")
+                    .font(.caption)
+            }
+            .toggleStyle(.switch)
+            .controlSize(.small)
+            
+            // Configuration button (gear icon)
+            if EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+                Button {
+                    showEncryptionModal = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.secondary)
+                .help("Encryption settings")
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(encryptionEnabled ? Color.green.opacity(0.1) : (isViewingRawEncrypted ? Color.orange.opacity(0.1) : Color.clear))
+        )
+        .help(encryptionEnabled ? "Encryption ON - files encrypted on upload, decrypted on view" : "Encryption OFF - viewing raw encrypted data")
+    }
+    
     // MARK: - Content Views
     
     private var loadingView: some View {
@@ -457,6 +526,16 @@ struct FileBrowserView: View {
                     
                     Text("Uploading... \(Int(uploadProgress))%")
                         .foregroundColor(.secondary)
+                    
+                    if encryptionEnabled {
+                        HStack(spacing: 4) {
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                            Text("Encrypting")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.green)
+                    }
                     
                     if !uploadSpeed.isEmpty {
                         Text(uploadSpeed)
@@ -550,6 +629,13 @@ struct FileBrowserView: View {
                     
                     Text(file.name)
                         .lineLimit(1)
+                    
+                    // Show encrypted indicator for gibberish-looking names
+                    if isViewingRawEncrypted && looksEncrypted(file.name) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
                 }
             }
             .width(min: 200)
@@ -620,7 +706,8 @@ struct FileBrowserView: View {
                 ForEach(browser.paginatedFiles) { file in
                     FileGridItem(
                         file: file,
-                        isSelected: browser.selectedFiles.contains(file.id)
+                        isSelected: browser.selectedFiles.contains(file.id),
+                        showEncryptedIndicator: isViewingRawEncrypted && looksEncrypted(file.name)
                     )
                     .onTapGesture {
                         browser.toggleSelection(file)
@@ -680,13 +767,21 @@ struct FileBrowserView: View {
             }
             .font(.caption)
             
-            if remote.isEncrypted {
+            // Encryption status in status bar
+            if encryptionEnabled {
                 HStack(spacing: 4) {
                     Image(systemName: "lock.fill")
                     Text("Encrypted")
                 }
                 .font(.caption)
                 .foregroundColor(.green)
+            } else if isViewingRawEncrypted {
+                HStack(spacing: 4) {
+                    Image(systemName: "eye.slash")
+                    Text("Raw View")
+                }
+                .font(.caption)
+                .foregroundColor(.orange)
             }
             
             Divider()
@@ -754,6 +849,74 @@ struct FileBrowserView: View {
         .background(Color(NSColor.controlBackgroundColor))
     }
     
+    // MARK: - Helper Functions
+    
+    /// Check if a filename looks like it's encrypted (base64-like gibberish)
+    private func looksEncrypted(_ name: String) -> Bool {
+        // Encrypted filenames from rclone crypt are typically long base64-like strings
+        let baseName = (name as NSString).deletingPathExtension
+        guard baseName.count > 20 else { return false }
+        
+        // Check if it contains mostly alphanumeric and looks like base64
+        let alphanumericCount = baseName.filter { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" }.count
+        return Double(alphanumericCount) / Double(baseName.count) > 0.9
+    }
+    
+    // MARK: - Encryption State Management
+    
+    private func initializeEncryptionState() async {
+        guard remote.isConfigured else { return }
+        
+        // Check if encryption is enabled for this remote
+        let isEnabled = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+        encryptionEnabled = isEnabled
+        
+        // Set the active remote based on encryption state
+        updateActiveRemote(encryptionEnabled: isEnabled)
+        
+        // Load files with the correct remote
+        browser.setRemote(activeRemote ?? remote)
+    }
+    
+    private func handleEncryptionToggle(_ isEnabled: Bool) {
+        // If enabling encryption but not configured, show setup modal
+        if isEnabled && !EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+            showEncryptionModal = true
+            // Reset to false until configured
+            encryptionEnabled = false
+            return
+        }
+        
+        // Update the active remote
+        updateActiveRemote(encryptionEnabled: isEnabled)
+        
+        // Save the encryption state for this remote
+        EncryptionManager.shared.setEncryptionEnabled(isEnabled, for: remote.rcloneName)
+        
+        // Refresh the browser with the new remote
+        if let newRemote = activeRemote {
+            browser.setRemote(newRemote)
+        }
+    }
+    
+    private func updateActiveRemote(encryptionEnabled: Bool) {
+        if encryptionEnabled && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+            // Use the crypt remote (shows decrypted view)
+            let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: remote.rcloneName)
+            activeRemote = CloudRemote(
+                name: remote.name,
+                type: remote.type,
+                isConfigured: true,
+                path: "",
+                isEncrypted: true,
+                customRcloneName: cryptRemoteName
+            )
+        } else {
+            // Use the base remote (shows raw encrypted data if encryption was configured)
+            activeRemote = remote
+        }
+    }
+    
     // MARK: - Actions
     
     private func downloadSelectedFiles() {
@@ -775,6 +938,8 @@ struct FileBrowserView: View {
                 isDownloading = true
                 
                 do {
+                    let targetRemote = activeRemote ?? remote
+                    
                     for file in filesToDownload {
                         if remote.type == .local {
                             // Local copy
@@ -783,7 +948,7 @@ struct FileBrowserView: View {
                         } else {
                             // Cloud download via rclone
                             try await RcloneManager.shared.download(
-                                remoteName: remote.rcloneName,
+                                remoteName: targetRemote.rcloneName,
                                 remotePath: file.path,
                                 localPath: url.path
                             )
@@ -848,9 +1013,13 @@ struct FileBrowserView: View {
                 uploadTotalFiles = panel.urls.count
                 uploadFileIndex = 0
                 
-                log("Starting upload task, isUploading=true")
+                log("Starting upload task, isUploading=true, encryptionEnabled=\(encryptionEnabled)")
                 
                 do {
+                    // Use the active remote (encrypted or regular)
+                    let targetRemote = activeRemote ?? remote
+                    log("Target remote: \(targetRemote.rcloneName)")
+                    
                     for (index, url) in panel.urls.enumerated() {
                         uploadFileIndex = index + 1
                         uploadCurrentFile = url.lastPathComponent
@@ -877,13 +1046,11 @@ struct FileBrowserView: View {
                                 log("Directory detected - uploading to: \(destPath)")
                             }
                             
-                            // Use encrypted remote if encryption is enabled
-                            let targetRemote = encryptUploads ? EncryptionManager.shared.encryptedRemoteName : remote.rcloneName
-                            log("Starting cloud upload to \(targetRemote):\(destPath) (encryption: \(encryptUploads))")
+                            log("Starting cloud upload to \(targetRemote.rcloneName):\(destPath)")
                             
                             let progressStream = try await RcloneManager.shared.uploadWithProgress(
                                 localPath: url.path,
-                                remoteName: targetRemote,
+                                remoteName: targetRemote.rcloneName,
                                 remotePath: destPath
                             )
                             
@@ -928,18 +1095,20 @@ struct FileBrowserView: View {
         
         Task {
             do {
+                let targetRemote = activeRemote ?? remote
+                
                 for file in filesToDelete {
                     if remote.type == .local {
                         try FileManager.default.removeItem(atPath: file.path)
                     } else {
                         if file.isDirectory {
                             try await RcloneManager.shared.deleteFolder(
-                                remoteName: remote.rcloneName,
+                                remoteName: targetRemote.rcloneName,
                                 path: file.path
                             )
                         } else {
                             try await RcloneManager.shared.deleteFile(
-                                remoteName: remote.rcloneName,
+                                remoteName: targetRemote.rcloneName,
                                 path: file.path
                             )
                         }
@@ -971,12 +1140,14 @@ struct FileBrowserView: View {
         
         Task {
             do {
+                let targetRemote = activeRemote ?? remote
+                
                 // Calculate the new path
                 let parentPath = (file.path as NSString).deletingLastPathComponent
                 let newPath = parentPath.isEmpty ? newFileName : "\(parentPath)/\(newFileName)"
                 
                 try await RcloneManager.shared.renameFile(
-                    remoteName: remote.rcloneName,
+                    remoteName: targetRemote.rcloneName,
                     oldPath: file.path,
                     newPath: newPath
                 )
@@ -999,24 +1170,33 @@ struct FileBrowserView: View {
     
     private func configureEncryption(config: EncryptionConfig) async {
         do {
-            let remoteName = remote.name.lowercased()
+            let remoteName = remote.rcloneName
             let salt = EncryptionManager.shared.generateSecureSalt()
             
-            try await SyncManager.shared.configureEncryption(
+            // Create the encryption config for this remote
+            let remoteConfig = RemoteEncryptionConfig(
                 password: config.password,
                 salt: salt,
-                filenameEncryption: config.filenameEncryptionMode,
-                encryptDirectories: config.encryptFolders,
-                wrappedRemote: remoteName,
-                wrappedPath: "/encrypted"
+                encryptFilenames: config.encryptFilenames,
+                encryptFolders: config.encryptFolders
+            )
+            
+            // Setup crypt remote using the new per-remote method
+            try await RcloneManager.shared.setupCryptRemote(
+                for: remoteName,
+                config: remoteConfig
             )
             
             await MainActor.run {
-                encryptUploads = true
+                // Now that encryption is configured, enable it
+                encryptionEnabled = true
+                EncryptionManager.shared.setEncryptionEnabled(true, for: remoteName)
+                updateActiveRemote(encryptionEnabled: true)
+                browser.setRemote(activeRemote ?? remote)
             }
         } catch {
             await MainActor.run {
-                encryptUploads = false
+                encryptionEnabled = false
             }
             print("[FileBrowserView] Encryption setup failed: \(error)")
         }
@@ -1028,6 +1208,7 @@ struct FileBrowserView: View {
 struct FileGridItem: View {
     let file: FileItem
     let isSelected: Bool
+    var showEncryptedIndicator: Bool = false
     
     var body: some View {
         VStack(spacing: 8) {
@@ -1039,6 +1220,24 @@ struct FileGridItem: View {
                 Image(systemName: file.icon)
                     .font(.system(size: 32))
                     .foregroundColor(file.isDirectory ? .accentColor : .secondary)
+                
+                // Encrypted indicator overlay
+                if showEncryptedIndicator {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                                .padding(4)
+                                .background(Color(NSColor.windowBackgroundColor).opacity(0.9))
+                                .cornerRadius(4)
+                        }
+                        Spacer()
+                    }
+                    .frame(width: 80, height: 80)
+                    .padding(4)
+                }
             }
             
             Text(file.name)
@@ -1199,6 +1398,89 @@ struct RenameFileSheet: View {
         }
         .padding()
         .frame(width: 300)
+    }
+}
+
+// MARK: - View Modifiers for Type Checking
+
+private struct AlertsModifier: ViewModifier {
+    @Binding var showDeleteConfirm: Bool
+    @Binding var showDeleteError: Bool
+    @Binding var showDownloadError: Bool
+    let selectedCount: Int
+    let deleteError: String?
+    let downloadError: String?
+    let onDeleteConfirm: () -> Void
+    let onDeleteErrorDismiss: () -> Void
+    let onDownloadErrorDismiss: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("Delete Files?", isPresented: $showDeleteConfirm) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    onDeleteConfirm()
+                }
+            } message: {
+                Text("Are you sure you want to delete \(selectedCount) item(s)? This cannot be undone.")
+            }
+            .alert("Delete Error", isPresented: $showDeleteError) {
+                Button("OK") {
+                    onDeleteErrorDismiss()
+                }
+            } message: {
+                Text(deleteError ?? "Unknown error")
+            }
+            .alert("Download Error", isPresented: $showDownloadError) {
+                Button("OK") {
+                    onDownloadErrorDismiss()
+                }
+            } message: {
+                Text(downloadError ?? "Unknown error")
+            }
+    }
+}
+
+private struct SheetsModifier: ViewModifier {
+    @Binding var showNewFolderSheet: Bool
+    @Binding var showConnectSheet: Bool
+    @Binding var showRenameSheet: Bool
+    @Binding var showEncryptionModal: Bool
+    let browser: FileBrowserViewModel
+    let remote: CloudRemote
+    let activeRemote: CloudRemote?
+    let renameFile: FileItem?
+    @Binding var newFileName: String
+    @Binding var isRenaming: Bool
+    @Binding var renameError: String?
+    let performRename: () -> Void
+    let configureEncryption: (EncryptionConfig) async -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $showNewFolderSheet) {
+                NewFolderSheet(browser: browser, remote: activeRemote ?? remote)
+            }
+            .sheet(isPresented: $showConnectSheet) {
+                ConnectRemoteSheet(remote: remote)
+            }
+            .sheet(isPresented: $showRenameSheet) {
+                RenameFileSheet(
+                    file: renameFile,
+                    newName: $newFileName,
+                    isRenaming: $isRenaming,
+                    error: $renameError,
+                    onRename: { performRename() },
+                    onCancel: { showRenameSheet = false }
+                )
+            }
+            .sheet(isPresented: $showEncryptionModal) {
+                EncryptionModal { config in
+                    Task {
+                        await configureEncryption(config)
+                    }
+                }
+            }
     }
 }
 

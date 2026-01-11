@@ -536,26 +536,22 @@ struct RemoteDetailView: View {
     }
 }
 
-// MARK: - Encryption Settings (kept from original)
+// MARK: - Encryption Settings (Per-Remote)
 
 struct EncryptionSettingsView: View {
     @EnvironmentObject var remotesVM: RemotesViewModel
-    @State private var isEncryptionEnabled = false
-    @State private var isConfigured = false
-    @State private var autoEncryptUploads = false
     @State private var showEncryptionModal = false
+    @State private var selectedRemoteForSetup: CloudRemote?
     @State private var showDisableConfirmation = false
+    @State private var remoteToDisable: CloudRemote?
     @State private var showExportConfirmation = false
     @State private var errorMessage: String?
+    @State private var refreshTrigger = false
     
     private let encryptionManager = EncryptionManager.shared
     
     private var configuredRemotes: [CloudRemote] {
         remotesVM.remotes.filter { $0.isConfigured && $0.type != .local }
-    }
-    
-    private var hasConfiguredRemotes: Bool {
-        !configuredRemotes.isEmpty
     }
     
     var body: some View {
@@ -578,14 +574,9 @@ struct EncryptionSettingsView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                         
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(isConfigured ? Color.green : Color.orange)
-                                .frame(width: 8, height: 8)
-                            
-                            Text(isConfigured ? "Configured" : "Not configured")
-                                .foregroundColor(.secondary)
-                        }
+                        Text("Per-remote encryption with independent passwords")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                     
                     Spacer()
@@ -593,10 +584,12 @@ struct EncryptionSettingsView: View {
                 
                 Divider()
                 
-                // Status & Configuration
+                // Per-Remote Encryption Status
                 VStack(alignment: .leading, spacing: 16) {
-                    if !hasConfiguredRemotes {
-                        // Warning: No remotes
+                    Text("Cloud Storage Encryption")
+                        .font(.headline)
+                    
+                    if configuredRemotes.isEmpty {
                         GroupBox {
                             HStack(spacing: 12) {
                                 Image(systemName: "exclamationmark.triangle.fill")
@@ -605,7 +598,7 @@ struct EncryptionSettingsView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("No Cloud Providers Configured")
                                         .fontWeight(.semibold)
-                                    Text("Configure a cloud provider in the Accounts tab first")
+                                    Text("Add a cloud provider first to enable encryption")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -613,81 +606,24 @@ struct EncryptionSettingsView: View {
                             }
                             .padding(8)
                         }
-                    } else if isConfigured {
-                        // Encryption configured
-                        GroupBox {
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                    Text("Encryption password configured")
-                                        .fontWeight(.semibold)
-                                    Spacer()
-                                }
-                                
-                                Text("Encryption is ready. Enable it per-transfer or use auto-encrypt.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                
-                                Divider()
-                                
-                                Toggle("Auto-encrypt all uploads", isOn: $autoEncryptUploads)
-                                    .help("Automatically encrypt all file uploads")
-                                
-                                Divider()
-                                
-                                HStack {
-                                    Button("Change Password") {
-                                        showEncryptionModal = true
-                                    }
-                                    .buttonStyle(.bordered)
-                                    
-                                    Spacer()
-                                    
-                                    Button("Disable Encryption") {
-                                        showDisableConfirmation = true
-                                    }
-                                    .foregroundColor(.red)
-                                    .buttonStyle(.bordered)
-                                }
-                            }
-                            .padding(8)
-                        }
                     } else {
-                        // Not configured
-                        GroupBox {
-                            VStack(alignment: .leading, spacing: 16) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Configure Encryption Password")
-                                        .font(.headline)
-                                    
-                                    Text("Set up client-side encryption to protect your files before uploading to cloud storage.")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                
-                                Button("Configure Encryption Password") {
-                                    showEncryptionModal = true
-                                }
-                                .buttonStyle(.borderedProminent)
-                            }
-                            .padding(8)
+                        ForEach(configuredRemotes) { remote in
+                            remoteEncryptionRow(remote)
                         }
                     }
-                    
-                    if let error = errorMessage {
-                        HStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.red)
-                            Text(error)
-                                .foregroundColor(.red)
-                        }
-                        .font(.caption)
-                        .padding(8)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(6)
+                }
+                
+                if let error = errorMessage {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundColor(.red)
+                        Text(error)
+                            .foregroundColor(.red)
                     }
+                    .font(.caption)
+                    .padding(8)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(6)
                 }
                 
                 Divider()
@@ -703,7 +639,7 @@ struct EncryptionSettingsView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Export Configuration")
                                         .fontWeight(.medium)
-                                    Text("Download your settings for backup or migration")
+                                    Text("Backup rclone config including encryption settings")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -744,9 +680,11 @@ struct EncryptionSettingsView: View {
                     
                     GroupBox {
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("Zero-knowledge encryption", systemImage: "shield.checkered")
+                            Label("Zero-knowledge encryption - only you can decrypt", systemImage: "shield.checkered")
                             Label("AES-256 encryption standard", systemImage: "key.fill")
-                            Label("No password recovery possible", systemImage: "exclamationmark.triangle")
+                            Label("Each cloud has independent password", systemImage: "lock.rotation")
+                            Label("Toggle ON to see decrypted, OFF to see raw", systemImage: "eye")
+                            Label("No password recovery possible - save passwords!", systemImage: "exclamationmark.triangle")
                         }
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -756,23 +694,25 @@ struct EncryptionSettingsView: View {
             }
             .padding()
         }
-        .onAppear {
-            loadState()
-        }
-        .sheet(isPresented: $showEncryptionModal) {
+        .id(refreshTrigger)
+        .sheet(item: $selectedRemoteForSetup) { remote in
             EncryptionModal { config in
                 Task {
-                    await setupEncryption(config: config)
+                    await setupEncryption(for: remote, config: config)
                 }
             }
         }
         .alert("Disable Encryption?", isPresented: $showDisableConfirmation) {
             Button("Disable", role: .destructive) {
-                Task { await disableEncryption() }
+                if let remote = remoteToDisable {
+                    Task { await disableEncryption(for: remote) }
+                }
             }
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel) {
+                remoteToDisable = nil
+            }
         } message: {
-            Text("This will remove your encryption password. Existing encrypted files will remain encrypted.")
+            Text("This will remove the encryption configuration for \(remoteToDisable?.name ?? "this remote"). Existing encrypted files will remain encrypted but you won't be able to decrypt them without reconfiguring.")
         }
         .alert("Export Configuration?", isPresented: $showExportConfirmation) {
             Button("Export", role: .destructive) {
@@ -780,53 +720,130 @@ struct EncryptionSettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("The rclone config file may contain sensitive credentials. Store it securely and do not share it.")
+            Text("The rclone config file contains sensitive credentials. Store it securely.")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .encryptionStateChanged)) { _ in
+            refreshTrigger.toggle()
         }
     }
     
-    private func loadState() {
-        isConfigured = encryptionManager.isEncryptionConfigured
-        autoEncryptUploads = UserDefaults.standard.bool(forKey: "autoEncryptUploads")
+    @ViewBuilder
+    private func remoteEncryptionRow(_ remote: CloudRemote) -> some View {
+        let isConfigured = encryptionManager.isEncryptionConfigured(for: remote.rcloneName)
+        let isEnabled = encryptionManager.isEncryptionEnabled(for: remote.rcloneName)
+        
+        GroupBox {
+            HStack(spacing: 12) {
+                Image(systemName: remote.displayIcon)
+                    .foregroundColor(remote.displayColor)
+                    .font(.title2)
+                    .frame(width: 32)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(remote.name)
+                        .fontWeight(.semibold)
+                    
+                    if isConfigured {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                                .font(.caption)
+                            Text("Encryption configured")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "circle")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                            Text("Not configured")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                if isConfigured {
+                    // Toggle for enabling/disabling encryption view
+                    Toggle("", isOn: Binding(
+                        get: { isEnabled },
+                        set: { newValue in
+                            encryptionManager.setEncryptionEnabled(newValue, for: remote.rcloneName)
+                            refreshTrigger.toggle()
+                        }
+                    ))
+                    .toggleStyle(.switch)
+                    .labelsHidden()
+                    .help(isEnabled ? "Encryption ON - viewing decrypted" : "Encryption OFF - viewing raw")
+                    
+                    Button {
+                        remoteToDisable = remote
+                        showDisableConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Remove encryption")
+                } else {
+                    Button("Setup") {
+                        selectedRemoteForSetup = remote
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding(8)
+        }
     }
     
-    private func setupEncryption(config: EncryptionConfig) async {
+    private func setupEncryption(for remote: CloudRemote, config: EncryptionConfig) async {
         errorMessage = nil
         
         do {
-            // For now, we'll use a default remote (first configured remote)
-            // In a future update, this could be made more flexible
-            guard let firstRemote = configuredRemotes.first else {
-                errorMessage = "No cloud remotes configured"
-                return
-            }
-            
-            let remoteName = firstRemote.name.lowercased()
+            let remoteName = remote.rcloneName
             let salt = encryptionManager.generateSecureSalt()
             
-            try await SyncManager.shared.configureEncryption(
+            // Create the encryption config
+            let remoteConfig = RemoteEncryptionConfig(
                 password: config.password,
                 salt: salt,
-                filenameEncryption: config.filenameEncryptionMode,
-                encryptDirectories: config.encryptFolders,
-                wrappedRemote: remoteName,
-                wrappedPath: "/encrypted"
+                encryptFilenames: config.encryptFilenames,
+                encryptFolders: config.encryptFolders
             )
             
-            isConfigured = true
+            // Setup crypt remote
+            try await RcloneManager.shared.setupCryptRemote(
+                for: remoteName,
+                config: remoteConfig
+            )
             
+            // Enable encryption by default after setup
+            encryptionManager.setEncryptionEnabled(true, for: remoteName)
+            
+            await MainActor.run {
+                refreshTrigger.toggle()
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+            }
         }
     }
     
-    private func disableEncryption() async {
+    private func disableEncryption(for remote: CloudRemote) async {
         do {
-            try await SyncManager.shared.disableEncryption()
-            isConfigured = false
-            autoEncryptUploads = false
-            UserDefaults.standard.set(false, forKey: "autoEncryptUploads")
+            try await RcloneManager.shared.deleteCryptRemote(for: remote.rcloneName)
+            await MainActor.run {
+                remoteToDisable = nil
+                refreshTrigger.toggle()
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+            }
         }
     }
     

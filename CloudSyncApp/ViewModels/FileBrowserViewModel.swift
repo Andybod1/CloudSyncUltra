@@ -182,11 +182,14 @@ class FileBrowserViewModel: ObservableObject {
     }
     
     private func loadRemoteFiles(remote: CloudRemote, path: String) async throws -> [FileItem] {
-        // Use the remote's rcloneName for consistent naming
+        // Use the effective remote name (base or crypt) based on encryption state
+        let effectiveRemote = remote.effectiveRemoteName
+        print("[FileBrowserVM] Loading files from \(effectiveRemote):\(path) (encryption: \(remote.isEncrypted ? "ON" : "OFF"))")
+        
         let remoteFiles = try await RcloneManager.shared.listRemoteFiles(
             remotePath: path,
-            encrypted: remote.isEncrypted,
-            remoteName: remote.rcloneName
+            encrypted: false,  // Don't use legacy encryption routing
+            remoteName: effectiveRemote  // Use effective remote (base or crypt)
         )
         
         return remoteFiles.map { file in

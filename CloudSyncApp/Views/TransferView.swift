@@ -65,10 +65,50 @@ struct TransferView: View {
         .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle("Transfer")
         .onChange(of: selectedSourceRemote) { _, newValue in
-            if let remote = newValue { sourceBrowser.setRemote(remote) }
+            if let remote = newValue {
+                // Initialize encryption state for this remote
+                let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+                encryptLeftToRight = isEncrypted
+                
+                // Set the correct remote (crypt or base) based on encryption state
+                if isEncrypted && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+                    let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: remote.rcloneName)
+                    let cryptRemote = CloudRemote(
+                        name: remote.name,
+                        type: remote.type,
+                        isConfigured: true,
+                        path: "",
+                        isEncrypted: true,
+                        customRcloneName: cryptRemoteName
+                    )
+                    sourceBrowser.setRemote(cryptRemote)
+                } else {
+                    sourceBrowser.setRemote(remote)
+                }
+            }
         }
         .onChange(of: selectedDestRemote) { _, newValue in
-            if let remote = newValue { destBrowser.setRemote(remote) }
+            if let remote = newValue {
+                // Initialize encryption state for this remote
+                let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+                encryptRightToLeft = isEncrypted
+                
+                // Set the correct remote (crypt or base) based on encryption state
+                if isEncrypted && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+                    let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: remote.rcloneName)
+                    let cryptRemote = CloudRemote(
+                        name: remote.name,
+                        type: remote.type,
+                        isConfigured: true,
+                        path: "",
+                        isEncrypted: true,
+                        customRcloneName: cryptRemoteName
+                    )
+                    destBrowser.setRemote(cryptRemote)
+                } else {
+                    destBrowser.setRemote(remote)
+                }
+            }
         }
     }
     
@@ -148,16 +188,42 @@ struct TransferView: View {
         guard let srcRemote = selectedSourceRemote, let dstRemote = selectedDestRemote else { return }
         guard !sourceBrowser.selectedFiles.isEmpty else { return }
         let items = sourceBrowser.files.filter { sourceBrowser.selectedFiles.contains($0.id) }
-        startTransfer(files: items, from: srcRemote, fromPath: sourceBrowser.currentPath, 
-                      to: dstRemote, toPath: destBrowser.currentPath, srcBrowser: sourceBrowser, dstBrowser: destBrowser)
+        
+        // Get effective remotes based on encryption state
+        let effectiveSrc = getEffectiveRemote(srcRemote, encrypted: encryptLeftToRight)
+        let effectiveDst = getEffectiveRemote(dstRemote, encrypted: encryptRightToLeft)
+        
+        startTransfer(files: items, from: effectiveSrc, fromPath: sourceBrowser.currentPath, 
+                      to: effectiveDst, toPath: destBrowser.currentPath, srcBrowser: sourceBrowser, dstBrowser: destBrowser)
     }
     
     private func transferFromRightToLeft() {
         guard let srcRemote = selectedDestRemote, let dstRemote = selectedSourceRemote else { return }
         guard !destBrowser.selectedFiles.isEmpty else { return }
         let items = destBrowser.files.filter { destBrowser.selectedFiles.contains($0.id) }
-        startTransfer(files: items, from: srcRemote, fromPath: destBrowser.currentPath,
-                      to: dstRemote, toPath: sourceBrowser.currentPath, srcBrowser: destBrowser, dstBrowser: sourceBrowser)
+        
+        // Get effective remotes based on encryption state
+        let effectiveSrc = getEffectiveRemote(srcRemote, encrypted: encryptRightToLeft)
+        let effectiveDst = getEffectiveRemote(dstRemote, encrypted: encryptLeftToRight)
+        
+        startTransfer(files: items, from: effectiveSrc, fromPath: destBrowser.currentPath,
+                      to: effectiveDst, toPath: sourceBrowser.currentPath, srcBrowser: destBrowser, dstBrowser: sourceBrowser)
+    }
+    
+    /// Get the effective remote (crypt or base) based on encryption state
+    private func getEffectiveRemote(_ remote: CloudRemote, encrypted: Bool) -> CloudRemote {
+        if encrypted && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+            let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: remote.rcloneName)
+            return CloudRemote(
+                name: remote.name,
+                type: remote.type,
+                isConfigured: true,
+                path: "",
+                isEncrypted: true,
+                customRcloneName: cryptRemoteName
+            )
+        }
+        return remote
     }
     
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
@@ -680,8 +746,17 @@ struct TransferFileBrowserPane: View {
                 .controlSize(.small)
                 .help("Encrypt transfers with E2E encryption")
                 .onChange(of: encryptTransfers) { _, isEnabled in
-                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured {
+                    guard let remote = selectedRemote else { return }
+                    let remoteName = remote.rcloneName
+                    
+                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured(for: remoteName) {
                         showEncryptionModal = true
+                        encryptTransfers = false  // Reset until configured
+                    } else {
+                        // Save encryption state for this remote
+                        EncryptionManager.shared.setEncryptionEnabled(isEnabled, for: remoteName)
+                        // Refresh the browser
+                        updateBrowserRemote()
                     }
                 }
                 
@@ -942,6 +1017,9 @@ struct TransferFileBrowserPane: View {
         guard let remote = selectedRemote else { return }
         guard !newFolderName.isEmpty else { return }
         
+        // Get effective remote name based on encryption state
+        let effectiveRemoteName = getEffectiveRemoteName()
+        
         Task {
             do {
                 let folderPath = (browser.currentPath as NSString).appendingPathComponent(newFolderName)
@@ -952,7 +1030,7 @@ struct TransferFileBrowserPane: View {
                 } else {
                     // Create remote folder using rclone mkdir
                     try await RcloneManager.shared.createDirectory(
-                        remoteName: remote.rcloneName,
+                        remoteName: effectiveRemoteName,
                         path: folderPath
                     )
                 }
@@ -969,10 +1047,22 @@ struct TransferFileBrowserPane: View {
         }
     }
     
+    /// Get the effective remote name based on encryption state
+    private func getEffectiveRemoteName() -> String {
+        guard let remote = selectedRemote else { return "proton" }
+        if encryptTransfers && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
+            return EncryptionManager.shared.getCryptRemoteName(for: remote.rcloneName)
+        }
+        return remote.rcloneName
+    }
+    
     private func downloadSelectedFiles() {
         guard let remote = selectedRemote else { return }
         let filesToDownload = browser.files.filter { browser.selectedFiles.contains($0.id) }
         guard !filesToDownload.isEmpty else { return }
+        
+        // Get effective remote name based on encryption state
+        let effectiveRemoteName = getEffectiveRemoteName()
         
         // Show save panel
         let panel = NSOpenPanel()
@@ -993,9 +1083,9 @@ struct TransferFileBrowserPane: View {
                             let destPath = url.appendingPathComponent(file.name).path
                             try FileManager.default.copyItem(atPath: file.path, toPath: destPath)
                         } else {
-                            // Cloud download via rclone
+                            // Cloud download via rclone - use effective remote
                             try await RcloneManager.shared.download(
-                                remoteName: remote.rcloneName,
+                                remoteName: effectiveRemoteName,
                                 remotePath: file.path,
                                 localPath: url.path
                             )
@@ -1018,6 +1108,9 @@ struct TransferFileBrowserPane: View {
         let filesToDelete = browser.files.filter { browser.selectedFiles.contains($0.id) }
         guard !filesToDelete.isEmpty else { return }
         
+        // Get effective remote name based on encryption state
+        let effectiveRemoteName = getEffectiveRemoteName()
+        
         isDeleting = true
         
         Task {
@@ -1028,12 +1121,12 @@ struct TransferFileBrowserPane: View {
                     } else {
                         if file.isDirectory {
                             try await RcloneManager.shared.deleteFolder(
-                                remoteName: remote.rcloneName,
+                                remoteName: effectiveRemoteName,
                                 path: file.path
                             )
                         } else {
                             try await RcloneManager.shared.deleteFile(
-                                remoteName: remote.rcloneName,
+                                remoteName: effectiveRemoteName,
                                 path: file.path
                             )
                         }
@@ -1062,6 +1155,9 @@ struct TransferFileBrowserPane: View {
             return
         }
         
+        // Get effective remote name based on encryption state
+        let effectiveRemoteName = getEffectiveRemoteName()
+        
         Task {
             do {
                 let parentPath = (file.path as NSString).deletingLastPathComponent
@@ -1073,7 +1169,7 @@ struct TransferFileBrowserPane: View {
                     try FileManager.default.moveItem(at: oldURL, to: newURL)
                 } else {
                     try await RcloneManager.shared.renameFile(
-                        remoteName: remote.rcloneName,
+                        remoteName: effectiveRemoteName,
                         oldPath: file.path,
                         newPath: newPath
                     )
@@ -1101,26 +1197,56 @@ struct TransferFileBrowserPane: View {
                 return
             }
             
-            let remoteName = remote.name.lowercased()
+            let remoteName = remote.rcloneName
             let salt = EncryptionManager.shared.generateSecureSalt()
             
-            try await SyncManager.shared.configureEncryption(
+            // Create the encryption config for this remote
+            let remoteConfig = RemoteEncryptionConfig(
                 password: config.password,
                 salt: salt,
-                filenameEncryption: config.filenameEncryptionMode,
-                encryptDirectories: config.encryptFolders,
-                wrappedRemote: remoteName,
-                wrappedPath: "/encrypted"
+                encryptFilenames: config.encryptFilenames,
+                encryptFolders: config.encryptFolders
+            )
+            
+            // Setup crypt remote using the new per-remote method
+            try await RcloneManager.shared.setupCryptRemote(
+                for: remoteName,
+                config: remoteConfig
             )
             
             await MainActor.run {
                 encryptTransfers = true
+                EncryptionManager.shared.setEncryptionEnabled(true, for: remoteName)
+                updateBrowserRemote()
             }
         } catch {
             await MainActor.run {
                 encryptTransfers = false
             }
             print("[TransferPane] Encryption setup failed: \(error)")
+        }
+    }
+    
+    /// Update the browser to use the correct remote (base or crypt) based on encryption state
+    private func updateBrowserRemote() {
+        guard let remote = selectedRemote else { return }
+        let remoteName = remote.rcloneName
+        
+        if encryptTransfers && EncryptionManager.shared.isEncryptionConfigured(for: remoteName) {
+            // Use the crypt remote
+            let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: remoteName)
+            let cryptRemote = CloudRemote(
+                name: remote.name,
+                type: remote.type,
+                isConfigured: true,
+                path: "",
+                isEncrypted: true,
+                customRcloneName: cryptRemoteName
+            )
+            browser.setRemote(cryptRemote)
+        } else {
+            // Use the base remote
+            browser.setRemote(remote)
         }
     }
 }

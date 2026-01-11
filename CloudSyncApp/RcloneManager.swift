@@ -788,7 +788,7 @@ class RcloneManager {
         encryptFilenames: String = "standard", // standard, obfuscate, off
         encryptDirectories: Bool = true,
         wrappedRemote: String,
-        wrappedPath: String = "/encrypted"
+        wrappedPath: String = ""
     ) async throws {
         print("[RcloneManager] setupEncryptedRemote called")
         print("[RcloneManager] Wrapped remote: \(wrappedRemote):\(wrappedPath)")
@@ -800,14 +800,22 @@ class RcloneManager {
         
         print("[RcloneManager] Passwords obscured successfully")
         
-        // Build the full remote path (e.g., "proton:/encrypted")
-        let fullRemotePath = "\(wrappedRemote):\(wrappedPath)"
+        // Build the full remote path
+        // If wrappedPath is empty, wrap the entire remote (e.g., "googledrive:")
+        // If wrappedPath is provided, wrap a specific path (e.g., "googledrive:/encrypted")
+        let fullRemotePath = wrappedPath.isEmpty ? "\(wrappedRemote):" : "\(wrappedRemote):\(wrappedPath)"
+        
+        // Encrypted remote name: baseremote-encrypted (e.g., "googledrive-encrypted")
+        let encryptedRemoteName = EncryptionManager.shared.getEncryptedRemoteName(for: wrappedRemote)
+        
+        // Delete existing encrypted remote if it exists
+        try? await deleteRemote(name: encryptedRemoteName)
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
         process.arguments = [
             "config", "create",
-            EncryptionManager.shared.encryptedRemoteName,
+            encryptedRemoteName,
             "crypt",
             "remote", fullRemotePath,
             "password", obscuredPassword,
@@ -818,7 +826,8 @@ class RcloneManager {
             "--non-interactive"
         ]
         
-        print("[RcloneManager] Running rclone config create with args: \(process.arguments!.joined(separator: " "))")
+        print("[RcloneManager] Creating encrypted remote: \(encryptedRemoteName)")
+        print("[RcloneManager] Wrapping: \(fullRemotePath)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -841,7 +850,7 @@ class RcloneManager {
             throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Unknown error" : errorString)
         }
         
-        print("[RcloneManager] Encrypted remote created successfully!")
+        print("[RcloneManager] Encrypted remote '\(encryptedRemoteName)' created successfully!")
     }
     
     /// Removes the encrypted remote configuration
@@ -880,6 +889,84 @@ class RcloneManager {
     /// Checks if the encrypted remote is configured in rclone
     func isEncryptedRemoteConfigured() -> Bool {
         return isRemoteConfigured(name: EncryptionManager.shared.encryptedRemoteName)
+    }
+    
+    // MARK: - Per-Remote Encryption Setup
+    
+    /// Sets up a crypt remote for a specific base remote.
+    /// Creates "{baseRemote}-crypt" that wraps "{baseRemote}:"
+    func setupCryptRemote(
+        for baseRemoteName: String,
+        config: RemoteEncryptionConfig
+    ) async throws {
+        print("[RcloneManager] setupCryptRemote called for \(baseRemoteName)")
+        
+        // Obscure the password and salt
+        let obscuredPassword = try await obscurePassword(config.password)
+        let obscuredSalt = try await obscurePassword(config.salt)
+        
+        // Crypt remote name: {baseRemote}-crypt
+        let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: baseRemoteName)
+        
+        // The crypt remote wraps the entire base remote
+        let wrappedRemote = "\(baseRemoteName):"
+        
+        // Delete existing crypt remote if it exists
+        try? await deleteRemote(name: cryptRemoteName)
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "config", "create",
+            cryptRemoteName,
+            "crypt",
+            "remote", wrappedRemote,
+            "password", obscuredPassword,
+            "password2", obscuredSalt,
+            "filename_encryption", config.filenameEncryptionMode,
+            "directory_name_encryption", config.encryptFolders ? "true" : "false",
+            "--config", configPath,
+            "--non-interactive"
+        ]
+        
+        print("[RcloneManager] Creating crypt remote: \(cryptRemoteName)")
+        print("[RcloneManager] Wrapping: \(wrappedRemote)")
+        print("[RcloneManager] Filename encryption: \(config.filenameEncryptionMode)")
+        print("[RcloneManager] Directory encryption: \(config.encryptFolders)")
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        if process.terminationStatus != 0 {
+            throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Failed to create crypt remote" : errorString)
+        }
+        
+        print("[RcloneManager] Crypt remote '\(cryptRemoteName)' created successfully!")
+        
+        // Save the config to EncryptionManager
+        try EncryptionManager.shared.saveConfig(config, for: baseRemoteName)
+    }
+    
+    /// Check if a crypt remote is configured for a base remote
+    func isCryptRemoteConfigured(for baseRemoteName: String) -> Bool {
+        let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: baseRemoteName)
+        return isRemoteConfigured(name: cryptRemoteName)
+    }
+    
+    /// Delete the crypt remote for a base remote
+    func deleteCryptRemote(for baseRemoteName: String) async throws {
+        let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: baseRemoteName)
+        try await deleteRemote(name: cryptRemoteName)
+        EncryptionManager.shared.deleteConfig(for: baseRemoteName)
+        print("[RcloneManager] Deleted crypt remote '\(cryptRemoteName)'")
     }
     
     // MARK: - File Operations

@@ -390,7 +390,7 @@ struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
     var type: CloudProviderType
     var isConfigured: Bool
     var path: String
-    var isEncrypted: Bool
+    var isEncrypted: Bool  // Current encryption view state (toggle)
     var customRcloneName: String?  // Optional custom rclone name
     
     init(id: UUID = UUID(), name: String, type: CloudProviderType, isConfigured: Bool = false, path: String = "", isEncrypted: Bool = false, customRcloneName: String? = nil) {
@@ -406,13 +406,37 @@ struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
     var displayIcon: String { type.iconName }
     var displayColor: Color { type.brandColor }
     
-    /// The name used in rclone config
+    /// The name used in rclone config (base remote)
     var rcloneName: String {
         if let custom = customRcloneName, !custom.isEmpty {
             return custom
         }
         // Use provider's default rclone name
         return type.defaultRcloneName
+    }
+    
+    /// The crypt remote name for this remote
+    var cryptRemoteName: String {
+        EncryptionManager.shared.getCryptRemoteName(for: rcloneName)
+    }
+    
+    /// Check if encryption is configured for this remote
+    var hasEncryptionConfigured: Bool {
+        EncryptionManager.shared.isEncryptionConfigured(for: rcloneName)
+    }
+    
+    /// Get the effective remote name based on encryption state
+    /// Returns crypt remote if encryption is ON and configured, otherwise base remote
+    var effectiveRemoteName: String {
+        if isEncrypted && hasEncryptionConfigured {
+            return cryptRemoteName
+        }
+        return rcloneName
+    }
+    
+    /// Check if currently viewing through encrypted lens
+    var isViewingEncrypted: Bool {
+        isEncrypted && hasEncryptionConfigured
     }
     
     // Hashable conformance - hash by id only
