@@ -550,6 +550,8 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupSFTP(remoteName: rcloneName, host: username, password: password)
         case .ftp:
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
+        case .jottacloud:
+            try await rclone.setupJottacloud(remoteName: rcloneName, username: username, password: password)
         default:
             throw RcloneError.configurationFailed("Provider \(remote.type.displayName) not yet supported")
         }
