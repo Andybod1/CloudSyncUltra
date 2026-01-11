@@ -158,7 +158,24 @@ struct TransferView: View {
     
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
                                to: CloudRemote, toPath: String, srcBrowser: FileBrowserViewModel, dstBrowser: FileBrowserViewModel) {
-        let totalSize = files.reduce(0) { $0 + $1.size }
+        // Calculate total size, including folder contents
+        var totalSize: Int64 = 0
+        var hasFolder = false
+        
+        for file in files {
+            if file.isDirectory {
+                hasFolder = true
+                // Calculate actual folder size
+                if from.type == .local {
+                    totalSize += getFolderSize(path: file.path)
+                } else {
+                    // For cloud folders, use the reported size (may be inaccurate)
+                    totalSize += file.size
+                }
+            } else {
+                totalSize += file.size
+            }
+        }
         
         let logPath = "/tmp/cloudsync_transfer_debug.log"
         let log = { (msg: String) in
@@ -181,11 +198,16 @@ struct TransferView: View {
         log("Starting transfer: \(files.count) files, \(totalSize) bytes")
         log("From: \(from.name) (\(from.type)) - \(fromPath)")
         log("To: \(to.name) (\(to.type)) - \(toPath)")
+        log("Files to transfer:")
+        for (i, file) in files.enumerated() {
+            log("  [\(i+1)] \(file.name) - \(file.size) bytes")
+        }
         
         transferProgress.start(itemCount: files.count, totalSize: totalSize, sourceName: from.name, destName: to.name)
         
         // Create task for history
         let taskName = files.count == 1 ? files[0].name : "\(files.count) items"
+        
         var task = tasksVM.createTask(
             name: taskName,
             type: .transfer,
@@ -198,6 +220,12 @@ struct TransferView: View {
         task.totalBytes = totalSize
         task.startedAt = Date()
         task.state = .running
+        
+        // Mark if this is a folder transfer for better display
+        if hasFolder {
+            task.metadata = ["isFolder": "true"]
+        }
+        
         tasksVM.updateTask(task)
         
         Task {
@@ -394,7 +422,30 @@ class TransferProgressModel: ObservableObject {
     }
     
     func cancel() { isCancelled = true; statusMessage = "Cancelling..." }
-}
+}    // Helper function to calculate actual folder size
+    private func getFolderSize(path: String) -> Int64 {
+        let fileManager = FileManager.default
+        var totalSize: Int64 = 0
+        
+        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
+                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
+                                                      options: [.skipsHiddenFiles]) else {
+            return 0
+        }
+        
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+                  let isDirectory = resourceValues.isDirectory else {
+                continue
+            }
+            
+            if !isDirectory, let fileSize = resourceValues.fileSize {
+                totalSize += Int64(fileSize)
+            }
+        }
+        
+        return totalSize
+    }
 
 // MARK: - Transfer Progress Bar
 

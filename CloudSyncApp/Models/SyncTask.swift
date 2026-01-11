@@ -65,6 +65,7 @@ struct SyncTask: Identifiable, Codable {
     var scheduleInterval: TimeInterval?
     var lastRunAt: Date?
     var nextRunAt: Date?
+    var metadata: [String: String]?  // For storing additional information like folder flags
     
     init(
         id: UUID = UUID(),
@@ -92,6 +93,7 @@ struct SyncTask: Identifiable, Codable {
         self.eta = ""
         self.createdAt = Date()
         self.isScheduled = false
+        self.metadata = nil
     }
     
     var formattedProgress: String {
@@ -106,9 +108,17 @@ struct SyncTask: Identifiable, Codable {
         let transferred = ByteCountFormatter.string(fromByteCount: bytesTransferred, countStyle: .file)
         let total = ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
         
+        let isFolder = metadata?["isFolder"] == "true"
+        
         if state == .running {
             // During transfer, show as progress
             let percentage = totalBytes > 0 ? Int((Double(bytesTransferred) / Double(totalBytes)) * 100) : 0
+            
+            if isFolder {
+                // For folders, emphasize that it's total data being transferred
+                return "\(transferred) of \(total) transferred (\(percentage)%)"
+            }
+            
             return "\(transferred) of \(total) (\(percentage)%)"
         }
         
@@ -116,6 +126,14 @@ struct SyncTask: Identifiable, Codable {
     }
     
     var formattedFilesTransferred: String {
+        // Check if this is a folder transfer
+        let isFolder = metadata?["isFolder"] == "true"
+        
+        if state == .running && isFolder {
+            // For folder transfers, show different message
+            return "Uploading folder..."
+        }
+        
         if state == .running && totalFiles > 0 {
             // During active transfer, show current file being transferred
             let currentFile = filesTransferred + 1 // Next file being worked on
