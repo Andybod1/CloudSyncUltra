@@ -19,6 +19,19 @@ struct EncryptionModal: View {
     @State private var errorMessage: String?
     @State private var isProcessing = false
     
+    // Password validation states
+    private var passwordsMatch: Bool {
+        !password.isEmpty && !confirmPassword.isEmpty && password == confirmPassword
+    }
+    
+    private var passwordLongEnough: Bool {
+        password.count >= 8
+    }
+    
+    private var canSubmit: Bool {
+        passwordLongEnough && passwordsMatch && !isProcessing
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -39,22 +52,65 @@ struct EncryptionModal: View {
                     .fixedSize(horizontal: false, vertical: true)
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(height: 32)
+                    // Password field with strength indicator
+                    HStack {
+                        SecureField("Password", text: $password)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(height: 32)
+                        
+                        if !password.isEmpty {
+                            Image(systemName: passwordLongEnough ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundColor(passwordLongEnough ? .green : .red)
+                                .help(passwordLongEnough ? "Password is long enough" : "Password must be at least 8 characters")
+                        }
+                    }
+                    
+                    // Password length indicator
+                    if !password.isEmpty && !passwordLongEnough {
+                        Text("\(password.count)/8 characters")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
                     
                     Text("Confirm password")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    SecureField("Confirm password", text: $confirmPassword)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(height: 32)
+                    // Confirm password field with match indicator
+                    HStack {
+                        SecureField("Confirm password", text: $confirmPassword)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(height: 32)
+                        
+                        if !confirmPassword.isEmpty {
+                            Image(systemName: passwordsMatch ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundColor(passwordsMatch ? .green : .red)
+                                .help(passwordsMatch ? "Passwords match" : "Passwords do not match")
+                        }
+                    }
+                    
+                    // Match status text
+                    if !confirmPassword.isEmpty {
+                        HStack(spacing: 4) {
+                            if passwordsMatch {
+                                Image(systemName: "checkmark")
+                                    .font(.caption)
+                                Text("Passwords match")
+                                    .font(.caption)
+                            } else {
+                                Image(systemName: "xmark")
+                                    .font(.caption)
+                                Text("Passwords do not match")
+                                    .font(.caption)
+                            }
+                        }
+                        .foregroundColor(passwordsMatch ? .green : .red)
+                    }
                 }
                 
                 Text("If you lost this password you won't be able to unencrypt the files")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.orange)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -99,23 +155,23 @@ struct EncryptionModal: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.return)
-                .disabled(password.isEmpty || confirmPassword.isEmpty || isProcessing)
+                .disabled(!canSubmit)
             }
             .padding()
         }
-        .frame(width: 450, height: 400)
+        .frame(width: 450, height: 420)
     }
     
     private func configureEncryption() {
         errorMessage = nil
         
-        // Validation
-        guard password.count >= 8 else {
+        // Double-check validation (should already be valid due to button state)
+        guard passwordLongEnough else {
             errorMessage = "Password must be at least 8 characters"
             return
         }
         
-        guard password == confirmPassword else {
+        guard passwordsMatch else {
             errorMessage = "Passwords do not match"
             return
         }
