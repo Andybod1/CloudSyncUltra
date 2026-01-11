@@ -1076,9 +1076,10 @@ class RcloneManager {
                     if !data.isEmpty {
                         buffer.append(data)
                         
-                        // Process complete lines
+                        // Process complete lines (split by both \n and \r)
                         if let output = String(data: buffer, encoding: .utf8) {
-                            let lines = output.components(separatedBy: "\n")
+                            // Split by newline OR carriage return
+                            let lines = output.components(separatedBy: CharacterSet(charactersIn: "\n\r"))
                             
                             // Process all complete lines (all but last)
                             for i in 0..<(lines.count - 1) {
