@@ -21,6 +21,9 @@ struct FileBrowserView: View {
     @State private var isUploading = false
     @State private var uploadProgress: Double = 0
     @State private var uploadSpeed: String = ""
+    @State private var uploadCurrentFile: String = ""
+    @State private var uploadFileIndex: Int = 0
+    @State private var uploadTotalFiles: Int = 0
     @State private var downloadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
@@ -249,6 +252,20 @@ struct FileBrowserView: View {
             if isUploading {
                 // Show upload progress
                 VStack(spacing: 12) {
+                    if uploadTotalFiles > 1 {
+                        Text("File \(uploadFileIndex) of \(uploadTotalFiles)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        if !uploadCurrentFile.isEmpty {
+                            Text(uploadCurrentFile)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                    }
+                    
                     ProgressView(value: uploadProgress, total: 100)
                         .frame(width: 200)
                     
@@ -573,12 +590,18 @@ struct FileBrowserView: View {
                 isUploading = true
                 uploadProgress = 0
                 uploadSpeed = ""
+                uploadTotalFiles = panel.urls.count
+                uploadFileIndex = 0
                 
                 log("Starting upload task, isUploading=true")
                 
                 do {
-                    for url in panel.urls {
-                        log("Processing file: \(url.path)")
+                    for (index, url) in panel.urls.enumerated() {
+                        uploadFileIndex = index + 1
+                        uploadCurrentFile = url.lastPathComponent
+                        uploadProgress = 0
+                        
+                        log("Processing file \(uploadFileIndex)/\(uploadTotalFiles): \(url.path)")
                         
                         if remote.type == .local {
                             // Local copy
@@ -609,11 +632,17 @@ struct FileBrowserView: View {
                     isUploading = false
                     uploadProgress = 0
                     uploadSpeed = ""
+                    uploadCurrentFile = ""
+                    uploadFileIndex = 0
+                    uploadTotalFiles = 0
                     browser.refresh()
                 } catch {
                     isUploading = false
                     uploadProgress = 0
                     uploadSpeed = ""
+                    uploadCurrentFile = ""
+                    uploadFileIndex = 0
+                    uploadTotalFiles = 0
                     downloadError = error.localizedDescription
                     showDownloadError = true
                 }
