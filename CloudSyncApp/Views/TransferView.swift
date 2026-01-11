@@ -211,6 +211,12 @@ struct TransferView: View {
         
         transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name)
         
+        // Show tip for many small files
+        if totalFileCount > 50 {
+            let estimatedMinutes = max(1, totalFileCount / 30)  // Rough estimate: 30 files per minute
+            transferProgress.statusMessage = "Uploading \(totalFileCount) files (est. \(estimatedMinutes)-\(estimatedMinutes + 1) min). Tip: Zip folders with many small files for faster transfers."
+        }
+        
         // Create task for history
         let taskName = files.count == 1 ? files[0].name : "\(files.count) items"
         

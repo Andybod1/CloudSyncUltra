@@ -1050,6 +1050,22 @@ class RcloneManager {
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: self.rclonePath)
                 
+                // Detect if this is a folder and count files for optimization
+                var fileCount = 0
+                var isDirectory = false
+                var isDirectoryValue: ObjCBool = false
+                if FileManager.default.fileExists(atPath: localPath, isDirectory: &isDirectoryValue) {
+                    isDirectory = isDirectoryValue.boolValue
+                    if isDirectory {
+                        // Count files in directory (using Array to avoid async iteration warning)
+                        if let enumerator = FileManager.default.enumerator(atPath: localPath) {
+                            fileCount = enumerator.allObjects.count
+                        }
+                    }
+                }
+                
+                log("Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
+                
                 var args = [
                     "copy",
                     localPath,
@@ -1061,6 +1077,18 @@ class RcloneManager {
                     "--stats-file-name-length", "0",  // Show full filenames
                     "-v"
                 ]
+                
+                // Increase parallelism for folders with many small files
+                // More parallel transfers = faster upload of many small files
+                if isDirectory && fileCount > 20 {
+                    let transfers = min(16, max(8, fileCount / 10))  // 8-16 parallel transfers
+                    args.append("--transfers")
+                    args.append("\(transfers)")
+                    log("Using \(transfers) parallel transfers for \(fileCount) files")
+                } else {
+                    args.append("--transfers")
+                    args.append("4")  // Default for single files or small folders
+                }
                 
                 args.append(contentsOf: self.getBandwidthArgs())
                 
