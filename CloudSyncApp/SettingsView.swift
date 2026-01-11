@@ -24,23 +24,17 @@ struct SettingsView: View {
                 }
                 .tag(1)
             
-            EncryptionSettingsView()
-                .tabItem {
-                    Label("Security", systemImage: "lock.shield")
-                }
-                .tag(2)
-            
             SyncSettingsView()
                 .tabItem {
                     Label("Sync", systemImage: "arrow.triangle.2.circlepath")
                 }
-                .tag(3)
+                .tag(2)
             
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
-                .tag(4)
+                .tag(3)
         }
         .frame(width: 600, height: 500)
     }
@@ -545,60 +539,232 @@ struct RemoteDetailView: View {
 // MARK: - Encryption Settings (kept from original)
 
 struct EncryptionSettingsView: View {
+    @EnvironmentObject var remotesVM: RemotesViewModel
     @State private var isEncryptionEnabled = false
     @State private var isConfigured = false
-    @State private var encryptFilenames = true
-    @State private var password = ""
-    @State private var confirmPassword = ""
-    @State private var salt = ""
-    @State private var isConfiguring = false
-    @State private var errorMessage: String?
-    @State private var showPasswordWarning = false
+    @State private var autoEncryptUploads = false
+    @State private var showEncryptionModal = false
     @State private var showDisableConfirmation = false
     @State private var showExportConfirmation = false
+    @State private var errorMessage: String?
     
     private let encryptionManager = EncryptionManager.shared
     
+    private var configuredRemotes: [CloudRemote] {
+        remotesVM.remotes.filter { $0.isConfigured && $0.type != .local }
+    }
+    
+    private var hasConfiguredRemotes: Bool {
+        !configuredRemotes.isEmpty
+    }
+    
     var body: some View {
-        Form {
-            Section {
-                encryptionStatusView
-            } header: {
-                Label("End-to-End Encryption", systemImage: "lock.shield")
-            }
-            
-            if !isConfigured {
-                Section {
-                    setupFormView
-                } header: {
-                    Label("Setup Encryption", systemImage: "key")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // Header
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.15))
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "lock.shield.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.blue)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("End-to-End Encryption")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                        
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(isConfigured ? Color.green : Color.orange)
+                                .frame(width: 8, height: 8)
+                            
+                            Text(isConfigured ? "Configured" : "Not configured")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                
+                Divider()
+                
+                // Status & Configuration
+                VStack(alignment: .leading, spacing: 16) {
+                    if !hasConfiguredRemotes {
+                        // Warning: No remotes
+                        GroupBox {
+                            HStack(spacing: 12) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .font(.title2)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("No Cloud Providers Configured")
+                                        .fontWeight(.semibold)
+                                    Text("Configure a cloud provider in the Accounts tab first")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(8)
+                        }
+                    } else if isConfigured {
+                        // Encryption configured
+                        GroupBox {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("Encryption password configured")
+                                        .fontWeight(.semibold)
+                                    Spacer()
+                                }
+                                
+                                Text("Encryption is ready. Enable it per-transfer or use auto-encrypt.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Divider()
+                                
+                                Toggle("Auto-encrypt all uploads", isOn: $autoEncryptUploads)
+                                    .help("Automatically encrypt all file uploads")
+                                
+                                Divider()
+                                
+                                HStack {
+                                    Button("Change Password") {
+                                        showEncryptionModal = true
+                                    }
+                                    .buttonStyle(.bordered)
+                                    
+                                    Spacer()
+                                    
+                                    Button("Disable Encryption") {
+                                        showDisableConfirmation = true
+                                    }
+                                    .foregroundColor(.red)
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                            .padding(8)
+                        }
+                    } else {
+                        // Not configured
+                        GroupBox {
+                            VStack(alignment: .leading, spacing: 16) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Configure Encryption Password")
+                                        .font(.headline)
+                                    
+                                    Text("Set up client-side encryption to protect your files before uploading to cloud storage.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                
+                                Button("Configure Encryption Password") {
+                                    showEncryptionModal = true
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                            .padding(8)
+                        }
+                    }
+                    
+                    if let error = errorMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .foregroundColor(.red)
+                            Text(error)
+                                .foregroundColor(.red)
+                        }
+                        .font(.caption)
+                        .padding(8)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                }
+                
+                Divider()
+                
+                // Config export/import
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Configuration Backup")
+                        .font(.headline)
+                    
+                    GroupBox {
+                        VStack(spacing: 12) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Export Configuration")
+                                        .fontWeight(.medium)
+                                    Text("Download your settings for backup or migration")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Button("Export...") {
+                                    showExportConfirmation = true
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                            
+                            Divider()
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Import Configuration")
+                                        .fontWeight(.medium)
+                                    Text("Restore settings from a backup file")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Button("Import...") {
+                                    importRcloneConfig()
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                        .padding(8)
+                    }
+                }
+                
+                Divider()
+                
+                // Info
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("About E2E Encryption")
+                        .font(.headline)
+                    
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Zero-knowledge encryption", systemImage: "shield.checkered")
+                            Label("AES-256 encryption standard", systemImage: "key.fill")
+                            Label("No password recovery possible", systemImage: "exclamationmark.triangle")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                    }
                 }
             }
-            
-            Section {
-                configExportView
-            } header: {
-                Label("Configuration Backup", systemImage: "square.and.arrow.up")
-            }
-            
-            Section {
-                encryptionInfoView
-            } header: {
-                Label("About E2E Encryption", systemImage: "info.circle")
-            }
+            .padding()
         }
-        .formStyle(.grouped)
-        .padding()
         .onAppear {
             loadState()
         }
-        .alert("Important: Save Your Password", isPresented: $showPasswordWarning) {
-            Button("I Understand", role: .destructive) {
-                Task { await setupEncryption() }
+        .sheet(isPresented: $showEncryptionModal) {
+            EncryptionModal { config in
+                Task {
+                    await setupEncryption(config: config)
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Your encryption password cannot be recovered. If you lose it, your encrypted files will be permanently inaccessible.")
         }
         .alert("Disable Encryption?", isPresented: $showDisableConfirmation) {
             Button("Disable", role: .destructive) {
@@ -606,7 +772,7 @@ struct EncryptionSettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Disabling encryption will not decrypt existing encrypted files.")
+            Text("This will remove your encryption password. Existing encrypted files will remain encrypted.")
         }
         .alert("Export Configuration?", isPresented: $showExportConfirmation) {
             Button("Export", role: .destructive) {
@@ -618,44 +784,49 @@ struct EncryptionSettingsView: View {
         }
     }
     
-    @ViewBuilder
-    private var configExportView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "doc.text")
-                    .foregroundColor(.secondary)
-                    .font(.title2)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Export rclone Configuration")
-                        .fontWeight(.medium)
-                    Text("Download your cloud connection settings for backup or migration")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("Export...") {
-                    showExportConfirmation = true
-                }
-                .buttonStyle(.bordered)
+    private func loadState() {
+        isConfigured = encryptionManager.isEncryptionConfigured
+        autoEncryptUploads = UserDefaults.standard.bool(forKey: "autoEncryptUploads")
+    }
+    
+    private func setupEncryption(config: EncryptionConfig) async {
+        errorMessage = nil
+        
+        do {
+            // For now, we'll use a default remote (first configured remote)
+            // In a future update, this could be made more flexible
+            guard let firstRemote = configuredRemotes.first else {
+                errorMessage = "No cloud remotes configured"
+                return
             }
             
-            HStack {
-                Image(systemName: "square.and.arrow.down")
-                    .foregroundColor(.secondary)
-                    .font(.title2)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Import rclone Configuration")
-                        .fontWeight(.medium)
-                    Text("Restore settings from a previously exported config file")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("Import...") {
-                    importRcloneConfig()
-                }
-                .buttonStyle(.bordered)
-            }
+            let remoteName = firstRemote.name.lowercased()
+            let salt = encryptionManager.generateSecureSalt()
+            
+            try await SyncManager.shared.configureEncryption(
+                password: config.password,
+                salt: salt,
+                filenameEncryption: config.filenameEncryptionMode,
+                encryptDirectories: config.encryptFolders,
+                wrappedRemote: remoteName,
+                wrappedPath: "/encrypted"
+            )
+            
+            isConfigured = true
+            
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func disableEncryption() async {
+        do {
+            try await SyncManager.shared.disableEncryption()
+            isConfigured = false
+            autoEncryptUploads = false
+            UserDefaults.standard.set(false, forKey: "autoEncryptUploads")
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
     
@@ -715,132 +886,6 @@ struct EncryptionSettingsView: View {
             } catch {
                 print("Import failed: \(error)")
             }
-        }
-    }
-    
-    @ViewBuilder
-    private var encryptionStatusView: some View {
-        HStack {
-            if isConfigured && isEncryptionEnabled {
-                Image(systemName: "lock.shield.fill")
-                    .foregroundColor(.green)
-                    .font(.title2)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("E2E Encryption Active")
-                        .fontWeight(.semibold)
-                    Text("Your files are encrypted before upload")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("Disable") {
-                    showDisableConfirmation = true
-                }
-                .foregroundColor(.red)
-            } else {
-                Image(systemName: "lock.open")
-                    .foregroundColor(.orange)
-                    .font(.title2)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Encryption Not Configured")
-                        .fontWeight(.semibold)
-                    Text("Files are synced without client-side encryption")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var setupFormView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SecureField("Encryption Password", text: $password)
-            SecureField("Confirm Password", text: $confirmPassword)
-            TextField("Salt (optional)", text: $salt)
-            
-            Toggle("Encrypt file and folder names", isOn: $encryptFilenames)
-            
-            if let error = errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
-            
-            HStack {
-                Spacer()
-                Button("Enable Encryption") {
-                    validateAndShowWarning()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(password.isEmpty || confirmPassword.isEmpty || isConfiguring)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var encryptionInfoView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Zero-knowledge encryption", systemImage: "shield.checkered")
-            Label("AES-256 encryption standard", systemImage: "key.fill")
-            Label("No password recovery possible", systemImage: "exclamationmark.triangle")
-        }
-        .font(.caption)
-        .foregroundColor(.secondary)
-    }
-    
-    private func loadState() {
-        isEncryptionEnabled = encryptionManager.isEncryptionEnabled
-        isConfigured = encryptionManager.isEncryptionConfigured
-        encryptFilenames = encryptionManager.encryptFilenames
-    }
-    
-    private func validateAndShowWarning() {
-        errorMessage = nil
-        
-        guard password == confirmPassword else {
-            errorMessage = "Passwords do not match"
-            return
-        }
-        
-        guard password.count >= 8 else {
-            errorMessage = "Password must be at least 8 characters"
-            return
-        }
-        
-        showPasswordWarning = true
-    }
-    
-    private func setupEncryption() async {
-        isConfiguring = true
-        let finalSalt = salt.isEmpty ? encryptionManager.generateSecureSalt() : salt
-        
-        do {
-            try await SyncManager.shared.configureEncryption(
-                password: password,
-                salt: finalSalt,
-                encryptFilenames: encryptFilenames
-            )
-            isConfigured = true
-            isEncryptionEnabled = true
-            password = ""
-            confirmPassword = ""
-            salt = ""
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isConfiguring = false
-    }
-    
-    private func disableEncryption() async {
-        do {
-            try await SyncManager.shared.disableEncryption()
-            isConfigured = false
-            isEncryptionEnabled = false
-        } catch {
-            errorMessage = error.localizedDescription
         }
     }
 }
@@ -923,6 +968,148 @@ struct AboutView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+// MARK: - Encryption Modal
+
+struct EncryptionModal: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var onConfirm: (EncryptionConfig) -> Void
+    
+    @State private var password = ""
+    @State private var confirmPassword = ""
+    @State private var encryptFilenames = true
+    @State private var encryptFolders = true
+    @State private var errorMessage: String?
+    @State private var isProcessing = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Encrypt Uploads")
+                    .font(.headline)
+                Spacer()
+            }
+            .padding()
+            .background(Color(NSColor.controlBackgroundColor))
+            
+            Divider()
+            
+            // Content
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Encrypt all uploads to your account in this session with the following password")
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(height: 32)
+                    
+                    Text("Confirm password")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    SecureField("Confirm password", text: $confirmPassword)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(height: 32)
+                }
+                
+                Text("If you lost this password you won't be able to unencrypt the files")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Encrypt file names", isOn: $encryptFilenames)
+                    Toggle("Encrypt folder names", isOn: $encryptFolders)
+                }
+                
+                if let error = errorMessage {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundColor(.red)
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+                    .padding(8)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(6)
+                }
+            }
+            .padding(20)
+            
+            Divider()
+            
+            // Footer buttons
+            HStack {
+                Spacer()
+                
+                Button("Cancel") {
+                    dismiss()
+                }
+                .keyboardShortcut(.escape)
+                
+                if isProcessing {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .padding(.horizontal, 8)
+                }
+                
+                Button("OK") {
+                    configureEncryption()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.return)
+                .disabled(password.isEmpty || confirmPassword.isEmpty || isProcessing)
+            }
+            .padding()
+        }
+        .frame(width: 450, height: 400)
+    }
+    
+    private func configureEncryption() {
+        errorMessage = nil
+        
+        // Validation
+        guard password.count >= 8 else {
+            errorMessage = "Password must be at least 8 characters"
+            return
+        }
+        
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match"
+            return
+        }
+        
+        isProcessing = true
+        
+        // Create config
+        let config = EncryptionConfig(
+            password: password,
+            encryptFilenames: encryptFilenames,
+            encryptFolders: encryptFolders
+        )
+        
+        // Call completion handler
+        onConfirm(config)
+        
+        // Close modal
+        dismiss()
+    }
+}
+
+struct EncryptionConfig {
+    let password: String
+    let encryptFilenames: Bool
+    let encryptFolders: Bool
+    
+    var filenameEncryptionMode: String {
+        encryptFilenames ? "standard" : "off"
     }
 }
 

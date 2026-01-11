@@ -19,6 +19,7 @@ struct MainWindow: View {
     enum SidebarSection: Hashable {
         case dashboard
         case transfer
+        case encryption
         case tasks
         case history
         case settings
@@ -74,6 +75,8 @@ struct MainWindow: View {
             DashboardView()
         case .transfer:
             TransferView()
+        case .encryption:
+            EncryptionSettingsView()
         case .tasks:
             TasksView()
         case .history:
@@ -169,6 +172,12 @@ struct SidebarView: View {
             
             // Settings at bottom
             Section {
+                sidebarItem(
+                    icon: "lock.shield.fill",
+                    title: "Encryption",
+                    section: .encryption
+                )
+                
                 sidebarItem(
                     icon: "gearshape",
                     title: "Settings",

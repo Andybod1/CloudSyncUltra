@@ -34,6 +34,8 @@ struct FileBrowserView: View {
     @State private var renameError: String?
     @State private var showPageSizeMenu = false
     @State private var jumpToPageString = ""
+    @State private var encryptUploads = false
+    @State private var showEncryptionModal = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -116,6 +118,13 @@ struct FileBrowserView: View {
                 onRename: { performRename() },
                 onCancel: { showRenameSheet = false }
             )
+        }
+        .sheet(isPresented: $showEncryptionModal) {
+            EncryptionModal { config in
+                Task {
+                    await configureEncryption(config: config)
+                }
+            }
         }
     }
     
@@ -359,6 +368,26 @@ struct FileBrowserView: View {
                 }
                 .disabled(browser.selectedFiles.isEmpty)
                 .help("Download")
+                
+                Divider()
+                    .frame(height: 20)
+                
+                // Encryption toggle
+                Toggle(isOn: $encryptUploads) {
+                    HStack(spacing: 6) {
+                        Image(systemName: encryptUploads ? "lock.fill" : "lock.open")
+                            .foregroundColor(encryptUploads ? .green : .secondary)
+                        Text("Encrypt")
+                            .font(.caption)
+                    }
+                }
+                .toggleStyle(.switch)
+                .help("Encrypt uploads with E2E encryption")
+                .onChange(of: encryptUploads) { _, isEnabled in
+                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured {
+                        showEncryptionModal = true
+                    }
+                }
                 
                 Divider()
                     .frame(height: 20)
@@ -848,11 +877,13 @@ struct FileBrowserView: View {
                                 log("Directory detected - uploading to: \(destPath)")
                             }
                             
-                            log("Starting cloud upload to \(remote.rcloneName):\(destPath)")
+                            // Use encrypted remote if encryption is enabled
+                            let targetRemote = encryptUploads ? EncryptionManager.shared.encryptedRemoteName : remote.rcloneName
+                            log("Starting cloud upload to \(targetRemote):\(destPath) (encryption: \(encryptUploads))")
                             
                             let progressStream = try await RcloneManager.shared.uploadWithProgress(
                                 localPath: url.path,
-                                remoteName: remote.rcloneName,
+                                remoteName: targetRemote,
                                 remotePath: destPath
                             )
                             
@@ -963,6 +994,31 @@ struct FileBrowserView: View {
                     renameError = error.localizedDescription
                 }
             }
+        }
+    }
+    
+    private func configureEncryption(config: EncryptionConfig) async {
+        do {
+            let remoteName = remote.name.lowercased()
+            let salt = EncryptionManager.shared.generateSecureSalt()
+            
+            try await SyncManager.shared.configureEncryption(
+                password: config.password,
+                salt: salt,
+                filenameEncryption: config.filenameEncryptionMode,
+                encryptDirectories: config.encryptFolders,
+                wrappedRemote: remoteName,
+                wrappedPath: "/encrypted"
+            )
+            
+            await MainActor.run {
+                encryptUploads = true
+            }
+        } catch {
+            await MainActor.run {
+                encryptUploads = false
+            }
+            print("[FileBrowserView] Encryption setup failed: \(error)")
         }
     }
 }

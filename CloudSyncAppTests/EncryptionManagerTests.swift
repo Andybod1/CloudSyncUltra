@@ -20,6 +20,8 @@ final class EncryptionManagerTests: XCTestCase {
         encryptionManager.deleteEncryptionCredentials()
         UserDefaults.standard.removeObject(forKey: "encryptionEnabled")
         UserDefaults.standard.removeObject(forKey: "encryptFilenames")
+        UserDefaults.standard.removeObject(forKey: "encryption.password")
+        UserDefaults.standard.removeObject(forKey: "encryption.salt")
     }
     
     override func tearDown() {
@@ -27,6 +29,8 @@ final class EncryptionManagerTests: XCTestCase {
         encryptionManager.deleteEncryptionCredentials()
         UserDefaults.standard.removeObject(forKey: "encryptionEnabled")
         UserDefaults.standard.removeObject(forKey: "encryptFilenames")
+        UserDefaults.standard.removeObject(forKey: "encryption.password")
+        UserDefaults.standard.removeObject(forKey: "encryption.salt")
         super.tearDown()
     }
     

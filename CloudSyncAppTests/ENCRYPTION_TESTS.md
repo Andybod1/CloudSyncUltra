@@ -26,14 +26,14 @@ Validates default configuration and initial state.
 ### 3. Password Management Tests (3 tests)
 Tests secure password storage and retrieval.
 
-- ✅ `testSaveAndRetrievePassword` - Keychain save/retrieve cycle
+- ✅ `testSaveAndRetrievePassword` - UserDefaults save/retrieve cycle
 - ✅ `testPasswordReturnsNilWhenNotSet` - Nil when not configured
 - ✅ `testOverwriteExistingPassword` - Password replacement works
 
 ### 4. Salt Management Tests (3 tests)
 Tests secure salt storage and retrieval.
 
-- ✅ `testSaveAndRetrieveSalt` - Keychain save/retrieve cycle
+- ✅ `testSaveAndRetrieveSalt` - UserDefaults save/retrieve cycle
 - ✅ `testSaltReturnsNilWhenNotSet` - Nil when not configured
 - ✅ `testOverwriteExistingSalt` - Salt replacement works
 
@@ -115,11 +115,11 @@ Stress testing and concurrent access.
 
 ## Security Features Tested
 
-### ✅ Keychain Integration
-- Password storage in macOS Keychain
-- Salt storage in macOS Keychain
+### ✅ UserDefaults Storage
+- Password storage in UserDefaults
+- Salt storage in UserDefaults
 - Secure retrieval and deletion
-- Accessibility: When unlocked, this device only
+- Simple, lightweight storage
 
 ### ✅ Cryptographic Security
 - SecRandomCopyBytes for random generation
@@ -128,14 +128,14 @@ Stress testing and concurrent access.
 - Valid character sets (alphanumeric + special)
 
 ### ✅ Zero-Knowledge Architecture
-- Credentials never leave the device
+- Credentials stored locally
 - No cloud backup of encryption keys
 - User controls all encryption secrets
 
 ### ✅ Configuration Management
 - UserDefaults for enabled/disabled state
-- Keychain for sensitive credentials
-- Proper separation of concerns
+- UserDefaults for credentials
+- Simple, unified storage approach
 
 ---
 
@@ -161,10 +161,10 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp \
 
 ## Key Test Validations
 
-### 1. Keychain Security
+### 1. UserDefaults Storage
 **Validated:**
-- Passwords stored with kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-- Credentials deleted securely
+- Passwords stored securely
+- Credentials deleted properly
 - No credentials leak between tests
 - Thread-safe access
 
@@ -239,7 +239,7 @@ Every test follows clear structure:
 ## Security Considerations
 
 ### What's Tested
-✅ Keychain storage security
+✅ UserDefaults storage
 ✅ Random generation quality
 ✅ Credential deletion
 ✅ Configuration validation

@@ -154,7 +154,14 @@ class SyncManager: ObservableObject {
     
     /// Enables E2E encryption for cloud sync.
     /// Files will be encrypted locally before upload using AES-256.
-    func configureEncryption(password: String, salt: String, encryptFilenames: Bool) async throws {
+    func configureEncryption(
+        password: String,
+        salt: String,
+        filenameEncryption: String = "standard",
+        encryptDirectories: Bool = true,
+        wrappedRemote: String,
+        wrappedPath: String = "/encrypted"
+    ) async throws {
         // Save credentials securely to Keychain
         try encryption.savePassword(password)
         try encryption.saveSalt(salt)
@@ -163,10 +170,13 @@ class SyncManager: ObservableObject {
         try await rclone.setupEncryptedRemote(
             password: password,
             salt: salt,
-            encryptFilenames: encryptFilenames
+            encryptFilenames: filenameEncryption,
+            encryptDirectories: encryptDirectories,
+            wrappedRemote: wrappedRemote,
+            wrappedPath: wrappedPath
         )
         
-        encryption.encryptFilenames = encryptFilenames
+        encryption.encryptFilenames = (filenameEncryption != "off")
         encryption.isEncryptionEnabled = true
     }
     

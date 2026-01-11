@@ -6,14 +6,11 @@
 //
 
 import Foundation
-import Security
 
 /// Manages end-to-end encryption for cloud sync using rclone's crypt backend.
 /// Files are encrypted locally before upload, ensuring zero-knowledge encryption.
 final class EncryptionManager {
     static let shared = EncryptionManager()
-    
-    private let keychainService = "com.cloudsync.encryption"
     
     private init() {}
     
@@ -35,75 +32,30 @@ final class EncryptionManager {
     
     /// The name of the encrypted remote in rclone config
     var encryptedRemoteName: String {
-        "proton-encrypted"
+        "encrypted"
     }
     
-    // MARK: - Keychain Operations
+    // MARK: - UserDefaults Storage
     
     func savePassword(_ password: String) throws {
-        try saveToKeychain(key: "password", value: password)
+        UserDefaults.standard.set(password, forKey: "encryption.password")
     }
     
     func getPassword() -> String? {
-        getFromKeychain(key: "password")
+        UserDefaults.standard.string(forKey: "encryption.password")
     }
     
     func saveSalt(_ salt: String) throws {
-        try saveToKeychain(key: "salt", value: salt)
+        UserDefaults.standard.set(salt, forKey: "encryption.salt")
     }
     
     func getSalt() -> String? {
-        getFromKeychain(key: "salt")
-    }
-    
-    private func saveToKeychain(key: String, value: String) throws {
-        let data = value.data(using: .utf8)!
-        
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: key
-        ]
-        
-        // Delete existing item
-        SecItemDelete(query as CFDictionary)
-        
-        var newItem = query
-        newItem[kSecValueData as String] = data
-        newItem[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        
-        let status = SecItemAdd(newItem as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw EncryptionError.keychainError(status)
-        }
-    }
-    
-    private func getFromKeychain(key: String) -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true
-        ]
-        
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
-        guard status == errSecSuccess,
-              let data = result as? Data,
-              let value = String(data: data, encoding: .utf8) else {
-            return nil
-        }
-        
-        return value
+        UserDefaults.standard.string(forKey: "encryption.salt")
     }
     
     func deleteEncryptionCredentials() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService
-        ]
-        SecItemDelete(query as CFDictionary)
+        UserDefaults.standard.removeObject(forKey: "encryption.password")
+        UserDefaults.standard.removeObject(forKey: "encryption.salt")
     }
     
     // MARK: - Password Generation
@@ -132,15 +84,12 @@ final class EncryptionManager {
 // MARK: - Errors
 
 enum EncryptionError: LocalizedError {
-    case keychainError(OSStatus)
     case configurationFailed(String)
     case passwordMismatch
     case notConfigured
     
     var errorDescription: String? {
         switch self {
-        case .keychainError(let status):
-            return "Keychain error: \(status)"
         case .configurationFailed(let message):
             return "Encryption configuration failed: \(message)"
         case .passwordMismatch:

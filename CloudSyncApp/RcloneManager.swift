@@ -785,15 +785,23 @@ class RcloneManager {
     func setupEncryptedRemote(
         password: String,
         salt: String,
-        encryptFilenames: Bool = true,
-        wrappedRemote: String = "proton:"
+        encryptFilenames: String = "standard", // standard, obfuscate, off
+        encryptDirectories: Bool = true,
+        wrappedRemote: String,
+        wrappedPath: String = "/encrypted"
     ) async throws {
+        print("[RcloneManager] setupEncryptedRemote called")
+        print("[RcloneManager] Wrapped remote: \(wrappedRemote):\(wrappedPath)")
+        print("[RcloneManager] Filename encryption: \(encryptFilenames), Directory encryption: \(encryptDirectories)")
+        
         // First, obscure the password and salt using rclone
         let obscuredPassword = try await obscurePassword(password)
         let obscuredSalt = try await obscurePassword(salt)
         
-        // Determine filename encryption mode
-        let filenameEncryption = encryptFilenames ? "standard" : "off"
+        print("[RcloneManager] Passwords obscured successfully")
+        
+        // Build the full remote path (e.g., "proton:/encrypted")
+        let fullRemotePath = "\(wrappedRemote):\(wrappedPath)"
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
@@ -801,14 +809,16 @@ class RcloneManager {
             "config", "create",
             EncryptionManager.shared.encryptedRemoteName,
             "crypt",
-            "remote", wrappedRemote,
+            "remote", fullRemotePath,
             "password", obscuredPassword,
             "password2", obscuredSalt,
-            "filename_encryption", filenameEncryption,
-            "directory_name_encryption", encryptFilenames ? "true" : "false",
+            "filename_encryption", encryptFilenames,
+            "directory_name_encryption", encryptDirectories ? "true" : "false",
             "--config", configPath,
             "--non-interactive"
         ]
+        
+        print("[RcloneManager] Running rclone config create with args: \(process.arguments!.joined(separator: " "))")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -818,11 +828,20 @@ class RcloneManager {
         try process.run()
         process.waitUntilExit()
         
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputString = String(data: outputData, encoding: .utf8) ?? ""
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+        
+        print("[RcloneManager] rclone output: \(outputString)")
+        print("[RcloneManager] rclone errors: \(errorString)")
+        print("[RcloneManager] Exit code: \(process.terminationStatus)")
+        
         if process.terminationStatus != 0 {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            throw RcloneError.encryptionSetupFailed(errorString)
+            throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Unknown error" : errorString)
         }
+        
+        print("[RcloneManager] Encrypted remote created successfully!")
     }
     
     /// Removes the encrypted remote configuration

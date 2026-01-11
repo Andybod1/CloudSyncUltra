@@ -21,6 +21,8 @@ struct TransferView: View {
     @State private var transferMode: TaskType = .transfer
     @State private var dragSourceIsLeft = true
     @State private var isDragging = false
+    @State private var encryptLeftToRight = false
+    @State private var encryptRightToLeft = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -41,6 +43,7 @@ struct TransferView: View {
                     isLeftPane: true,
                     dragSourceIsLeft: $dragSourceIsLeft,
                     isDragging: $isDragging,
+                    encryptTransfers: $encryptLeftToRight,
                     onDropReceived: { transferFromRightToLeft() }
                 )
                 
@@ -54,6 +57,7 @@ struct TransferView: View {
                     isLeftPane: false,
                     dragSourceIsLeft: $dragSourceIsLeft,
                     isDragging: $isDragging,
+                    encryptTransfers: $encryptRightToLeft,
                     onDropReceived: { transferFromLeftToRight() }
                 )
             }
@@ -452,6 +456,60 @@ struct TransferView: View {
             }
         }
     }
+    
+    // Helper function to calculate actual folder size
+    private func getFolderSize(path: String) -> Int64 {
+        let fileManager = FileManager.default
+        var totalSize: Int64 = 0
+        
+        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
+                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
+                                                      options: [.skipsHiddenFiles]) else {
+            return 0
+        }
+        
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+                  let isDirectory = resourceValues.isDirectory else {
+                continue
+            }
+            
+            if !isDirectory, let fileSize = resourceValues.fileSize {
+                totalSize += Int64(fileSize)
+            }
+        }
+        
+        return totalSize
+    }
+    
+    // Helper function to calculate folder size AND count files
+    private func getFolderSizeAndCount(path: String) -> (size: Int64, fileCount: Int) {
+        let fileManager = FileManager.default
+        var totalSize: Int64 = 0
+        var fileCount = 0
+        
+        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
+                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
+                                                      options: [.skipsHiddenFiles]) else {
+            return (0, 0)
+        }
+        
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+                  let isDirectory = resourceValues.isDirectory else {
+                continue
+            }
+            
+            if !isDirectory {
+                if let fileSize = resourceValues.fileSize {
+                    totalSize += Int64(fileSize)
+                }
+                fileCount += 1
+            }
+        }
+        
+        return (totalSize, fileCount)
+    }
 }
 
 // MARK: - Transfer Progress Model
@@ -507,59 +565,7 @@ class TransferProgressModel: ObservableObject {
     }
     
     func cancel() { isCancelled = true; statusMessage = "Cancelling..." }
-}    // Helper function to calculate actual folder size
-    private func getFolderSize(path: String) -> Int64 {
-        let fileManager = FileManager.default
-        var totalSize: Int64 = 0
-        
-        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
-                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
-                                                      options: [.skipsHiddenFiles]) else {
-            return 0
-        }
-        
-        for case let fileURL as URL in enumerator {
-            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
-                  let isDirectory = resourceValues.isDirectory else {
-                continue
-            }
-            
-            if !isDirectory, let fileSize = resourceValues.fileSize {
-                totalSize += Int64(fileSize)
-            }
-        }
-        
-        return totalSize
-    }
-    
-    // Helper function to calculate folder size AND count files
-    private func getFolderSizeAndCount(path: String) -> (size: Int64, fileCount: Int) {
-        let fileManager = FileManager.default
-        var totalSize: Int64 = 0
-        var fileCount = 0
-        
-        guard let enumerator = fileManager.enumerator(at: URL(fileURLWithPath: path),
-                                                      includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
-                                                      options: [.skipsHiddenFiles]) else {
-            return (0, 0)
-        }
-        
-        for case let fileURL as URL in enumerator {
-            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
-                  let isDirectory = resourceValues.isDirectory else {
-                continue
-            }
-            
-            if !isDirectory {
-                if let fileSize = resourceValues.fileSize {
-                    totalSize += Int64(fileSize)
-                }
-                fileCount += 1
-            }
-        }
-        
-        return (totalSize, fileCount)
-    }
+}
 
 // MARK: - Transfer Progress Bar
 
@@ -623,6 +629,7 @@ struct TransferFileBrowserPane: View {
     let isLeftPane: Bool
     @Binding var dragSourceIsLeft: Bool
     @Binding var isDragging: Bool
+    @Binding var encryptTransfers: Bool
     let onDropReceived: () -> Void
     
     @State private var isDropTarget = false
@@ -635,6 +642,7 @@ struct TransferFileBrowserPane: View {
     @State private var showDeleteError = false
     @State private var deleteError: String?
     @State private var isDeleting = false
+    @State private var showEncryptionModal = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -657,6 +665,27 @@ struct TransferFileBrowserPane: View {
                 .disabled(selectedRemote == nil)
                 
                 Spacer()
+                
+                // Encryption toggle
+                Toggle(isOn: $encryptTransfers) {
+                    HStack(spacing: 4) {
+                        Image(systemName: encryptTransfers ? "lock.fill" : "lock.open")
+                            .foregroundColor(encryptTransfers ? .green : .secondary)
+                            .font(.caption)
+                        Text("Encrypt")
+                            .font(.caption)
+                    }
+                }
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .help("Encrypt transfers with E2E encryption")
+                .onChange(of: encryptTransfers) { _, isEnabled in
+                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured {
+                        showEncryptionModal = true
+                    }
+                }
+                
+                Divider().frame(height: 20)
                 
                 VStack(spacing: 4) {
                     Button {
@@ -754,17 +783,25 @@ struct TransferFileBrowserPane: View {
         } message: {
             Text(deleteError ?? "Unknown error")
         }
+        .sheet(isPresented: $showEncryptionModal) {
+            EncryptionModal { config in
+                Task {
+                    await configurePaneEncryption(config: config)
+                }
+            }
+        }
     }
     
     private var fileListView: some View {
-        List(selection: $browser.selectedFiles) {
-            ForEach(browser.filteredFiles) { file in
-                TransferFileRow(file: file, isSelected: browser.selectedFiles.contains(file.id), browser: browser,
-                               isLeftPane: isLeftPane, dragSourceIsLeft: $dragSourceIsLeft, isDragging: $isDragging).tag(file.id)
+        VStack(spacing: 0) {
+            List(selection: $browser.selectedFiles) {
+                ForEach(browser.paginatedFiles) { file in
+                    TransferFileRow(file: file, isSelected: browser.selectedFiles.contains(file.id), browser: browser,
+                                   isLeftPane: isLeftPane, dragSourceIsLeft: $dragSourceIsLeft, isDragging: $isDragging).tag(file.id)
+                }
             }
-        }
-        .listStyle(.plain)
-        .contextMenu(forSelectionType: UUID.self) { selection in
+            .listStyle(.plain)
+            .contextMenu(forSelectionType: UUID.self) { selection in
             if !selection.isEmpty {
                 Button("Open") {
                     if let file = browser.files.first(where: { selection.contains($0.id) }) {
@@ -804,6 +841,93 @@ struct TransferFileBrowserPane: View {
                 browser.navigateToFile(file)
             }
         }
+            
+            // Pagination Controls
+            if !browser.isLoading && browser.files.count > browser.pageSize {
+                Divider()
+                paginationBar
+            }
+        }
+    }
+    
+    // MARK: - Pagination Bar
+    
+    private var paginationBar: some View {
+        HStack(spacing: 8) {
+            // Page size selector
+            Menu {
+                ForEach([50, 100, 200, 500], id: \.self) { size in
+                    Button {
+                        browser.pageSize = size
+                    } label: {
+                        HStack {
+                            Text("\(size) items")
+                            if browser.pageSize == size {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+                
+                Divider()
+                
+                Button {
+                    browser.isPaginationEnabled.toggle()
+                } label: {
+                    HStack {
+                        Text("Show All")
+                        if !browser.isPaginationEnabled {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("\(browser.pageSize)")
+                    Image(systemName: "chevron.down")
+                }
+                .font(.caption)
+            }
+            .menuStyle(.borderlessButton)
+            .help("Items per page")
+            
+            Divider().frame(height: 12)
+            
+            // Previous page button
+            Button {
+                browser.previousPage()
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(!browser.canGoToPreviousPage)
+            .buttonStyle(.borderless)
+            .font(.caption)
+            
+            // Page indicator
+            Text("Page \(browser.currentPage) of \(browser.totalPages)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // Next page button
+            Button {
+                browser.nextPage()
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(!browser.canGoToNextPage)
+            .buttonStyle(.borderless)
+            .font(.caption)
+            
+            Divider().frame(height: 12)
+            
+            // Page info
+            Text(browser.pageInfo)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
     }
     
     private var statusBar: some View {
@@ -967,6 +1091,36 @@ struct TransferFileBrowserPane: View {
                     showDeleteError = true
                 }
             }
+        }
+    }
+    
+    private func configurePaneEncryption(config: EncryptionConfig) async {
+        do {
+            // Use the selected remote for this pane
+            guard let remote = selectedRemote else {
+                return
+            }
+            
+            let remoteName = remote.name.lowercased()
+            let salt = EncryptionManager.shared.generateSecureSalt()
+            
+            try await SyncManager.shared.configureEncryption(
+                password: config.password,
+                salt: salt,
+                filenameEncryption: config.filenameEncryptionMode,
+                encryptDirectories: config.encryptFolders,
+                wrappedRemote: remoteName,
+                wrappedPath: "/encrypted"
+            )
+            
+            await MainActor.run {
+                encryptTransfers = true
+            }
+        } catch {
+            await MainActor.run {
+                encryptTransfers = false
+            }
+            print("[TransferPane] Encryption setup failed: \(error)")
         }
     }
 }
