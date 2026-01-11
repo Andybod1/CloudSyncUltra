@@ -275,9 +275,7 @@ struct TransferView: View {
                         
                         log("Got progress stream")
                         
-                        var lastProgress: Double = 0
                         for await progress in progressStream {
-                            lastProgress = progress.percentage
                             log("Progress: \(progress.percentage)% - \(progress.speed) - Files: \(progress.filesTransferred ?? 0)/\(progress.totalFiles ?? 0)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage

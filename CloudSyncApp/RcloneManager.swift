@@ -1079,7 +1079,8 @@ class RcloneManager {
                     
                     while process.isRunning {
                         // Non-blocking read with small chunks
-                        if let data = try? handle.availableData, !data.isEmpty {
+                        let data = handle.availableData
+                        if !data.isEmpty {
                             buffer.append(data)
                             
                             if let output = String(data: buffer, encoding: .utf8) {
