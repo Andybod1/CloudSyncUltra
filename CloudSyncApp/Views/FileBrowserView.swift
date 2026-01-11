@@ -405,6 +405,18 @@ struct FileBrowserView: View {
                 Button("Delete", role: .destructive) {
                     showDeleteConfirm = true
                 }
+            } else {
+                // Context menu for empty space
+                Button("New Folder") {
+                    showNewFolderSheet = true
+                }
+                Button("Upload Files") {
+                    uploadFiles()
+                }
+                Divider()
+                Button("Refresh") {
+                    browser.refresh()
+                }
             }
         } primaryAction: { selection in
             if let fileId = selection.first,
@@ -430,9 +442,44 @@ struct FileBrowserView: View {
                     .onTapGesture(count: 2) {
                         browser.navigateToFile(file)
                     }
+                    .contextMenu {
+                        Button("Open") {
+                            browser.navigateToFile(file)
+                        }
+                        Divider()
+                        Button("Rename") {
+                            renameFile = file
+                            newFileName = file.name
+                            showRenameSheet = true
+                        }
+                        Button("Download") {
+                            browser.selectedFiles.removeAll()
+                            browser.selectedFiles.insert(file.id)
+                            downloadSelectedFiles()
+                        }
+                        Divider()
+                        Button("Delete", role: .destructive) {
+                            browser.selectedFiles.removeAll()
+                            browser.selectedFiles.insert(file.id)
+                            showDeleteConfirm = true
+                        }
+                    }
                 }
             }
             .padding()
+        }
+        .contextMenu {
+            // Context menu for empty space in grid view
+            Button("New Folder") {
+                showNewFolderSheet = true
+            }
+            Button("Upload Files") {
+                uploadFiles()
+            }
+            Divider()
+            Button("Refresh") {
+                browser.refresh()
+            }
         }
     }
     
