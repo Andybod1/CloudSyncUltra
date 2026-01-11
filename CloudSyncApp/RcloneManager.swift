@@ -973,6 +973,11 @@ class RcloneManager {
         }
     }
     
+    /// Create a new directory on a remote (alias for createFolder)
+    func createDirectory(remoteName: String, path: String) async throws {
+        try await createFolder(remoteName: remoteName, path: path)
+    }
+    
     /// Download a file or folder from a remote to local
     func download(remoteName: String, remotePath: String, localPath: String) async throws {
         let process = Process()

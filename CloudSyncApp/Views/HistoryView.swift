@@ -175,6 +175,17 @@ struct HistoryRow: View {
                 Text(task.formattedBytesTransferred)
                     .font(.caption)
                 
+                // Show average speed for completed transfers
+                if task.state == .completed && task.bytesTransferred > 0 {
+                    HStack(spacing: 2) {
+                        Image(systemName: "speedometer")
+                            .font(.caption2)
+                        Text(task.averageSpeed)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+                
                 if let date = task.completedAt {
                     Text(date, style: .time)
                         .font(.caption)

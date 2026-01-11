@@ -544,6 +544,8 @@ struct TransferFileBrowserPane: View {
     let onDropReceived: () -> Void
     
     @State private var isDropTarget = false
+    @State private var showingNewFolderDialog = false
+    @State private var newFolderName = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -554,6 +556,17 @@ struct TransferFileBrowserPane: View {
                         Label(remote.name, systemImage: remote.displayIcon).tag(remote as CloudRemote?)
                     }
                 }.frame(maxWidth: 200)
+                
+                Button {
+                    showingNewFolderDialog = true
+                    newFolderName = ""
+                } label: {
+                    Image(systemName: "folder.badge.plus")
+                }
+                .buttonStyle(.borderless)
+                .help("Create new folder")
+                .disabled(selectedRemote == nil)
+                
                 Spacer()
                 Picker("View", selection: $browser.viewMode) {
                     Image(systemName: "list.bullet").tag(FileBrowserViewModel.ViewMode.list)
@@ -598,7 +611,15 @@ struct TransferFileBrowserPane: View {
             
             Divider()
             statusBar
-        }.frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity)
+        .sheet(isPresented: $showingNewFolderDialog) {
+            NewFolderDialog(
+                folderName: $newFolderName,
+                isPresented: $showingNewFolderDialog,
+                onCreate: { createFolder() }
+            )
+        }
     }
     
     private var fileListView: some View {
@@ -616,6 +637,37 @@ struct TransferFileBrowserPane: View {
             if !browser.selectedFiles.isEmpty { Text("• \(browser.selectedFiles.count) selected") }
             Spacer()
         }.font(.caption).foregroundColor(.secondary).padding(8).background(Color(NSColor.controlBackgroundColor))
+    }
+    
+    private func createFolder() {
+        guard let remote = selectedRemote else { return }
+        guard !newFolderName.isEmpty else { return }
+        
+        Task {
+            do {
+                let folderPath = (browser.currentPath as NSString).appendingPathComponent(newFolderName)
+                
+                if remote.type == .local {
+                    // Create local folder
+                    try FileManager.default.createDirectory(atPath: folderPath, withIntermediateDirectories: true)
+                } else {
+                    // Create remote folder using rclone mkdir
+                    try await RcloneManager.shared.createDirectory(
+                        remoteName: remote.rcloneName,
+                        path: folderPath
+                    )
+                }
+                
+                // Refresh the browser to show the new folder
+                await MainActor.run {
+                    browser.refresh()
+                }
+            } catch {
+                await MainActor.run {
+                    browser.error = "Failed to create folder: \(error.localizedDescription)"
+                }
+            }
+        }
     }
 }
 
@@ -687,6 +739,63 @@ struct FileRow: View {
         .padding(.vertical, 4).padding(.horizontal, 8)
         .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
         .cornerRadius(4).contentShape(Rectangle())
+    }
+}
+
+// MARK: - New Folder Dialog
+
+struct NewFolderDialog: View {
+    @Binding var folderName: String
+    @Binding var isPresented: Bool
+    let onCreate: () -> Void
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                Image(systemName: "folder.badge.plus")
+                    .font(.largeTitle)
+                    .foregroundColor(.accentColor)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Create New Folder")
+                        .font(.headline)
+                    Text("Enter a name for the new folder")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            TextField("Folder name", text: $folderName)
+                .textFieldStyle(.roundedBorder)
+                .focused($isFocused)
+                .onSubmit {
+                    if !folderName.isEmpty {
+                        onCreate()
+                        isPresented = false
+                    }
+                }
+            
+            HStack {
+                Button("Cancel") {
+                    isPresented = false
+                }
+                .keyboardShortcut(.cancelAction)
+                
+                Spacer()
+                
+                Button("Create") {
+                    onCreate()
+                    isPresented = false
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(folderName.isEmpty)
+            }
+        }
+        .padding(24)
+        .frame(width: 400)
+        .onAppear {
+            isFocused = true
+        }
     }
 }
 

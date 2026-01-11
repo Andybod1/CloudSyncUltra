@@ -493,6 +493,21 @@ struct TaskDetailSheet: View {
                                     StatItem(label: "Transferred", value: task.formattedBytesTransferred)
                                     StatItem(label: "Duration", value: task.formattedDuration)
                                 }
+                                
+                                // Show average speed for completed tasks
+                                if task.state == .completed && task.bytesTransferred > 0 {
+                                    Divider()
+                                    HStack {
+                                        Image(systemName: "speedometer")
+                                            .foregroundColor(.secondary)
+                                        Text("Average Speed:")
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                        Text(task.averageSpeed)
+                                            .fontWeight(.medium)
+                                    }
+                                    .font(.caption)
+                                }
                             }
                             .padding(8)
                         }

@@ -157,6 +157,24 @@ struct SyncTask: Identifiable, Codable {
         formatter.unitsStyle = .abbreviated
         return formatter.string(from: duration) ?? "--"
     }
+    
+    var averageSpeed: String {
+        guard let duration = duration, duration > 0 else { return "--" }
+        
+        // Calculate bytes per second
+        let bytesPerSecond = Double(bytesTransferred) / duration
+        
+        // Format as human-readable speed
+        if bytesPerSecond < 1024 {
+            return String(format: "%.0f B/s", bytesPerSecond)
+        } else if bytesPerSecond < 1024 * 1024 {
+            return String(format: "%.1f KB/s", bytesPerSecond / 1024)
+        } else if bytesPerSecond < 1024 * 1024 * 1024 {
+            return String(format: "%.1f MB/s", bytesPerSecond / (1024 * 1024))
+        } else {
+            return String(format: "%.2f GB/s", bytesPerSecond / (1024 * 1024 * 1024))
+        }
+    }
 }
 
 struct TaskLog: Identifiable, Codable {
