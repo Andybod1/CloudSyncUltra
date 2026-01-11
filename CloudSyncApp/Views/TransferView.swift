@@ -671,6 +671,8 @@ struct TransferProgressBar: View {
                 }
                 Spacer()
                 
+                Text("\(Int(progress.percentage))%").font(.title2).fontWeight(.bold).foregroundColor(statusColor)
+                
                 // Cancel button
                 if progress.isTransferring && !progress.isCompleted {
                     Button {
@@ -683,8 +685,6 @@ struct TransferProgressBar: View {
                     .buttonStyle(.plain)
                     .help("Cancel transfer")
                 }
-                
-                Text("\(Int(progress.percentage))%").font(.title2).fontWeight(.bold).foregroundColor(statusColor)
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
