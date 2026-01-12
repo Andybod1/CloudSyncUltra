@@ -773,35 +773,37 @@ struct TransferFileBrowserPane: View {
                 
                 Spacer()
                 
-                // Encryption toggle
-                Toggle(isOn: $encryptTransfers) {
-                    HStack(spacing: 4) {
-                        Image(systemName: encryptTransfers ? "lock.fill" : "lock.open")
-                            .foregroundColor(encryptTransfers ? .green : .secondary)
-                            .font(.caption)
-                        Text("Encrypt")
-                            .font(.caption)
+                // Encryption toggle (only for cloud remotes, not local storage)
+                if let remote = selectedRemote, remote.type != .local {
+                    Toggle(isOn: $encryptTransfers) {
+                        HStack(spacing: 4) {
+                            Image(systemName: encryptTransfers ? "lock.fill" : "lock.open")
+                                .foregroundColor(encryptTransfers ? .green : .secondary)
+                                .font(.caption)
+                            Text("Encrypt")
+                                .font(.caption)
+                        }
                     }
-                }
-                .toggleStyle(.switch)
-                .controlSize(.small)
-                .help("Encrypt transfers with E2E encryption")
-                .onChange(of: encryptTransfers) { _, isEnabled in
-                    guard let remote = selectedRemote else { return }
-                    let remoteName = remote.rcloneName
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .help("Encrypt transfers with E2E encryption")
+                    .onChange(of: encryptTransfers) { _, isEnabled in
+                        guard let remote = selectedRemote else { return }
+                        let remoteName = remote.rcloneName
+                        
+                        if isEnabled && !EncryptionManager.shared.isEncryptionConfigured(for: remoteName) {
+                            showEncryptionModal = true
+                            encryptTransfers = false  // Reset until configured
+                        } else {
+                            // Save encryption state for this remote
+                            EncryptionManager.shared.setEncryptionEnabled(isEnabled, for: remoteName)
+                            // Refresh the browser
+                            updateBrowserRemote()
+                        }
+                    }
                     
-                    if isEnabled && !EncryptionManager.shared.isEncryptionConfigured(for: remoteName) {
-                        showEncryptionModal = true
-                        encryptTransfers = false  // Reset until configured
-                    } else {
-                        // Save encryption state for this remote
-                        EncryptionManager.shared.setEncryptionEnabled(isEnabled, for: remoteName)
-                        // Refresh the browser
-                        updateBrowserRemote()
-                    }
+                    Divider().frame(height: 20)
                 }
-                
-                Divider().frame(height: 20)
                 
                 VStack(spacing: 4) {
                     Button {

@@ -415,11 +415,14 @@ struct FileBrowserView: View {
                 .disabled(browser.selectedFiles.isEmpty)
                 .help("Download")
                 
-                Divider()
-                    .frame(height: 20)
-                
-                // Encryption toggle with enhanced visuals
-                encryptionToggle
+                // Only show encryption controls for cloud remotes, not local storage
+                if remote.type != .local {
+                    Divider()
+                        .frame(height: 20)
+                    
+                    // Encryption toggle with enhanced visuals
+                    encryptionToggle
+                }
                 
                 Divider()
                     .frame(height: 20)
@@ -877,21 +880,23 @@ struct FileBrowserView: View {
             }
             .font(.caption)
             
-            // Encryption status in status bar
-            if encryptionEnabled {
-                HStack(spacing: 4) {
-                    Image(systemName: "lock.fill")
-                    Text("Encrypted")
+            // Encryption status in status bar (only for cloud remotes, not local storage)
+            if remote.type != .local {
+                if encryptionEnabled {
+                    HStack(spacing: 4) {
+                        Image(systemName: "lock.fill")
+                        Text("Encrypted")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.green)
+                } else if isViewingRawEncrypted {
+                    HStack(spacing: 4) {
+                        Image(systemName: "eye.slash")
+                        Text("Raw View")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.orange)
                 }
-                .font(.caption)
-                .foregroundColor(.green)
-            } else if isViewingRawEncrypted {
-                HStack(spacing: 4) {
-                    Image(systemName: "eye.slash")
-                    Text("Raw View")
-                }
-                .font(.caption)
-                .foregroundColor(.orange)
             }
             
             Divider()

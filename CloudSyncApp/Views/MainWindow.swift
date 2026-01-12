@@ -221,8 +221,10 @@ struct SidebarView: View {
     }
     
     private func remoteSidebarItem(_ remote: CloudRemote) -> some View {
-        let hasEncryption = EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
-        let isEncryptionOn = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
+        // Only show encryption status for cloud remotes, not local storage
+        let isCloudRemote = remote.type != .local
+        let hasEncryption = isCloudRemote && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
+        let isEncryptionOn = isCloudRemote && EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
         
         return HStack(spacing: 8) {
             Image(systemName: remote.displayIcon)
@@ -234,7 +236,7 @@ struct SidebarView: View {
             
             Spacer()
             
-            // Show encryption status
+            // Show encryption status (only for cloud remotes, not local storage)
             if hasEncryption {
                 Image(systemName: isEncryptionOn ? "lock.fill" : "lock.open")
                     .font(.caption)
