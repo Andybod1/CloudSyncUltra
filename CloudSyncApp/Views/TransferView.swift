@@ -29,9 +29,12 @@ struct TransferView: View {
             transferToolbar
             Divider()
             
+            // Minimal transfer indicator - just shows something is happening
             if transferProgress.isTransferring {
-                TransferProgressBar(progress: transferProgress) {
+                TransferActiveIndicator(progress: transferProgress) {
                     cancelTransfer()
+                } onViewTasks: {
+                    NotificationCenter.default.post(name: .navigateToTasks, object: nil)
                 }
                 Divider()
             }
@@ -342,8 +345,9 @@ struct TransferView: View {
                     
                     // Determine source and destination paths
                     let sourcePath = file.path
-                    let sourceRemote = from.type == .local ? "" : from.rcloneName
-                    let destRemote = to.type == .local ? "" : to.rcloneName
+                    // Use effectiveRemoteName to get crypt remote when encryption is enabled
+                    let sourceRemote = from.type == .local ? "" : from.effectiveRemoteName
+                    let destRemote = to.type == .local ? "" : to.effectiveRemoteName
                     var destPath = toPath.isEmpty ? "" : toPath
                     
                     log("File isDirectory: \(file.isDirectory), name: \(file.name), size: \(file.size)")
@@ -723,6 +727,71 @@ struct TransferProgressBar: View {
         if progress.isCancelled { return .orange }
         if progress.isCompleted { return .green }
         return .accentColor
+    }
+}
+
+// MARK: - Transfer Active Indicator (Minimal)
+
+struct TransferActiveIndicator: View {
+    @ObservedObject var progress: TransferProgressModel
+    var onCancel: (() -> Void)?
+    var onViewTasks: (() -> Void)?
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Spinning indicator
+            ProgressView()
+                .scaleEffect(0.8)
+            
+            // Status text
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(progress.sourceName) → \(progress.destName)")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                
+                HStack(spacing: 6) {
+                    Text("\(Int(progress.percentage))%")
+                        .foregroundColor(.accentColor)
+                    if !progress.speed.isEmpty {
+                        Text("•")
+                            .foregroundColor(.secondary)
+                        Text(progress.speed)
+                            .foregroundColor(.secondary)
+                    }
+                    if progress.isEncrypted {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                }
+                .font(.caption)
+            }
+            
+            Spacer()
+            
+            // View in Tasks button
+            Button {
+                onViewTasks?()
+            } label: {
+                Text("View in Tasks")
+                    .font(.caption)
+            }
+            .buttonStyle(.bordered)
+            
+            // Cancel button
+            Button {
+                onCancel?()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Cancel transfer")
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.accentColor.opacity(0.08))
     }
 }
 
