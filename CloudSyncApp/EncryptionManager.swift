@@ -30,12 +30,16 @@ final class EncryptionManager {
     // MARK: - Per-Remote Encryption State
     
     /// Check if encryption view is enabled for a specific remote (toggle state)
+    /// Always returns false for local storage since encryption doesn't apply
     func isEncryptionEnabled(for remoteName: String) -> Bool {
-        UserDefaults.standard.bool(forKey: "encryption_enabled_\(remoteName)")
+        guard remoteName != "local" else { return false }
+        return UserDefaults.standard.bool(forKey: "encryption_enabled_\(remoteName)")
     }
     
     /// Enable/disable encryption view for a specific remote
+    /// Ignores requests for local storage since encryption doesn't apply
     func setEncryptionEnabled(_ enabled: Bool, for remoteName: String) {
+        guard remoteName != "local" else { return }
         UserDefaults.standard.set(enabled, forKey: "encryption_enabled_\(remoteName)")
         NotificationCenter.default.post(
             name: .encryptionStateChanged,
@@ -45,8 +49,10 @@ final class EncryptionManager {
     }
     
     /// Check if a remote has encryption configured (password + salt saved + crypt remote exists)
+    /// Always returns false for local storage since encryption doesn't apply
     func isEncryptionConfigured(for remoteName: String) -> Bool {
-        getConfig(for: remoteName) != nil
+        guard remoteName != "local" else { return false }
+        return getConfig(for: remoteName) != nil
     }
     
     /// Get the crypt remote name for a base remote (e.g., "googledrive" -> "googledrive-crypt")
@@ -70,7 +76,12 @@ final class EncryptionManager {
     // MARK: - Per-Remote Configuration Storage
     
     /// Save encryption configuration for a remote
+    /// Ignores requests for local storage since encryption doesn't apply
     func saveConfig(_ config: RemoteEncryptionConfig, for remoteName: String) throws {
+        guard remoteName != "local" else {
+            print("[EncryptionManager] Ignoring encryption config save for local storage")
+            return
+        }
         let encoder = JSONEncoder()
         let data = try encoder.encode(config)
         UserDefaults.standard.set(data, forKey: "encryption_config_\(remoteName)")
