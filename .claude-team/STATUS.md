@@ -2,51 +2,63 @@
 
 > Real-time status updates from all team members
 > **Workers:** Update your section when task status changes
+> **Current Sprint:** Scheduled Sync Feature
 
 ---
 
 ## Dev-1 (UI Layer)
 
-**Status:** ✅ COMPLETE
-**Current Task:** Add App Version Display to SettingsView
-**Progress:** Done - all acceptance criteria met
-**Files Modified:** CloudSyncApp/SettingsView.swift
+**Status:** ⏳ PENDING
+**Current Task:** Scheduled Sync UI Components
+**Progress:** Not started
+**Files to Create:**
+- CloudSyncApp/Views/ScheduleSettingsView.swift
+- CloudSyncApp/Views/ScheduleRowView.swift
+- CloudSyncApp/Views/ScheduleEditorSheet.swift
+**Files to Modify:**
+- CloudSyncApp/SettingsView.swift
 **Blockers:** None
-**Last Update:** 2026-01-12
+**Last Update:** --
 
 ---
 
 ## Dev-2 (Core Engine)
 
-**Status:** ✅ COMPLETE
-**Current Task:** Add Rclone Version Logging Method
-**Progress:** Done - all acceptance criteria met
-**Files Modified:** CloudSyncApp/RcloneManager.swift
+**Status:** ⏳ PENDING
+**Current Task:** Menu Bar Integration for Schedules
+**Progress:** Not started
+**Files to Modify:**
+- CloudSyncApp/Views/MenuBarView.swift
+- CloudSyncApp/CloudSyncAppApp.swift
 **Blockers:** None
-**Last Update:** 2026-01-12
+**Last Update:** --
 
 ---
 
 ## Dev-3 (Services)
 
-**Status:** ✅ COMPLETE
-**Current Task:** Add Keychain Status Check Method
-**Progress:** Done - method added, build verified
-**Files Modified:** CloudSyncApp/KeychainManager.swift
+**Status:** ⏳ PENDING
+**Current Task:** Core Scheduling Infrastructure
+**Progress:** Not started
+**Files to Create:**
+- CloudSyncApp/Models/SyncSchedule.swift
+- CloudSyncApp/ScheduleManager.swift
 **Blockers:** None
-**Last Update:** 2026-01-12 - Task complete
+**Last Update:** --
 
 ---
 
 ## QA (Testing)
 
-**Status:** ✅ COMPLETE
-**Current Task:** Write Tests for KeychainManager Accessibility
-**Progress:** Done - 5 new tests added, all tests passing
-**Tests Written:** 5 new tests (31 total in KeychainManagerTests)
-**Tests Passing:** All (TEST SUCCEEDED)
-**Issues Found:** None
-**Last Update:** 2026-01-12 Task complete
+**Status:** ⏳ PENDING
+**Current Task:** Schedule Feature Test Coverage
+**Progress:** Not started
+**Files to Create:**
+- CloudSyncAppTests/SyncScheduleTests.swift
+- CloudSyncAppTests/ScheduleManagerTests.swift
+- CloudSyncAppTests/ScheduleFrequencyTests.swift
+**Blockers:** None
+**Last Update:** --
 
 ---
 
@@ -56,7 +68,12 @@ _Completed work ready for Lead to integrate:_
 
 | From | Task | Output File | Ready Since |
 |------|------|-------------|-------------|
-| Dev-1 | Add App Version Display | DEV1_COMPLETE.md | 2026-01-12 |
-| Dev-2 | Add Rclone Version Logging | DEV2_COMPLETE.md | 2026-01-12 |
-| Dev-3 | Add Keychain Status Check | DEV3_COMPLETE.md | 2026-01-12 |
-| QA | KeychainManager Tests | QA_REPORT.md | 2026-01-12 |
+| -- | -- | -- | -- |
+
+---
+
+## Build Status
+
+**Last Build:** --
+**Result:** --
+**Tests:** --
