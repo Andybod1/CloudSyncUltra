@@ -1,140 +1,119 @@
 # Strategic Directive
 
-> **From:** Strategic Partner (Desktop Opus 4.5)
-> **To:** Lead Agent (Claude Code Opus)
-> **Date:** [DATE]
-> **Priority:** High
+> Written by: Strategic Partner (Desktop Opus)
+> For: Lead Agent
+> Date: [DATE]
 
 ---
 
 ## Feature: [FEATURE NAME]
 
 ### Overview
+[Brief description of what we're building and why]
 
-[2-3 sentence description of what we're building and why]
-
----
-
-## Requirements
-
-### Functional Requirements
-
-1. [Requirement 1]
-2. [Requirement 2]
-3. [Requirement 3]
-
-### Non-Functional Requirements
-
-- Performance: [any performance constraints]
-- Security: [any security considerations]
-- UX: [user experience requirements]
+### User Story
+As a [user type], I want to [action] so that [benefit].
 
 ---
 
 ## Architecture Decisions
 
 ### Approach
+[Which approach we're taking and why]
 
-[Describe the chosen technical approach]
-
-### Key Components
-
-| Component | Responsibility | Owner |
-|-----------|---------------|-------|
-| [Component 1] | [What it does] | Dev-X |
-| [Component 2] | [What it does] | Dev-X |
-| [Component 3] | [What it does] | Dev-X |
+### Key Design Choices
+1. [Decision 1 and rationale]
+2. [Decision 2 and rationale]
+3. [Decision 3 and rationale]
 
 ### Data Model
-
 ```swift
-// Key structures (if applicable)
-struct Example {
-    let id: UUID
-    var property: String
-}
+// Key structures/models needed
 ```
 
-### Integration Points
-
-- [How this integrates with existing code]
-- [Dependencies on existing components]
+### Component Interactions
+```
+[Component A] ──▶ [Component B] ──▶ [Component C]
+```
 
 ---
 
-## Task Assignment
+## Task Breakdown
 
 ### Dev-1 (UI Layer)
-- [ ] [UI task 1]
-- [ ] [UI task 2]
+**Files to create/modify:**
+- [ ] `Views/NewView.swift` - [description]
+- [ ] `SettingsView.swift` - [what to add]
+
+**Key requirements:**
+- [Requirement 1]
+- [Requirement 2]
 
 ### Dev-2 (Core Engine)
-- [ ] [Core task 1]
-- [ ] [Core task 2]
+**Files to create/modify:**
+- [ ] `RcloneManager.swift` - [what to add]
+
+**Key requirements:**
+- [Requirement 1]
+- [Requirement 2]
 
 ### Dev-3 (Services)
-- [ ] [Service task 1]
-- [ ] [Service task 2]
+**Files to create/modify:**
+- [ ] `Models/NewModel.swift` - [description]
+- [ ] `NewManager.swift` - [description]
+
+**Key requirements:**
+- [Requirement 1]
+- [Requirement 2]
 
 ### QA (Testing)
-- [ ] [Test task 1]
-- [ ] [Test task 2]
+**Files to create:**
+- [ ] `CloudSyncAppTests/NewModelTests.swift`
+- [ ] `CloudSyncAppTests/NewManagerTests.swift`
+
+**Test coverage required:**
+- [Test area 1]
+- [Test area 2]
 
 ---
 
 ## Acceptance Criteria
 
-The feature is complete when:
-
-1. [ ] [Criterion 1]
-2. [ ] [Criterion 2]
-3. [ ] [Criterion 3]
-4. [ ] Build succeeds with zero errors
-5. [ ] All new tests pass
-6. [ ] App launches and feature works as described
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+- [ ] [Criterion 3]
+- [ ] Build succeeds with zero errors
+- [ ] All new tests pass
+- [ ] App launches and feature works
 
 ---
 
-## Files to Create
+## Dependencies
 
-| File | Purpose | Owner |
-|------|---------|-------|
-| `CloudSyncApp/...` | ... | Dev-X |
-| `CloudSyncAppTests/...` | ... | QA |
-
-## Files to Modify
-
-| File | Changes | Owner |
-|------|---------|-------|
-| `CloudSyncApp/...` | ... | Dev-X |
+- [Any external dependencies or prerequisites]
+- [Order of implementation if it matters]
 
 ---
 
-## References
+## Out of Scope
 
-- [Links to relevant documentation]
-- [API references]
-- [Design mockups if any]
-
----
-
-## Notes from Strategic Partner
-
-[Any additional context, warnings, or guidance]
+- [What we're NOT building in this directive]
+- [Future enhancements to consider later]
 
 ---
 
-## Execution Instructions
+## Notes for Lead
 
-1. Create detailed task files for each worker
-2. Update WORKSTREAM.md with file locks
-3. Output worker launch commands
-4. Monitor STATUS.md for progress
-5. Integrate and test when workers complete
-6. Write LEAD_REPORT.md
-
-**Expected Duration:** [X hours]
+- [Any special instructions]
+- [Known issues to watch for]
+- [Performance considerations]
 
 ---
 
-*Directive issued by Strategic Partner. Execute with quality.*
+## Definition of Done
+
+1. All acceptance criteria met
+2. Build succeeds
+3. Tests pass
+4. Lead Report submitted
+5. Ready for Strategic Partner review

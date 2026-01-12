@@ -1,4 +1,8 @@
-# CloudSync Ultra - Two-Tier Parallel Development Team
+# Parallel Development Team
+
+CloudSync Ultra uses a **two-tier parallel development system** with strategic oversight and tactical execution.
+
+---
 
 ## Architecture
 
@@ -7,29 +11,23 @@
 │                              ANDY (Human)                                   │
 │                        Vision • Decisions • Direction                       │
 └─────────────────────────────────┬───────────────────────────────────────────┘
-                                  │ Conversation
+                                  │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    STRATEGIC PARTNER (Desktop App - Opus 4.5)               │
+│                 STRATEGIC PARTNER (Desktop App - Opus 4.5)                  │
 │                                                                             │
-│   • Architecture & system design    • Web research when needed              │
-│   • Feature planning                • Quality standards                     │
-│   • Technical decisions             • Final review & commit                 │
+│   Architecture • Planning • Research • Documentation • Quality              │
 │                                                                             │
-│   Writes: DIRECTIVE.md, ARCHITECTURE.md, SPRINT.md, CHANGELOG.md            │
-│   Reads: LEAD_REPORT.md, STATUS.md                                          │
+│   Outputs: DIRECTIVE.md, SPRINT.md, ARCHITECTURE.md                         │
 └─────────────────────────────────┬───────────────────────────────────────────┘
                                   │ DIRECTIVE.md
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      LEAD AGENT (Claude Code CLI - Opus)                    │
 │                                                                             │
-│   • Break down features into tasks  • Fix build/integration errors          │
-│   • Write task files for workers    • Run tests                             │
-│   • Monitor worker progress         • Report completion                     │
+│   Task breakdown • Worker coordination • Integration • Builds               │
 │                                                                             │
-│   Writes: TASK_*.md, WORKSTREAM.md, LEAD_REPORT.md                          │
-│   Reads: DIRECTIVE.md, STATUS.md, DEV*_COMPLETE.md                          │
+│   Outputs: Task files, LEAD_REPORT.md                                       │
 └──────┬──────────────┬──────────────┬──────────────┬─────────────────────────┘
        │              │              │              │
        ▼              ▼              ▼              ▼
@@ -42,58 +40,49 @@
 
 ---
 
-## Quick Start
+## Roles
 
-### Full Workflow
+### Strategic Partner (Desktop App)
+- **Model:** Claude Opus 4.5
+- **Capabilities:** Web search, rich conversation, document creation
+- **Responsibilities:**
+  - Discuss features with Andy
+  - Design architecture
+  - Write directives for Lead Agent
+  - Review completed work
+  - Maintain documentation
+  - Final quality gate
 
-1. **Tell Strategic Partner** (Desktop App) what you want to build
-2. **Strategic Partner** writes `DIRECTIVE.md`
-3. **Launch Lead Agent:**
-   ```bash
-   ~/.claude-team/scripts/launch_lead.sh
-   ```
-4. **Lead creates tasks** and says "Launch workers"
-5. **Launch Workers:**
-   ```bash
-   ~/.claude-team/scripts/launch_workers.sh
-   ```
-6. **Lead monitors, integrates, writes LEAD_REPORT.md**
-7. **Strategic Partner** reviews, updates CHANGELOG, commits
+### Lead Agent (CLI)
+- **Model:** Claude Opus 4.5 (via `claude --model opus`)
+- **Capabilities:** Full filesystem, builds, git
+- **Responsibilities:**
+  - Translate directives into task files
+  - Coordinate 4 workers
+  - Fix build/integration issues
+  - Add files to Xcode project
+  - Run tests
+  - Write completion reports
 
-### One-Click Launch (Full Team)
-
-```bash
-~/.claude-team/scripts/launch_full_team.sh
-```
+### Workers (CLI)
+- **Model:** Claude Sonnet 4
+- **Capabilities:** Full filesystem access
+- **Responsibilities:**
+  - Execute assigned tasks
+  - Write code
+  - Update STATUS.md
+  - Write completion reports
 
 ---
 
-## Startup Commands
+## Worker Domains
 
-### Lead Agent (Terminal 1)
-```
-Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/STRATEGIC/DIRECTIVE.md. Create task files, update WORKSTREAM.md, and output worker launch commands.
-```
-
-### Dev-1 (Terminal 2)
-```
-Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
-```
-
-### Dev-2 (Terminal 3)
-```
-Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
-```
-
-### Dev-3 (Terminal 4)
-```
-Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
-```
-
-### QA (Terminal 5)
-```
-Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
-```
+| Worker | Role | Files Owned |
+|--------|------|-------------|
+| Dev-1 | UI Layer | `Views/`, `ViewModels/`, `Components/`, `ContentView.swift`, `SettingsView.swift` |
+| Dev-2 | Core Engine | `RcloneManager.swift` |
+| Dev-3 | Services | `SyncManager.swift`, `EncryptionManager.swift`, `KeychainManager.swift`, `ProtonDriveManager.swift`, `Models/` |
+| QA | Testing | `CloudSyncAppTests/` |
 
 ---
 
@@ -102,22 +91,20 @@ Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and exe
 ```
 .claude-team/
 ├── STRATEGIC/                     # Strategic Partner's domain
-│   ├── DIRECTIVE.md               # Current feature spec (SP writes)
-│   ├── DIRECTIVE_TEMPLATE.md      # Template for new directives
-│   ├── ARCHITECTURE.md            # System design decisions
-│   └── SPRINT.md                  # Sprint goals and backlog
+│   ├── DIRECTIVE.md               # Current feature spec
+│   ├── DIRECTIVE_TEMPLATE.md      # Template for directives
+│   ├── SPRINT.md                  # Sprint planning
+│   └── ARCHITECTURE.md            # System architecture
 │
 ├── LEAD/                          # Lead Agent's domain
-│   ├── LEAD_BRIEFING.md           # Lead's role instructions
-│   ├── LEAD_REPORT.md             # Completion report (Lead writes)
-│   ├── LEAD_REPORT_TEMPLATE.md    # Template for reports
-│   └── INTEGRATION_LOG.md         # Build/test fix history
+│   ├── LEAD_BRIEFING.md           # Lead's instructions
+│   └── LEAD_REPORT.md             # Completion reports
 │
-├── tasks/                         # Worker task files
-│   ├── TASK_DEV1.md               # UI Layer task
-│   ├── TASK_DEV2.md               # Core Engine task
-│   ├── TASK_DEV3.md               # Services task
-│   └── TASK_QA.md                 # Testing task
+├── tasks/                         # Task files (Lead writes)
+│   ├── TASK_DEV1.md
+│   ├── TASK_DEV2.md
+│   ├── TASK_DEV3.md
+│   └── TASK_QA.md
 │
 ├── outputs/                       # Worker completion reports
 │   ├── DEV1_COMPLETE.md
@@ -125,109 +112,150 @@ Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and exe
 │   ├── DEV3_COMPLETE.md
 │   └── QA_REPORT.md
 │
-├── templates/                     # Worker briefings
+├── templates/                     # Worker role briefings
 │   ├── DEV1_BRIEFING.md
 │   ├── DEV2_BRIEFING.md
 │   ├── DEV3_BRIEFING.md
 │   └── QA_BRIEFING.md
 │
 ├── scripts/
-│   ├── launch_lead.sh             # Launch Lead Agent
-│   ├── launch_workers.sh          # Launch all 4 workers
-│   └── launch_full_team.sh        # Launch Lead + Workers
+│   ├── launch_lead.sh             # Launch Lead Agent only
+│   ├── launch_workers.sh          # Launch 4 workers
+│   └── launch_all.sh              # Launch Lead + workers
 │
-├── COMMUNICATION_PROTOCOL.md      # Full protocol documentation
 ├── STATUS.md                      # Real-time worker status
-└── WORKSTREAM.md                  # Current sprint tasks
+└── WORKSTREAM.md                  # Current sprint tracking
 ```
 
 ---
 
-## Worker Domains
+## Workflow
 
-| Worker | Role | Files Owned |
-|--------|------|-------------|
-| Dev-1 | UI Layer | `Views/`, `ViewModels/`, `Components/`, `ContentView`, `SettingsView` |
-| Dev-2 | Core Engine | `RcloneManager.swift` |
-| Dev-3 | Services | `*Manager.swift` (except Rclone), `Models/` |
-| QA | Testing | `CloudSyncAppTests/` |
+### 1. Strategic Planning (You + Strategic Partner)
+```
+Andy: "I want conflict resolution"
+Strategic Partner: [Discusses options, researches, designs]
+Strategic Partner: [Writes DIRECTIVE.md]
+Strategic Partner: "Directive ready. Launch Lead Agent."
+```
+
+### 2. Task Creation (Lead Agent)
+```bash
+# Launch Lead
+~/.claude-team/scripts/launch_lead.sh
+
+# Paste startup command
+Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then check STRATEGIC/DIRECTIVE.md for current directive and execute it.
+```
+
+Lead creates task files and says: "TASKS READY. Launch workers."
+
+### 3. Parallel Execution (Workers)
+```bash
+# Launch workers
+~/.claude-team/scripts/launch_workers.sh
+
+# Paste startup commands in each terminal
+```
+
+Workers execute in parallel, update STATUS.md.
+
+### 4. Integration (Lead Agent)
+- Lead monitors STATUS.md
+- Adds new files to Xcode project
+- Fixes build errors
+- Runs tests
+- Writes LEAD_REPORT.md
+
+### 5. Review (Strategic Partner)
+- Reviews LEAD_REPORT.md
+- Verifies quality
+- Updates CHANGELOG.md
+- Commits to git
+- Reports to Andy
 
 ---
 
-## Communication Flow
+## Quick Start
 
+### Option A: Full Team (Lead + 4 Workers)
+```bash
+~/.claude-team/scripts/launch_all.sh
 ```
-Andy: "Build conflict resolution"
-         │
-         ▼
-Strategic Partner:
-  • Discusses requirements
-  • Makes architecture decisions
-  • Writes DIRECTIVE.md
-  • Says: "Launch Lead"
-         │
-         ▼
-Lead Agent:
-  • Reads DIRECTIVE.md
-  • Creates TASK_DEV1/2/3.md, TASK_QA.md
-  • Says: "Launch workers"
-         │
-         ▼
-Workers (parallel):
-  • Execute tasks
-  • Update STATUS.md
-  • Write completion reports
-         │
-         ▼
-Lead Agent:
-  • Monitors STATUS.md
-  • Integrates code
-  • Fixes build errors
-  • Runs tests
-  • Writes LEAD_REPORT.md
-         │
-         ▼
-Strategic Partner:
-  • Reviews LEAD_REPORT.md
-  • Updates CHANGELOG.md
-  • Commits to git
-  • Reports: "Feature complete!"
+
+### Option B: Lead Only (then workers later)
+```bash
+~/.claude-team/scripts/launch_lead.sh
+# Wait for Lead to create tasks
+~/.claude-team/scripts/launch_workers.sh
+```
+
+### Option C: Workers Only (if tasks already exist)
+```bash
+~/.claude-team/scripts/launch_workers.sh
 ```
 
 ---
 
-## Timing Expectations
+## Startup Commands
 
-| Phase | Duration | Who |
-|-------|----------|-----|
-| Planning | 5-15 min | Strategic + Andy |
-| Task Breakdown | 5-10 min | Lead |
-| Execution | 15-30 min | Workers (parallel) |
-| Integration | 5-15 min | Lead |
-| Review & Commit | 5-10 min | Strategic |
-| **Total** | **35-80 min** | |
+### Lead Agent
+```
+Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then check STRATEGIC/DIRECTIVE.md for current directive and execute it. Update STATUS.md and write LEAD_REPORT.md when complete.
+```
+
+### Dev-1 (UI)
+```
+Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
+```
+
+### Dev-2 (Engine)
+```
+Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
+```
+
+### Dev-3 (Services)
+```
+Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
+```
+
+### QA
+```
+Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+```
+
+---
+
+## Monitoring
+
+### Check Status
+```bash
+cat ~/.claude-team/STATUS.md
+```
+
+### Check Lead Report
+```bash
+cat ~/.claude-team/LEAD/LEAD_REPORT.md
+```
+
+### Check Worker Outputs
+```bash
+ls ~/.claude-team/outputs/
+cat ~/.claude-team/outputs/DEV1_COMPLETE.md
+```
 
 ---
 
 ## Benefits
 
-- **~4x speedup** on parallelizable work
+- **~4-5x speedup** with parallel execution
 - **Zero conflicts** via domain separation
-- **Two-tier quality** - Lead integrates, Strategic reviews
-- **Clear accountability** - Each tier has defined outputs
-- **Autonomous execution** - Workers don't need babysitting
-
----
-
-## Recovery
-
-After restart:
-1. Check `STATUS.md` for any in-progress work
-2. Check `DIRECTIVE.md` for current feature
-3. Re-launch agents as needed
-
-See `RECOVERY.md` for detailed instructions.
+- **Strategic oversight** for quality
+- **Tactical efficiency** for execution
+- **Clear accountability** at each layer
+- **Comprehensive documentation** throughout
 
 ---
 
 *Last Updated: 2026-01-12*
+*CloudSync Ultra v2.0.3*

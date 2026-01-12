@@ -1,21 +1,25 @@
 #!/bin/bash
 
-# Launch Lead Agent
-# Runs Claude Code with Opus model for Lead Agent role
+# Launch Lead Agent (Opus) for CloudSync Ultra
+# This script opens a new terminal with Claude Code using Opus model
 
-echo "🚀 Launching Lead Agent (Opus)..."
-echo ""
-echo "Opening new Terminal with Claude Code..."
-echo ""
+echo "🚀 Launching Lead Agent..."
 
+# Open new Terminal window with Claude Code
 osascript << 'EOF'
 tell application "Terminal"
     activate
-    do script "cd ~/Claude && echo '🎯 LEAD AGENT' && echo '' && echo 'Paste this command:' && echo '' && echo 'Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/STRATEGIC/DIRECTIVE.md. Create task files, update WORKSTREAM.md, and output worker launch commands.' && echo '' && claude"
+    do script "cd ~/Claude && claude --model opus"
 end tell
 EOF
 
 echo ""
-echo "✅ Lead Agent terminal opened"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  LEAD AGENT TERMINAL OPENED"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Paste the startup command shown in the terminal."
+echo "Paste this startup command in the Lead terminal:"
+echo ""
+echo "  Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then check STRATEGIC/DIRECTIVE.md for current directive and execute it. Update STATUS.md and write LEAD_REPORT.md when complete."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

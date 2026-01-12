@@ -1,208 +1,270 @@
-# CloudSync Ultra - System Architecture
+# CloudSync Ultra - Architecture
 
-> **Maintained by:** Strategic Partner
-> **Last Updated:** 2026-01-12
-> **Version:** 2.0.3
+> Maintained by: Strategic Partner
+> Last Updated: 2026-01-12
 
 ---
 
-## High-Level Architecture
+## System Overview
+
+CloudSync Ultra is a macOS cloud synchronization application built with SwiftUI, using rclone as the backend for cloud operations.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      CloudSync Ultra                            │
-│                     macOS Application                           │
+│                         CloudSync Ultra                          │
+├─────────────────────────────────────────────────────────────────┤
+│  UI Layer (SwiftUI)                                              │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │
+│  │Dashboard│ │FileBrows│ │Transfer │ │Settings │ │ MenuBar │   │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘   │
+├───────┴───────────┴───────────┴───────────┴───────────┴─────────┤
+│  ViewModels                                                      │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
+│  │TasksViewModel│ │RemotesViewMdl│ │FileBrowserVM │             │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘             │
+├─────────┴────────────────┴────────────────┴─────────────────────┤
+│  Services Layer                                                  │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐   │
+│  │SyncManager │ │ScheduleMgr │ │EncryptMgr  │ │KeychainMgr │   │
+│  └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘   │
+├────────┴──────────────┴──────────────┴──────────────┴───────────┤
+│  Core Engine                                                     │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                     RcloneManager                         │   │
+│  │  • Process execution    • Config management               │   │
+│  │  • Progress parsing     • Remote operations               │   │
+│  └──────────────────────────┬───────────────────────────────┘   │
+├─────────────────────────────┴───────────────────────────────────┤
+│  External                                                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                        │
+│  │  rclone  │ │ Keychain │ │FS Events │                        │
+│  └──────────┘ └──────────┘ └──────────┘                        │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
-┌───────────────┐     ┌───────────────┐     ┌───────────────┐
-│   SwiftUI     │     │   Managers    │     │   Services    │
-│    Views      │     │   (Core)      │     │  (External)   │
-└───────────────┘     └───────────────┘     └───────────────┘
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌───────────────┐     ┌───────────────┐     ┌───────────────┐
-│ ViewModels    │     │ RcloneManager │     │   rclone      │
-│ (State)       │     │ (Operations)  │     │  (Backend)    │
-└───────────────┘     └───────────────┘     └───────────────┘
 ```
 
 ---
 
-## Layer Breakdown
+## Layer Responsibilities
 
-### UI Layer (Dev-1 Domain)
+### UI Layer (Dev-1)
+- SwiftUI views and components
+- User interaction handling
+- Visual feedback and animations
+- Accessibility
 
-| Component | Purpose | Location |
-|-----------|---------|----------|
-| Views | SwiftUI screens | `CloudSyncApp/Views/` |
-| ViewModels | State management | `CloudSyncApp/ViewModels/` |
-| Components | Reusable UI pieces | `CloudSyncApp/Components/` |
-| SettingsView | App configuration | `CloudSyncApp/SettingsView.swift` |
+### ViewModels (Dev-1)
+- State management
+- Business logic for views
+- Data transformation for display
 
-### Core Engine (Dev-2 Domain)
+### Services Layer (Dev-3)
+- Domain-specific logic
+- Data models
+- Persistence
+- Encryption/security
 
-| Component | Purpose | Location |
-|-----------|---------|----------|
-| RcloneManager | rclone binary operations | `CloudSyncApp/RcloneManager.swift` |
+### Core Engine (Dev-2)
+- rclone process management
+- Command construction
+- Output parsing
+- Error handling
 
-**Note:** RcloneManager is 2,000+ lines. Handle with care.
+---
 
-### Services Layer (Dev-3 Domain)
+## Key Components
 
-| Component | Purpose | Location |
-|-----------|---------|----------|
-| SyncManager | Sync orchestration | `CloudSyncApp/SyncManager.swift` |
-| ScheduleManager | Scheduled sync | `CloudSyncApp/ScheduleManager.swift` |
-| EncryptionManager | E2E encryption | `CloudSyncApp/EncryptionManager.swift` |
-| KeychainManager | Credential storage | `CloudSyncApp/KeychainManager.swift` |
-| ProtonDriveManager | Proton Drive setup | `CloudSyncApp/ProtonDriveManager.swift` |
-| Models | Data structures | `CloudSyncApp/Models/` |
+### RcloneManager (Singleton)
+**Location:** `CloudSyncApp/RcloneManager.swift`
+**Lines:** ~2,060
+**Owner:** Dev-2
+
+Responsibilities:
+- Execute rclone commands
+- Parse progress output
+- Manage cloud provider configs
+- Handle OAuth flows
+- Cloud-to-cloud transfers
+
+### ScheduleManager (Singleton)
+**Location:** `CloudSyncApp/ScheduleManager.swift`
+**Owner:** Dev-3
+
+Responsibilities:
+- Manage scheduled sync jobs
+- Timer-based execution
+- Persistence to UserDefaults
+- Notifications on completion
+
+### EncryptionManager (Singleton)
+**Location:** `CloudSyncApp/EncryptionManager.swift`
+**Owner:** Dev-3
+
+Responsibilities:
+- Per-remote encryption configuration
+- Password management via Keychain
+- Encryption toggle state
+
+### TasksViewModel (Singleton)
+**Location:** `CloudSyncApp/ViewModels/TasksViewModel.swift`
+**Owner:** Dev-1
+
+Responsibilities:
+- Manage sync tasks queue
+- Track task history
+- Execute tasks via RcloneManager
+
+---
+
+## Data Models
+
+### SyncTask
+```swift
+struct SyncTask: Identifiable, Codable {
+    let id: UUID
+    var name: String
+    var type: TaskType  // .sync, .transfer, .backup
+    var sourceRemote: String
+    var sourcePath: String
+    var destinationRemote: String
+    var destinationPath: String
+    var state: TaskState
+    var progress: Double
+    // ...
+}
+```
+
+### SyncSchedule
+```swift
+struct SyncSchedule: Identifiable, Codable {
+    let id: UUID
+    var name: String
+    var isEnabled: Bool
+    var frequency: ScheduleFrequency
+    var sourceRemote: String
+    var destinationRemote: String
+    // ...
+}
+```
+
+### CloudRemote
+```swift
+struct CloudRemote: Identifiable {
+    let id: UUID
+    var name: String
+    var type: CloudProvider
+    var isConnected: Bool
+    // ...
+}
+```
 
 ---
 
 ## Data Flow
 
-### File Transfer Flow
-
+### Sync Execution
 ```
-User Action (UI)
-      │
-      ▼
-ViewModel.startTransfer()
-      │
-      ▼
-RcloneManager.copyBetweenRemotes()
-      │
-      ├── Encryption check (EncryptionManager)
-      │
-      ▼
-rclone process (external)
-      │
-      ▼
-Progress callback
-      │
-      ▼
-UI update (Published properties)
-```
-
-### Scheduled Sync Flow
-
-```
-App Launch
-      │
-      ▼
-ScheduleManager.startScheduler()
-      │
-      ▼
-Timer fires at scheduled time
-      │
-      ▼
-ScheduleManager.executeSchedule()
-      │
-      ▼
+User clicks "Sync"
+       │
+       ▼
 TasksViewModel.startTask()
-      │
-      ▼
-RcloneManager operations
-      │
-      ▼
-Notification sent
+       │
+       ▼
+RcloneManager.syncBetweenRemotes()
+       │
+       ├──▶ Build rclone command
+       │
+       ├──▶ Execute Process
+       │
+       ├──▶ Parse stdout for progress
+       │
+       └──▶ Update task.progress
+              │
+              ▼
+       UI observes @Published
+              │
+              ▼
+       Progress bar updates
+```
+
+### Scheduled Sync
+```
+ScheduleManager.startScheduler()
+       │
+       ▼
+Timer fires at nextRunAt
+       │
+       ▼
+ScheduleManager.executeSchedule()
+       │
+       ▼
+Creates SyncTask
+       │
+       ▼
+TasksViewModel.startTask()
+       │
+       ▼
+[Same as manual sync]
 ```
 
 ---
 
-## Key Design Decisions
+## Persistence
 
-### 1. Singleton Managers
+| Data | Storage | Location |
+|------|---------|----------|
+| Tasks | UserDefaults | `syncTasks` key |
+| Schedules | UserDefaults | `syncSchedules` key |
+| Remotes | rclone config | `~/.config/rclone/rclone.conf` |
+| Credentials | Keychain | CloudSync Ultra keychain |
+| Encryption keys | Keychain | Per-remote passwords |
 
-All managers use singleton pattern for global access:
-```swift
-RcloneManager.shared
-ScheduleManager.shared
-EncryptionManager.shared
+---
+
+## Security
+
+1. **Keychain Storage** - All credentials stored in macOS Keychain
+2. **Per-Remote Encryption** - Optional client-side encryption
+3. **No Plain Text** - Passwords never stored in UserDefaults
+4. **Sandboxed** - App runs in macOS sandbox
+
+---
+
+## Future Architecture Considerations
+
+### Planned
+- [ ] Delta sync for large files
+- [ ] Conflict resolution UI
+- [ ] Real-time file watching (FSEvents)
+
+### Technical Debt
+- [ ] RcloneManager refactor (split into smaller managers)
+- [ ] CI/CD pipeline
+- [ ] Integration test suite
+
+---
+
+## Development Architecture
+
+### Two-Tier Parallel System
+```
+Strategic Partner (Desktop Opus)
+       │
+       │ DIRECTIVE.md
+       ▼
+Lead Agent (CLI Opus)
+       │
+       ├──▶ Dev-1 (UI)
+       ├──▶ Dev-2 (Engine)
+       ├──▶ Dev-3 (Services)
+       └──▶ QA (Tests)
 ```
 
-### 2. rclone as Backend
-
-- All cloud operations go through rclone binary
-- 42+ cloud providers supported
-- No direct cloud API integration needed
-
-### 3. Per-Remote Encryption
-
-- Encryption configured per cloud remote
-- Toggle at transfer time (source decrypt, dest encrypt)
-- Keys stored in Keychain
-
-### 4. UserDefaults for Preferences
-
-- App settings in UserDefaults
-- Schedules in UserDefaults (JSON encoded)
-- Credentials in Keychain (secure)
+### File Ownership
+- **Dev-1:** Views/, ViewModels/, Components/
+- **Dev-2:** RcloneManager.swift
+- **Dev-3:** Models/, *Manager.swift (except Rclone)
+- **QA:** CloudSyncAppTests/
 
 ---
 
-## File Organization
-
-```
-CloudSyncApp/
-├── CloudSyncAppApp.swift      # App entry point
-├── ContentView.swift          # Main window
-├── SettingsView.swift         # Settings tabs
-│
-├── Views/                     # UI screens
-│   ├── DashboardView.swift
-│   ├── TransferView.swift
-│   ├── FileBrowserView.swift
-│   ├── TasksView.swift
-│   ├── HistoryView.swift
-│   ├── ScheduleSettingsView.swift
-│   └── ...
-│
-├── ViewModels/                # State management
-│   ├── RemotesViewModel.swift
-│   ├── TasksViewModel.swift
-│   └── FileBrowserViewModel.swift
-│
-├── Models/                    # Data structures
-│   ├── SyncTask.swift
-│   ├── SyncSchedule.swift
-│   ├── CloudProvider.swift
-│   └── ...
-│
-├── RcloneManager.swift        # Core engine (2000+ lines)
-├── SyncManager.swift          # Sync orchestration
-├── ScheduleManager.swift      # Scheduling
-├── EncryptionManager.swift    # Encryption
-├── KeychainManager.swift      # Secure storage
-└── ProtonDriveManager.swift   # Proton Drive
-```
-
----
-
-## Extension Points
-
-When adding new features:
-
-| Feature Type | Where to Add |
-|--------------|--------------|
-| New cloud provider | RcloneManager (rclone handles it) |
-| New UI screen | Views/ + ViewModels/ |
-| New sync mode | SyncManager + RcloneManager |
-| New settings | SettingsView |
-| Background task | ScheduleManager pattern |
-
----
-
-## Constraints
-
-1. **macOS only** - SwiftUI for macOS
-2. **rclone dependency** - All cloud ops via rclone
-3. **No server** - Fully local app
-4. **Sandboxing** - May need entitlements for full disk access
-
----
-
-*Architecture document maintained by Strategic Partner*
+*This document is updated by Strategic Partner when architecture decisions are made.*

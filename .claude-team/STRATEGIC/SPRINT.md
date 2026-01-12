@@ -1,71 +1,83 @@
-# Current Sprint
+# Sprint Plan
 
-> **Managed by:** Strategic Partner
-> **Sprint:** [Number/Name]
-> **Started:** [Date]
-> **Target End:** [Date]
+> Managed by: Strategic Partner (Desktop Opus)
+> Current Sprint: [Sprint Name/Number]
+> Duration: [Start Date] - [End Date]
 
 ---
 
 ## Sprint Goal
 
-[One sentence describing what we're achieving this sprint]
+[One sentence describing the main objective]
 
 ---
 
-## Priorities (Ordered)
+## Priority Queue
 
-1. **[Feature/Task 1]** - [Brief description]
-2. **[Feature/Task 2]** - [Brief description]
-3. **[Feature/Task 3]** - [Brief description]
+| Priority | Feature | Status | Directive |
+|----------|---------|--------|-----------|
+| P0 | [Critical] | 🔴 Not Started | DIRECTIVE_001.md |
+| P1 | [High] | 🟡 In Progress | DIRECTIVE_002.md |
+| P2 | [Medium] | 🟢 Complete | DIRECTIVE_003.md |
+| P3 | [Low] | ⚪ Backlog | - |
 
 ---
 
-## In Progress
+## Current Focus
 
-| Feature | Status | Lead Report | Notes |
-|---------|--------|-------------|-------|
-| [Feature] | 🔄 In Progress | -- | [Notes] |
+### Active Directive
+**Feature:** [Name]
+**Status:** [In Progress / Waiting for Workers / Integration / Review]
+**Lead Status:** [What Lead Agent is doing]
+**Blockers:** [Any blockers]
 
 ---
 
 ## Completed This Sprint
 
-| Feature | Completed | Lead Report |
-|---------|-----------|-------------|
-| Scheduled Sync | 2026-01-12 | ✅ |
+| Feature | Directive | Completed | Tests |
+|---------|-----------|-----------|-------|
+| [Feature 1] | DIRECTIVE_001.md | 2026-01-12 | 32 pass |
 
 ---
 
 ## Backlog (Future Sprints)
 
-- [ ] Delta sync (only changed bytes)
-- [ ] Conflict resolution
-- [ ] Bandwidth scheduling
-- [ ] Multiple sync profiles
-- [ ] CI/CD pipeline
-- [ ] TestFlight beta
+1. **[Feature A]** - [Brief description]
+2. **[Feature B]** - [Brief description]
+3. **[Feature C]** - [Brief description]
 
 ---
 
 ## Technical Debt
 
-| Item | Priority | Notes |
-|------|----------|-------|
-| RcloneManager refactor | Medium | 2000+ lines, should split |
-| Test coverage gaps | Low | Some managers untested |
+- [ ] Refactor RcloneManager (2,060 lines)
+- [ ] Set up CI/CD pipeline
+- [ ] Improve test coverage for edge cases
 
 ---
 
-## Definition of Done
+## Decisions Made
 
-- [ ] Build succeeds
-- [ ] All tests pass
-- [ ] Code reviewed (Lead report)
-- [ ] Documentation updated
-- [ ] CHANGELOG updated
-- [ ] Committed to main
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-01-12 | Two-tier architecture | Separates strategy from tactics |
 
 ---
 
-*Sprint planning maintained by Strategic Partner*
+## Metrics
+
+- **Features Completed:** X
+- **Tests Added:** Y
+- **Build Status:** ✅ Passing
+- **Test Coverage:** Z%
+
+---
+
+## Notes
+
+[Any relevant notes for the sprint]
+
+---
+
+*Last Updated: [DATE]*
