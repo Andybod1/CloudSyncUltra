@@ -5,6 +5,26 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-01-12
+
+### Added
+- **Parallel Development Team System** - Multi-agent development infrastructure
+  - 4-worker parallel execution (Dev-1 UI, Dev-2 Core, Dev-3 Services, QA)
+  - Lead Claude (Opus 4.5) for architecture and coordination
+  - Worker Claudes (Sonnet 4) via Claude Code CLI
+  - Task coordination via `.claude-team/` folder structure
+  - Real-time status tracking via STATUS.md
+  - ~4x speedup on parallelizable development work
+
+- **App Version Display** - Version info shown in SettingsView footer
+- **Rclone Version Logging** - New `logRcloneVersion()` method for debugging
+- **Keychain Accessibility Check** - New `isKeychainAccessible()` method
+- **KeychainManager Tests** - 5 new unit tests for Keychain operations
+
+### Documentation
+- Added PARALLEL_TEAM.md - Complete guide to the parallel development system
+- Added .claude-team/ infrastructure with briefings, templates, and scripts
+
 ## [2.0.1] - 2026-01-12
 
 ### Fixed

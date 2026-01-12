@@ -387,14 +387,109 @@ final class KeychainManagerTests: XCTestCase {
     
     func testCloudCredentialsCodable() throws {
         let original = CloudCredentials(username: "test@test.com", password: "secret")
-        
+
         let encoder = JSONEncoder()
         let data = try encoder.encode(original)
-        
+
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(CloudCredentials.self, from: data)
-        
+
         XCTAssertEqual(decoded.username, original.username)
         XCTAssertEqual(decoded.password, original.password)
+    }
+
+    // MARK: - Accessibility Tests (Task: KeychainManager Accessibility)
+
+    func test_KeychainManager_SaveAndRetrieve_WorksCorrectly() throws {
+        // Test that saving and retrieving works with unique test key
+        let testKey = "testRemote_\(UUID().uuidString)"
+        let testPassword = "testPassword123"
+
+        // Save
+        try KeychainManager.shared.save(testPassword, forKey: testKey)
+
+        // Retrieve
+        let retrieved = try KeychainManager.shared.getString(forKey: testKey)
+        XCTAssertEqual(retrieved, testPassword, "Retrieved password should match saved password")
+
+        // Cleanup
+        try KeychainManager.shared.delete(forKey: testKey)
+    }
+
+    func test_KeychainManager_DeletePassword_RemovesEntry() throws {
+        let testKey = "testRemote_\(UUID().uuidString)"
+        let testPassword = "testPassword123"
+
+        // Save first
+        try KeychainManager.shared.save(testPassword, forKey: testKey)
+
+        // Verify it exists
+        let beforeDelete = try KeychainManager.shared.getString(forKey: testKey)
+        XCTAssertNotNil(beforeDelete, "Password should exist before deletion")
+
+        // Delete
+        try KeychainManager.shared.delete(forKey: testKey)
+
+        // Verify gone
+        let afterDelete = try KeychainManager.shared.getString(forKey: testKey)
+        XCTAssertNil(afterDelete, "Password should be nil after deletion")
+    }
+
+    func test_KeychainManager_MultipleKeys_IndependentStorage() throws {
+        // Verify multiple keys are stored independently
+        let key1 = "testKey1_\(UUID().uuidString)"
+        let key2 = "testKey2_\(UUID().uuidString)"
+        let password1 = "password1"
+        let password2 = "password2"
+
+        // Save both
+        try KeychainManager.shared.save(password1, forKey: key1)
+        try KeychainManager.shared.save(password2, forKey: key2)
+
+        // Retrieve and verify independence
+        let retrieved1 = try KeychainManager.shared.getString(forKey: key1)
+        let retrieved2 = try KeychainManager.shared.getString(forKey: key2)
+
+        XCTAssertEqual(retrieved1, password1, "Key1 should return password1")
+        XCTAssertEqual(retrieved2, password2, "Key2 should return password2")
+        XCTAssertNotEqual(retrieved1, retrieved2, "Different keys should return different values")
+
+        // Delete one and verify other is unaffected
+        try KeychainManager.shared.delete(forKey: key1)
+
+        let afterDelete1 = try KeychainManager.shared.getString(forKey: key1)
+        let afterDelete2 = try KeychainManager.shared.getString(forKey: key2)
+
+        XCTAssertNil(afterDelete1, "Deleted key should return nil")
+        XCTAssertEqual(afterDelete2, password2, "Undeleted key should still return its value")
+
+        // Cleanup
+        try KeychainManager.shared.delete(forKey: key2)
+    }
+
+    func test_KeychainManager_OverwriteExisting_ReturnsNewValue() throws {
+        let testKey = "testOverwrite_\(UUID().uuidString)"
+        let originalPassword = "originalPassword"
+        let newPassword = "newPassword"
+
+        // Save original
+        try KeychainManager.shared.save(originalPassword, forKey: testKey)
+
+        // Overwrite with new value
+        try KeychainManager.shared.save(newPassword, forKey: testKey)
+
+        // Retrieve and verify new value
+        let retrieved = try KeychainManager.shared.getString(forKey: testKey)
+        XCTAssertEqual(retrieved, newPassword, "Should return the new overwritten value")
+
+        // Cleanup
+        try KeychainManager.shared.delete(forKey: testKey)
+    }
+
+    func test_KeychainManager_NonExistentKey_ReturnsNil() throws {
+        let nonExistentKey = "nonexistent_\(UUID().uuidString)"
+
+        let retrieved = try KeychainManager.shared.getString(forKey: nonExistentKey)
+        XCTAssertNil(retrieved, "Non-existent key should return nil")
     }
 }

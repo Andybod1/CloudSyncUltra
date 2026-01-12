@@ -11,32 +11,41 @@ struct SettingsView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            GeneralSettingsView()
-                .tabItem {
-                    Label("General", systemImage: "gear")
-                }
-                .tag(0)
-            
-            AccountSettingsView()
-                .tabItem {
-                    Label("Accounts", systemImage: "person.circle")
-                }
-                .tag(1)
-            
-            SyncSettingsView()
-                .tabItem {
-                    Label("Sync", systemImage: "arrow.triangle.2.circlepath")
-                }
-                .tag(2)
-            
-            AboutView()
-                .tabItem {
-                    Label("About", systemImage: "info.circle")
-                }
-                .tag(3)
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                GeneralSettingsView()
+                    .tabItem {
+                        Label("General", systemImage: "gear")
+                    }
+                    .tag(0)
+
+                AccountSettingsView()
+                    .tabItem {
+                        Label("Accounts", systemImage: "person.circle")
+                    }
+                    .tag(1)
+
+                SyncSettingsView()
+                    .tabItem {
+                        Label("Sync", systemImage: "arrow.triangle.2.circlepath")
+                    }
+                    .tag(2)
+
+                AboutView()
+                    .tabItem {
+                        Label("About", systemImage: "info.circle")
+                    }
+                    .tag(3)
+            }
+
+            Text("CloudSync Ultra v2.0")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 20)
+                .padding(.bottom, 12)
         }
-        .frame(width: 600, height: 500)
+        .frame(width: 600, height: 540)
     }
 }
 

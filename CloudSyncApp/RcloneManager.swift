@@ -72,11 +72,35 @@ class RcloneManager {
     }
     
     // MARK: - Configuration
-    
+
     func isConfigured() -> Bool {
         FileManager.default.fileExists(atPath: configPath)
     }
-    
+
+    // MARK: - Debugging
+
+    /// Logs the current rclone version for debugging
+    func logRcloneVersion() async {
+        do {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: rclonePath)
+            process.arguments = ["version"]
+
+            let pipe = Pipe()
+            process.standardOutput = pipe
+
+            try process.run()
+            process.waitUntilExit()
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let output = String(data: data, encoding: .utf8) {
+                print("[RcloneManager] Rclone version: \(output.components(separatedBy: .newlines).first ?? "unknown")")
+            }
+        } catch {
+            print("[RcloneManager] Failed to get rclone version: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Cloud Provider Setup Methods
     
     /// Setup Proton Drive with proper password obscuring and full authentication support

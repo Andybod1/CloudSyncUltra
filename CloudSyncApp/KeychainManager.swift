@@ -168,8 +168,35 @@ class KeychainManager {
         }
     }
     
+    // MARK: - Accessibility Check
+
+    /// Checks if the Keychain is accessible
+    /// - Returns: true if Keychain operations are possible
+    static func isKeychainAccessible() -> Bool {
+        let testKey = "com.cloudsync.accessibilityTest"
+        let testData = "test".data(using: .utf8)!
+
+        // Try to save
+        let saveQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: testKey,
+            kSecValueData as String: testData
+        ]
+
+        // Delete any existing item first
+        SecItemDelete(saveQuery as CFDictionary)
+
+        // Try to add
+        let status = SecItemAdd(saveQuery as CFDictionary, nil)
+
+        // Clean up
+        SecItemDelete(saveQuery as CFDictionary)
+
+        return status == errSecSuccess
+    }
+
     // MARK: - Helper Methods
-    
+
     private func buildQuery(forKey key: String) -> [String: Any] {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
