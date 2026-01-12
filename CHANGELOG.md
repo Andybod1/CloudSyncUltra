@@ -5,6 +5,278 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
+## [2.0.8] - 2026-01-12
+
+### Fixed
+- **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly
+  - Added `--stats-one-line` flag to `copyFiles()` for consistent output
+  - Fixed operator precedence bug in `parseProgress()` 
+
+### Added
+- **Test coverage** - QA added 30 new tests:
+  - `TimeFormattingTests.swift` (17 tests) - Time format edge cases
+  - `SidebarOrderTests.swift` (8 tests) - Sidebar position verification
+  - `CloudProviderTests.swift` (5 tests) - Provider property verification
+- **Automated worker launcher** - Scripts for hands-free worker deployment:
+  - `launch_single_worker.sh` - Launch one worker
+  - `launch_all_workers.sh` - Launch all workers with tasks
+
 ## [2.0.7] - 2026-01-12
 
 ### Fixed
