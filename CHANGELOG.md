@@ -5,6 +5,32 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-01-12
+
+### Added
+- **Scheduled Sync Feature** - Automatic sync at specified times
+  - Create schedules with hourly, daily, weekly, or custom intervals
+  - Enable/disable schedules without deleting
+  - Per-schedule encryption settings (source decrypt, destination encrypt)
+  - Visual schedule list with next run time and last run status
+  - Day picker for weekly schedules (weekdays, weekends, custom)
+  - "Run Now" button for manual trigger
+  - Notifications on schedule completion (success/failure)
+  - Persistent schedules survive app restart
+
+- **New Files:**
+  - `SyncSchedule.swift` - Schedule data model with frequency, timing, encryption
+  - `ScheduleManager.swift` - Singleton managing timers and execution
+  - `ScheduleSettingsView.swift` - Settings tab UI for schedule management
+  - `ScheduleRowView.swift` - Individual schedule display component
+  - `ScheduleEditorSheet.swift` - Create/edit schedule form
+
+- **Test Coverage:**
+  - 32 new unit tests for scheduled sync feature
+  - `SyncScheduleTests.swift` - Model tests
+  - `ScheduleManagerTests.swift` - Manager logic tests
+  - `ScheduleFrequencyTests.swift` - Enum tests
+
 ## [2.0.2] - 2026-01-12
 
 ### Added

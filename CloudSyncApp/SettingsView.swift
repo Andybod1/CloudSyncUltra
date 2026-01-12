@@ -31,11 +31,17 @@ struct SettingsView: View {
                     }
                     .tag(2)
 
+                ScheduleSettingsView()
+                    .tabItem {
+                        Label("Schedules", systemImage: "calendar.badge.clock")
+                    }
+                    .tag(3)
+
                 AboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
-                    .tag(3)
+                    .tag(4)
             }
 
             Text("CloudSync Ultra v2.0")
@@ -45,7 +51,7 @@ struct SettingsView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 12)
         }
-        .frame(width: 600, height: 540)
+        .frame(width: 600, height: 580)
     }
 }
 

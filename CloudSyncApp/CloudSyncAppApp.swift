@@ -66,10 +66,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 await SyncManager.shared.startMonitoring()
             }
         }
+
+        // Start the schedule manager
+        Task { @MainActor in
+            ScheduleManager.shared.startScheduler()
+        }
     }
     
     func applicationWillTerminate(_ notification: Notification) {
         SyncManager.shared.stopMonitoring()
+        ScheduleManager.shared.stopScheduler()
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
