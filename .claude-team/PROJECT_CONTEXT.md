@@ -12,7 +12,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.5 |
+| **Version** | 2.0.6 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Human** | Andy |
@@ -81,6 +81,13 @@ Andy (Human) ──────────────────────�
 │   ├── KeychainManager.swift         # Secrets (Dev-3)
 │   └── CloudSyncAppApp.swift         # App entry
 ├── CloudSyncAppTests/                # Unit tests (QA)
+├── .github/
+│   ├── ISSUE_TEMPLATE/               # Issue templates
+│   │   ├── bug_report.yml            # Bug report form
+│   │   ├── feature_request.yml       # Feature request form
+│   │   └── task.yml                  # Internal task form
+│   ├── WORKFLOW.md                   # Complete workflow docs
+│   └── dashboard.sh                  # Issue dashboard script
 ├── .claude-team/
 │   ├── tasks/                        # Task files for workers
 │   ├── outputs/                      # Worker completion reports
@@ -129,14 +136,84 @@ Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and exe
 
 ## Workflow
 
-1. **Andy + Strategic Partner** discuss feature
-2. **Strategic Partner** creates task files directly
-3. **Andy** launches workers: `~/Claude/.claude-team/scripts/launch_workers.sh`
-4. **Andy** pastes startup commands in each terminal
-5. **Workers** execute in parallel
-6. **Andy** tells Strategic Partner "workers done"
-7. **Strategic Partner** integrates, fixes builds, runs tests
-8. **Strategic Partner** updates CHANGELOG, commits to git
+### Ticket-Based (Recommended)
+1. **Andy** creates GitHub Issue (bug, feature, or quick idea)
+2. **Strategic Partner** reviews, plans, assigns labels (`ready`, `worker:*`, `size:*`)
+3. **Strategic Partner** creates task files referencing issue number
+4. **Andy** launches workers: `~/Claude/.claude-team/scripts/launch_workers.sh`
+5. **Andy** pastes startup commands in each terminal
+6. **Workers** execute in parallel
+7. **Andy** tells Strategic Partner "workers done"
+8. **Strategic Partner** integrates, fixes builds, runs tests
+9. **Strategic Partner** closes issue with summary, updates CHANGELOG, commits
+
+---
+
+## GitHub Issues (Ticket System)
+
+All work is tracked via GitHub Issues for **crash-proof persistence**.
+
+### Quick Commands
+```bash
+# View dashboard
+/Users/antti/Claude/.github/dashboard.sh
+
+# View all open issues
+gh issue list
+
+# View by status
+gh issue list --label "triage"       # Needs planning
+gh issue list --label "ready"        # Ready for workers
+gh issue list --label "in-progress"  # Being worked on
+
+# Create quick issue
+gh issue create --title "[Bug]: description" --label "bug,triage"
+gh issue create --title "[Feature]: description" --label "enhancement,triage"
+
+# View issue details
+gh issue view <number>
+```
+
+### Issue Workflow
+```
+New Issue → triage → ready → in-progress → needs-review → CLOSED
+```
+
+See `.github/WORKFLOW.md` for complete documentation.
+
+---
+
+## GitHub Issues (Ticket System)
+
+All work is tracked via GitHub Issues for **crash-proof persistence**.
+
+### Quick Commands
+```bash
+# View dashboard
+/Users/antti/Claude/.github/dashboard.sh
+
+# View all open issues
+gh issue list
+
+# View by status
+gh issue list --label "triage"       # Needs planning
+gh issue list --label "ready"        # Ready for workers
+gh issue list --label "in-progress"  # Being worked on
+
+# Create quick issue
+gh issue create --title "[Bug]: description" --label "bug,triage"
+gh issue create --title "[Feature]: description" --label "enhancement,triage"
+
+# View issue details
+gh issue view <number>
+```
+
+### Issue Workflow
+```
+New Issue → triage → ready → in-progress → needs-review → CLOSED
+```
+
+See `.github/WORKFLOW.md` for complete documentation.
 
 ---
 
@@ -162,6 +239,11 @@ open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaums
 ---
 
 ## Recent History (Latest First)
+
+### v2.0.6 - 2026-01-12
+- **GitHub Issues Ticket System** - Crash-proof work tracking via GitHub
+- Issue templates, 37 labels, dashboard script
+- All work state persists on GitHub
 
 ### v2.0.5 - 2026-01-12
 - **Move Schedules to Main Window** - Schedules now primary sidebar item
@@ -202,4 +284,4 @@ Then tell me what state we're in and what needs to happen next.
 ---
 
 *Last Updated: 2026-01-12*
-*CloudSync Ultra v2.0.5*
+*CloudSync Ultra v2.0.6*

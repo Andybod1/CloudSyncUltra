@@ -1,12 +1,23 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > After computer crash, use this guide to restore context.
+> **All tickets are on GitHub** - they survive any crash automatically.
 
 ---
 
 ## Immediate Steps After Crash
 
-### 1. Check Git Status
+### 1. Check GitHub Issues (Your Work Queue)
+```bash
+# View issue dashboard - shows what was in progress
+/Users/antti/Claude/.github/dashboard.sh
+
+# Or check specific states
+gh issue list --label "in-progress"   # What was being worked on
+gh issue list --label "ready"         # What's ready to work on
+```
+
+### 2. Check Git Status
 ```bash
 cd ~/Claude && git status
 ```
@@ -17,7 +28,7 @@ git diff --stat
 git add -A && git commit -m "WIP: Recovery after crash"
 ```
 
-### 2. Verify Build Works
+### 3. Verify Build Works
 ```bash
 cd ~/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
 ```
@@ -55,12 +66,13 @@ ls ~/Claude/.claude-team/tasks/
 
 ## State Files to Check
 
-| File | What It Tells You |
-|------|-------------------|
-| `STATUS.md` | What each worker was doing |
-| `tasks/*.md` | What tasks were assigned |
-| `outputs/*.md` | Which workers finished |
-| `CHANGELOG.md` | Recent changes |
+| Source | What It Tells You | Command |
+|--------|-------------------|---------|
+| **GitHub Issues** | All tracked work (crash-proof) | `gh issue list` |
+| `STATUS.md` | What each worker was doing | `cat ~/.claude-team/STATUS.md` |
+| `tasks/*.md` | What tasks were assigned | `ls ~/.claude-team/tasks/` |
+| `outputs/*.md` | Which workers finished | `ls ~/.claude-team/outputs/` |
+| `CHANGELOG.md` | Recent changes | `head -50 ~/Claude/CHANGELOG.md` |
 
 ---
 

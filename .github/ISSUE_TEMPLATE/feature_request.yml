@@ -1,0 +1,107 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for CloudSync Ultra
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please describe your idea below.
+        
+        **Recovery Note**: This issue is stored on GitHub and survives device/power failures.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A brief, one-line description of the feature
+      placeholder: Add bandwidth throttling controls
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this solve? Why is it needed?
+      placeholder: |
+        Currently there's no way to limit upload/download speed, which can saturate 
+        the network connection during large transfers.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work?
+      placeholder: |
+        Add a settings panel with sliders for:
+        - Upload speed limit (KB/s)
+        - Download speed limit (KB/s)
+        - Schedule-based throttling
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the app does this affect?
+      options:
+        - UI / Views
+        - File Browser
+        - Transfer Engine
+        - Encryption
+        - Scheduling
+        - Menu Bar
+        - Cloud Provider Integration
+        - Settings
+        - New Component
+        - Multiple Components
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Suggestion
+      description: How important is this feature to you?
+      options:
+        - Critical (blocking my workflow)
+        - High (would significantly improve experience)
+        - Medium (nice to have)
+        - Low (minor improvement)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this is? (Strategic Partner will refine)
+      options:
+        - Small (< 1 hour, single worker)
+        - Medium (1-4 hours, 1-2 workers)
+        - Large (4+ hours, multiple workers)
+        - Epic (needs breakdown into multiple issues)
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Mockups, screenshots, related issues, etc.
+    validations:
+      required: false

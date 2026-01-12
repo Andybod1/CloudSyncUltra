@@ -5,6 +5,22 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.6] - 2026-01-12
+
+### Added
+- **GitHub Issues Ticket System** - Crash-proof work tracking
+  - Issue templates for Bug Reports, Feature Requests, and Internal Tasks
+  - 37 labels for status, priority, component, worker assignment, and sizing
+  - Label-based workflow: triage → ready → in-progress → needs-review → closed
+  - Dashboard script at `.github/dashboard.sh` for quick status overview
+  - Complete workflow documentation in `.github/WORKFLOW.md`
+  - All work state persists on GitHub, survives device/power failures
+
+### Changed
+- Updated PARALLEL_TEAM.md with GitHub Issues integration
+- Updated PROJECT_CONTEXT.md with ticket system documentation
+- Updated RECOVERY.md with GitHub Issues recovery steps
+
 ## [2.0.5] - 2026-01-12
 
 ### Changed
