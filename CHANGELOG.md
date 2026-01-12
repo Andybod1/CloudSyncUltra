@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed Schedules tab from Settings (now 4 tabs: General, Accounts, Sync, About)
   - Menu bar "Manage Schedules..." now opens main window to Schedules section
 
+### Added
+- **Recently Completed in Tasks View** - See completed transfers at a glance
+  - Shows last 5 completed tasks from the past hour
+  - Compact card design with status, transfer size, and time ago
+  - "View All History" link to full History view
+  - Tasks view now shows both Active and Recently Completed sections
+
+### Added
+- **Recently Completed in Tasks View** - See completed transfers at a glance
+  - Shows last 5 completed tasks from the past hour
+  - Compact card design with status, transfer size, and time ago
+  - "View All History" link to full History view
+  - Tasks view now shows both Active and Recently Completed sections
+
 ## [2.0.4] - 2026-01-12
 
 ### Added

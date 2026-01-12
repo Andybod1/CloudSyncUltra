@@ -12,6 +12,23 @@ struct TasksView: View {
     @State private var showNewTaskSheet = false
     @State private var selectedTask: SyncTask?
     
+    /// Recently completed tasks (last 5, within last hour)
+    private var recentlyCompleted: [SyncTask] {
+        let oneHourAgo = Date().addingTimeInterval(-3600)
+        return tasksVM.taskHistory
+            .filter { task in
+                guard let completed = task.completedAt else { return false }
+                return completed > oneHourAgo
+            }
+            .prefix(5)
+            .map { $0 }
+    }
+    
+    /// Check if there's anything to show
+    private var hasContent: Bool {
+        !tasksVM.tasks.isEmpty || !recentlyCompleted.isEmpty
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -19,10 +36,10 @@ struct TasksView: View {
             
             Divider()
             
-            if tasksVM.tasks.isEmpty {
-                emptyState
-            } else {
+            if hasContent {
                 taskList
+            } else {
+                emptyState
             }
         }
         .background(Color(NSColor.windowBackgroundColor))
@@ -38,11 +55,22 @@ struct TasksView: View {
     private var taskHeader: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Active Tasks")
+                Text("Tasks")
                     .font(.headline)
-                Text("\(tasksVM.tasks.count) tasks • \(tasksVM.runningTasksCount) running")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                
+                let activeCount = tasksVM.tasks.count
+                let runningCount = tasksVM.runningTasksCount
+                let recentCount = recentlyCompleted.count
+                
+                if activeCount > 0 || recentCount > 0 {
+                    Text("\(activeCount) active • \(runningCount) running • \(recentCount) recent")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("No active tasks")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
             
             Spacer()
@@ -87,21 +115,125 @@ struct TasksView: View {
     
     private var taskList: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(tasksVM.tasks) { task in
-                    TaskCard(task: task) {
-                        selectedTask = task
-                    } onStart: {
-                        Task { await tasksVM.startTask(task) }
-                    } onPause: {
-                        tasksVM.pauseTask(task)
-                    } onCancel: {
-                        tasksVM.cancelTask(task)
+            LazyVStack(spacing: 16) {
+                // Active Tasks Section
+                if !tasksVM.tasks.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "bolt.fill")
+                                .foregroundColor(.blue)
+                            Text("Active")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        
+                        ForEach(tasksVM.tasks) { task in
+                            TaskCard(task: task) {
+                                selectedTask = task
+                            } onStart: {
+                                Task { await tasksVM.startTask(task) }
+                            } onPause: {
+                                tasksVM.pauseTask(task)
+                            } onCancel: {
+                                tasksVM.cancelTask(task)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                
+                // Recently Completed Section
+                if !recentlyCompleted.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Recently Completed")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            
+                            NavigationLink {
+                                HistoryView()
+                            } label: {
+                                Text("View All History")
+                                    .font(.caption)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        ForEach(recentlyCompleted) { task in
+                            RecentTaskCard(task: task) {
+                                selectedTask = task
+                            }
+                            .padding(.horizontal)
+                        }
                     }
                 }
             }
-            .padding()
+            .padding(.vertical)
         }
+    }
+}
+
+// MARK: - Recent Task Card (Compact)
+
+struct RecentTaskCard: View {
+    let task: SyncTask
+    let onTap: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Status icon
+            Image(systemName: task.state == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundColor(task.state == .completed ? .green : .red)
+                .font(.title3)
+            
+            // Task info
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(task.name)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                    
+                    if task.hasEncryption {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                }
+                
+                HStack(spacing: 4) {
+                    Text(task.sourceRemote)
+                    Image(systemName: "arrow.right")
+                        .font(.caption2)
+                    Text(task.destinationRemote)
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // Stats
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(task.formattedBytesTransferred)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                
+                if let completed = task.completedAt {
+                    Text(completed, style: .relative)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(12)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .cornerRadius(8)
+        .onTapGesture(perform: onTap)
     }
 }
 
