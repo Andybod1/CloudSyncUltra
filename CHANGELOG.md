@@ -9,17 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **GitHub Issues Ticket System** - Crash-proof work tracking
-  - Issue templates for Bug Reports, Feature Requests, and Internal Tasks
-  - 37 labels for status, priority, component, worker assignment, and sizing
+  - Issue templates: Bug Report, Feature Request, Internal Task (with YAML forms)
+  - 30 labels organized by: status, worker, priority, component, size
+  - GitHub Project board: https://github.com/users/andybod1-lang/projects/1
   - Label-based workflow: triage → ready → in-progress → needs-review → closed
-  - Dashboard script at `.github/dashboard.sh` for quick status overview
   - Complete workflow documentation in `.github/WORKFLOW.md`
   - All work state persists on GitHub, survives device/power failures
 
 ### Changed
 - Updated PARALLEL_TEAM.md with GitHub Issues integration
 - Updated PROJECT_CONTEXT.md with ticket system documentation
-- Updated RECOVERY.md with GitHub Issues recovery steps
+- Streamlined recovery: just check `gh issue list` after crash
 
 ## [2.0.5] - 2026-01-12
 
