@@ -78,8 +78,8 @@ final class JottacloudProviderTests: XCTestCase {
         // When: Getting all providers
         let allProviders = CloudProviderType.allCases
         
-        // Then: Should have 34 providers (33 + Jottacloud)
-        XCTAssertEqual(allProviders.count, 34, "Should have 34 providers after adding Jottacloud")
+        // Then: Should have 42 providers total
+        XCTAssertEqual(allProviders.count, 42, "Should have 42 cloud providers")
     }
     
     func testJottacloudInAllCases() {

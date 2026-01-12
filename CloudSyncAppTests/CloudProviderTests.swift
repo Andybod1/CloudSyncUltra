@@ -22,7 +22,7 @@ final class CloudProviderTests: XCTestCase {
     }
     
     func testDisplayIcon() {
-        XCTAssertEqual(CloudProviderType.protonDrive.iconName, "shield.fill")
+        XCTAssertEqual(CloudProviderType.protonDrive.iconName, "shield.checkered")
         XCTAssertEqual(CloudProviderType.googleDrive.iconName, "g.circle.fill")
         XCTAssertEqual(CloudProviderType.dropbox.iconName, "shippingbox.fill")
         XCTAssertEqual(CloudProviderType.oneDrive.iconName, "cloud.fill")
@@ -89,7 +89,7 @@ final class CloudProviderTests: XCTestCase {
     
     func testCloudRemote_DisplayIcon() {
         let remote = CloudRemote(name: "Proton", type: .protonDrive, isConfigured: true)
-        XCTAssertEqual(remote.displayIcon, "shield.fill")
+        XCTAssertEqual(remote.displayIcon, "shield.checkered")
     }
     
     func testCloudRemote_LocalStorage() {
@@ -104,10 +104,15 @@ final class CloudProviderTests: XCTestCase {
     }
     
     func testCloudRemote_Equality() {
+        // CloudRemote uses auto-synthesized Equatable - all properties must match
         let id = UUID()
         let remote1 = CloudRemote(id: id, name: "Test", type: .googleDrive, isConfigured: true)
-        let remote2 = CloudRemote(id: id, name: "Different", type: .dropbox, isConfigured: false)
+        let remote2 = CloudRemote(id: id, name: "Test", type: .googleDrive, isConfigured: true)
         XCTAssertEqual(remote1, remote2)
+        
+        // Different properties = not equal
+        let remote3 = CloudRemote(id: id, name: "Different", type: .dropbox, isConfigured: false)
+        XCTAssertNotEqual(remote1, remote3)
     }
     
     func testCloudRemote_Hashable() {
