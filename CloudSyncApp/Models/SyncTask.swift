@@ -179,6 +179,33 @@ struct SyncTask: Identifiable, Codable {
         return "\(filesTransferred) / \(totalFiles) files"
     }
     
+    /// Files progress for indicator (e.g., "1/151: FolderName")
+    var formattedFilesProgress: String {
+        if totalFiles > 1 {
+            let current = min(filesTransferred + 1, totalFiles)
+            return "\(current)/\(totalFiles): \(name)"
+        }
+        return name
+    }
+    
+    /// Status message for indicator
+    var statusMessage: String {
+        let isFolder = metadata?["isFolder"] == "true"
+        
+        if isFolder && totalFiles > 1 {
+            let estimatedMinutes = max(1, totalFiles / 30)
+            return "Uploading \(totalFiles) files (est. \(estimatedMinutes)-\(estimatedMinutes + 1) min)"
+        }
+        
+        if totalBytes > 0 {
+            let transferred = ByteCountFormatter.string(fromByteCount: bytesTransferred, countStyle: .file)
+            let total = ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
+            return "\(transferred) of \(total)"
+        }
+        
+        return "Preparing..."
+    }
+    
     var duration: TimeInterval? {
         guard let start = startedAt else { return nil }
         let end = completedAt ?? Date()

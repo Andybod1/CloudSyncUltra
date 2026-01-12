@@ -11,6 +11,7 @@ import AppKit
 struct FileBrowserView: View {
     let remote: CloudRemote
     @EnvironmentObject var remotesVM: RemotesViewModel
+    @EnvironmentObject var tasksVM: TasksViewModel
     @StateObject private var browser = FileBrowserViewModel()
     @State private var showNewFolderSheet = false
     @State private var showDeleteConfirm = false
@@ -24,6 +25,7 @@ struct FileBrowserView: View {
     @State private var uploadCurrentFile: String = ""
     @State private var uploadFileIndex: Int = 0
     @State private var uploadTotalFiles: Int = 0
+    @State private var currentUploadTask: SyncTask?
     @State private var downloadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
@@ -125,14 +127,31 @@ struct FileBrowserView: View {
             paginationBar
         }
         
+        // Running task indicator (same as Tasks view)
+        if let task = runningTaskForRemote {
+            Divider()
+            RunningTaskIndicator(task: task) {
+                tasksVM.cancelTask(task)
+            }
+        }
+        
         Divider()
         
         statusBar
     }
     
+    /// Get running task that involves this remote
+    private var runningTaskForRemote: SyncTask? {
+        tasksVM.tasks.first { task in
+            task.state == .running && 
+            (task.destinationRemote.lowercased() == remote.name.lowercased() ||
+             task.sourceRemote.lowercased() == remote.name.lowercased())
+        }
+    }
+    
     @ViewBuilder
     private var contentArea: some View {
-        if browser.isLoading || isDeleting || isDownloading || isUploading {
+        if browser.isLoading || isDeleting || isDownloading {
             loadingView
         } else if let error = browser.error {
             errorView(error)
@@ -522,142 +541,92 @@ struct FileBrowserView: View {
     }
     
     private var uploadProgressBar: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 16) {
-                // Status icon
-                ZStack {
-                    Circle()
-                        .fill(uploadStatusColor.opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    
-                    if uploadProgress >= 100 {
-                        Image(systemName: "checkmark")
-                            .font(.title2)
-                            .foregroundColor(.green)
-                    } else {
-                        ProgressView()
-                            .scaleEffect(0.9)
-                    }
-                }
-                
-                // Info section
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text("Uploading to \(remote.name)")
-                            .fontWeight(.medium)
-                        
-                        // Encryption indicator
-                        if encryptionEnabled {
-                            HStack(spacing: 4) {
-                                Image(systemName: "lock.fill")
-                                    .font(.caption2)
-                                Text("E2E Encrypted")
-                                    .font(.caption2)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.green)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.15))
-                            .cornerRadius(4)
-                        }
-                    }
-                    
-                    HStack(spacing: 8) {
-                        // File info
-                        if uploadTotalFiles > 1 {
-                            Text("File \(uploadFileIndex)/\(uploadTotalFiles)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Text("•")
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        // Current file name
-                        if !uploadCurrentFile.isEmpty {
-                            Text(uploadCurrentFile)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                        }
-                        
-                        // Speed
-                        if !uploadSpeed.isEmpty {
-                            Text("•")
-                                .foregroundColor(.secondary)
-                            Text(uploadSpeed)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                // Percentage
-                Text("\(Int(uploadProgress))%")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(uploadStatusColor)
-                    .frame(width: 70, alignment: .trailing)
-                
-                // Cancel button
-                if uploadProgress < 100 {
-                    Button {
-                        cancelUpload()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Cancel upload")
-                }
-            }
+        HStack(spacing: 12) {
+            // Spinning indicator
+            ProgressView()
+                .scaleEffect(0.8)
             
-            // Progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.secondary.opacity(0.2))
-                        .frame(height: 8)
-                    
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(uploadStatusColor)
-                        .frame(width: max(0, geo.size.width * CGFloat(uploadProgress / 100)), height: 8)
-                        .animation(.easeInOut(duration: 0.3), value: uploadProgress)
-                }
-            }
-            .frame(height: 8)
-            
-            // Encryption notice
-            if encryptionEnabled {
+            // Status text
+            VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Image(systemName: "lock.shield.fill")
-                        .font(.caption)
-                    Text("Files are being encrypted before upload")
-                        .font(.caption)
+                    Text("Uploading to \(remote.name)")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    
+                    if encryptionEnabled {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
                 }
-                .foregroundColor(.green)
-                .padding(.top, 4)
+                
+                HStack(spacing: 6) {
+                    if uploadTotalFiles > 1 {
+                        Text("\(uploadFileIndex)/\(uploadTotalFiles)")
+                    }
+                    if !uploadCurrentFile.isEmpty {
+                        Text(uploadCurrentFile)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    Text("•")
+                    Text("\(Int(uploadProgress))%")
+                        .foregroundColor(.accentColor)
+                    if !uploadSpeed.isEmpty {
+                        Text("•")
+                        Text(uploadSpeed)
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
             }
+            
+            Spacer()
+            
+            // View in Tasks button
+            Button {
+                NotificationCenter.default.post(name: .navigateToTasks, object: nil)
+            } label: {
+                Text("View in Tasks")
+                    .font(.caption)
+            }
+            .buttonStyle(.bordered)
+            
+            // Cancel button
+            Button {
+                cancelUpload()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Cancel upload")
         }
-        .padding(20)
-        .frame(maxWidth: 500)
-        .background(uploadStatusColor.opacity(0.05))
-        .cornerRadius(12)
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(Color.accentColor.opacity(0.08))
+        .cornerRadius(8)
+        .padding(.horizontal)
     }
     
     private func cancelUpload() {
         RcloneManager.shared.stopCurrentSync()
+        
+        // Cancel the task in TasksViewModel
+        if var task = currentUploadTask {
+            task.state = .cancelled
+            task.completedAt = Date()
+            tasksVM.updateTask(task)
+            tasksVM.moveToHistory(task)
+        }
+        
         isUploading = false
         uploadProgress = 0
         uploadSpeed = ""
         uploadCurrentFile = ""
         uploadFileIndex = 0
         uploadTotalFiles = 0
+        currentUploadTask = nil
     }
     
     private var uploadStatusColor: Color {
@@ -1130,6 +1099,23 @@ struct FileBrowserView: View {
                 
                 log("Starting upload task, isUploading=true, encryptionEnabled=\(encryptionEnabled)")
                 
+                // Create a task in TasksViewModel
+                let taskName = panel.urls.count == 1 ? panel.urls[0].lastPathComponent : "\(panel.urls.count) items"
+                var task = tasksVM.createTask(
+                    name: taskName,
+                    type: .transfer,
+                    sourceRemote: "Local",
+                    sourcePath: panel.urls[0].deletingLastPathComponent().path,
+                    destinationRemote: remote.name,
+                    destinationPath: browser.currentPath
+                )
+                task.totalFiles = panel.urls.count
+                task.startedAt = Date()
+                task.state = .running
+                task.encryptDestination = encryptionEnabled
+                tasksVM.updateTask(task)
+                currentUploadTask = task
+                
                 do {
                     // Use the active remote (encrypted or regular)
                     let targetRemote = activeRemote ?? remote
@@ -1139,6 +1125,10 @@ struct FileBrowserView: View {
                         uploadFileIndex = index + 1
                         uploadCurrentFile = url.lastPathComponent
                         uploadProgress = 0
+                        
+                        // Update task progress
+                        task.filesTransferred = index
+                        tasksVM.updateTask(task)
                         
                         log("Processing file \(uploadFileIndex)/\(uploadTotalFiles): \(url.path)")
                         
@@ -1175,11 +1165,24 @@ struct FileBrowserView: View {
                                 log("Progress update: \(progress.percentage)% - \(progress.speed)")
                                 uploadProgress = progress.percentage
                                 uploadSpeed = progress.speed
+                                
+                                // Update task progress
+                                task.progress = Double(index) / Double(panel.urls.count) + (progress.percentage / 100.0) / Double(panel.urls.count)
+                                task.speed = progress.speed
+                                tasksVM.updateTask(task)
                             }
                             
                             log("Progress stream completed")
                         }
                     }
+                    
+                    // Mark task complete
+                    task.state = .completed
+                    task.completedAt = Date()
+                    task.progress = 1.0
+                    task.filesTransferred = panel.urls.count
+                    tasksVM.updateTask(task)
+                    tasksVM.moveToHistory(task)
                     
                     isUploading = false
                     uploadProgress = 0
@@ -1187,14 +1190,23 @@ struct FileBrowserView: View {
                     uploadCurrentFile = ""
                     uploadFileIndex = 0
                     uploadTotalFiles = 0
+                    currentUploadTask = nil
                     browser.refresh()
                 } catch {
+                    // Mark task failed
+                    task.state = .failed
+                    task.completedAt = Date()
+                    task.errorMessage = error.localizedDescription
+                    tasksVM.updateTask(task)
+                    tasksVM.moveToHistory(task)
+                    
                     isUploading = false
                     uploadProgress = 0
                     uploadSpeed = ""
                     uploadCurrentFile = ""
                     uploadFileIndex = 0
                     uploadTotalFiles = 0
+                    currentUploadTask = nil
                     downloadError = error.localizedDescription
                     showDownloadError = true
                 }

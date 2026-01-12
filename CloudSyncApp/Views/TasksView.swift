@@ -24,6 +24,11 @@ struct TasksView: View {
             .map { $0 }
     }
     
+    /// Currently running task (first one)
+    private var runningTask: SyncTask? {
+        tasksVM.tasks.first { $0.state == .running }
+    }
+    
     /// Check if there's anything to show
     private var hasContent: Bool {
         !tasksVM.tasks.isEmpty || !recentlyCompleted.isEmpty
@@ -35,6 +40,14 @@ struct TasksView: View {
             taskHeader
             
             Divider()
+            
+            // Running task indicator at top (like Transfer view)
+            if let task = runningTask {
+                RunningTaskIndicator(task: task) {
+                    tasksVM.cancelTask(task)
+                }
+                Divider()
+            }
             
             if hasContent {
                 taskList
@@ -183,7 +196,24 @@ struct TasksView: View {
 struct RecentTaskCard: View {
     let task: SyncTask
     let onTap: () -> Void
-    
+
+    /// Format completion time without seconds - minutes granularity is enough
+    private func formatCompletionTime(_ date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+
+        if interval < 60 {
+            return "Just now"
+        } else if interval < 3600 {
+            let mins = Int(interval / 60)
+            return "\(mins) min\(mins == 1 ? "" : "s") ago"
+        } else if interval < 86400 {
+            let hours = Int(interval / 3600)
+            return "\(hours) hour\(hours == 1 ? "" : "s") ago"
+        } else {
+            return date.formatted(date: .abbreviated, time: .shortened)
+        }
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             // Status icon
@@ -222,9 +252,9 @@ struct RecentTaskCard: View {
                 Text(task.formattedBytesTransferred)
                     .font(.caption)
                     .fontWeight(.medium)
-                
+
                 if let completed = task.completedAt {
-                    Text(completed, style: .relative)
+                    Text(formatCompletionTime(completed))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -989,6 +1019,78 @@ struct LogRow: View {
         case .error: return .red
         case .debug: return .gray
         }
+    }
+}
+
+// MARK: - Running Task Indicator
+
+struct RunningTaskIndicator: View {
+    let task: SyncTask
+    var onCancel: (() -> Void)?
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Spinning indicator
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+            
+            // Status text
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(task.formattedFilesProgress)
+                        .fontWeight(.medium)
+                    Image(systemName: "arrow.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(task.destinationRemote)
+                        .fontWeight(.medium)
+                }
+                .font(.subheadline)
+                
+                HStack(spacing: 6) {
+                    Text(task.statusMessage)
+                        .foregroundColor(.secondary)
+                    if !task.speed.isEmpty {
+                        Text("•")
+                            .foregroundColor(.secondary)
+                        Text(task.speed)
+                            .foregroundColor(.secondary)
+                    }
+                    if task.hasEncryption {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                }
+                .font(.caption)
+            }
+            
+            Spacer()
+            
+            // Percentage
+            Text("\(Int(task.progress * 100))%")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.accentColor)
+            
+            // Cancel button
+            Button {
+                onCancel?()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.secondary.opacity(0.8))
+            }
+            .buttonStyle(.plain)
+            .help("Cancel transfer")
+        }
+        .padding()
+        .background(Color.accentColor.opacity(0.08))
     }
 }
 

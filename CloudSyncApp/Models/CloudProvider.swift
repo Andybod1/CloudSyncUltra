@@ -371,7 +371,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     
     var isExperimental: Bool {
         switch self {
-        case .jottacloud: return true
+        case .jottacloud: return false
         default: return false
         }
     }

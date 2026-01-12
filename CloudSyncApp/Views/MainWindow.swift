@@ -122,24 +122,24 @@ struct SidebarView: View {
                     title: "Transfer",
                     section: .transfer
                 )
-                
+
+                sidebarItem(
+                    icon: "calendar.badge.clock",
+                    title: "Schedules",
+                    section: .schedules
+                )
+
                 sidebarItem(
                     icon: "list.bullet.clipboard",
                     title: "Tasks",
                     section: .tasks,
                     badge: runningTasks > 0 ? runningTasks : nil
                 )
-                
+
                 sidebarItem(
                     icon: "clock.arrow.circlepath",
                     title: "History",
                     section: .history
-                )
-
-                sidebarItem(
-                    icon: "calendar.badge.clock",
-                    title: "Schedules",
-                    section: .schedules
                 )
             }
             
@@ -268,11 +268,6 @@ struct SidebarView: View {
             }
         }
         .tag(MainWindow.SidebarSection.remote(remote))
-        .onTapGesture(count: 2) {
-            if !remote.isConfigured {
-                remoteToConnect = remote
-            }
-        }
     }
 }
 
