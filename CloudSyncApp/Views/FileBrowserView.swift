@@ -44,9 +44,9 @@ struct FileBrowserView: View {
     // The actual remote being used for operations (may be encrypted version)
     @State private var activeRemote: CloudRemote?
     
-    // Track if we're viewing raw encrypted data
+    // Track if we're viewing raw encrypted data (only applies to cloud remotes)
     private var isViewingRawEncrypted: Bool {
-        !encryptionEnabled && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
+        remote.type != .local && !encryptionEnabled && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
     }
     
     var body: some View {
