@@ -113,6 +113,39 @@ cat ~/.claude-team/STATUS.md
 
 Or ask Lead Claude for a status update.
 
+## Recovery After Restart/Crash
+
+After a computer restart or crash, the team infrastructure is preserved in Git. To restore:
+
+### Option 1: Quick Launch (Recommended)
+```bash
+~/.claude-team/scripts/quick_launch.sh
+```
+This opens 4 Terminal windows with Claude Code and shows the startup commands.
+
+### Option 2: Full Recovery Check
+```bash
+~/.claude-team/scripts/restore_team.sh
+```
+This verifies all components are installed and provides instructions.
+
+### Option 3: Manual Recovery
+1. Verify Claude Code works: `claude --version`
+2. If not found: `npm install -g @anthropic-ai/claude-code`
+3. Open 4 Terminal windows
+4. In each: `cd ~/Claude && claude`
+5. Paste startup commands (see Quick Start section)
+
+### What Survives Restart
+- ✅ All `.claude-team/` files (in Git)
+- ✅ Node.js and Claude Code (installed)
+- ✅ Authentication credentials (persisted)
+
+### What Needs Restoration
+- ❌ Terminal windows (reopen)
+- ❌ Worker sessions (restart with commands)
+- ⚠️ Uncommitted work (commit frequently!)
+
 ## Benefits
 
 - **~4x speedup** on parallelizable work
