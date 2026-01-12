@@ -1159,6 +1159,8 @@ class RcloneManager {
                     "--config", self.configPath,
                     "--progress",
                     "--stats", "1s",
+                    "--stats-one-line",
+                    "--stats-file-name-length", "0",
                     "--transfers", "4",
                     "--verbose",
                     "--ignore-existing"  // Skip files that already exist at destination
@@ -1803,7 +1805,7 @@ class RcloneManager {
     func copyBetweenRemotes(source: String, destination: String) async throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        
+
         var args = [
             "copyto",
             source,
@@ -1812,37 +1814,109 @@ class RcloneManager {
             "--progress",
             "--verbose"
         ]
-        
+
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
-        
+
         process.arguments = args
-        
+
         let outputPipe = Pipe()
         let errorPipe = Pipe()
         process.standardOutput = outputPipe
         process.standardError = errorPipe
-        
+
         try process.run()
         process.waitUntilExit()
-        
+
         // Get both output and error data
         let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
-        
+
         // Check for specific scenarios
         let combinedOutput = outputString + errorString
-        
+
         // If file exists, rclone will show "There was nothing to transfer"
-        if combinedOutput.contains("There was nothing to transfer") || 
+        if combinedOutput.contains("There was nothing to transfer") ||
            combinedOutput.contains("Unchanged skipping") {
             throw RcloneError.syncFailed("File already exists at destination")
         }
-        
+
         if process.terminationStatus != 0 {
             throw RcloneError.syncFailed(errorString.isEmpty ? "Copy failed" : errorString)
+        }
+    }
+
+    /// Copy directly between two remotes (cloud to cloud) with progress streaming
+    /// Use this for cloud-to-cloud transfers that need progress updates in the UI
+    /// - Parameters:
+    ///   - source: Full source path (e.g., "proton:folder/file.txt")
+    ///   - destination: Full destination path (e.g., "jottacloud:folder/file.txt")
+    ///   - isDirectory: Whether the source is a directory (uses "copy" vs "copyto")
+    /// - Returns: AsyncStream of SyncProgress updates
+    func copyBetweenRemotesWithProgress(source: String, destination: String, isDirectory: Bool = false) async throws -> AsyncStream<SyncProgress> {
+        return AsyncStream { continuation in
+            Task {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: self.rclonePath)
+
+                // Use "copy" for directories, "copyto" for single files
+                let command = isDirectory ? "copy" : "copyto"
+
+                var args = [
+                    command,
+                    source,
+                    destination,
+                    "--config", self.configPath,
+                    "--progress",
+                    "--stats", "1s",
+                    "--stats-one-line",
+                    "--stats-file-name-length", "0",
+                    "--transfers", "4",
+                    "--verbose"
+                ]
+
+                // Add bandwidth limits
+                args.append(contentsOf: self.getBandwidthArgs())
+
+                process.arguments = args
+
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = pipe
+
+                print("[RcloneManager] Cloud-to-cloud with progress: \(source) -> \(destination)")
+
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        if let output = String(data: data, encoding: .utf8) {
+                            if let progress = self.parseProgress(from: output) {
+                                continuation.yield(progress)
+                            }
+                        }
+                    }
+                }
+
+                do {
+                    try process.run()
+                    self.process = process
+
+                    process.waitUntilExit()
+
+                    pipe.fileHandleForReading.readabilityHandler = nil
+
+                    if process.terminationStatus == 0 {
+                        continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
+                    }
+
+                    continuation.finish()
+                } catch {
+                    print("[RcloneManager] Cloud-to-cloud error: \(error.localizedDescription)")
+                    continuation.finish()
+                }
+            }
         }
     }
     
@@ -1915,7 +1989,7 @@ class RcloneManager {
             }
             
             // Format 1: Look for "Transferred:" line with bytes
-            if line.contains("Transferred:") && line.contains("MiB") || line.contains("KiB") || line.contains("GiB") {
+            if line.contains("Transferred:") && (line.contains("MiB") || line.contains("KiB") || line.contains("GiB") || line.contains(" B")) {
                 let components = line.components(separatedBy: ",")
                 
                 if components.count >= 3 {

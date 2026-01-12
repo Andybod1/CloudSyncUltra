@@ -135,4 +135,32 @@ final class CloudProviderTests: XCTestCase {
         XCTAssertTrue(allTypes.contains(.googleDrive))
         XCTAssertTrue(allTypes.contains(.local))
     }
+
+    // MARK: - Jottacloud Tests (#24)
+
+    func testJottacloudNotExperimental() {
+        // #24: Jottacloud should not be marked as experimental
+        let jottacloud = CloudProviderType.jottacloud
+        XCTAssertFalse(jottacloud.isExperimental, "Jottacloud should not be marked as experimental")
+    }
+
+    func testJottacloudIsSupported() {
+        // Jottacloud should be a fully supported provider
+        let jottacloud = CloudProviderType.jottacloud
+        XCTAssertTrue(jottacloud.isSupported, "Jottacloud should be supported")
+    }
+
+    func testJottacloudDisplayName() {
+        XCTAssertEqual(CloudProviderType.jottacloud.displayName, "Jottacloud")
+    }
+
+    func testJottacloudRcloneType() {
+        XCTAssertEqual(CloudProviderType.jottacloud.rcloneType, "jottacloud")
+    }
+
+    func testNoExperimentalProviders() {
+        // After #24 fix, there should be no experimental providers
+        let experimental = CloudProviderType.allCases.filter { $0.isExperimental }
+        XCTAssertEqual(experimental.count, 0, "There should be no experimental providers after #24 fix")
+    }
 }

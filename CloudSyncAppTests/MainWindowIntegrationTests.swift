@@ -121,14 +121,14 @@ final class MainWindowIntegrationTests: XCTestCase {
     }
     
     func testExperimentalProviderBadge() {
+        // After #24 fix: Jottacloud is no longer experimental
         let experimental = CloudProviderType.allCases.filter { $0.isExperimental }
-        
-        XCTAssertEqual(experimental.count, 1, "Should have 1 experimental provider")
-        XCTAssertTrue(experimental.contains(.jottacloud))
-        
-        for provider in experimental {
-            XCTAssertNotNil(provider.experimentalNote)
-        }
+
+        // No providers should be marked as experimental after #24
+        XCTAssertEqual(experimental.count, 0, "Should have 0 experimental providers after #24 fix")
+
+        // Verify Jottacloud specifically is NOT experimental
+        XCTAssertFalse(CloudProviderType.jottacloud.isExperimental, "Jottacloud should not be experimental")
     }
     
     func testUnsupportedProviderHidden() {
@@ -245,11 +245,12 @@ final class MainWindowIntegrationTests: XCTestCase {
     }
     
     func testExperimentalProviderFiltering() {
+        // After #24 fix: No experimental providers
         let experimental = CloudProviderType.allCases.filter { $0.isExperimental }
         let stable = CloudProviderType.allCases.filter { !$0.isExperimental }
-        
-        XCTAssertEqual(experimental.count, 1)
-        XCTAssertEqual(stable.count, 41)
+
+        XCTAssertEqual(experimental.count, 0, "No experimental providers after #24 fix")
+        XCTAssertEqual(stable.count, 42, "All 42 providers should be stable")
     }
     
     // MARK: - Provider Search Tests
@@ -355,9 +356,9 @@ final class MainWindowIntegrationTests: XCTestCase {
         let supported = allProviders.filter { $0.isSupported }
         let experimental = allProviders.filter { $0.isExperimental }
         let unsupported = allProviders.filter { !$0.isSupported }
-        
+
         XCTAssertEqual(supported.count, 41)
-        XCTAssertEqual(experimental.count, 1)
+        XCTAssertEqual(experimental.count, 0, "No experimental providers after #24 fix")
         XCTAssertEqual(unsupported.count, 1)
     }
 }
