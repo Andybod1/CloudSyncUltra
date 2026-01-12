@@ -2,8 +2,6 @@
 
 CloudSync Ultra uses a **parallel development system** where the Strategic Partner (Desktop Claude) directly coordinates 4 workers.
 
-**All work is tracked via GitHub Issues** for crash-proof persistence.
-
 ---
 
 ## Architecture
@@ -11,16 +9,15 @@ CloudSync Ultra uses a **parallel development system** where the Strategic Partn
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              ANDY (Human)                                   │
-│                   Vision • Decisions • Direction • Issues                   │
-└─────────────────────────────────┬───────────────────────────────────────────┘
-                                  │
-                        Creates GitHub Issues
+│                        Vision • Decisions • Direction                       │
+│                        Creates GitHub Issues anytime                        │
+└─────────────────────────────────────────────────────────────────────────────┘
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │              STRATEGIC PARTNER (Desktop Claude - Opus 4.5)                  │
 │                                                                             │
-│   Reviews Issues • Plans • Assigns Workers • Integrates • Closes Issues     │
+│   Plans Issues • Creates Tasks • Integrates • Reviews • Commits             │
 │                                                                             │
 └──────┬──────────────┬──────────────┬──────────────┬─────────────────────────┘
        │              │              │              │
@@ -34,36 +31,53 @@ CloudSync Ultra uses a **parallel development system** where the Strategic Partn
 
 ---
 
-## GitHub Issues Workflow
+## GitHub Issues Integration
 
+**All tickets live on GitHub** - survives device/power failures.
+
+### Quick Commands
 ```bash
-# View issue dashboard
-/Users/antti/Claude/.github/dashboard.sh
+# View issues
+gh issue list                    # All open
+gh issue list -l ready           # Ready for workers
+gh issue list -l triage          # Needs planning
 
-# Create issues
-gh issue create --title "[Bug]: description" --label "bug,triage"
-gh issue create --title "[Feature]: description" --label "enhancement,triage"
-
-# View by status
-gh issue list --label "ready"        # Planned, ready for workers
-gh issue list --label "in-progress"  # Currently being worked
+# Create issue
+gh issue create -t "[Feature]: Idea" -l enhancement,triage
 ```
 
-See `.github/WORKFLOW.md` for complete documentation.
+### Issue Lifecycle
+```
+TRIAGE → READY → IN PROGRESS → NEEDS REVIEW → DONE
+  │         │          │             │           │
+ Andy    Strategic   Workers    Strategic     Auto-
+ drops    Partner    execute     Partner     closed
+ idea     plans                 integrates
+```
+
+### Labels
+| Type | Labels |
+|------|--------|
+| **Status** | `triage`, `ready`, `in-progress`, `needs-review`, `blocked` |
+| **Worker** | `worker:dev-1`, `worker:dev-2`, `worker:dev-3`, `worker:qa` |
+| **Priority** | `priority:critical`, `priority:high`, `priority:medium`, `priority:low` |
+| **Size** | `size:xs`, `size:s`, `size:m`, `size:l`, `size:xl` |
+
+See `.github/WORKFLOW.md` for complete details.
 
 ---
 
 ## Workflow
 
-1. **Andy** creates GitHub Issue (bug, feature, or idea)
-2. **Strategic Partner** reviews, adds labels (`ready`, `worker:*`, `size:*`)
-3. **Strategic Partner** writes task files referencing issue number
+1. **Andy** creates GitHub Issue (anytime, from anywhere)
+2. **Strategic Partner** plans: adds labels, writes implementation notes
+3. **Strategic Partner** creates task files referencing issues
 4. **Andy** runs: `~/Claude/.claude-team/scripts/launch_workers.sh`
 5. **Andy** pastes startup commands (provided by Strategic Partner)
-6. **Workers** execute in parallel
+6. **Workers** execute in parallel, reference issues in commits
 7. **Andy** says "workers done"
-8. **Strategic Partner** integrates code, fixes builds, runs tests
-9. **Strategic Partner** closes issue, updates CHANGELOG, commits to git
+8. **Strategic Partner** integrates, tests, commits with `Fixes #XX`
+9. **GitHub** auto-closes issues
 
 ---
 
@@ -82,42 +96,38 @@ See `.github/WORKFLOW.md` for complete documentation.
 
 ```
 .github/
-├── ISSUE_TEMPLATE/            # Issue templates (bug, feature, task)
-├── WORKFLOW.md                # Complete workflow documentation
-└── dashboard.sh               # Issue dashboard script
+├── ISSUE_TEMPLATE/              # Issue templates
+│   ├── bug_report.yml
+│   ├── feature_request.yml
+│   ├── task.yml
+│   └── config.yml
+└── WORKFLOW.md                  # Complete workflow docs
 
 .claude-team/
-├── tasks/                     # Task files (Strategic Partner writes)
-│   ├── TASK_DEV1.md
-│   ├── TASK_DEV2.md
-│   ├── TASK_DEV3.md
-│   └── TASK_QA.md
-├── outputs/                   # Worker completion reports
-├── templates/                 # Worker role briefings
+├── tasks/                       # Worker task files
+├── outputs/                     # Worker completion reports
+├── templates/                   # Worker role briefings
 ├── scripts/
-│   └── launch_workers.sh      # Launch 4 worker terminals
-├── STATUS.md                  # Real-time worker status
-├── PROJECT_CONTEXT.md         # Full project context
-└── RECOVERY.md                # Crash recovery guide
+│   └── launch_workers.sh
+├── STATUS.md                    # Real-time worker status
+├── PROJECT_CONTEXT.md           # Full project context
+└── RECOVERY.md                  # Crash recovery guide
 ```
 
 ---
 
 ## Quick Reference
 
-### View Issues Dashboard
+### GitHub Issues
 ```bash
-/Users/antti/Claude/.github/dashboard.sh
+gh issue list                    # View all
+gh issue create                  # Create new
+gh issue view 47                 # View details
 ```
 
 ### Launch Workers
 ```bash
 ~/Claude/.claude-team/scripts/launch_workers.sh
-```
-
-### Check Status
-```bash
-cat ~/Claude/.claude-team/STATUS.md
 ```
 
 ### Build
@@ -127,4 +137,12 @@ cd ~/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp b
 
 ---
 
-*Last Updated: 2026-01-12*
+## Project Board
+
+**URL**: https://github.com/users/andybod1-lang/projects/1
+
+Kanban view of all issues: Todo → In Progress → Done
+
+---
+
+*Last Updated: 2025-01-12*

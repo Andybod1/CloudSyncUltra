@@ -15,6 +15,7 @@
 | **Version** | 2.0.6 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
+| **Project Board** | https://github.com/users/andybod1-lang/projects/1 |
 | **Human** | Andy |
 
 ---
@@ -31,21 +32,45 @@ CloudSync Ultra syncs files between cloud services (Google Drive, Dropbox, Proto
 
 ---
 
+## Ticket System (GitHub Issues)
+
+All work is tracked via **GitHub Issues** - survives device/power failures.
+
+```bash
+# View issues
+gh issue list                        # All open
+gh issue list -l triage              # Needs planning
+gh issue list -l ready               # Ready for workers
+gh issue list -l in-progress         # Being worked
+
+# Create issues
+gh issue create                      # Interactive with templates
+gh issue create -t "[Bug]: desc" -l bug,triage
+gh issue create -t "[Feature]: desc" -l enhancement,triage
+
+# View details
+gh issue view <number>
+```
+
+**Full docs**: `.github/WORKFLOW.md`
+
+---
+
 ## Development System
 
 ### Parallel Architecture
 
 ```
 Andy (Human) ─────────────────────────────────────────────────
-                    │
-                    ▼
+        │ Creates GitHub Issues anytime
+        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  STRATEGIC PARTNER (Desktop Claude - Opus 4.5)              │
-│  • Architecture & planning                                  │
-│  • Creates task files directly                              │
+│  • Plans issues, assigns labels                             │
+│  • Creates task files referencing issues                    │
 │  • Reviews completed work                                   │
 │  • Integrates code, fixes builds                            │
-│  • Updates CHANGELOG, commits to git                        │
+│  • Closes issues, updates CHANGELOG, commits                │
 └──────┬─────────┬─────────┬─────────┬────────────────────────┘
        │         │         │         │
        ▼         ▼         ▼         ▼
@@ -86,13 +111,13 @@ Andy (Human) ──────────────────────�
 │   │   ├── bug_report.yml            # Bug report form
 │   │   ├── feature_request.yml       # Feature request form
 │   │   └── task.yml                  # Internal task form
-│   ├── WORKFLOW.md                   # Complete workflow docs
-│   └── dashboard.sh                  # Issue dashboard script
+│   └── WORKFLOW.md                   # Complete workflow docs
 ├── .claude-team/
 │   ├── tasks/                        # Task files for workers
 │   ├── outputs/                      # Worker completion reports
 │   ├── templates/                    # Worker role briefings
-│   ├── scripts/                      # Launch scripts
+│   ├── scripts/
+│   │   └── launch_workers.sh
 │   ├── STATUS.md                     # Real-time worker status
 │   ├── PROJECT_CONTEXT.md            # This file
 │   └── RECOVERY.md                   # Crash recovery guide
@@ -102,11 +127,17 @@ Andy (Human) ──────────────────────�
 
 ---
 
-## Launch Workers
+## Workflow
 
-```bash
-~/Claude/.claude-team/scripts/launch_workers.sh
-```
+1. **Andy** creates GitHub Issue (anytime, from anywhere)
+2. **Strategic Partner** plans: adds labels, writes implementation notes
+3. **Strategic Partner** creates task files referencing issue numbers
+4. **Andy** launches workers: `~/Claude/.claude-team/scripts/launch_workers.sh`
+5. **Andy** pastes startup commands in each terminal
+6. **Workers** execute in parallel
+7. **Andy** says "workers done"
+8. **Strategic Partner** integrates, tests, commits with `Fixes #XX`
+9. **GitHub** auto-closes issues
 
 ---
 
@@ -134,89 +165,6 @@ Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and exe
 
 ---
 
-## Workflow
-
-### Ticket-Based (Recommended)
-1. **Andy** creates GitHub Issue (bug, feature, or quick idea)
-2. **Strategic Partner** reviews, plans, assigns labels (`ready`, `worker:*`, `size:*`)
-3. **Strategic Partner** creates task files referencing issue number
-4. **Andy** launches workers: `~/Claude/.claude-team/scripts/launch_workers.sh`
-5. **Andy** pastes startup commands in each terminal
-6. **Workers** execute in parallel
-7. **Andy** tells Strategic Partner "workers done"
-8. **Strategic Partner** integrates, fixes builds, runs tests
-9. **Strategic Partner** closes issue with summary, updates CHANGELOG, commits
-
----
-
-## GitHub Issues (Ticket System)
-
-All work is tracked via GitHub Issues for **crash-proof persistence**.
-
-### Quick Commands
-```bash
-# View dashboard
-/Users/antti/Claude/.github/dashboard.sh
-
-# View all open issues
-gh issue list
-
-# View by status
-gh issue list --label "triage"       # Needs planning
-gh issue list --label "ready"        # Ready for workers
-gh issue list --label "in-progress"  # Being worked on
-
-# Create quick issue
-gh issue create --title "[Bug]: description" --label "bug,triage"
-gh issue create --title "[Feature]: description" --label "enhancement,triage"
-
-# View issue details
-gh issue view <number>
-```
-
-### Issue Workflow
-```
-New Issue → triage → ready → in-progress → needs-review → CLOSED
-```
-
-See `.github/WORKFLOW.md` for complete documentation.
-
----
-
-## GitHub Issues (Ticket System)
-
-All work is tracked via GitHub Issues for **crash-proof persistence**.
-
-### Quick Commands
-```bash
-# View dashboard
-/Users/antti/Claude/.github/dashboard.sh
-
-# View all open issues
-gh issue list
-
-# View by status
-gh issue list --label "triage"       # Needs planning
-gh issue list --label "ready"        # Ready for workers
-gh issue list --label "in-progress"  # Being worked on
-
-# Create quick issue
-gh issue create --title "[Bug]: description" --label "bug,triage"
-gh issue create --title "[Feature]: description" --label "enhancement,triage"
-
-# View issue details
-gh issue view <number>
-```
-
-### Issue Workflow
-```
-New Issue → triage → ready → in-progress → needs-review → CLOSED
-```
-
-See `.github/WORKFLOW.md` for complete documentation.
-
----
-
 ## Common Commands
 
 ```bash
@@ -226,14 +174,16 @@ cd /Users/antti/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme Clo
 # Run tests
 cd /Users/antti/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | tail -30
 
-# Git status
+# Git
 cd /Users/antti/Claude && git status --short
-
-# Git log
 cd /Users/antti/Claude && git log --oneline -10
 
 # Launch app
 open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaumskxbmezirpyltjfkf/Build/Products/Debug/CloudSyncApp.app"
+
+# Issues
+gh issue list
+gh issue view <number>
 ```
 
 ---
@@ -241,17 +191,16 @@ open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaums
 ## Recent History (Latest First)
 
 ### v2.0.6 - 2026-01-12
-- **GitHub Issues Ticket System** - Crash-proof work tracking via GitHub
-- Issue templates, 37 labels, dashboard script
-- All work state persists on GitHub
+- **GitHub Issues Ticket System** - Crash-proof work tracking
+- Issue templates (bug, feature, task)
+- 30+ labels for status, workers, priority, components
+- Project board for Kanban view
 
 ### v2.0.5 - 2026-01-12
-- **Move Schedules to Main Window** - Schedules now primary sidebar item
-- Removed Schedules tab from Settings (now 4 tabs)
+- **Move Schedules to Main Window** - Primary sidebar item
 
 ### v2.0.4 - 2026-01-12
 - **Menu Bar Schedule Indicator** - See next sync at a glance
-- **Two-Tier Architecture docs** - PROJECT_CONTEXT.md, RECOVERY.md, QUICK_START.md
 
 ### v2.0.3 - 2026-01-12
 - **Scheduled Sync** - Hourly/daily/weekly/custom schedules
@@ -260,7 +209,7 @@ open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaums
 - **Parallel Team System** - 4 workers, ~4x speedup
 
 ### v2.0.1 - 2026-01-12
-- **Local Storage encryption fix** - Hide encryption UI for local
+- **Local Storage encryption fix**
 
 ### v2.0.0 - 2026-01-11
 - **Major release** - Complete SwiftUI rebuild

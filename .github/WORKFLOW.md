@@ -1,236 +1,203 @@
-# GitHub Issues Workflow
+# CloudSync Ultra - GitHub Issues Workflow
 
-> **Recovery-Safe**: All state is stored on GitHub Issues. Survives device/power failures.
-
----
-
-## Quick Commands
-
-```bash
-# View all open issues
-gh issue list
-
-# View by status
-gh issue list --label "triage"      # Needs planning
-gh issue list --label "ready"       # Ready for workers
-gh issue list --label "in-progress" # Being worked on
-gh issue list --label "needs-review" # Awaiting review
-
-# View by worker assignment
-gh issue list --label "worker:dev-1"
-gh issue list --label "worker:dev-2"
-gh issue list --label "worker:dev-3"
-gh issue list --label "worker:qa"
-
-# View by priority
-gh issue list --label "priority:critical"
-gh issue list --label "priority:high"
-
-# Create quick issue
-gh issue create --title "[Bug]: Description" --label "bug,triage"
-gh issue create --title "[Feature]: Description" --label "enhancement,triage"
-```
+> **Recovery-Safe**: All tickets persist on GitHub, surviving device/power failures.
 
 ---
 
-## Workflow States (Labels)
+## Quick Reference
 
-| Label | Meaning | Who Manages |
-|-------|---------|-------------|
-| `triage` | New issue, needs planning | Strategic Partner reviews |
-| `ready` | Planned, ready for workers | Strategic Partner sets |
-| `in-progress` | Currently being worked on | Auto when workers start |
-| `needs-review` | Work done, needs integration | Workers set when done |
-| `blocked` | Waiting on dependency | Anyone can set |
+| Action | Command |
+|--------|---------|
+| View all issues | `gh issue list` |
+| View ready issues | `gh issue list -l ready` |
+| View by worker | `gh issue list -l worker:dev-1` |
+| Create issue | `gh issue create` |
+| View issue | `gh issue view <number>` |
+| Close issue | `gh issue close <number>` |
 
 ---
 
 ## Issue Lifecycle
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           ISSUE LIFECYCLE                                │
-│                                                                          │
-│   [New Issue]                                                            │
-│       │                                                                  │
-│       ▼                                                                  │
-│   ┌─────────┐   Strategic Partner    ┌─────────┐                         │
-│   │ triage  │ ───────────────────▶   │  ready  │                         │
-│   └─────────┘   plans & assigns      └─────────┘                         │
-│                                           │                              │
-│                                           ▼  Andy launches workers       │
-│                                      ┌─────────────┐                     │
-│                                      │ in-progress │                     │
-│                                      └─────────────┘                     │
-│                                           │                              │
-│                                           ▼  Worker completes            │
-│                                      ┌──────────────┐                    │
-│                                      │ needs-review │                    │
-│                                      └──────────────┘                    │
-│                                           │                              │
-│                                           ▼  Strategic Partner reviews   │
-│                                        [CLOSED]                          │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           GITHUB ISSUES WORKFLOW                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────┐    ┌─────────┐    ┌────────────┐    ┌────────────┐    ┌──────┐ │
+│  │ TRIAGE  │───▶│  READY  │───▶│IN PROGRESS │───▶│NEEDS REVIEW│───▶│ DONE │ │
+│  └─────────┘    └─────────┘    └────────────┘    └────────────┘    └──────┘ │
+│       │              │               │                 │               │     │
+│   Andy drops    Strategic      Workers           Strategic        Issue     │
+│   raw idea      Partner        execute           Partner          closed    │
+│                 plans it                         integrates                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Label Categories
+## Labels System
 
 ### Status Labels
-- `triage` - Needs review and planning
-- `ready` - Planned and ready for workers  
-- `in-progress` - Currently being worked on
-- `needs-review` - Waiting for Strategic Partner review
-- `blocked` - Blocked by dependency
+| Label | Meaning |
+|-------|---------|
+| `triage` | New issue, needs planning |
+| `ready` | Planned, ready for workers |
+| `in-progress` | Currently being worked |
+| `needs-review` | Waiting for integration |
+| `blocked` | Waiting on dependency |
 
-### Type Labels
-- `bug` - Something isn't working
-- `enhancement` - New feature or request
-- `task` - Internal development task
-- `documentation` - Documentation updates
+### Worker Labels
+| Label | Assigned To |
+|-------|-------------|
+| `worker:dev-1` | UI Layer (Views, ViewModels) |
+| `worker:dev-2` | Core Engine (RcloneManager) |
+| `worker:dev-3` | Services (Models, Managers) |
+| `worker:qa` | Testing |
+| `worker:strategic` | Strategic Partner handles directly |
 
 ### Component Labels
-- `component:ui` - UI/Views (Dev-1 domain)
-- `component:engine` - Core Engine (Dev-2 domain)
-- `component:services` - Services/Models (Dev-3 domain)
-- `component:tests` - Testing (QA domain)
-- `component:menu-bar` - Menu bar functionality
-- `component:encryption` - Encryption features
-- `component:scheduling` - Scheduled sync features
-
-### Worker Assignment
-- `worker:dev-1` - Assigned to Dev-1 (UI)
-- `worker:dev-2` - Assigned to Dev-2 (Engine)
-- `worker:dev-3` - Assigned to Dev-3 (Services)
-- `worker:qa` - Assigned to QA
-- `worker:strategic` - Strategic Partner handles
+| Label | Domain |
+|-------|--------|
+| `component:ui` | Views, ViewModels, Components |
+| `component:engine` | RcloneManager, transfers |
+| `component:services` | Models, Managers |
+| `component:tests` | Unit tests, UI tests |
+| `component:encryption` | Encryption features |
+| `component:scheduling` | Scheduled sync |
+| `component:menu-bar` | Menu bar features |
 
 ### Priority Labels
-- `priority:critical` - Must fix immediately
-- `priority:high` - Important, do soon
-- `priority:medium` - Normal priority
-- `priority:low` - Nice to have
+| Label | Meaning |
+|-------|---------|
+| `priority:critical` | Fix immediately |
+| `priority:high` | Do soon |
+| `priority:medium` | Normal |
+| `priority:low` | Nice to have |
 
-### Size Labels (T-Shirt Sizing)
-- `size:xs` - < 30 minutes
-- `size:s` - 30 min - 1 hour
-- `size:m` - 1-2 hours
-- `size:l` - 2-4 hours
-- `size:xl` - 4+ hours (consider splitting)
-
----
-
-## Creating Issues
-
-### From Command Line (Quick)
-```bash
-# Bug report
-gh issue create --title "[Bug]: Transfer fails for large files" \
-  --label "bug,triage,component:engine"
-
-# Feature request  
-gh issue create --title "[Feature]: Add bandwidth throttling" \
-  --label "enhancement,triage,component:engine"
-
-# Internal task
-gh issue create --title "[Task]: Refactor RcloneManager" \
-  --label "task,internal,component:engine"
-```
-
-### From GitHub Web (Detailed)
-1. Go to https://github.com/andybod1-lang/CloudSyncUltra/issues/new/choose
-2. Select template (Bug Report, Feature Request, or Internal Task)
-3. Fill out form
-4. Submit
+### Size Labels
+| Label | Time Estimate |
+|-------|---------------|
+| `size:xs` | < 30 minutes |
+| `size:s` | 30 min - 1 hour |
+| `size:m` | 1-2 hours |
+| `size:l` | 2-4 hours |
+| `size:xl` | 4+ hours (split it) |
 
 ---
 
-## Strategic Partner Workflow
+## Workflow Details
 
-### 1. Review Triage Queue
+### 1. Andy Creates Issue
 ```bash
-gh issue list --label "triage"
+# Quick bug
+gh issue create -t "[Bug]: Menu bar shows wrong time" -l bug,triage
+
+# Quick feature idea
+gh issue create -t "[Feature]: Add bandwidth throttling" -l enhancement,triage
+
+# Or use web interface with templates
 ```
 
-### 2. Plan Issue
-- Read issue details: `gh issue view <number>`
-- Determine complexity, assign worker labels
-- Add size estimate label
-- Add component label
+### 2. Strategic Partner Plans
+- Reviews triage issues
+- Adds: component, worker, priority, size labels
+- Removes `triage`, adds `ready`
+- Writes implementation notes in comment
 
-### 3. Mark Ready
+### 3. Workers Execute
+When Andy launches workers:
 ```bash
-gh issue edit <number> --remove-label "triage" --add-label "ready,worker:dev-2,size:m"
+# Strategic Partner creates task files referencing issues
+# Example: TASK_DEV2.md contains "Implements #47"
+
+# After completion, worker adds comment to issue
+gh issue comment 47 --body "Implementation complete. See commit abc123."
 ```
 
-### 4. Create Worker Tasks
-When Andy is ready to run workers, create task files referencing issue:
-```markdown
-# TASK_DEV2.md
-## Implements Issue #47
+### 4. Strategic Partner Integrates
+- Builds, tests, fixes any issues
+- Updates CHANGELOG
+- Commits with `Fixes #47` or `Closes #47`
+- GitHub auto-closes issue
 
-[Task details...]
-```
+---
 
-### 5. After Workers Complete
+## Common Commands
+
 ```bash
-# Move to review
-gh issue edit <number> --remove-label "in-progress" --add-label "needs-review"
+# === View Issues ===
+gh issue list                           # All open issues
+gh issue list -l ready                  # Ready for workers
+gh issue list -l triage                 # Needs planning
+gh issue list -l "worker:dev-1"         # Dev-1's queue
+gh issue list -l "priority:high"        # High priority
+gh issue list -s closed                 # Closed issues
 
-# After integration, close with comment
-gh issue close <number> --comment "Implemented in commit abc123. Tested and merged."
+# === Create Issues ===
+gh issue create                         # Interactive
+gh issue create -t "Title" -b "Body"    # Quick create
+
+# === Update Issues ===
+gh issue edit 47 --add-label ready --remove-label triage
+gh issue comment 47 --body "Started work"
+gh issue close 47
+
+# === View Details ===
+gh issue view 47                        # View issue
+gh issue view 47 --comments             # With comments
 ```
 
 ---
 
-## Linking Commits to Issues
+## Project Board
 
-Always reference issues in commit messages:
+**URL**: https://github.com/users/andybod1-lang/projects/1
 
-```bash
-git commit -m "Add bandwidth throttling controls
-
-Implements #47
-- Added BandwidthSettings model
-- Updated RcloneManager with --bwlimit
-- Added UI controls in SettingsView"
-```
-
-This creates automatic links in GitHub.
+The board shows issues in columns:
+- **Todo** - Ready for work
+- **In Progress** - Currently being worked
+- **Done** - Completed
 
 ---
 
 ## Recovery After Crash
 
-All state is on GitHub. After crash:
+Issues are on GitHub - they survive any local failure:
 
 ```bash
-# Check what's in progress
-gh issue list --label "in-progress"
+# Check current state
+gh issue list
 
-# Check what needs review
-gh issue list --label "needs-review"
+# See what was in progress
+gh issue list -l in-progress
 
-# Check what's ready to work on
-gh issue list --label "ready"
+# Resume planning
+gh issue list -l triage
 ```
 
 ---
 
-## Dashboard View
+## Integration with Worker System
 
-Create a quick dashboard:
+When creating worker tasks, reference GitHub issues:
 
+```markdown
+# TASK_DEV2.md
+
+## Issue Reference
+Implements: #47 (Bandwidth Throttling)
+
+## Objective
+Add bandwidth limiting to RcloneManager...
+```
+
+Commits should reference issues:
 ```bash
-echo "=== TRIAGE (needs planning) ===" && gh issue list --label "triage"
-echo ""
-echo "=== READY (for workers) ===" && gh issue list --label "ready"  
-echo ""
-echo "=== IN PROGRESS ===" && gh issue list --label "in-progress"
-echo ""
-echo "=== NEEDS REVIEW ===" && gh issue list --label "needs-review"
+git commit -m "feat(engine): Add bandwidth throttling
+
+Implements #47"
 ```
 
 ---
