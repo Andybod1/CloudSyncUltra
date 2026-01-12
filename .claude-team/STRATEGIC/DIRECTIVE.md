@@ -6,25 +6,28 @@
 
 ---
 
-## Feature: Menu Bar Schedule Indicator
+## Feature: Move Schedules to Main Window
 
 ### Overview
-Add a visual indicator in the menu bar showing when the next scheduled sync will run. This provides at-a-glance visibility without opening the app.
+Move the Schedules management UI from Settings to the main application window as a primary navigation item. Schedules are a core feature and deserve main-level visibility.
 
 ### User Story
-As a user, I want to see my next scheduled sync time in the menu bar so I know my backups are configured without opening the app.
+As a user, I want to access my sync schedules directly from the main window so I don't have to dig through Settings.
 
 ---
 
 ## Architecture Decisions
 
 ### Approach
-Extend the existing MenuBarView to show schedule information from ScheduleManager.
+1. Add "Schedules" as a new sidebar item in MainWindow
+2. Create a dedicated SchedulesView for the main content area
+3. Remove the Schedules tab from SettingsView
+4. Keep "Manage Schedules..." menu bar button but have it navigate to main window
 
 ### Key Design Choices
-1. Show next schedule name and time in menu bar popup
-2. Use existing ScheduleManager.shared singleton
-3. Keep it simple - just display, no controls in menu bar
+1. Schedules appears in sidebar alongside Dashboard, Files, Transfer, Tasks, History
+2. Reuse existing ScheduleSettingsView content (list, add/edit sheets)
+3. SettingsView returns to 4 tabs: General, Accounts, Sync, About
 
 ---
 
@@ -32,69 +35,84 @@ Extend the existing MenuBarView to show schedule information from ScheduleManage
 
 ### Dev-1 (UI Layer)
 **Files to modify:**
-- [ ] `Views/MenuBarView.swift` - Add schedule section
+- [ ] `Views/MainWindow.swift` - Add Schedules to sidebar navigation
+- [ ] `SettingsView.swift` - Remove Schedules tab, revert to 4 tabs
+- [ ] `StatusBarController.swift` - Update "Manage Schedules..." to open main window
+
+**Files to create:**
+- [ ] `Views/SchedulesView.swift` - Main window schedules view (adapt from ScheduleSettingsView)
 
 **Key requirements:**
-- Show "Next: [schedule name]" with countdown
-- Show "No scheduled syncs" if none exist
-- Add "Manage Schedules..." button that opens Settings
+- Sidebar icon: "calendar.badge.clock"
+- Schedules view shows full schedule management UI
+- Empty state when no schedules
+- Add Schedule button prominent
+- Menu bar "Manage Schedules..." opens main window to Schedules tab
 
 ### Dev-2 (Core Engine)
-**No changes needed for this feature.**
-
-Create a placeholder task acknowledging no work needed.
+**No changes needed.**
 
 ### Dev-3 (Services)
-**No changes needed for this feature.**
-
-Create a placeholder task acknowledging no work needed.
+**No changes needed.**
 
 ### QA (Testing)
-**Files to create:**
-- [ ] `CloudSyncAppTests/MenuBarScheduleTests.swift`
-
-**Test coverage required:**
-- Test schedule display formatting
-- Test empty state handling
+**Files to update:**
+- [ ] Verify existing schedule tests still pass
+- [ ] Manual test: sidebar navigation works
+- [ ] Manual test: menu bar button navigates correctly
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Menu bar popup shows next scheduled sync
-- [ ] Shows "No scheduled syncs" when none exist
-- [ ] "Manage Schedules..." opens Settings
+- [ ] "Schedules" appears in main window sidebar
+- [ ] Clicking Schedules shows schedule management UI
+- [ ] Settings no longer has Schedules tab (back to 4 tabs)
+- [ ] Menu bar "Manage Schedules..." opens main window to Schedules
+- [ ] All existing schedule functionality works
 - [ ] Build succeeds with zero errors
-- [ ] Tests pass
 
 ---
 
-## Dependencies
+## UI Reference
 
-- Requires ScheduleManager (already exists)
-- Requires SyncSchedule model (already exists)
+### Sidebar Order:
+1. Dashboard
+2. Files
+3. Transfer
+4. Tasks
+5. **Schedules** ← NEW
+6. History
+
+### SchedulesView Content:
+- Header: "Schedules" with "Add Schedule" button
+- List of schedules (reuse ScheduleRowView)
+- Empty state when none
+- Edit/Delete sheets (reuse ScheduleEditorSheet)
 
 ---
 
 ## Out of Scope
 
-- Menu bar icon changes (badge, different icons)
-- Pause/resume controls in menu bar
-- Schedule creation from menu bar
+- New schedule functionality
+- Changes to ScheduleManager
+- Changes to schedule execution logic
 
 ---
 
 ## Notes for Lead
 
-- This is a small feature to test the two-tier workflow
-- Dev-2 and Dev-3 can have minimal placeholder tasks
-- Focus on getting the workflow right
+- This is primarily a Dev-1 (UI) task
+- Reuse existing components: ScheduleRowView, ScheduleEditorSheet
+- Main change is moving UI from Settings to MainWindow
+- Dev-2, Dev-3, QA have minimal/no work
 
 ---
 
 ## Definition of Done
 
-1. Menu bar shows schedule info
-2. Build succeeds
-3. Tests pass
-4. Lead Report submitted
+1. Schedules accessible from main window sidebar
+2. Settings has 4 tabs (no Schedules)
+3. Menu bar navigation works
+4. Build succeeds
+5. Lead Report submitted

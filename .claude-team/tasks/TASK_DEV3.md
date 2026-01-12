@@ -1,4 +1,4 @@
-# Task: Menu Bar Schedule Indicator - Services
+# Task: Move Schedules to Main Window - Services
 
 **Assigned to:** Dev-3 (Services)
 **Priority:** Low
@@ -11,7 +11,7 @@
 
 **NO CHANGES REQUIRED** for this feature.
 
-The Menu Bar Schedule Indicator feature only requires UI changes to display existing ScheduleManager data. The ScheduleManager and SyncSchedule model were already implemented in the previous sprint.
+Moving Schedules from Settings to Main Window is purely a UI reorganization. The ScheduleManager and SyncSchedule services remain unchanged.
 
 ---
 
@@ -19,18 +19,17 @@ The Menu Bar Schedule Indicator feature only requires UI changes to display exis
 
 This is a placeholder task acknowledging that Services (Dev-3) has no work for this sprint.
 
-The following components are already complete and working:
-- `ScheduleManager.swift` - Singleton with all schedule management
-- `SyncSchedule.swift` - Data model for schedules
-- `nextScheduledRun` computed property - Returns the earliest upcoming schedule
-- All persistence and timer logic is in place
+The existing components work correctly regardless of which view displays them:
+- `ScheduleManager.swift` - No changes needed
+- `SyncSchedule.swift` - No changes needed
+- All CRUD operations work from any view
 
 ---
 
 ## Acceptance Criteria
 
 - [x] Acknowledge no changes needed
-- [x] Verify existing ScheduleManager implementation is complete
+- [x] Verify existing service implementations work with new UI location
 
 ---
 

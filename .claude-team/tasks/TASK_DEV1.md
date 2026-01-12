@@ -1,170 +1,338 @@
-# Task: Menu Bar Schedule Indicator - UI Layer
+# Task: Move Schedules to Main Window - UI Layer
 
 **Assigned to:** Dev-1 (UI Layer)
 **Priority:** High
 **Status:** Ready
-**Depends on:** None (ScheduleManager already exists)
+**Depends on:** None
 
 ---
 
 ## Objective
 
-Add a schedule information section to the menu bar popup showing the next scheduled sync time. This provides at-a-glance visibility into scheduled syncs without opening the app.
+Move the Schedules management UI from Settings to the main application window as a primary navigation item. This elevates Schedules to a first-class feature with direct sidebar access.
 
 ---
 
-## Task 1: Add Schedule Section to StatusBarController Menu
+## Task 1: Add Schedules to MainWindow Sidebar
 
-**File:** `CloudSyncApp/StatusBarController.swift`
+**File:** `CloudSyncApp/Views/MainWindow.swift`
 
-Modify the `updateMenu()` method to add a schedule indicator section. Insert this code after the last sync time section (around line 150) and before the "Open main window" section.
+### Step 1.1: Add `schedules` case to SidebarSection enum (around line 19)
 
-### Implementation
-
-Find this line in `updateMenu()`:
-```swift
-menu.addItem(NSMenuItem.separator())
-
-// Open main window
-```
-
-Add this schedule section BEFORE the separator that precedes "Open main window":
+Find the `SidebarSection` enum and add the `schedules` case:
 
 ```swift
-// Schedule indicator section
-menu.addItem(NSMenuItem.separator())
-
-let scheduleManager = ScheduleManager.shared
-if let nextRun = scheduleManager.nextScheduledRun {
-    let scheduleItem = NSMenuItem(title: "Next: \(nextRun.schedule.name)", action: nil, keyEquivalent: "")
-    scheduleItem.isEnabled = false
-    menu.addItem(scheduleItem)
-
-    let timeItem = NSMenuItem(title: "  \(nextRun.schedule.formattedNextRun)", action: nil, keyEquivalent: "")
-    timeItem.isEnabled = false
-    menu.addItem(timeItem)
-} else {
-    let noScheduleItem = NSMenuItem(title: "No scheduled syncs", action: nil, keyEquivalent: "")
-    noScheduleItem.isEnabled = false
-    menu.addItem(noScheduleItem)
+enum SidebarSection: Hashable {
+    case dashboard
+    case transfer
+    case encryption
+    case tasks
+    case schedules  // ADD THIS LINE
+    case history
+    case settings
+    case remote(CloudRemote)
 }
+```
 
-// Manage Schedules button
-let manageItem = NSMenuItem(title: "Manage Schedules...", action: #selector(openScheduleSettings), keyEquivalent: "")
-manageItem.target = self
-menu.addItem(manageItem)
+### Step 1.2: Add Schedules to sidebar navigation (around line 138)
 
-menu.addItem(NSMenuItem.separator())
+In `SidebarView`, find the first `Section` with Dashboard, Transfer, Tasks, History items. Add Schedules between Tasks and History:
+
+```swift
+sidebarItem(
+    icon: "list.bullet.clipboard",
+    title: "Tasks",
+    section: .tasks,
+    badge: runningTasks > 0 ? runningTasks : nil
+)
+
+// ADD THIS BLOCK
+sidebarItem(
+    icon: "calendar.badge.clock",
+    title: "Schedules",
+    section: .schedules
+)
+
+sidebarItem(
+    icon: "clock.arrow.circlepath",
+    title: "History",
+    section: .history
+)
+```
+
+### Step 1.3: Add SchedulesView case to detailView (around line 88)
+
+In the `detailView` computed property, add a case for `.schedules`:
+
+```swift
+case .tasks:
+    TasksView()
+case .schedules:  // ADD THIS CASE
+    SchedulesView()
+case .history:
+    HistoryView()
+```
+
+### Step 1.4: Update OpenScheduleSettings notification handler (around line 69)
+
+Change the handler to navigate to `.schedules` instead of `.settings`:
+
+**Replace lines 69-75 with:**
+```swift
+.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenScheduleSettings"))) { _ in
+    selectedSection = .schedules
+}
 ```
 
 ---
 
-## Task 2: Add openScheduleSettings Action Method
+## Task 2: Create SchedulesView for Main Window
 
-**File:** `CloudSyncApp/StatusBarController.swift`
+**File:** `CloudSyncApp/Views/SchedulesView.swift` (NEW FILE)
 
-Add a new action method to handle the "Manage Schedules..." button. Add this near the other `@objc` action methods (around line 255-274).
-
-### Implementation
+Create a new view that presents schedules as a main content area.
 
 ```swift
-@objc private func openScheduleSettings() {
-    // Bring app to front
-    NSApp.activate(ignoringOtherApps: true)
+//
+//  SchedulesView.swift
+//  CloudSyncApp
+//
+//  Main window view for managing scheduled sync jobs
+//
 
-    // Post notification to open settings with Schedules tab selected
-    NotificationCenter.default.post(name: NSNotification.Name("OpenScheduleSettings"), object: nil)
+import SwiftUI
 
-    // Bring main window to front
-    DispatchQueue.main.async {
-        for window in NSApp.windows {
-            if window.contentView != nil && !window.title.isEmpty {
-                window.makeKeyAndOrderFront(nil)
-                NSApp.activate(ignoringOtherApps: true)
-                break
+struct SchedulesView: View {
+    @StateObject private var scheduleManager = ScheduleManager.shared
+    @State private var showingAddSheet = false
+    @State private var editingSchedule: SyncSchedule?
+    @State private var scheduleToDelete: SyncSchedule?
+    @State private var showDeleteConfirmation = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Schedules")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    Text("\(scheduleManager.enabledSchedulesCount) active schedule\(scheduleManager.enabledSchedulesCount == 1 ? "" : "s")")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Button(action: { showingAddSheet = true }) {
+                    Label("Add Schedule", systemImage: "plus")
+                }
+                .buttonStyle(.borderedProminent)
             }
+            .padding()
+
+            Divider()
+
+            // Content
+            if scheduleManager.schedules.isEmpty {
+                emptyState
+            } else {
+                scheduleList
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(NSColor.windowBackgroundColor))
+        .sheet(isPresented: $showingAddSheet) {
+            ScheduleEditorSheet(schedule: nil) { newSchedule in
+                scheduleManager.addSchedule(newSchedule)
+            }
+        }
+        .sheet(item: $editingSchedule) { schedule in
+            ScheduleEditorSheet(schedule: schedule) { updatedSchedule in
+                scheduleManager.updateSchedule(updatedSchedule)
+            }
+        }
+        .alert("Delete Schedule", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                if let schedule = scheduleToDelete {
+                    scheduleManager.deleteSchedule(id: schedule.id)
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete '\(scheduleToDelete?.name ?? "")'? This cannot be undone.")
         }
     }
 
-    updateMenu()
-}
-```
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
 
----
+            Image(systemName: "calendar.badge.clock")
+                .font(.system(size: 64))
+                .foregroundColor(.secondary)
 
-## Task 3: Handle OpenScheduleSettings Notification in ContentView
+            Text("No Scheduled Syncs")
+                .font(.title2)
+                .fontWeight(.semibold)
 
-**File:** `CloudSyncApp/ContentView.swift`
+            Text("Create a schedule to automatically sync your files at regular intervals.")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
 
-Add a notification observer to navigate to the Schedules tab in Settings when the menu bar button is clicked.
+            Button(action: { showingAddSheet = true }) {
+                Label("Create Schedule", systemImage: "plus")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
 
-### Find existing notification observers
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 
-Look for `.onReceive(NotificationCenter.default.publisher(for:` patterns and add a new one:
+    private var scheduleList: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                // Next sync info
+                if let next = scheduleManager.nextScheduledRun {
+                    GroupBox {
+                        HStack {
+                            Image(systemName: "clock.fill")
+                                .foregroundColor(.blue)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Next Sync")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text(next.schedule.name)
+                                    .fontWeight(.medium)
+                            }
+                            Spacer()
+                            Text(next.schedule.formattedNextRun)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(4)
+                    }
+                    .padding(.horizontal)
+                }
 
-```swift
-.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenScheduleSettings"))) { _ in
-    showSettings = true
-    // Small delay to ensure settings view is loaded, then select Schedules tab
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        NotificationCenter.default.post(name: NSNotification.Name("SelectSchedulesTab"), object: nil)
+                // Schedule list
+                ForEach(scheduleManager.schedules) { schedule in
+                    ScheduleRowView(
+                        schedule: schedule,
+                        onToggle: { scheduleManager.toggleSchedule(id: schedule.id) },
+                        onEdit: { editingSchedule = schedule },
+                        onDelete: {
+                            scheduleToDelete = schedule
+                            showDeleteConfirmation = true
+                        },
+                        onRunNow: {
+                            Task {
+                                await scheduleManager.runNow(id: schedule.id)
+                            }
+                        }
+                    )
+                    .padding(.horizontal)
+                }
+            }
+            .padding(.vertical)
+        }
     }
 }
+
+#Preview {
+    SchedulesView()
+}
 ```
 
 ---
 
-## Task 4: Handle Tab Selection in SettingsView
+## Task 3: Remove Schedules Tab from SettingsView
 
 **File:** `CloudSyncApp/SettingsView.swift`
 
-Add a notification observer to switch to the Schedules tab when requested.
+### Step 3.1: Remove Schedules tab (delete lines 34-38)
 
-### Implementation
+Remove the entire ScheduleSettingsView tab:
 
-1. Add a `@State` variable for tab selection if not already present:
 ```swift
-@State private var selectedTab: Int = 0
+// DELETE THIS ENTIRE BLOCK (lines 34-38)
+ScheduleSettingsView()
+    .tabItem {
+        Label("Schedules", systemImage: "calendar.badge.clock")
+    }
+    .tag(3)
 ```
 
-2. Update the TabView to use the selection binding:
+### Step 3.2: Update About tab tag (line 40 after deletion)
+
+Change About's tag from 4 to 3:
+
 ```swift
-TabView(selection: $selectedTab) {
-    // ... existing tabs with .tag(0), .tag(1), etc.
-    // Ensure Schedules tab has .tag(3)
-}
+AboutView()
+    .tabItem {
+        Label("About", systemImage: "info.circle")
+    }
+    .tag(3)  // CHANGE FROM 4 to 3
 ```
 
-3. Add the notification observer:
+### Step 3.3: Remove SelectSchedulesTab notification handler (delete lines 55-57)
+
+Remove the entire `.onReceive` block for SelectSchedulesTab:
+
 ```swift
+// DELETE THIS ENTIRE BLOCK
 .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SelectSchedulesTab"))) { _ in
     selectedTab = 3  // Schedules tab
 }
 ```
 
+### Step 3.4: Adjust frame height (line 54)
+
+Reduce the height since we have fewer tabs:
+
+```swift
+.frame(width: 600, height: 540)  // CHANGE FROM 580 to 540
+```
+
 ---
 
-## Files to Modify
+## Task 4: Add SchedulesView to Xcode Project
 
-1. `CloudSyncApp/StatusBarController.swift` - Add schedule section and action
-2. `CloudSyncApp/ContentView.swift` - Add notification handler
-3. `CloudSyncApp/SettingsView.swift` - Add tab selection handler
+After creating `SchedulesView.swift`, the Lead Agent will add it to the Xcode project's build sources during integration.
+
+---
+
+## Files Summary
+
+| File | Action | Changes |
+|------|--------|---------|
+| `Views/MainWindow.swift` | Modify | Add schedules to enum, sidebar, detailView, update notification |
+| `Views/SchedulesView.swift` | Create | New main window schedules view |
+| `SettingsView.swift` | Modify | Remove Schedules tab, update tag numbers, remove notification handler |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Menu bar popup shows schedule section after status info
-- [ ] "Next: [schedule name]" displays with countdown time when schedules exist
-- [ ] "No scheduled syncs" displays when no enabled schedules
-- [ ] "Manage Schedules..." button opens Settings to Schedules tab
+- [ ] "Schedules" appears in main window sidebar (between Tasks and History)
+- [ ] Clicking Schedules shows schedule management UI in main content area
+- [ ] Settings has 4 tabs: General, Accounts, Sync, About
+- [ ] Menu bar "Manage Schedules..." opens main window to Schedules section
+- [ ] Add/Edit/Delete schedule functionality works
+- [ ] Empty state shows when no schedules
 - [ ] Build succeeds with zero errors
-- [ ] Code follows existing patterns in StatusBarController.swift
 
 ---
 
 ## When Complete
 
 1. Update STATUS.md with completion status
-2. Write DEV1_COMPLETE.md with summary
+2. Write DEV1_COMPLETE.md with:
+   - Files modified/created
+   - Summary of changes
+   - Build verification result
 3. Verify build: `xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build`

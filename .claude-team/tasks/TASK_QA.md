@@ -1,4 +1,4 @@
-# Task: Menu Bar Schedule Indicator - Testing
+# Task: Move Schedules to Main Window - Testing & Verification
 
 **Assigned to:** QA (Testing)
 **Priority:** High
@@ -9,266 +9,108 @@
 
 ## Objective
 
-Write unit tests for the menu bar schedule indicator display logic. Since this feature primarily uses existing ScheduleManager APIs, focus on testing the display formatting and edge cases.
+Verify that moving Schedules from Settings to Main Window works correctly. This is primarily a verification task since existing schedule tests remain valid.
 
 ---
 
-## Task 1: Create MenuBarScheduleTests
+## Task 1: Code Review - Dev-1 Implementation
 
-**File:** `CloudSyncAppTests/MenuBarScheduleTests.swift`
+Review the following files for correctness:
 
-Create tests to verify the schedule display logic works correctly.
+### MainWindow.swift Changes
+- [ ] `schedules` case added to `SidebarSection` enum
+- [ ] Schedules sidebar item added with correct icon (`calendar.badge.clock`)
+- [ ] Schedules appears between Tasks and History in sidebar
+- [ ] `SchedulesView()` rendered for `.schedules` case in detailView
+- [ ] `OpenScheduleSettings` notification navigates to `.schedules`
 
-```swift
-//
-//  MenuBarScheduleTests.swift
-//  CloudSyncAppTests
-//
-//  Tests for menu bar schedule indicator display
-//
+### SchedulesView.swift (New File)
+- [ ] Uses `@StateObject` for ScheduleManager
+- [ ] Header shows title and active schedule count
+- [ ] "Add Schedule" button present
+- [ ] Empty state displayed when no schedules
+- [ ] Schedule list renders with ScheduleRowView
+- [ ] Edit, Delete, Toggle, Run Now functionality works
+- [ ] Alert for delete confirmation
+- [ ] Sheets for add/edit
 
-import XCTest
-@testable import CloudSyncApp
+### SettingsView.swift Changes
+- [ ] Schedules tab removed
+- [ ] Only 4 tabs remain: General, Accounts, Sync, About
+- [ ] About tab has correct tag (3)
+- [ ] `SelectSchedulesTab` notification handler removed
+- [ ] Frame height adjusted appropriately
 
-@MainActor
-final class MenuBarScheduleTests: XCTestCase {
+---
 
-    var manager: ScheduleManager!
+## Task 2: Manual Verification Checklist
 
-    override func setUp() async throws {
-        manager = ScheduleManager.shared
-        // Clear any existing schedules for clean test state
-        for schedule in manager.schedules {
-            manager.deleteSchedule(id: schedule.id)
-        }
-    }
+Test the following scenarios:
 
-    override func tearDown() async throws {
-        // Clean up
-        for schedule in manager.schedules {
-            manager.deleteSchedule(id: schedule.id)
-        }
-        manager = nil
-    }
+### Sidebar Navigation
+- [ ] "Schedules" visible in main window sidebar
+- [ ] Correct icon displayed (calendar.badge.clock)
+- [ ] Click navigates to SchedulesView
+- [ ] Selection highlight works correctly
 
-    // MARK: - Empty State Tests
+### Schedule Management
+- [ ] Empty state shows when no schedules
+- [ ] "Add Schedule" button opens editor sheet
+- [ ] Creating a schedule adds it to the list
+- [ ] Editing a schedule opens pre-filled editor
+- [ ] Delete confirmation appears before deletion
+- [ ] Toggle enable/disable works
+- [ ] "Run Now" triggers immediate sync
 
-    func test_NoSchedules_ReturnsNil() async {
-        // No schedules added
-        XCTAssertNil(manager.nextScheduledRun)
-    }
+### Settings Verification
+- [ ] Settings has exactly 4 tabs
+- [ ] No "Schedules" tab in Settings
+- [ ] All other tabs work correctly
 
-    func test_NoEnabledSchedules_ReturnsNil() async {
-        let schedule = SyncSchedule(
-            name: "Disabled Schedule",
-            sourceRemote: "gdrive",
-            sourcePath: "/",
-            destinationRemote: "proton",
-            destinationPath: "/"
-        )
-        manager.addSchedule(schedule)
+### Menu Bar Integration
+- [ ] "Manage Schedules..." in menu bar works
+- [ ] Opens main window to Schedules section (not Settings)
+- [ ] Window brought to front correctly
 
-        // Disable it
-        manager.toggleSchedule(id: schedule.id)
+---
 
-        XCTAssertNil(manager.nextScheduledRun)
-    }
+## Task 3: Build Verification
 
-    // MARK: - Display Format Tests
-
-    func test_FormattedNextRun_NoSchedules() async {
-        XCTAssertEqual(manager.formattedNextRun, "No schedules")
-    }
-
-    func test_FormattedNextRun_WithSchedule() async {
-        let schedule = SyncSchedule(
-            name: "Daily Backup",
-            sourceRemote: "gdrive",
-            sourcePath: "/",
-            destinationRemote: "proton",
-            destinationPath: "/",
-            frequency: .daily,
-            scheduledHour: 14,
-            scheduledMinute: 30
-        )
-        manager.addSchedule(schedule)
-
-        let formatted = manager.formattedNextRun
-
-        // Should contain the schedule name
-        XCTAssertTrue(formatted.contains("Daily Backup"))
-    }
-
-    // MARK: - Next Schedule Selection Tests
-
-    func test_NextScheduledRun_ReturnsSoonest() async {
-        // Add schedule running in 2 hours
-        let later = SyncSchedule(
-            name: "Later Schedule",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 120
-        )
-        manager.addSchedule(later)
-
-        // Add schedule running in 30 minutes
-        let sooner = SyncSchedule(
-            name: "Sooner Schedule",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 30
-        )
-        manager.addSchedule(sooner)
-
-        let next = manager.nextScheduledRun
-        XCTAssertNotNil(next)
-        XCTAssertEqual(next?.schedule.name, "Sooner Schedule")
-    }
-
-    func test_NextScheduledRun_IgnoresDisabledSchedules() async {
-        // Add enabled schedule running in 2 hours
-        let enabled = SyncSchedule(
-            name: "Enabled Schedule",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 120
-        )
-        manager.addSchedule(enabled)
-
-        // Add disabled schedule that would run sooner
-        let disabled = SyncSchedule(
-            name: "Disabled Schedule",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 10
-        )
-        manager.addSchedule(disabled)
-        manager.toggleSchedule(id: disabled.id) // Disable it
-
-        let next = manager.nextScheduledRun
-        XCTAssertNotNil(next)
-        XCTAssertEqual(next?.schedule.name, "Enabled Schedule")
-    }
-
-    // MARK: - Time Formatting Tests
-
-    func test_FormattedNextRun_LessThanOneMinute() async {
-        var schedule = SyncSchedule(
-            name: "Imminent",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 5
-        )
-
-        // Manually set nextRunAt to 30 seconds from now
-        schedule.nextRunAt = Date().addingTimeInterval(30)
-
-        let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "In less than a minute")
-    }
-
-    func test_FormattedNextRun_Minutes() async {
-        var schedule = SyncSchedule(
-            name: "Soon",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 5
-        )
-
-        // Set nextRunAt to 15 minutes from now
-        schedule.nextRunAt = Date().addingTimeInterval(15 * 60)
-
-        let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "In 15 min")
-    }
-
-    func test_FormattedNextRun_Hours() async {
-        var schedule = SyncSchedule(
-            name: "Later",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 60
-        )
-
-        // Set nextRunAt to 3 hours from now
-        schedule.nextRunAt = Date().addingTimeInterval(3 * 3600)
-
-        let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "In 3 hr")
-    }
-
-    func test_FormattedNextRun_Overdue() async {
-        var schedule = SyncSchedule(
-            name: "Overdue",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/",
-            frequency: .custom,
-            customIntervalMinutes: 5
-        )
-
-        // Set nextRunAt to 5 minutes ago
-        schedule.nextRunAt = Date().addingTimeInterval(-5 * 60)
-
-        let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "Overdue")
-    }
-
-    func test_FormattedNextRun_NotScheduled() async {
-        var schedule = SyncSchedule(
-            name: "Not Scheduled",
-            sourceRemote: "a",
-            sourcePath: "/",
-            destinationRemote: "b",
-            destinationPath: "/"
-        )
-        schedule.nextRunAt = nil
-
-        let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "Not scheduled")
-    }
-}
+```bash
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | grep -E "(error:|BUILD)"
 ```
 
+Expected: `** BUILD SUCCEEDED **`
+
 ---
 
-## Files to Create
+## Task 4: Regression Check
 
-1. `CloudSyncAppTests/MenuBarScheduleTests.swift` - New test file
+Verify existing schedule functionality still works:
+- [ ] Existing schedules display correctly in new location
+- [ ] Schedule persistence works (schedules survive app restart)
+- [ ] Schedule execution still triggers at correct times
+- [ ] Menu bar schedule indicator still shows correct info
+
+---
+
+## Files to Review
+
+| File | Type | What to Check |
+|------|------|---------------|
+| `Views/MainWindow.swift` | Modified | Sidebar, enum, detailView, notification |
+| `Views/SchedulesView.swift` | New | Full implementation review |
+| `SettingsView.swift` | Modified | Tab removal, cleanup |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] All MenuBarScheduleTests pass
-- [ ] Test coverage includes:
-  - Empty state (no schedules)
-  - Disabled schedules ignored
-  - Correct schedule selection (soonest)
-  - Time formatting (minutes, hours, overdue)
-- [ ] Build and tests succeed
+- [ ] Code review complete with no issues found
+- [ ] Manual verification checklist passed
+- [ ] Build succeeds
+- [ ] No regressions in schedule functionality
+- [ ] Menu bar integration works correctly
 
 ---
 
@@ -276,7 +118,8 @@ final class MenuBarScheduleTests: XCTestCase {
 
 1. Update STATUS.md with completion status
 2. Write QA_REPORT.md with:
-   - Number of tests added
-   - All test results
-   - Test coverage summary
-3. Run full test suite: `xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'`
+   - Code review findings
+   - Manual test results
+   - Build verification
+   - Any bugs found (with details)
+   - Recommendations

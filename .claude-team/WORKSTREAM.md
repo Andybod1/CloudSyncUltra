@@ -1,6 +1,6 @@
-# Workstream: Menu Bar Schedule Indicator
+# Workstream: Move Schedules to Main Window
 
-> **Sprint Goal:** Add visual indicator in menu bar showing next scheduled sync
+> **Sprint Goal:** Elevate Schedules from Settings to main window sidebar
 > **Started:** 2026-01-12
 > **Status:** READY TO LAUNCH
 
@@ -8,9 +8,9 @@
 
 ## Overview
 
-Add a schedule information section to the menu bar popup showing the next scheduled sync time. This provides at-a-glance visibility into scheduled syncs without opening the app.
+Move the Schedules management UI from Settings to the main application window as a primary navigation item. Schedules are a core feature and deserve main-level visibility.
 
-**Note:** This is a small feature building on the Scheduled Sync infrastructure completed in the previous sprint.
+**User Story:** As a user, I want to access my sync schedules directly from the main window so I don't have to dig through Settings.
 
 ---
 
@@ -18,10 +18,10 @@ Add a schedule information section to the menu bar popup showing the next schedu
 
 | Worker | Task | Status | Files |
 |--------|------|--------|-------|
-| Dev-1 | Menu Bar UI | Ready | StatusBarController.swift, ContentView.swift, SettingsView.swift |
+| Dev-1 | Main Window UI | Ready | MainWindow.swift, SchedulesView.swift (new), SettingsView.swift |
 | Dev-2 | (No changes) | N/A | - |
 | Dev-3 | (No changes) | N/A | - |
-| QA | Test Coverage | Ready | MenuBarScheduleTests.swift |
+| QA | Verification | Ready | Code review + manual testing |
 
 ---
 
@@ -29,54 +29,78 @@ Add a schedule information section to the menu bar popup showing the next schedu
 
 | File | Locked By | Reason |
 |------|-----------|--------|
-| CloudSyncApp/StatusBarController.swift | Dev-1 | Adding schedule section |
-| CloudSyncApp/ContentView.swift | Dev-1 | Adding notification handler |
-| CloudSyncApp/SettingsView.swift | Dev-1 | Adding tab selection |
-| CloudSyncAppTests/MenuBarScheduleTests.swift | QA | Creating tests |
+| CloudSyncApp/Views/MainWindow.swift | Dev-1 | Adding schedules to sidebar |
+| CloudSyncApp/Views/SchedulesView.swift | Dev-1 | Creating new view |
+| CloudSyncApp/SettingsView.swift | Dev-1 | Removing Schedules tab |
 
 ---
 
 ## Dependencies
 
 ```
-Previous Sprint (Complete):
-- SyncSchedule.swift
-- ScheduleManager.swift
-- Schedule UI Components
+This is primarily a Dev-1 task:
 
-This Sprint:
-Dev-1 (Menu Bar UI) ──> QA (Tests) ──> Integration
+Dev-1 (UI Changes) ──> QA (Verification) ──> Integration
 ```
 
-Dev-1 is the primary worker. Dev-2 and Dev-3 have no tasks.
+Dev-2 and Dev-3 have no tasks this sprint.
 
 ---
 
 ## Acceptance Criteria
 
-### Menu Bar UI (Dev-1)
-- [ ] Menu bar shows "Next: [schedule name]" with countdown
-- [ ] Menu bar shows "No scheduled syncs" when none exist
-- [ ] "Manage Schedules..." button opens Settings to Schedules tab
-- [ ] Build succeeds
+### Main Window (Dev-1)
+- [ ] "Schedules" in sidebar between Tasks and History
+- [ ] Icon: calendar.badge.clock
+- [ ] SchedulesView shows full management UI
+- [ ] Empty state when no schedules
+- [ ] Menu bar "Manage Schedules..." opens main window
 
-### Tests (QA)
-- [ ] MenuBarScheduleTests cover display logic
-- [ ] All tests pass
+### Settings (Dev-1)
+- [ ] Only 4 tabs: General, Accounts, Sync, About
+- [ ] Schedules tab removed
+- [ ] SelectSchedulesTab notification handler removed
+
+### Verification (QA)
+- [ ] Code review complete
+- [ ] Manual testing passed
+- [ ] Build succeeds
 
 ---
 
 ## Definition of Done
 
-1. Menu bar shows schedule info
-2. Build succeeds
-3. Tests pass
-4. Lead Report submitted
+1. Schedules accessible from main window sidebar
+2. Settings has 4 tabs (no Schedules)
+3. Menu bar navigation works
+4. Build succeeds
+5. Lead Report submitted
+
+---
+
+## UI Reference
+
+### Sidebar Order:
+1. Dashboard
+2. Transfer
+3. Tasks
+4. **Schedules** ← NEW
+5. History
+6. (Cloud Storage section)
+7. (Local section)
+8. Encryption
+9. Settings
+
+### SchedulesView Content:
+- Header: "Schedules" with "Add Schedule" button
+- List of schedules using ScheduleRowView
+- Empty state when none
+- Edit/Delete sheets using ScheduleEditorSheet
 
 ---
 
 ## Notes
 
-- Uses existing ScheduleManager.nextScheduledRun API
-- No core engine or service changes required
-- Focus on getting the two-tier workflow right
+- Reuse existing components: ScheduleRowView, ScheduleEditorSheet
+- ScheduleSettingsView remains in project (for reference/future use)
+- No changes to ScheduleManager or any services

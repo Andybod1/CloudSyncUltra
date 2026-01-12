@@ -1,4 +1,4 @@
-# Task: Menu Bar Schedule Indicator - Core Engine
+# Task: Move Schedules to Main Window - Core Engine
 
 **Assigned to:** Dev-2 (Core Engine)
 **Priority:** Low
@@ -11,7 +11,7 @@
 
 **NO CHANGES REQUIRED** for this feature.
 
-The Menu Bar Schedule Indicator feature only requires UI changes to display existing ScheduleManager data. RcloneManager and other core engine components do not need modifications.
+Moving Schedules from Settings to Main Window is purely a UI reorganization. No core engine changes are needed.
 
 ---
 
@@ -19,17 +19,17 @@ The Menu Bar Schedule Indicator feature only requires UI changes to display exis
 
 This is a placeholder task acknowledging that the Core Engine (Dev-2) has no work for this sprint.
 
-The ScheduleManager already provides all necessary data:
-- `nextScheduledRun` property returns the next scheduled sync
-- `formattedNextRun` provides human-readable time formatting
-- All APIs are already in place from the previous sprint
+The existing components remain unchanged:
+- RcloneManager - No changes
+- SyncManager - No changes
+- ScheduleManager APIs already work regardless of which view uses them
 
 ---
 
 ## Acceptance Criteria
 
 - [x] Acknowledge no changes needed
-- [x] Verify existing ScheduleManager APIs are sufficient
+- [x] Verify existing APIs support the UI change
 
 ---
 
