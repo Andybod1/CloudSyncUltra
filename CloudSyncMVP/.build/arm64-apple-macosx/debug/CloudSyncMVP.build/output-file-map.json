@@ -1,0 +1,26 @@
+{
+  "": {
+    "swift-dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/master.swiftdeps"
+  },
+  "/Users/antti/Claude/CloudSyncMVP/Sources/CloudSyncApp.swift": {
+    "dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/CloudSyncApp.d",
+    "object": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/CloudSyncApp.swift.o",
+    "swiftmodule": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/CloudSyncApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/CloudSyncApp.swiftdeps",
+    "diagnostics": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/CloudSyncApp.dia"
+  },
+  "/Users/antti/Claude/CloudSyncMVP/Sources/MenuBarView.swift": {
+    "dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/MenuBarView.d",
+    "object": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/MenuBarView.swift.o",
+    "swiftmodule": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/MenuBarView~partial.swiftmodule",
+    "swift-dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/MenuBarView.swiftdeps",
+    "diagnostics": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/MenuBarView.dia"
+  },
+  "/Users/antti/Claude/CloudSyncMVP/Sources/SettingsView.swift": {
+    "dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/SettingsView.d",
+    "object": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/SettingsView.swift.o",
+    "swiftmodule": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/SettingsView~partial.swiftmodule",
+    "swift-dependencies": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/SettingsView.swiftdeps",
+    "diagnostics": "/Users/antti/Claude/CloudSyncMVP/.build/arm64-apple-macosx/debug/CloudSyncMVP.build/SettingsView.dia"
+  }
+}

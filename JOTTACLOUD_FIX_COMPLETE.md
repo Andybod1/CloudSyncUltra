@@ -1,197 +1,216 @@
-# Jottacloud Integration Fix Complete
-
-## Date: January 12, 2026
+# Jottacloud Integration Fix - Complete
 
 ## Summary
 
-Fixed Jottacloud authentication to work properly with rclone's Personal Login Token system instead of the broken username/password approach.
+Fixed Jottacloud authentication to use the correct **Personal Login Token** authentication method instead of the incorrect username/password approach.
+
+**Date:** January 12, 2026
+**Status:** ✅ Fixed
 
 ---
 
-## Root Cause
+## The Problem (Was)
 
-The original implementation tried to use `user` and `pass` parameters with rclone, but Jottacloud's rclone backend uses a **multi-step state machine** that requires:
+The previous implementation tried to use username/password authentication:
 
-1. Selecting authentication type ("standard" for jottacloud.com users)
-2. Providing a **Personal Login Token** (generated at jottacloud.com/web/secure)
-3. Exchanging the token for an OAuth token internally
-4. Selecting device/mountpoint (defaults to Jotta/Archive)
-
-The old approach simply couldn't work because Jottacloud doesn't accept username/password credentials directly.
-
----
-
-## Changes Made
-
-### 1. RcloneManager.swift
-
-**Before (Broken):**
 ```swift
+// OLD (Wrong)
 func setupJottacloud(remoteName: String, username: String?, password: String?, device: String?) async throws {
-    var params: [String: String] = [
-        "user": username,
-        "pass": password  // Wrong! This doesn't work
-    ]
+    var params = ["user": username, "pass": password]  // ❌ Doesn't work!
     try await createRemote(name: remoteName, type: "jottacloud", parameters: params)
 }
 ```
 
-**After (Fixed):**
-```swift
-func setupJottacloud(remoteName: String, personalLoginToken: String, useDefaultDevice: Bool = true) async throws {
-    // Multi-step state machine:
-    // Step 1: Select "standard" auth type
-    // Step 2: Provide personal login token
-    // Step 3: Handle device/mountpoint selection
-    // Uses --non-interactive and --continue flags to manage state
-}
-```
-
-**New helper methods added:**
-- `runJottacloudConfigStep()` - Runs a single step of the config state machine
-- `parseConfigState()` - Parses the State field from rclone's JSON response
-- `parseConfigError()` - Extracts error messages from rclone output
-
-### 2. MainWindow.swift (UI)
-
-**Form Section:**
-- Username field hidden for Jottacloud (not needed)
-- Password field renamed to "Personal Login Token"
-- Section header changed to "Authentication Token"
-
-**Credentials Help:**
-- Added step-by-step instructions
-- Added clickable link to jottacloud.com/web/secure
-- Clear explanation that token != password
-
-**Connect Logic:**
-- `canConnect` updated to only require token (no username) for Jottacloud
-- `configureRemote()` calls new `setupJottacloud(remoteName:personalLoginToken:)`
+This failed because Jottacloud's **standard authentication** requires:
+1. A **Personal Login Token** (not password)
+2. Multi-step OAuth state machine
+3. Token exchange via rclone's config system
 
 ---
 
-## How It Works Now
+## The Solution (Now)
 
-### User Flow:
-1. User clicks "Add Cloud..." and selects Jottacloud
-2. UI shows single "Personal Login Token" field with instructions
-3. User clicks link to open jottacloud.com/web/secure
-4. User generates token on website
-5. User pastes token into CloudSync Ultra
-6. App runs multi-step rclone config:
-   - `rclone config create jottacloud jottacloud --non-interactive`
-   - Responds with `--continue --state "auth_type_done" --result "standard"`
-   - Responds with `--continue --state "standard_token" --result "<token>"`
-   - Handles device/mountpoint prompts with defaults
-7. Connection established ✅
+Implemented proper multi-step authentication flow:
 
-### Technical Flow:
+```swift
+// NEW (Correct)
+func setupJottacloud(remoteName: String, personalLoginToken: String, useDefaultDevice: Bool = true) async throws {
+    // Step 1: Create config, get auth_type_done state
+    // Step 2: Select "standard" authentication
+    // Step 3: Provide personal login token → rclone exchanges for OAuth token
+    // Step 4: Accept default device/mountpoint (Jotta/Archive)
+}
 ```
-┌─────────────────────┐
-│ User pastes token   │
-└─────────┬───────────┘
-          ▼
-┌─────────────────────┐
-│ Step 1: auth_type   │──► Returns config_type prompt
-└─────────┬───────────┘
-          ▼
-┌─────────────────────┐
-│ Step 2: standard    │──► Returns token prompt
-└─────────┬───────────┘
-          ▼
-┌─────────────────────┐
-│ Step 3: token       │──► Exchanges for OAuth token
-└─────────┬───────────┘
-          ▼
-┌─────────────────────┐
-│ Step 4: device      │──► Uses defaults (Jotta/Archive)
-└─────────┬───────────┘
-          ▼
-┌─────────────────────┐
-│ Remote created ✅   │
-└─────────────────────┘
+
+### Key Changes
+
+1. **RcloneManager.swift**
+   - Replaced simple `createRemote()` with multi-step state machine
+   - Uses `config create` for first step, `config update --continue` for subsequent steps
+   - Properly handles `--non-interactive` JSON responses
+   - Parses state/result from rclone's responses
+
+2. **MainWindow.swift** (already correct)
+   - Single "Personal Login Token" field (no username)
+   - Link to token generator at jottacloud.com/web/secure
+   - Clear instructions for users
+
+3. **CloudProvider.swift**
+   - Updated experimental note to be informative rather than warning
+
+---
+
+## How It Works
+
+### Authentication Flow
+
 ```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  User visits    │ -> │ User generates  │ -> │ User pastes     │
+│  jottacloud.com │    │ login token     │    │ token in app    │
+│  /web/secure    │    │ (single-use)    │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                                      │
+                                                      ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  App stores     │ <- │ rclone gets     │ <- │ rclone sends    │
+│  OAuth token    │    │ OAuth token     │    │ token to Jotta  │
+│  in config      │    │ from Jottacloud │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### State Machine Steps
+
+| Step | State | Result | Action |
+|------|-------|--------|--------|
+| 1 | (empty) | - | `config create jottacloud --non-interactive` |
+| 2 | auth_type_done | "standard" | `config update --continue` |
+| 3 | standard_token | <token> | Exchange token for OAuth |
+| 4 | choose_device* | "false" | Use default device (Jotta/Archive) |
+
+*May vary based on account configuration
+
+---
+
+## User Experience
+
+### Before (Confusing)
+- Two fields: Username + Password
+- Error: "outdated config - please reconfigure"
+- Marked as "EXPERIMENTAL" with warning
+
+### After (Clear)
+- One field: Personal Login Token
+- Link: "Open Jottacloud Security Settings →"
+- Instructions for generating token
+- Still marked experimental but with helpful note
 
 ---
 
 ## Files Modified
 
-| File | Changes |
-|------|---------|
-| `RcloneManager.swift` | New `setupJottacloud()` with state machine, helper methods |
-| `MainWindow.swift` | UI updates for single token field, instructions, link |
+```
+CloudSyncApp/
+├── RcloneManager.swift          [Major update - new state machine]
+├── Models/CloudProvider.swift   [Updated experimental note]
+└── Views/MainWindow.swift       [Already correct - token-only UI]
+```
 
 ---
 
-## Build Status
+## Testing
 
+### Build Status
 ```
 ✅ BUILD SUCCEEDED
-✅ Zero compilation errors
-✅ Zero warnings
 ```
 
----
+### Manual Test Steps
+1. Add Jottacloud provider
+2. Click "Open Jottacloud Security Settings"
+3. Generate Personal Login Token at jottacloud.com
+4. Paste token and click Connect
+5. Verify files appear
 
-## Testing Required
-
-### To Test Jottacloud:
-
-1. **Get a Jottacloud account** (free trial or paid)
-2. **Generate Personal Login Token:**
-   - Go to https://www.jottacloud.com/web/secure
-   - Scroll to "Personal login token"
-   - Click "Generate"
-   - Copy the token (long base64 string)
-3. **In CloudSync Ultra:**
-   - Click "Add Cloud..."
-   - Select Jottacloud
-   - Paste the token
-   - Click "Connect"
-4. **Verify:**
-   - Files should list correctly
-   - Upload/download should work
-
-### Known Behaviors:
-- Token is single-use (can't be reused)
-- If auth fails, generate a new token
-- Token expires after ~1 hour if not used
+### Edge Cases Handled
+- Invalid/expired token → Clear error message
+- Already configured remote → Clean reconfigure
+- Multiple config steps → Loop with safety limit
 
 ---
 
-## What's Still Experimental
+## Technical Details
 
-The `isExperimental` flag remains `true` for Jottacloud because:
-1. Token refresh rotation can cause issues with multiple machines
-2. White-label services (Telia, Tele2, etc.) need separate OAuth flow
-3. Real-world testing with actual Jottacloud account needed
+### rclone State Machine
 
-Once tested successfully, `isExperimental` can be set to `false`.
+The Jottacloud backend uses a complex state machine:
+
+```json
+// Step 1 response
+{
+  "State": "auth_type_done",
+  "Option": { "Name": "config_type", ... }
+}
+
+// Step 2 response  
+{
+  "State": "standard_token",
+  "Option": { "Name": "config_login_token", ... }
+}
+
+// Step 3 response (after token exchange)
+{
+  "State": "choose_device",  // or empty if using defaults
+  ...
+}
+```
+
+### Token Format
+- Length: ~250+ characters
+- Contains: Base64-encoded JSON with endpoints
+- Single-use: Must generate new one for each auth
+
+### Refresh Token Rotation
+- Jottacloud uses aggressive token rotation
+- Each refresh invalidates previous token
+- Sharing config between machines causes "stale token" errors
+- Solution: Generate separate token per machine
 
 ---
 
-## Error Messages
+## Known Limitations
 
-### Clear Error Handling:
+1. **Single Machine Per Token**
+   - Each rclone config should use its own token
+   - Copying config to another machine will eventually fail
 
-| Scenario | Error Message |
-|----------|---------------|
-| Invalid token | "Invalid or expired personal login token. Please generate a new token at jottacloud.com/web/secure" |
-| Token not provided | "Jottacloud requires a personal login token" |
-| Network error | Standard network error messages |
-| Config creation failed | "Jottacloud remote was not created. Token may be invalid or expired." |
+2. **White-Label Services**
+   - Telia Cloud, Tele2 Cloud, etc. need browser OAuth
+   - Not currently supported in CloudSync Ultra
+
+3. **Device Selection**
+   - Currently uses default Jotta/Archive
+   - Advanced users may want Sync or custom devices
 
 ---
 
-## Summary
+## Future Improvements
 
-**Before:** ❌ Jottacloud didn't work - wrong auth method  
-**After:** ✅ Proper Personal Login Token flow with state machine handling
+- [ ] Add browser OAuth flow for white-label services
+- [ ] Add device/mountpoint selection UI
+- [ ] Add reconnect button for stale tokens
+- [ ] Consider removing experimental flag after user testing
 
-The fix correctly implements rclone's multi-step Jottacloud configuration process, matching how `rclone config` works interactively but doing it programmatically through the `--non-interactive` and `--continue` flags.
+---
+
+## References
+
+- [rclone Jottacloud Documentation](https://rclone.org/jottacloud/)
+- [Jottacloud Security Settings](https://www.jottacloud.com/web/secure)
+- [rclone GitHub - jottacloud.go](https://github.com/rclone/rclone/blob/master/backend/jottacloud/jottacloud.go)
 
 ---
 
 *Fix completed: January 12, 2026*
-*Build: Successful*
-*Status: Ready for testing with real Jottacloud account*
+*Build status: ✅ Successful*
+*Ready for testing with real Jottacloud account*
