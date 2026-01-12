@@ -7,66 +7,66 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		'01' = {isa = PBXBuildFile; fileRef = 02; };
-		'03' = {isa = PBXBuildFile; fileRef = 04; };
-		'05' = {isa = PBXBuildFile; fileRef = 06; };
-		'07' = {isa = PBXBuildFile; fileRef = 08; };
-		'09' = {isa = PBXBuildFile; fileRef = 10; };
-		'11' = {isa = PBXBuildFile; fileRef = 12; };
-		'13' = {isa = PBXBuildFile; fileRef = 14; };
-		'17' = {isa = PBXBuildFile; fileRef = 18; };
-		'19' = {isa = PBXBuildFile; fileRef = 20; };
+		"'01'" = {isa = PBXBuildFile; fileRef = 02; };
+		"'03'" = {isa = PBXBuildFile; fileRef = 04; };
+		"'05'" = {isa = PBXBuildFile; fileRef = 06; };
+		"'07'" = {isa = PBXBuildFile; fileRef = 08; };
+		"'09'" = {isa = PBXBuildFile; fileRef = 10; };
+		"'11'" = {isa = PBXBuildFile; fileRef = 12; };
+		"'13'" = {isa = PBXBuildFile; fileRef = 14; };
+		"'17'" = {isa = PBXBuildFile; fileRef = 18; };
+		"'19'" = {isa = PBXBuildFile; fileRef = 20; };
+		"'A1'" = {isa = PBXBuildFile; fileRef = A2; };
+		"'A3'" = {isa = PBXBuildFile; fileRef = A4; };
+		"'A5'" = {isa = PBXBuildFile; fileRef = A6; };
+		"'A7'" = {isa = PBXBuildFile; fileRef = A8; };
+		"'A9'" = {isa = PBXBuildFile; fileRef = AA; };
+		"'AB'" = {isa = PBXBuildFile; fileRef = AC; };
+		"'AD'" = {isa = PBXBuildFile; fileRef = AE; };
+		"'AF'" = {isa = PBXBuildFile; fileRef = B0; };
+		"'B1'" = {isa = PBXBuildFile; fileRef = B2; };
+		"'B3'" = {isa = PBXBuildFile; fileRef = B4; };
+		"'B5'" = {isa = PBXBuildFile; fileRef = B6; };
+		"'B7'" = {isa = PBXBuildFile; fileRef = B8; };
+		"'C1'" = {isa = PBXBuildFile; fileRef = C2; };
+		"'C3'" = {isa = PBXBuildFile; fileRef = C4; };
+		"'C5'" = {isa = PBXBuildFile; fileRef = C6; };
+		"'C7'" = {isa = PBXBuildFile; fileRef = C8; };
+		"'C9'" = {isa = PBXBuildFile; fileRef = CA; };
+		"'CB'" = {isa = PBXBuildFile; fileRef = CC; };
+		"'TB01'" = {isa = PBXBuildFile; fileRef = T01; };
+		"'TB02'" = {isa = PBXBuildFile; fileRef = T02; };
+		"'TB03'" = {isa = PBXBuildFile; fileRef = T03; };
+		"'TB04'" = {isa = PBXBuildFile; fileRef = T04; };
+		"'TB07'" = {isa = PBXBuildFile; fileRef = T07; };
+		"'TB08'" = {isa = PBXBuildFile; fileRef = T08; };
+		"'TB09'" = {isa = PBXBuildFile; fileRef = T09; };
+		"'TB10'" = {isa = PBXBuildFile; fileRef = T10; };
+		"'TB11'" = {isa = PBXBuildFile; fileRef = T11; };
+		"'TB12'" = {isa = PBXBuildFile; fileRef = T12; };
+		"'TB13'" = {isa = PBXBuildFile; fileRef = T13; };
+		"'TB14'" = {isa = PBXBuildFile; fileRef = T14; };
+		"'TB15'" = {isa = PBXBuildFile; fileRef = T15; };
+		"'TB16'" = {isa = PBXBuildFile; fileRef = T16; };
+		"'TB17'" = {isa = PBXBuildFile; fileRef = T17; };
+		"'TB21'" = {isa = PBXBuildFile; fileRef = T21; };
+		"'TB22'" = {isa = PBXBuildFile; fileRef = T22; };
+		"'TB23'" = {isa = PBXBuildFile; fileRef = T23; };
+		"'TB24'" = {isa = PBXBuildFile; fileRef = T24; };
+		"'TB25'" = {isa = PBXBuildFile; fileRef = T25; };
 		289B4E5CAF7C82858A4E803F /* ScheduleFrequencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AA461CB54BCBCB2801B03A /* ScheduleFrequencyTests.swift */; };
 		30B34356B4AAD420932AC087 /* ScheduleManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61204359A8BFAB06522D89D4 /* ScheduleManagerTests.swift */; };
 		3F134137B49E0A73EE7522A9 /* SyncSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053645FAA4DE8423BEF5739B /* SyncSchedule.swift */; };
 		4C7842DABAEA664FF9FCF0C7 /* ProtonDriveSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */; };
 		9EE547CA8962910F2222708B /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6847C19686A43E75FCF2FC /* ScheduleManager.swift */; };
-		'A1' = {isa = PBXBuildFile; fileRef = A2; };
-		'A3' = {isa = PBXBuildFile; fileRef = A4; };
-		'A5' = {isa = PBXBuildFile; fileRef = A6; };
-		'A7' = {isa = PBXBuildFile; fileRef = A8; };
 		A7EC4C4394FF1329C606EC7A /* ScheduleEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3E44379D9CF676FDC68D69 /* ScheduleEditorSheet.swift */; };
-		'A9' = {isa = PBXBuildFile; fileRef = AA; };
-		'AB' = {isa = PBXBuildFile; fileRef = AC; };
-		'AD' = {isa = PBXBuildFile; fileRef = AE; };
-		'AF' = {isa = PBXBuildFile; fileRef = B0; };
-		'B1' = {isa = PBXBuildFile; fileRef = B2; };
-		'B3' = {isa = PBXBuildFile; fileRef = B4; };
-		'B5' = {isa = PBXBuildFile; fileRef = B6; };
-		'B7' = {isa = PBXBuildFile; fileRef = B8; };
 		C0134810A44D25B8DBFC1AB3 /* ScheduleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD9640DA9C750631BD3F4629 /* ScheduleSettingsView.swift */; };
-		'C1' = {isa = PBXBuildFile; fileRef = C2; };
-		'C3' = {isa = PBXBuildFile; fileRef = C4; };
-		'C5' = {isa = PBXBuildFile; fileRef = C6; };
 		C5264BFC8F6F0A896F770980 /* SyncScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F674B7594978249F453A2F1 /* SyncScheduleTests.swift */; };
-		'C7' = {isa = PBXBuildFile; fileRef = C8; };
-		'C9' = {isa = PBXBuildFile; fileRef = CA; };
-		'CB' = {isa = PBXBuildFile; fileRef = CC; };
 		F26C4FFB9C440BFDDD9EDD1A /* ScheduleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52794392991E64F57C460BEA /* ScheduleRowView.swift */; };
-		'TB01' = {isa = PBXBuildFile; fileRef = T01; };
-		'TB02' = {isa = PBXBuildFile; fileRef = T02; };
-		'TB03' = {isa = PBXBuildFile; fileRef = T03; };
-		'TB04' = {isa = PBXBuildFile; fileRef = T04; };
-		'TB07' = {isa = PBXBuildFile; fileRef = T07; };
-		'TB08' = {isa = PBXBuildFile; fileRef = T08; };
-		'TB09' = {isa = PBXBuildFile; fileRef = T09; };
-		'TB10' = {isa = PBXBuildFile; fileRef = T10; };
-		'TB11' = {isa = PBXBuildFile; fileRef = T11; };
-		'TB12' = {isa = PBXBuildFile; fileRef = T12; };
-		'TB13' = {isa = PBXBuildFile; fileRef = T13; };
-		'TB14' = {isa = PBXBuildFile; fileRef = T14; };
-		'TB15' = {isa = PBXBuildFile; fileRef = T15; };
-		'TB16' = {isa = PBXBuildFile; fileRef = T16; };
-		'TB17' = {isa = PBXBuildFile; fileRef = T17; };
-		'TB21' = {isa = PBXBuildFile; fileRef = T21; };
-		'TB22' = {isa = PBXBuildFile; fileRef = T22; };
-		'TB23' = {isa = PBXBuildFile; fileRef = T23; };
-		'TB24' = {isa = PBXBuildFile; fileRef = T24; };
-		'TB25' = {isa = PBXBuildFile; fileRef = T25; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		'PROXY01' = {
+		"'PROXY01'" = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 40;
 			proxyType = 1;
@@ -76,69 +76,75 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		'02' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppApp.swift; sourceTree = "<group>"; };
-		'04' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		"'02'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppApp.swift; sourceTree = "<group>"; };
+		"'04'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		"'06'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RcloneManager.swift; sourceTree = "<group>"; };
+		"'08'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
+		"'10'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		"'12'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		"'14'" = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		"'15'" = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudSyncApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		"'16'" = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		"'18'" = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudSyncApp.entitlements; sourceTree = "<group>"; };
+		"'20'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManager.swift; sourceTree = "<group>"; };
+		"'A2'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProvider.swift; sourceTree = "<group>"; };
+		"'A4'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
+		"'A6'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		"'A8'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModel.swift; sourceTree = "<group>"; };
+		"'AA'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
+		"'AC'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserViewModel.swift; sourceTree = "<group>"; };
+		"'AE'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
+		"'B0'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		"'B2'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
+		"'B4'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
+		"'B6'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		"'B8'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
+		"'C2'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveManager.swift; sourceTree = "<group>"; };
+		"'C4'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		"'C6'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncErrors.swift; sourceTree = "<group>"; };
+		"'C8'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		"'CA'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Extensions.swift"; sourceTree = "<group>"; };
+		"'CC'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionModal.swift; sourceTree = "<group>"; };
+		"'T01'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandwidthThrottlingTests.swift; sourceTree = "<group>"; };
+		"'T02'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProviderTests.swift; sourceTree = "<group>"; };
+		"'T03'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncUltraIntegrationTests.swift; sourceTree = "<group>"; };
+		"'T04'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManagerTests.swift; sourceTree = "<group>"; };
+		"'T07'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItemTests.swift; sourceTree = "<group>"; };
+		"'T08'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudAuthenticationTests.swift; sourceTree = "<group>"; };
+		"'T09'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudProviderTests.swift; sourceTree = "<group>"; };
+		"'T10'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManagerTests.swift; sourceTree = "<group>"; };
+		"'T11'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowIntegrationTests.swift; sourceTree = "<group>"; };
+		"'T12'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeaturesTests.swift; sourceTree = "<group>"; };
+		"'T13'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthExpansionProvidersTests.swift; sourceTree = "<group>"; };
+		"'T14'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week1ProvidersTests.swift; sourceTree = "<group>"; };
+		"'T15'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week2ProvidersTests.swift; sourceTree = "<group>"; };
+		"'T16'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week3ProvidersTests.swift; sourceTree = "<group>"; };
+		"'T17'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveTests.swift; sourceTree = "<group>"; };
+		"'T21'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModelTests.swift; sourceTree = "<group>"; };
+		"'T22'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerPhase2Tests.swift; sourceTree = "<group>"; };
+		"'T23'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerTests.swift; sourceTree = "<group>"; };
+		"'T24'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTaskTests.swift; sourceTree = "<group>"; };
+		"'T25'" = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModelTests.swift; sourceTree = "<group>"; };
+		"'TESTBUNDLE'" = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		053645FAA4DE8423BEF5739B /* SyncSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncSchedule.swift; path = CloudSyncApp/Models/SyncSchedule.swift; sourceTree = SOURCE_ROOT; };
 		055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveSetupView.swift; sourceTree = "<group>"; };
-		'06' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RcloneManager.swift; sourceTree = "<group>"; };
-		'08' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		0F674B7594978249F453A2F1 /* SyncScheduleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncScheduleTests.swift; path = CloudSyncAppTests/SyncScheduleTests.swift; sourceTree = SOURCE_ROOT; };
-		'10' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
-		'12' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		'14' = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		'15' = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudSyncApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		'16' = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		'18' = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudSyncApp.entitlements; sourceTree = "<group>"; };
-		'20' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManager.swift; sourceTree = "<group>"; };
+		390D4FED834819B5C6E1ACDC /* ScheduleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleSettingsView.swift; path = CloudSyncApp/Views/ScheduleSettingsView.swift; sourceTree = SOURCE_ROOT; };
+		3B034CA68869FE0F3C69B0F8 /* ScheduleEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleEditorSheet.swift; path = CloudSyncApp/Views/ScheduleEditorSheet.swift; sourceTree = SOURCE_ROOT; };
 		3B3E44379D9CF676FDC68D69 /* ScheduleEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleEditorSheet.swift; path = CloudSyncApp/Views/ScheduleEditorSheet.swift; sourceTree = SOURCE_ROOT; };
 		52794392991E64F57C460BEA /* ScheduleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleRowView.swift; path = CloudSyncApp/Views/ScheduleRowView.swift; sourceTree = SOURCE_ROOT; };
+		59284716BB036151F4360BFE /* ScheduleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleRowView.swift; path = CloudSyncApp/Views/ScheduleRowView.swift; sourceTree = SOURCE_ROOT; };
+		5F774A5795A06AE59286551B /* ScheduleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleRowView.swift; path = CloudSyncApp/Views/ScheduleRowView.swift; sourceTree = SOURCE_ROOT; };
 		61204359A8BFAB06522D89D4 /* ScheduleManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleManagerTests.swift; path = CloudSyncAppTests/ScheduleManagerTests.swift; sourceTree = SOURCE_ROOT; };
-		'A2' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProvider.swift; sourceTree = "<group>"; };
-		'A4' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
-		'A6' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		'A8' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModel.swift; sourceTree = "<group>"; };
+		7F8A41CFB49BC2327FB3DD4F /* ScheduleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleSettingsView.swift; path = CloudSyncApp/Views/ScheduleSettingsView.swift; sourceTree = SOURCE_ROOT; };
 		A8AA461CB54BCBCB2801B03A /* ScheduleFrequencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleFrequencyTests.swift; path = CloudSyncAppTests/ScheduleFrequencyTests.swift; sourceTree = SOURCE_ROOT; };
-		'AA' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
-		'AC' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserViewModel.swift; sourceTree = "<group>"; };
-		'AE' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
-		'B0' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-		'B2' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
-		'B4' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
-		'B6' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		'B8' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
-		'C2' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveManager.swift; sourceTree = "<group>"; };
-		'C4' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
-		'C6' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncErrors.swift; sourceTree = "<group>"; };
-		'C8' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
-		'CA' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Extensions.swift"; sourceTree = "<group>"; };
-		'CC' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionModal.swift; sourceTree = "<group>"; };
+		B4FD4B29B8D9D2A8264CE24C /* ScheduleEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleEditorSheet.swift; path = CloudSyncApp/Views/ScheduleEditorSheet.swift; sourceTree = SOURCE_ROOT; };
 		CF6847C19686A43E75FCF2FC /* ScheduleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = CloudSyncApp/ScheduleManager.swift; sourceTree = SOURCE_ROOT; };
 		FD9640DA9C750631BD3F4629 /* ScheduleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleSettingsView.swift; path = CloudSyncApp/Views/ScheduleSettingsView.swift; sourceTree = SOURCE_ROOT; };
-		'T01' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandwidthThrottlingTests.swift; sourceTree = "<group>"; };
-		'T02' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProviderTests.swift; sourceTree = "<group>"; };
-		'T03' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncUltraIntegrationTests.swift; sourceTree = "<group>"; };
-		'T04' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManagerTests.swift; sourceTree = "<group>"; };
-		'T07' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItemTests.swift; sourceTree = "<group>"; };
-		'T08' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudAuthenticationTests.swift; sourceTree = "<group>"; };
-		'T09' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudProviderTests.swift; sourceTree = "<group>"; };
-		'T10' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManagerTests.swift; sourceTree = "<group>"; };
-		'T11' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowIntegrationTests.swift; sourceTree = "<group>"; };
-		'T12' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeaturesTests.swift; sourceTree = "<group>"; };
-		'T13' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthExpansionProvidersTests.swift; sourceTree = "<group>"; };
-		'T14' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week1ProvidersTests.swift; sourceTree = "<group>"; };
-		'T15' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week2ProvidersTests.swift; sourceTree = "<group>"; };
-		'T16' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week3ProvidersTests.swift; sourceTree = "<group>"; };
-		'T17' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveTests.swift; sourceTree = "<group>"; };
-		'T21' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModelTests.swift; sourceTree = "<group>"; };
-		'T22' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerPhase2Tests.swift; sourceTree = "<group>"; };
-		'T23' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerTests.swift; sourceTree = "<group>"; };
-		'T24' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTaskTests.swift; sourceTree = "<group>"; };
-		'T25' = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModelTests.swift; sourceTree = "<group>"; };
-		'TESTBUNDLE' = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		'21' = {
+		"'21'" = {
 			isa = PBXGroup;
 			children = (
 				02,
@@ -163,7 +169,7 @@
 			path = CloudSyncApp;
 			sourceTree = "<group>";
 		};
-		'22' = {
+		"'22'" = {
 			isa = PBXGroup;
 			children = (
 				15,
@@ -172,7 +178,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		'G0' = {
+		"'G0'" = {
 			isa = PBXGroup;
 			children = (
 				21,
@@ -186,10 +192,13 @@
 				0F674B7594978249F453A2F1 /* SyncScheduleTests.swift */,
 				61204359A8BFAB06522D89D4 /* ScheduleManagerTests.swift */,
 				A8AA461CB54BCBCB2801B03A /* ScheduleFrequencyTests.swift */,
+				390D4FED834819B5C6E1ACDC /* ScheduleSettingsView.swift */,
+				5F774A5795A06AE59286551B /* ScheduleRowView.swift */,
+				B4FD4B29B8D9D2A8264CE24C /* ScheduleEditorSheet.swift */,
 			);
 			sourceTree = "<group>";
 		};
-		'G1' = {
+		"'G1'" = {
 			isa = PBXGroup;
 			children = (
 				A2,
@@ -199,7 +208,7 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		'G2' = {
+		"'G2'" = {
 			isa = PBXGroup;
 			children = (
 				A8,
@@ -209,7 +218,7 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		'G3' = {
+		"'G3'" = {
 			isa = PBXGroup;
 			children = (
 				AE,
@@ -220,11 +229,14 @@
 				B6,
 				B8,
 				CC,
+				7F8A41CFB49BC2327FB3DD4F /* ScheduleSettingsView.swift */,
+				59284716BB036151F4360BFE /* ScheduleRowView.swift */,
+				3B034CA68869FE0F3C69B0F8 /* ScheduleEditorSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		'G4' = {
+		"'G4'" = {
 			isa = PBXGroup;
 			children = (
 				C8,
@@ -232,7 +244,7 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		'GT' = {
+		"'GT'" = {
 			isa = PBXGroup;
 			children = (
 				T01,
@@ -262,7 +274,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		'30' = {
+		"'30'" = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 31;
 			buildPhases = (
@@ -278,7 +290,7 @@
 			productReference = 15;
 			productType = "com.apple.product-type.application";
 		};
-		'TESTTARGET' = {
+		"'TESTTARGET'" = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = TESTCONFIGLIST;
 			buildPhases = (
@@ -297,7 +309,7 @@
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		'40' = {
+		"'40'" = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
@@ -324,7 +336,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		'33' = {
+		"'33'" = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -335,7 +347,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		'32' = {
+		"'32'" = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -373,7 +385,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		'TESTSOURCES' = {
+		"'TESTSOURCES'" = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -389,7 +401,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		'TESTDEP' = {
+		"'TESTDEP'" = {
 			isa = PBXTargetDependency;
 			target = 30;
 			targetProxy = PROXY01;
@@ -397,7 +409,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		'50' = {
+		"'50'" = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -428,7 +440,7 @@
 			};
 			name = Debug;
 		};
-		'51' = {
+		"'51'" = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -457,7 +469,7 @@
 			};
 			name = Release;
 		};
-		'TESTDEBUG' = {
+		"'TESTDEBUG'" = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -477,7 +489,7 @@
 			};
 			name = Debug;
 		};
-		'TESTRELEASE' = {
+		"'TESTRELEASE'" = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -500,7 +512,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		'31' = {
+		"'31'" = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				50,
@@ -509,7 +521,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		'41' = {
+		"'41'" = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				50,
@@ -518,7 +530,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		'TESTCONFIGLIST' = {
+		"'TESTCONFIGLIST'" = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				TESTDEBUG,
