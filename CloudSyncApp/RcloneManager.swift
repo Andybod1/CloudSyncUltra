@@ -564,22 +564,219 @@ class RcloneManager {
     
     // MARK: - Additional Providers: Nordic & Unlimited Storage
     
-    func setupJottacloud(remoteName: String, username: String? = nil, password: String? = nil, device: String? = nil) async throws {
-        if let username = username, let password = password {
-            // Use personal login token (password field contains the token)
-            var params: [String: String] = [
-                "user": username,
-                "pass": password  // This should be the personal login token from jottacloud.com
-            ]
+    /// Setup Jottacloud using Personal Login Token (standard authentication)
+    /// 
+    /// Jottacloud uses a multi-step state machine authentication:
+    /// 1. Select auth type (standard)
+    /// 2. Provide personal login token (from jottacloud.com/web/secure)
+    /// 3. Select device/mountpoint (defaults to Jotta/Archive)
+    ///
+    /// - Parameters:
+    ///   - remoteName: Name for the remote in rclone config
+    ///   - personalLoginToken: Single-use token from jottacloud.com/web/secure
+    ///   - useDefaultDevice: If true, uses Jotta/Archive (recommended). If false, may prompt for device.
+    func setupJottacloud(remoteName: String, personalLoginToken: String, useDefaultDevice: Bool = true) async throws {
+        print("[RcloneManager] Setting up Jottacloud with personal login token")
+        
+        // Delete existing remote if it exists (clean reconfigure)
+        if isRemoteConfigured(name: remoteName) {
+            print("[RcloneManager] Removing existing '\(remoteName)' remote")
+            try? await deleteRemote(name: remoteName)
+        }
+        
+        // Step 1: Initial call - will return config_type prompt
+        var currentState = ""
+        var currentResult = "standard"  // We always use standard auth
+        
+        // Step 1: Select authentication type (standard)
+        print("[RcloneManager] Step 1: Selecting standard authentication type")
+        let step1Result = try await runJottacloudConfigStep(
+            remoteName: remoteName,
+            state: "",
+            result: ""
+        )
+        
+        // Parse the response to get the next state
+        guard let step1State = parseConfigState(from: step1Result) else {
+            throw RcloneError.configurationFailed("Failed to parse Jottacloud config state (step 1)")
+        }
+        
+        // Step 2: Continue with "standard" auth type
+        print("[RcloneManager] Step 2: Continuing with standard auth, state: \(step1State)")
+        let step2Result = try await runJottacloudConfigStep(
+            remoteName: remoteName,
+            state: step1State,
+            result: "standard"
+        )
+        
+        guard let step2State = parseConfigState(from: step2Result) else {
+            throw RcloneError.configurationFailed("Failed to parse Jottacloud config state (step 2)")
+        }
+        
+        // Step 3: Provide the personal login token
+        print("[RcloneManager] Step 3: Providing personal login token, state: \(step2State)")
+        let step3Result = try await runJottacloudConfigStep(
+            remoteName: remoteName,
+            state: step2State,
+            result: personalLoginToken
+        )
+        
+        // Check for token exchange errors
+        if step3Result.contains("invalid") || step3Result.contains("error") || step3Result.contains("failed") {
+            let errorMsg = parseConfigError(from: step3Result) ?? "Invalid token or authentication failed"
+            throw RcloneError.configurationFailed(errorMsg)
+        }
+        
+        // Step 4: Handle device/mountpoint selection (use defaults)
+        if let step3State = parseConfigState(from: step3Result), !step3State.isEmpty {
+            print("[RcloneManager] Step 4: Handling device selection, state: \(step3State)")
             
-            if let device = device {
-                params["device"] = device
+            // Answer "no" to non-standard device question (use defaults)
+            let step4Result = try await runJottacloudConfigStep(
+                remoteName: remoteName,
+                state: step3State,
+                result: useDefaultDevice ? "false" : "true",
+                isFirstStep: false
+            )
+            
+            // Continue handling any remaining prompts until state is empty
+            var lastResult = step4Result
+            var iterations = 0
+            let maxIterations = 10  // Safety limit
+            
+            while let nextState = parseConfigState(from: lastResult), 
+                  !nextState.isEmpty,
+                  iterations < maxIterations {
+                iterations += 1
+                print("[RcloneManager] Additional step \(iterations): state: \(nextState)")
+                
+                // For remaining prompts, use defaults (empty result or first option)
+                lastResult = try await runJottacloudConfigStep(
+                    remoteName: remoteName,
+                    state: nextState,
+                    result: "",
+                    isFirstStep: false
+                )
             }
-            
-            try await createRemote(name: remoteName, type: "jottacloud", parameters: params)
+        }
+        
+        // Verify the remote was created
+        if isRemoteConfigured(name: remoteName) {
+            print("[RcloneManager] ✅ Jottacloud remote '\(remoteName)' created successfully!")
         } else {
-            // OAuth authentication (alternative)
-            try await createRemoteInteractive(name: remoteName, type: "jottacloud")
+            throw RcloneError.configurationFailed("Jottacloud remote was not created. Token may be invalid or expired.")
+        }
+    }
+    
+    /// Run a single step of Jottacloud config state machine
+    private func runJottacloudConfigStep(remoteName: String, state: String, result: String, isFirstStep: Bool = false) async throws -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        
+        var args: [String]
+        
+        if isFirstStep {
+            // First step: use "config create" to start the configuration
+            args = [
+                "config", "create",
+                remoteName,
+                "jottacloud",
+                "--non-interactive",
+                "--config", configPath
+            ]
+        } else {
+            // Subsequent steps: use "config update" with --continue to progress state machine
+            args = [
+                "config", "update",
+                remoteName,
+                "--continue",
+                "--state", state,
+                "--result", result,
+                "--non-interactive",
+                "--config", configPath
+            ]
+        }
+        
+        process.arguments = args
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        process.waitUntilExit()
+        
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        
+        let output = String(data: outputData, encoding: .utf8) ?? ""
+        let errorOutput = String(data: errorData, encoding: .utf8) ?? ""
+        
+        // Combine output and error for parsing
+        let fullOutput = output + errorOutput
+        
+        // Check for fatal errors
+        if fullOutput.contains("Fatal error") || fullOutput.contains("NOTICE: Fatal error") {
+            throw RcloneError.configurationFailed(errorOutput.isEmpty ? output : errorOutput)
+        }
+        
+        return fullOutput
+    }
+    
+    /// Parse the State field from rclone's JSON response
+    private func parseConfigState(from output: String) -> String? {
+        // Look for "State": "value" in JSON
+        if let range = output.range(of: #""State":\s*"([^"]*)"#, options: .regularExpression) {
+            let match = String(output[range])
+            // Extract the value between quotes
+            if let valueStart = match.range(of: ": \""),
+               let valueEnd = match.lastIndex(of: "\"") {
+                let startIndex = match.index(valueStart.upperBound, offsetBy: 0)
+                return String(match[startIndex..<valueEnd])
+            }
+        }
+        
+        // If no state found or empty state, config might be complete
+        if output.contains("\"State\": \"\"") || output.contains("\"State\":\"\"") {
+            return ""
+        }
+        
+        return nil
+    }
+    
+    /// Parse error message from rclone output
+    private func parseConfigError(from output: String) -> String? {
+        // Look for "Error": "value" in JSON
+        if let range = output.range(of: #""Error":\s*"([^"]+)"#, options: .regularExpression) {
+            let match = String(output[range])
+            if let valueStart = match.range(of: ": \""),
+               let valueEnd = match.lastIndex(of: "\"") {
+                let startIndex = match.index(valueStart.upperBound, offsetBy: 0)
+                let error = String(match[startIndex..<valueEnd])
+                if !error.isEmpty {
+                    return error
+                }
+            }
+        }
+        
+        // Also check for fatal error messages
+        if output.contains("failed to get oauth token") {
+            return "Invalid or expired personal login token. Please generate a new token at jottacloud.com/web/secure"
+        }
+        
+        return nil
+    }
+    
+    /// Legacy method for backward compatibility - redirects to token-based setup
+    /// The password field should contain the personal login token
+    @available(*, deprecated, message: "Use setupJottacloud(remoteName:personalLoginToken:) instead")
+    func setupJottacloudLegacy(remoteName: String, username: String? = nil, password: String? = nil, device: String? = nil) async throws {
+        // If password is provided, treat it as the personal login token
+        if let token = password, !token.isEmpty {
+            try await setupJottacloud(remoteName: remoteName, personalLoginToken: token)
+        } else {
+            throw RcloneError.configurationFailed("Jottacloud requires a personal login token. Generate one at https://www.jottacloud.com/web/secure")
         }
     }
     

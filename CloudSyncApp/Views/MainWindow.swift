@@ -424,18 +424,31 @@ struct ConnectRemoteSheet: View {
                 // Credentials form
                 Form {
                     Section {
-                        TextField("Username / Email", text: $username)
-                            .textFieldStyle(.roundedBorder)
+                        // Hide username field for Jottacloud (only needs token)
+                        if remote.type != .jottacloud {
+                            TextField("Username / Email", text: $username)
+                                .textFieldStyle(.roundedBorder)
+                        }
                         
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(.roundedBorder)
+                        // Use appropriate label based on provider
+                        if remote.type == .jottacloud {
+                            SecureField("Personal Login Token", text: $password)
+                                .textFieldStyle(.roundedBorder)
+                        } else {
+                            SecureField("Password", text: $password)
+                                .textFieldStyle(.roundedBorder)
+                        }
                         
                         if needsTwoFactor {
                             TextField("2FA Code (6 digits)", text: $twoFactorCode)
                                 .textFieldStyle(.roundedBorder)
                         }
                     } header: {
-                        Text("Credentials")
+                        if remote.type == .jottacloud {
+                            Text("Authentication Token")
+                        } else {
+                            Text("Credentials")
+                        }
                     } footer: {
                         credentialsHelp
                     }
@@ -482,6 +495,11 @@ struct ConnectRemoteSheet: View {
     }
     
     private var canConnect: Bool {
+        // Jottacloud only needs the token (stored in password field)
+        if remote.type == .jottacloud {
+            return !password.isEmpty
+        }
+        
         if username.isEmpty || password.isEmpty {
             return false
         }
@@ -507,7 +525,15 @@ struct ConnectRemoteSheet: View {
         case .mega:
             Text("Enter your MEGA email and password.")
         case .jottacloud:
-            Text("Enter your Jottacloud email and Personal Login Token. Generate a token at Settings → Security → Personal Login Token on jottacloud.com")
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Jottacloud requires a Personal Login Token (not your password).")
+                Text("1. Click the link below to open Jottacloud settings")
+                Text("2. Scroll to 'Personal login token' and click 'Generate'")
+                Text("3. Copy and paste the token into the Password field above")
+                Link("Open Jottacloud Security Settings →", destination: URL(string: "https://www.jottacloud.com/web/secure")!)
+                    .font(.caption)
+            }
+            .font(.caption2)
         default:
             Text("Enter your account credentials for \(remote.type.displayName).")
         }
@@ -567,7 +593,8 @@ struct ConnectRemoteSheet: View {
         case .ftp:
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
         case .jottacloud:
-            try await rclone.setupJottacloud(remoteName: rcloneName, username: username, password: password)
+            // Password field contains the personal login token (not account password)
+            try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
         
         // OAuth Expansion: Media & Consumer
         case .googlePhotos:

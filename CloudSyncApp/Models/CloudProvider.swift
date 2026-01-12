@@ -378,7 +378,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     
     var experimentalNote: String? {
         switch self {
-        case .jottacloud: return "⚠️ Experimental: Requires manual rclone OAuth setup due to backend limitations"
+        case .jottacloud: return "⚠️ Experimental: Requires Personal Login Token from jottacloud.com/web/secure"
         default: return nil
         }
     }
