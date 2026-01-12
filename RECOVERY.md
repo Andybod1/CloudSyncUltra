@@ -1,236 +1,149 @@
-# CloudSync Ultra - Parallel Team Recovery Guide
+# CloudSync Ultra - Crash Recovery Guide
 
-> **One document with everything needed to restore the parallel development team after restart or crash.**
+> **All work is tracked via GitHub Issues** - survives any crash automatically.
+> This guide helps you restore the development environment after restart.
 
 ---
 
-## 🚀 Quick Start (After Restart)
+## 🚀 Quick Recovery (3 Steps)
 
-### Option 1: One-Click Launch
+### Step 1: Check GitHub Issues (Your Work Queue)
 ```bash
 cd ~/Claude
-./.claude-team/scripts/quick_launch.sh
+
+# See what was in progress
+gh issue list -l in-progress
+
+# See what's ready to work on
+gh issue list -l ready
+
+# Full dashboard
+./.github/dashboard.sh
 ```
 
-### Option 2: Manual Launch
+### Step 2: Check Git Status
 ```bash
-# Open 4 Terminal windows, in each run:
-cd ~/Claude && claude
+git status
+
+# If uncommitted work exists:
+git add -A && git commit -m "WIP: Recovery after crash"
+```
+
+### Step 3: Verify Build
+```bash
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
 ```
 
 ---
 
-## 📋 Startup Commands for Each Worker
+## 📋 Restore Strategic Partner Context
 
-Copy and paste these into each Claude Code terminal:
+In a new Desktop Claude chat, say:
 
-### Terminal 1 — Dev-1 (UI Layer)
+```
+Read these files to restore context for CloudSync Ultra:
+
+1. /Users/antti/Claude/.claude-team/PROJECT_CONTEXT.md
+2. /Users/antti/Claude/.claude-team/STATUS.md
+3. /Users/antti/Claude/CHANGELOG.md
+
+Then tell me what state we're in and what needs to happen next.
+```
+
+---
+
+## 🔄 Resume Workers (If Mid-Task)
+
+### Launch Workers
+```bash
+~/Claude/.claude-team/scripts/launch_workers.sh
+```
+
+### Startup Commands
+
+**Dev-1 (UI)**
 ```
 Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
 ```
 
-### Terminal 2 — Dev-2 (Core Engine)
+**Dev-2 (Engine)**
 ```
 Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
 ```
 
-### Terminal 3 — Dev-3 (Services)
+**Dev-3 (Services)**
 ```
 Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
 ```
 
-### Terminal 4 — QA (Testing)
+**QA (Testing)**
 ```
 Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
 ```
 
 ---
 
-## ⚙️ If Something Is Missing
+## 📊 State Recovery Sources
+
+| Source | What It Shows | Command |
+|--------|---------------|---------|
+| **GitHub Issues** | All tracked work (crash-proof) | `gh issue list` |
+| STATUS.md | Worker status at crash | `cat .claude-team/STATUS.md` |
+| tasks/*.md | Assigned tasks | `ls .claude-team/tasks/` |
+| outputs/*.md | Completed work | `ls .claude-team/outputs/` |
+| CHANGELOG.md | Recent releases | `head -60 CHANGELOG.md` |
+| Git log | Recent commits | `git log --oneline -10` |
+
+---
+
+## 🛠️ Troubleshooting
 
 ### Claude Code Not Found
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-### Node.js Not Found
+### gh (GitHub CLI) Not Found
 ```bash
-brew install node
+brew install gh
+gh auth login
 ```
 
-### Team Infrastructure Not Found
+### Build Fails
 ```bash
-cd ~/Claude && git pull origin main
+rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 ```
 
-### Full Recovery Check
+### Permission Denied on Scripts
 ```bash
-~/.claude-team/scripts/restore_team.sh
+chmod +x .claude-team/scripts/*.sh
+chmod +x .github/dashboard.sh
 ```
 
 ---
 
-## 🏗️ Team Structure
+## 🆘 Emergency: Full Reset
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Andy (Human)                             │
-│                   Decisions • Direction                         │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Lead Claude (Opus 4.5 - Desktop App)               │
-│         Architecture • Task Breakdown • Integration             │
-└──────┬──────────┬──────────┬──────────┬─────────────────────────┘
-       │          │          │          │
-       ▼          ▼          ▼          ▼
-   ┌───────┐  ┌───────┐  ┌───────┐  ┌───────┐
-   │ Dev-1 │  │ Dev-2 │  │ Dev-3 │  │  QA   │
-   │Sonnet │  │Sonnet │  │Sonnet │  │Sonnet │
-   │  UI   │  │Engine │  │Service│  │ Test  │
-   └───────┘  └───────┘  └───────┘  └───────┘
+```bash
+cd ~/Claude
+git checkout -- .
+rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 ```
 
 ---
 
-## 📁 Worker Domain Assignments
+## ✅ What Survives Crash
 
-| Worker | Role | Files Owned |
-|--------|------|-------------|
-| Dev-1 | UI Layer | `Views/`, `ViewModels/`, `Components/`, `ContentView.swift`, `SettingsView.swift` |
-| Dev-2 | Core Engine | `RcloneManager.swift` |
-| Dev-3 | Services | `SyncManager.swift`, `EncryptionManager.swift`, `KeychainManager.swift`, `ProtonDriveManager.swift`, `Models/` |
-| QA | Testing | `CloudSyncAppTests/` |
-
----
-
-## 📂 File Structure
-
-```
-/Users/antti/Claude/
-├── .claude-team/
-│   ├── WORKSTREAM.md              # Current sprint overview
-│   ├── STATUS.md                  # Real-time worker status
-│   ├── QUICKSTART.md              # Detailed guide
-│   ├── tasks/
-│   │   ├── TASK_DEV1.md           # Dev-1 current task
-│   │   ├── TASK_DEV2.md           # Dev-2 current task
-│   │   ├── TASK_DEV3.md           # Dev-3 current task
-│   │   └── TASK_QA.md             # QA current task
-│   ├── outputs/
-│   │   ├── DEV1_COMPLETE.md       # Dev-1 completion reports
-│   │   ├── DEV2_COMPLETE.md       # Dev-2 completion reports
-│   │   ├── DEV3_COMPLETE.md       # Dev-3 completion reports
-│   │   └── QA_REPORT.md           # QA test reports
-│   ├── templates/
-│   │   ├── DEV1_BRIEFING.md       # Dev-1 role instructions
-│   │   ├── DEV2_BRIEFING.md       # Dev-2 role instructions
-│   │   ├── DEV3_BRIEFING.md       # Dev-3 role instructions
-│   │   └── QA_BRIEFING.md         # QA role instructions
-│   └── scripts/
-│       ├── quick_launch.sh        # Opens 4 terminals
-│       ├── restore_team.sh        # Full recovery check
-│       ├── launch_dev1.sh
-│       ├── launch_dev2.sh
-│       ├── launch_dev3.sh
-│       ├── launch_qa.sh
-│       └── launch_team.sh
-├── PARALLEL_TEAM.md               # Team documentation
-├── RECOVERY.md                    # This file
-└── CloudSyncApp/                  # Main application code
-```
-
----
-
-## 🔄 Typical Workflow
-
-1. **You tell Lead Claude** (Desktop App) what you want to build
-2. **Lead creates task files** in `.claude-team/tasks/`
-3. **You launch workers** using quick_launch.sh or manually
-4. **Paste startup commands** in each terminal
-5. **Select "Yes, allow all edits"** when prompted for permissions
-6. **Workers execute in parallel** and update STATUS.md
-7. **Lead monitors and integrates** completed work
-8. **Commit frequently** to preserve progress
-
----
-
-## 📊 Monitoring Progress
-
-### Check Status
-```bash
-cat ~/.claude-team/STATUS.md
-```
-
-### View Completion Reports
-```bash
-ls ~/.claude-team/outputs/
-cat ~/.claude-team/outputs/DEV1_COMPLETE.md
-```
-
-### Ask Lead Claude
-Just ask: "What's the team status?"
-
----
-
-## ✅ What Survives Restart
-
-| Component | Location | Status |
-|-----------|----------|--------|
-| Team infrastructure | `.claude-team/` | ✅ In Git |
-| Node.js | `/opt/homebrew/bin/node` | ✅ Installed |
-| Claude Code | `/opt/homebrew/bin/claude` | ✅ Installed |
-| Auth credentials | Claude Code config | ✅ Persisted |
-| Documentation | `PARALLEL_TEAM.md`, `RECOVERY.md` | ✅ In Git |
-
-## ❌ What Needs Restoration
-
-| Component | Action |
-|-----------|--------|
-| Terminal windows | Run `quick_launch.sh` |
-| Worker sessions | Paste startup commands |
-| Uncommitted work | Lost — commit frequently! |
-
----
-
-## 🛠️ Software Versions
-
-| Component | Version | Install Command |
-|-----------|---------|-----------------|
-| Node.js | v25.2.1 | `brew install node` |
-| npm | v11.6.2 | (comes with Node.js) |
-| Claude Code | v2.1.5 | `npm install -g @anthropic-ai/claude-code` |
-
----
-
-## 🆘 Troubleshooting
-
-### "claude: command not found"
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-### "node: command not found"
-```bash
-brew install node
-```
-
-### Workers not finding task files
-```bash
-cd ~/Claude && git pull origin main
-```
-
-### Permission denied on scripts
-```bash
-chmod +x ~/.claude-team/scripts/*.sh
-```
-
-### Need to re-authenticate Claude Code
-```bash
-claude
-# Follow browser prompts to log in
-```
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **GitHub Issues** | ✅ Safe | All work tracking on GitHub |
+| Git repo | ✅ Safe | All committed code |
+| Team infrastructure | ✅ Safe | In Git |
+| Build artifacts | ❌ Lost | Rebuild with xcodebuild |
+| Terminal sessions | ❌ Lost | Relaunch workers |
+| Uncommitted changes | ❌ Lost | Commit frequently! |
 
 ---
 
@@ -238,13 +151,14 @@ claude
 
 | Action | Command |
 |--------|---------|
-| Launch all workers | `~/.claude-team/scripts/quick_launch.sh` |
-| Check status | `cat ~/.claude-team/STATUS.md` |
-| Full recovery | `~/.claude-team/scripts/restore_team.sh` |
-| View outputs | `ls ~/.claude-team/outputs/` |
-| Update from Git | `cd ~/Claude && git pull` |
+| Issue dashboard | `./.github/dashboard.sh` |
+| View all issues | `gh issue list` |
+| In-progress issues | `gh issue list -l in-progress` |
+| Launch workers | `./.claude-team/scripts/launch_workers.sh` |
+| Check worker status | `cat .claude-team/STATUS.md` |
+| Build app | `xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build` |
 
 ---
 
-*Last Updated: January 12, 2026*
-*CloudSync Ultra v2.0.2*
+*Last Updated: 2026-01-12*
+*CloudSync Ultra v2.0.6*
