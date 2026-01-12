@@ -1,25 +1,3 @@
-# Task: Menu Bar Schedule Indicator - Testing
-
-**Assigned to:** QA (Testing)
-**Priority:** High
-**Status:** Ready
-**Depends on:** Dev-1 completing UI changes
-
----
-
-## Objective
-
-Write unit tests for the menu bar schedule indicator display logic. Since this feature primarily uses existing ScheduleManager APIs, focus on testing the display formatting and edge cases.
-
----
-
-## Task 1: Create MenuBarScheduleTests
-
-**File:** `CloudSyncAppTests/MenuBarScheduleTests.swift`
-
-Create tests to verify the schedule display logic works correctly.
-
-```swift
 //
 //  MenuBarScheduleTests.swift
 //  CloudSyncAppTests
@@ -250,33 +228,3 @@ final class MenuBarScheduleTests: XCTestCase {
         XCTAssertEqual(formatted, "Not scheduled")
     }
 }
-```
-
----
-
-## Files to Create
-
-1. `CloudSyncAppTests/MenuBarScheduleTests.swift` - New test file
-
----
-
-## Acceptance Criteria
-
-- [ ] All MenuBarScheduleTests pass
-- [ ] Test coverage includes:
-  - Empty state (no schedules)
-  - Disabled schedules ignored
-  - Correct schedule selection (soonest)
-  - Time formatting (minutes, hours, overdue)
-- [ ] Build and tests succeed
-
----
-
-## When Complete
-
-1. Update STATUS.md with completion status
-2. Write QA_REPORT.md with:
-   - Number of tests added
-   - All test results
-   - Test coverage summary
-3. Run full test suite: `xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'`

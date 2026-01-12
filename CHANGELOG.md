@@ -5,6 +5,21 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-01-12
+
+### Added
+- **Menu Bar Schedule Indicator** - See next scheduled sync at a glance
+  - Shows "Next: [schedule name]" with countdown in menu bar popup
+  - Displays "No scheduled syncs" when none configured
+  - "Manage Schedules..." button opens Settings to Schedules tab
+  - 11 new unit tests for schedule indicator logic
+
+- **Two-Tier Parallel Development Architecture**
+  - Strategic Partner (Desktop Opus) for planning and review
+  - Lead Agent (CLI Opus) for task coordination and integration
+  - 4 Workers (CLI Sonnet) for parallel execution
+  - New documentation: PROJECT_CONTEXT.md, RECOVERY.md, QUICK_START.md
+
 ## [2.0.3] - 2026-01-12
 
 ### Added

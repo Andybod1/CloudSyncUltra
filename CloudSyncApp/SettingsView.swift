@@ -52,6 +52,9 @@ struct SettingsView: View {
                 .padding(.bottom, 12)
         }
         .frame(width: 600, height: 580)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SelectSchedulesTab"))) { _ in
+            selectedTab = 3  // Schedules tab
+        }
     }
 }
 

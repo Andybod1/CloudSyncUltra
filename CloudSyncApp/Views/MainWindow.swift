@@ -66,6 +66,13 @@ struct MainWindow: View {
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenDashboard"))) { _ in
             selectedSection = .dashboard
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenScheduleSettings"))) { _ in
+            selectedSection = .settings
+            // Small delay to ensure settings view is loaded, then select Schedules tab
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: NSNotification.Name("SelectSchedulesTab"), object: nil)
+            }
+        }
     }
     
     @ViewBuilder

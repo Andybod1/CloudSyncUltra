@@ -149,9 +149,32 @@ class StatusBarController: NSObject {
             lastSyncItem.isEnabled = false
             menu.addItem(lastSyncItem)
         }
-        
+
+        // Schedule indicator section
         menu.addItem(NSMenuItem.separator())
-        
+
+        let scheduleManager = ScheduleManager.shared
+        if let nextRun = scheduleManager.nextScheduledRun {
+            let scheduleItem = NSMenuItem(title: "Next: \(nextRun.schedule.name)", action: nil, keyEquivalent: "")
+            scheduleItem.isEnabled = false
+            menu.addItem(scheduleItem)
+
+            let timeItem = NSMenuItem(title: "  \(nextRun.schedule.formattedNextRun)", action: nil, keyEquivalent: "")
+            timeItem.isEnabled = false
+            menu.addItem(timeItem)
+        } else {
+            let noScheduleItem = NSMenuItem(title: "No scheduled syncs", action: nil, keyEquivalent: "")
+            noScheduleItem.isEnabled = false
+            menu.addItem(noScheduleItem)
+        }
+
+        // Manage Schedules button
+        let manageItem = NSMenuItem(title: "Manage Schedules...", action: #selector(openScheduleSettings), keyEquivalent: "")
+        manageItem.target = self
+        menu.addItem(manageItem)
+
+        menu.addItem(NSMenuItem.separator())
+
         // Open main window
         let openItem = NSMenuItem(title: "Open CloudSync Ultra", action: #selector(openMainWindow), keyEquivalent: "o")
         openItem.target = self
@@ -255,10 +278,10 @@ class StatusBarController: NSObject {
     @objc private func showSettings() {
         // Bring app to front
         NSApp.activate(ignoringOtherApps: true)
-        
+
         // Post notification to open settings
         NotificationCenter.default.post(name: NSNotification.Name("OpenSettings"), object: nil)
-        
+
         // Bring main window to front
         DispatchQueue.main.async {
             for window in NSApp.windows {
@@ -269,10 +292,31 @@ class StatusBarController: NSObject {
                 }
             }
         }
-        
+
         updateMenu()
     }
-    
+
+    @objc private func openScheduleSettings() {
+        // Bring app to front
+        NSApp.activate(ignoringOtherApps: true)
+
+        // Post notification to open settings with Schedules tab selected
+        NotificationCenter.default.post(name: NSNotification.Name("OpenScheduleSettings"), object: nil)
+
+        // Bring main window to front
+        DispatchQueue.main.async {
+            for window in NSApp.windows {
+                if window.contentView != nil && !window.title.isEmpty {
+                    window.makeKeyAndOrderFront(nil)
+                    NSApp.activate(ignoringOtherApps: true)
+                    break
+                }
+            }
+        }
+
+        updateMenu()
+    }
+
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
     }

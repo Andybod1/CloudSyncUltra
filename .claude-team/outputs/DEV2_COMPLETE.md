@@ -1,60 +1,67 @@
-# Dev-2 Task Complete: Add Rclone Version Logging Method
+# Dev-2 Task Completion Report
 
-## Summary
+## Task: Menu Bar Schedule Indicator - Core Engine
+## Status: COMPLETE (No Changes Required)
+## Date: 2026-01-12
 
-Added a new `logRcloneVersion()` method to RcloneManager that logs the current rclone version for debugging purposes.
+## Implementation Summary
 
-## Changes Made
+No code changes were required from Dev-2 (Core Engine) for this feature.
 
-### File: `CloudSyncApp/RcloneManager.swift`
+The Menu Bar Schedule Indicator feature only requires UI changes to display existing ScheduleManager data. All necessary core APIs were already implemented in the previous sprint (Scheduled Sync feature).
 
-Added new method at line 82-102:
+## API Verification
 
+Verified that the following ScheduleManager APIs exist and are sufficient:
+
+### `nextScheduledRun` (ScheduleManager.swift:290)
 ```swift
-// MARK: - Debugging
-
-/// Logs the current rclone version for debugging
-func logRcloneVersion() async {
-    do {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: rclonePath)
-        process.arguments = ["version"]
-
-        let pipe = Pipe()
-        process.standardOutput = pipe
-
-        try process.run()
-        process.waitUntilExit()
-
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        if let output = String(data: data, encoding: .utf8) {
-            print("[RcloneManager] Rclone version: \(output.components(separatedBy: .newlines).first ?? "unknown")")
-        }
-    } catch {
-        print("[RcloneManager] Failed to get rclone version: \(error.localizedDescription)")
-    }
+var nextScheduledRun: (schedule: SyncSchedule, date: Date)? {
+    // Returns tuple with schedule and next execution date
 }
 ```
 
-## Acceptance Criteria Met
+### `formattedNextRun` (ScheduleManager.swift:300)
+```swift
+var formattedNextRun: String {
+    guard let next = nextScheduledRun else { return "No schedules" }
+    return "\(next.schedule.name): \(next.schedule.formattedNextRun)"
+}
+```
 
-1. **New method `logRcloneVersion()` added** - Added to RcloneManager class
-2. **Method runs `rclone version` and logs output** - Uses Process to execute rclone, logs first line of version output
-3. **Method is async and handles errors gracefully** - Method is async, uses do-catch for error handling
-4. **Compiles without errors** - Build succeeded
+### `SyncSchedule.formattedNextRun` (SyncSchedule.swift:115)
+```swift
+var formattedNextRun: String {
+    // Returns human-readable next run time
+}
+```
 
-## Implementation Notes
+## Files Modified
 
-- Used `print` for logging to match existing code patterns in RcloneManager (the file uses `print("[RcloneManager] ...")` throughout)
-- Added new `// MARK: - Debugging` section for organization
-- Method extracts only the first line of version output for cleaner logging
+- None
+
+## Tests Written
+
+- None required (no new code)
+
+## Test Results
+
+- N/A - No new functionality added
 
 ## Build Verification
 
-```
-** BUILD SUCCEEDED **
-```
+- N/A - No changes to verify
 
-## Completed
+## Notes
 
-2026-01-12
+The existing ScheduleManager APIs are already being used by:
+- `ScheduleSettingsView.swift:79` - Uses `nextScheduledRun`
+- `ScheduleSettingsView.swift:92` - Uses `formattedNextRun`
+- `ScheduleRowView.swift:69` - Uses `schedule.formattedNextRun`
+
+Dev-1 (UI Layer) can directly use these APIs for the Menu Bar Schedule Indicator without any modifications to the core engine.
+
+## Acceptance Criteria Status
+
+- [x] Acknowledge no changes needed
+- [x] Verify existing ScheduleManager APIs are sufficient
