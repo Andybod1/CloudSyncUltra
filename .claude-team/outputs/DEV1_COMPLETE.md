@@ -1,38 +1,43 @@
 # Dev-1 Completion Report
 
-**Feature:** Bug Fixes + UI Quick Wins
+**Feature:** UI Quick Wins Batch
 **Status:** COMPLETE
 
-## Issues Fixed
-
-### #28 (Critical): UI Freezes in Left Pane
-- **Root Cause:** `onTapGesture(count: 2)` on remote sidebar items was conflicting with List selection binding
-- **Fix:** Removed the conflicting double-tap gesture. Connect functionality is still available via context menu (right-click)
-- **File:** `CloudSyncApp/Views/MainWindow.swift`
-
-### #26 (High): Move Schedules Position
-- **Change:** Reordered sidebar items so Schedules appears between Transfer and Tasks
-- **New Order:** Dashboard → Transfer → Schedules → Tasks → History
-- **File:** `CloudSyncApp/Views/MainWindow.swift`
-
-### #19 (Low): Remove Seconds from Completed Tasks
-- **Change:** Replaced `Text(completed, style: .relative)` with custom `formatCompletionTime()` function
-- **New Display:**
-  - < 1 minute: "Just now"
-  - < 1 hour: "X mins ago"
-  - < 24 hours: "X hours ago"
-  - Older: abbreviated date/time
-- **File:** `CloudSyncApp/Views/TasksView.swift`
+## Files Created
+- None (all modifications to existing files)
 
 ## Files Modified
 - `CloudSyncApp/Views/MainWindow.swift`
-- `CloudSyncApp/Views/TasksView.swift`
+- `CloudSyncApp/Views/TransferView.swift`
 
 ## Summary
-Fixed 3 issues affecting UI usability:
-1. Sidebar selection no longer freezes when clicking cloud services
-2. Schedules now logically positioned between Transfer and Tasks
-3. Completed task times show cleaner relative format without noisy seconds
+
+Successfully implemented all 4 UI improvement tasks as specified:
+
+### Task 1: Remember Transfer View State (#18)
+- Created `TransferViewState` class as @StateObject in MainWindow
+- Updated TransferView to use @EnvironmentObject instead of local @State variables
+- Transfer view now persists state (selected remotes, transfer mode) across navigation
+- Fixed swap function to work with the new computed properties
+
+### Task 2: Mouseover Highlight for Username in Sidebar (#17)
+- Added `RemoteNameWithHover` component with hover highlighting
+- Displays subtle background highlight when hovering over remote names in sidebar
+- Uses 10% opacity accent color background with smooth transitions
+
+### Task 3: Search Field in Add Cloud Storage (#22)
+- Added search functionality to provider selection in AddRemoteSheet
+- Created `filteredProviders` computed property for real-time filtering
+- Added search bar with magnifying glass icon and clear button
+- Providers are filtered by display name (case-insensitive)
+
+### Task 4: Remote Name Dialog Timing (#23)
+- Modified remote name field to only appear after provider selection
+- Changed `selectedProvider` from default GoogleDrive to optional nil
+- Added smooth transitions with opacity and edge animations
+- Continue button only appears when both provider and name are selected
 
 ## Build Status
 BUILD SUCCEEDED
+
+All changes compile successfully and maintain existing functionality while adding the requested UI improvements.

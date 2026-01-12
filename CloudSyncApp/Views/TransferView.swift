@@ -11,18 +11,27 @@ import UniformTypeIdentifiers
 struct TransferView: View {
     @EnvironmentObject var remotesVM: RemotesViewModel
     @EnvironmentObject var tasksVM: TasksViewModel
-    
+    @EnvironmentObject var transferState: TransferViewState
+
     @StateObject private var sourceBrowser = FileBrowserViewModel()
     @StateObject private var destBrowser = FileBrowserViewModel()
     @StateObject private var transferProgress = TransferProgressModel()
-    
-    @State private var selectedSourceRemote: CloudRemote?
-    @State private var selectedDestRemote: CloudRemote?
-    @State private var transferMode: TaskType = .transfer
+
     @State private var dragSourceIsLeft = true
     @State private var isDragging = false
     @State private var encryptLeftToRight = false
     @State private var encryptRightToLeft = false
+
+    // Computed properties for the selected remotes based on transferState
+    private var selectedSourceRemote: CloudRemote? {
+        guard let id = transferState.sourceRemoteId else { return nil }
+        return remotesVM.remotes.first { $0.id == id }
+    }
+
+    private var selectedDestRemote: CloudRemote? {
+        guard let id = transferState.destRemoteId else { return nil }
+        return remotesVM.remotes.first { $0.id == id }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +52,10 @@ struct TransferView: View {
                 TransferFileBrowserPane(
                     title: "Source",
                     browser: sourceBrowser,
-                    selectedRemote: $selectedSourceRemote,
+                    selectedRemote: Binding(
+                        get: { selectedSourceRemote },
+                        set: { transferState.sourceRemoteId = $0?.id }
+                    ),
                     remotes: remotesVM.configuredRemotes,
                     isLeftPane: true,
                     dragSourceIsLeft: $dragSourceIsLeft,
@@ -51,13 +63,16 @@ struct TransferView: View {
                     encryptTransfers: $encryptLeftToRight,
                     onDropReceived: { transferFromRightToLeft() }
                 )
-                
+
                 transferControls
-                
+
                 TransferFileBrowserPane(
                     title: "Destination",
                     browser: destBrowser,
-                    selectedRemote: $selectedDestRemote,
+                    selectedRemote: Binding(
+                        get: { selectedDestRemote },
+                        set: { transferState.destRemoteId = $0?.id }
+                    ),
                     remotes: remotesVM.configuredRemotes,
                     isLeftPane: false,
                     dragSourceIsLeft: $dragSourceIsLeft,
@@ -69,8 +84,8 @@ struct TransferView: View {
         }
         .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle("Transfer")
-        .onChange(of: selectedSourceRemote) { _, newValue in
-            if let remote = newValue {
+        .onChange(of: transferState.sourceRemoteId) { _, newId in
+            if let remote = selectedSourceRemote {
                 // Initialize encryption state for this remote
                 let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
                 encryptLeftToRight = isEncrypted
@@ -92,8 +107,8 @@ struct TransferView: View {
                 }
             }
         }
-        .onChange(of: selectedDestRemote) { _, newValue in
-            if let remote = newValue {
+        .onChange(of: transferState.destRemoteId) { _, newId in
+            if let remote = selectedDestRemote {
                 // Initialize encryption state for this remote
                 let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
                 encryptRightToLeft = isEncrypted
@@ -119,7 +134,7 @@ struct TransferView: View {
     
     private var transferToolbar: some View {
         HStack(spacing: 16) {
-            Picker("Mode", selection: $transferMode) {
+            Picker("Mode", selection: $transferState.transferMode) {
                 ForEach(TaskType.allCases, id: \.self) { mode in
                     Label(mode.rawValue, systemImage: mode.icon).tag(mode)
                 }
@@ -162,7 +177,11 @@ struct TransferView: View {
             .buttonStyle(.borderedProminent)
             .disabled(sourceBrowser.selectedFiles.isEmpty || selectedDestRemote == nil || transferProgress.isTransferring)
             
-            Button { swap(&selectedSourceRemote, &selectedDestRemote) } label: {
+            Button {
+                let tempId = transferState.sourceRemoteId
+                transferState.sourceRemoteId = transferState.destRemoteId
+                transferState.destRemoteId = tempId
+            } label: {
                 Image(systemName: "arrow.left.arrow.right").font(.caption)
             }
             .buttonStyle(.bordered)

@@ -6,12 +6,26 @@
 //
 
 import SwiftUI
+import Foundation
+
+// MARK: - Transfer View State
+
+class TransferViewState: ObservableObject {
+    @Published var sourceRemoteId: UUID?
+    @Published var destRemoteId: UUID?
+    @Published var sourcePath: String = ""
+    @Published var destPath: String = ""
+    @Published var selectedSourceFiles: Set<UUID> = []
+    @Published var selectedDestFiles: Set<UUID> = []
+    @Published var transferMode: TaskType = .transfer
+}
 
 struct MainWindow: View {
     @StateObject private var syncManager = SyncManager.shared
     @StateObject private var remotesVM = RemotesViewModel.shared
     @StateObject private var tasksVM = TasksViewModel.shared
-    
+    @StateObject private var transferState = TransferViewState()
+
     @State private var selectedSection: SidebarSection = .dashboard
     @State private var selectedRemote: CloudRemote?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
@@ -79,6 +93,7 @@ struct MainWindow: View {
             DashboardView()
         case .transfer:
             TransferView()
+                .environmentObject(transferState)
         case .encryption:
             EncryptionSettingsView()
         case .tasks:
@@ -237,15 +252,14 @@ struct SidebarView: View {
         let isCloudRemote = remote.type != .local
         let hasEncryption = isCloudRemote && EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName)
         let isEncryptionOn = isCloudRemote && EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
-        
+
         return HStack(spacing: 8) {
             Image(systemName: remote.displayIcon)
                 .foregroundColor(remote.displayColor)
                 .frame(width: 20)
-            
-            Text(remote.name)
-                .lineLimit(1)
-            
+
+            RemoteNameWithHover(name: remote.name)
+
             Spacer()
             
             // Show encryption status (only for cloud remotes, not local storage)
@@ -271,18 +285,47 @@ struct SidebarView: View {
     }
 }
 
+// MARK: - Remote Name with Hover
+
+struct RemoteNameWithHover: View {
+    let name: String
+    @State private var isHoveringUsername = false
+
+    var body: some View {
+        Text(name)
+            .lineLimit(1)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(isHoveringUsername ? Color.accentColor.opacity(0.1) : Color.clear)
+            .cornerRadius(4)
+            .onHover { hovering in
+                isHoveringUsername = hovering
+            }
+    }
+}
+
 // MARK: - Add Remote Sheet
 
 struct AddRemoteSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var remotesVM: RemotesViewModel
-    
+
     var onRemoteAdded: ((CloudRemote) -> Void)?
-    
-    @State private var selectedProvider: CloudProviderType = .googleDrive
+
+    @State private var selectedProvider: CloudProviderType?
     @State private var remoteName: String = ""
-    
+    @State private var searchText = ""
+
     let supportedProviders = CloudProviderType.allCases.filter { $0.isSupported && $0 != .local }
+
+    var filteredProviders: [CloudProviderType] {
+        if searchText.isEmpty {
+            return supportedProviders
+        }
+        return supportedProviders.filter { provider in
+            provider.displayName.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -300,13 +343,32 @@ struct AddRemoteSheet: View {
             .padding()
             
             Divider()
-            
+
+            // Search bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.secondary)
+                TextField("Search providers...", text: $searchText)
+                    .textFieldStyle(.plain)
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(8)
+            .background(Color(.textBackgroundColor))
+            .cornerRadius(8)
+            .padding()
+
             // Provider Grid
             ScrollView {
                 LazyVGrid(columns: [
                     GridItem(.adaptive(minimum: 140, maximum: 180), spacing: 12)
                 ], spacing: 12) {
-                    ForEach(supportedProviders) { provider in
+                    ForEach(filteredProviders) { provider in
                         ProviderCard(
                             provider: provider,
                             isSelected: selectedProvider == provider
@@ -321,34 +383,48 @@ struct AddRemoteSheet: View {
                 .padding()
             }
             
+            // Name field - only after provider selected
+            if selectedProvider != nil {
+                Divider()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Remote Name")
+                        .font(.headline)
+                    TextField("Enter a name for this remote", text: $remoteName)
+                        .textFieldStyle(.roundedBorder)
+                }
+                .padding()
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+
             Divider()
-            
+
             // Footer
             HStack {
-                TextField("Remote Name", text: $remoteName)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 200)
-                
-                Spacer()
-                
                 Button("Cancel") { dismiss() }
                     .keyboardShortcut(.escape)
-                
-                Button("Add & Connect") {
-                    addRemote()
+
+                Spacer()
+
+                // Continue button
+                if selectedProvider != nil && !remoteName.isEmpty {
+                    Button("Add & Connect") {
+                        addRemote()
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(remoteName.isEmpty)
             }
             .padding()
         }
         .frame(width: 600, height: 500)
+        .animation(.default, value: selectedProvider)
     }
     
     private func addRemote() {
+        guard let provider = selectedProvider else { return }
         let remote = CloudRemote(
             name: remoteName,
-            type: selectedProvider,
+            type: provider,
             isConfigured: false,
             path: ""
         )

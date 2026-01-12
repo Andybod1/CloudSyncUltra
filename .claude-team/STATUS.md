@@ -1,36 +1,41 @@
 # Worker Status
 
-> Last Updated: 2026-01-12 21:10 UTC
+> Last Updated: 2026-01-12 21:30 UTC
 
-## Current Sprint: Bug Fixes + Quick Wins
+## Current Sprint: UI Quick Wins
 
-| Worker | Status | Current Task |
-|--------|--------|--------------|
-| Dev-1 | ✅ Done | #28, #26, #19 complete |
-| Dev-2 | ✅ COMPLETE | #21 Cloud-to-cloud progress |
-| Dev-3 | ✅ Done | #24 complete |
-| QA | ✅ Done | Tests verified, report written |
+| Worker | Model | Status | Current Task |
+|--------|-------|--------|--------------|
+| Dev-1 | Sonnet | ✅ COMPLETE | #18, #17, #22, #23 |
+| Dev-2 | - | ⚪ Idle | - |
+| Dev-3 | - | ⚪ Idle | - |
+| QA | - | ⚪ Idle | - |
 
-## Completed Issues
+## Active Issues
 
-| # | Title | Worker | Status |
-|---|-------|--------|--------|
-| #28 | UI freezes in left pane | Dev-1 | ✅ Closed |
-| #26 | Move schedules position | Dev-1 | ✅ Closed |
-| #19 | Remove seconds from completed | Dev-1 | ✅ Closed |
-| #24 | Remove Jottacloud experimental | Dev-3 | ✅ Closed |
+| # | Title | Worker | Model | Size | Status |
+|---|-------|--------|-------|------|--------|
+| #18 | Remember transfer view state | Dev-1 | Sonnet | S | 🟡 In Progress |
+| #17 | Mouseover highlight | Dev-1 | Sonnet | XS | 🟡 In Progress |
+| #22 | Search in add cloud storage | Dev-1 | Sonnet | S | 🟡 In Progress |
+| #23 | Remote name dialog timing | Dev-1 | Sonnet | S | 🟡 In Progress |
 
-## In Progress
+## Model Selection
 
-| # | Title | Worker | Status |
-|---|-------|--------|--------|
-| #21 | Progress not showing cloud→cloud | Dev-2 | ✅ Fixed |
-| - | Verify batch + add test coverage | QA | ✅ Complete |
+| Size | Model | Reasoning |
+|------|-------|-----------|
+| XS, S | Sonnet | Fast, efficient for simple tasks |
+| M, L, XL | Opus | Deep reasoning for complex work |
 
 ---
 
-## QA Launch Command
+## Launch Command
 
+```bash
+/Users/antti/Claude/.claude-team/scripts/launch_all_workers.sh
 ```
-Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+
+Or manually:
+```bash
+/Users/antti/Claude/.claude-team/scripts/launch_single_worker.sh DEV1 sonnet
 ```

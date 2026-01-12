@@ -1,15 +1,37 @@
 #!/bin/bash
 
-# Launch a single worker - more reliable approach
-# Usage: ./launch_single_worker.sh [DEV1|DEV2|DEV3|QA]
+# Launch a single worker with model selection
+# Usage: ./launch_single_worker.sh [DEV1|DEV2|DEV3|QA] [sonnet|opus]
 
 WORKER="$1"
+MODEL="${2:-opus}"  # Default to opus if not specified
 TEAM_DIR="/Users/antti/Claude/.claude-team"
 
 if [ -z "$WORKER" ]; then
-    echo "Usage: $0 [DEV1|DEV2|DEV3|QA]"
+    echo "Usage: $0 [DEV1|DEV2|DEV3|QA] [sonnet|opus]"
+    echo ""
+    echo "Models:"
+    echo "  sonnet - Fast, for simple tasks (XS, S)"
+    echo "  opus   - Deep reasoning, for complex tasks (M, L, XL)"
     exit 1
 fi
+
+# Validate model
+case "$MODEL" in
+    sonnet|SONNET)
+        MODEL_FLAG="--model claude-sonnet-4-20250514"
+        MODEL_NAME="Sonnet"
+        ;;
+    opus|OPUS)
+        MODEL_FLAG="--model claude-opus-4-20250514"
+        MODEL_NAME="Opus"
+        ;;
+    *)
+        echo "Unknown model: $MODEL"
+        echo "Use: sonnet or opus"
+        exit 1
+        ;;
+esac
 
 case "$WORKER" in
     DEV1|dev1)
@@ -41,13 +63,13 @@ esac
 
 CMD="Read /Users/antti/Claude/.claude-team/templates/$BRIEFING then read and execute /Users/antti/Claude/.claude-team/tasks/$TASK. Update STATUS.md as you work."
 
-echo "Launching $NAME..."
+echo "Launching $NAME with $MODEL_NAME..."
 
-# Open new Terminal window, cd, launch claude, and send command
+# Open new Terminal window, cd, launch claude with model, and send command
 osascript -e "
 tell application \"Terminal\"
     activate
-    do script \"cd /Users/antti/Claude && echo 'Starting $NAME...' && claude\"
+    do script \"cd /Users/antti/Claude && echo 'Starting $NAME ($MODEL_NAME)...' && claude $MODEL_FLAG\"
 end tell
 " 
 
@@ -66,4 +88,4 @@ tell application \"System Events\"
 end tell
 "
 
-echo "✅ $NAME launched and task sent!"
+echo "✅ $NAME launched with $MODEL_NAME and task sent!"

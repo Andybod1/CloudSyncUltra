@@ -1,102 +1,222 @@
-# Dev-1 Task: Bug Fixes + UI Quick Wins
+# Dev-1 Task: UI Quick Wins Batch
+
+## Model: Sonnet (all XS/S tickets)
 
 ## Issues
-- #28 (Critical): UI freezes in left pane
-- #26 (High): Move schedules position
-- #19 (Low): Remove seconds from completed tasks
+- #18 (High, S): Remember transfer view state
+- #17 (Low, XS): Mouseover highlight for username
+- #22 (Low, S): Search field in add cloud storage
+- #23 (Low, S): Remote name dialog timing
 
 ---
 
-## Task 1: Fix UI Freezing in Left Pane (#28)
+## Task 1: Remember Transfer View State (#18)
 
 ### Problem
-Left pane sidebar freezes intermittently when clicking cloud service items. Clicks don't register, but app otherwise works. Recovers after clicking elsewhere.
+When user navigates away from Transfer view and comes back, state resets (selected remotes, paths, etc.)
 
-### Investigation
-1. Check `MainWindow.swift` sidebar List selection binding
-2. Look for state conflicts or async issues
-3. Verify ForEach uses stable IDs
+### Solution
+Create persistent state that survives navigation using @StateObject or @SceneStorage.
 
-### Likely Fix
+### Implementation
 ```swift
-// Ensure selection binding is simple
-@State private var selectedRemote: CloudRemote.ID?
+// Option A: StateObject in parent (recommended)
+// In MainWindow.swift or CloudSyncApp.swift
 
-// Use explicit button for selection (more reliable)
-ForEach(remotes, id: \.id) { remote in
-    Button {
-        selectedRemote = remote.id
-    } label: {
-        RemoteRowView(remote: remote)
+class TransferViewState: ObservableObject {
+    @Published var sourceRemoteId: UUID?
+    @Published var destRemoteId: UUID?
+    @Published var sourcePath: String = ""
+    @Published var destPath: String = ""
+    @Published var selectedSourceFiles: Set<UUID> = []
+    @Published var selectedDestFiles: Set<UUID> = []
+}
+
+// Create once at app level
+@StateObject private var transferState = TransferViewState()
+
+// Pass to TransferView
+TransferView()
+    .environmentObject(transferState)
+```
+
+```swift
+// In TransferView.swift - use EnvironmentObject instead of @State
+@EnvironmentObject var state: TransferViewState
+
+// Replace local @State vars with state.property
+```
+
+### Files
+- `CloudSyncApp/Views/MainWindow.swift` - Add StateObject, pass to TransferView
+- `CloudSyncApp/Views/TransferView.swift` - Use EnvironmentObject
+
+---
+
+## Task 2: Mouseover Highlight (#17)
+
+### Problem
+Username display in sidebar needs hover highlight for better UX.
+
+### Solution
+Add onHover modifier to username text.
+
+### Implementation
+Find where username is displayed in sidebar (likely in `remoteSidebarItem` or similar):
+
+```swift
+// Add state for hover
+@State private var isHoveringUsername = false
+
+// In the view
+Text(remote.username ?? "")
+    .font(.caption)
+    .foregroundColor(.secondary)
+    .padding(.horizontal, 4)
+    .padding(.vertical, 2)
+    .background(isHoveringUsername ? Color.accentColor.opacity(0.1) : Color.clear)
+    .cornerRadius(4)
+    .onHover { hovering in
+        isHoveringUsername = hovering
     }
-    .buttonStyle(.plain)
+```
+
+### Files
+- `CloudSyncApp/Views/MainWindow.swift` - remoteSidebarItem function
+
+---
+
+## Task 3: Search Field in Add Cloud Storage (#22)
+
+### Problem
+With 42 providers, finding one is tedious. Need search/filter.
+
+### Solution
+Add search TextField that filters provider grid.
+
+### Implementation
+```swift
+// In AddRemoteView.swift
+
+@State private var searchText = ""
+
+var filteredProviders: [CloudProviderType] {
+    if searchText.isEmpty {
+        return CloudProviderType.allCases.filter { $0.isSupported }
+    }
+    return CloudProviderType.allCases.filter { provider in
+        provider.isSupported &&
+        provider.displayName.localizedCaseInsensitiveContains(searchText)
+    }
+}
+
+var body: some View {
+    VStack(spacing: 0) {
+        // Search bar at top
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            TextField("Search providers...", text: $searchText)
+                .textFieldStyle(.plain)
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .background(Color(.textBackgroundColor))
+        .cornerRadius(8)
+        .padding()
+        
+        // Provider grid uses filteredProviders
+        ScrollView {
+            LazyVGrid(...) {
+                ForEach(filteredProviders, id: \.self) { provider in
+                    // existing provider card
+                }
+            }
+        }
+    }
 }
 ```
 
 ### Files
-- `CloudSyncApp/Views/MainWindow.swift`
+- `CloudSyncApp/Views/AddRemoteView.swift`
 
 ---
 
-## Task 2: Move Schedules Position (#26)
+## Task 4: Remote Name Dialog Timing (#23)
 
 ### Problem
-Schedules should appear between Transfer and Tasks in sidebar.
+Remote name input field shows before provider is selected. Should only appear after selection.
 
-### Fix
-Reorder sidebar items:
-```
-Transfer
-Schedules  ← move here
-Tasks
-History
-```
+### Solution
+Conditionally show name field only when provider is selected.
 
-### Files
-- `CloudSyncApp/Views/MainWindow.swift` - Reorder enum or list
-
----
-
-## Task 3: Remove Seconds from Completed Tasks (#19)
-
-### Problem
-Completed tasks show seconds counting up - too noisy. Minutes granularity is enough.
-
-### Fix
+### Implementation
 ```swift
-func formatCompletionTime(_ date: Date) -> String {
-    let interval = Date().timeIntervalSince(date)
-    
-    if interval < 60 {
-        return "Just now"
-    } else if interval < 3600 {
-        let mins = Int(interval / 60)
-        return "\(mins) min\(mins == 1 ? "" : "s") ago"
-    } else if interval < 86400 {
-        let hours = Int(interval / 3600)
-        return "\(hours) hour\(hours == 1 ? "" : "s") ago"
-    } else {
-        return date.formatted(date: .abbreviated, time: .shortened)
+// In AddRemoteView.swift
+
+@State private var selectedProvider: CloudProviderType?
+@State private var remoteName: String = ""
+
+var body: some View {
+    VStack {
+        // Provider grid (always visible)
+        providerGrid
+        
+        // Name field - only after provider selected
+        if selectedProvider != nil {
+            Divider()
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Remote Name")
+                    .font(.headline)
+                TextField("Enter a name for this remote", text: $remoteName)
+                    .textFieldStyle(.roundedBorder)
+            }
+            .padding()
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+        }
+        
+        // Continue button
+        if selectedProvider != nil && !remoteName.isEmpty {
+            Button("Continue") {
+                // proceed to configuration
+            }
+            .buttonStyle(.borderedProminent)
+        }
     }
+    .animation(.default, value: selectedProvider)
 }
 ```
 
 ### Files
-- `CloudSyncApp/Views/TasksView.swift`
+- `CloudSyncApp/Views/AddRemoteView.swift`
 
 ---
 
 ## Completion Checklist
-- [ ] #28: UI freezing fixed
-- [ ] #26: Schedules moved in sidebar
-- [ ] #19: Time format updated
+- [ ] #18: Transfer view state persists across navigation
+- [ ] #17: Username shows highlight on hover
+- [ ] #22: Search field filters providers
+- [ ] #23: Name field appears after provider selection
 - [ ] All changes compile
+- [ ] Test each feature manually
 - [ ] Update STATUS.md when done
 
 ## Commits
-Reference issues in commits:
+```bash
+git commit -m "feat(ui): Remember transfer view state across navigation - Fixes #18"
+git commit -m "feat(ui): Add hover highlight to sidebar username - Fixes #17"
+git commit -m "feat(ui): Add search field to provider selection - Fixes #22"
+git commit -m "feat(ui): Show remote name field after provider selection - Fixes #23"
 ```
-git commit -m "fix(ui): Fix sidebar selection freezing - Fixes #28"
-git commit -m "fix(ui): Move schedules between transfer and tasks - Fixes #26"
-git commit -m "fix(ui): Show relative time without seconds - Fixes #19"
+
+Or combine:
+```bash
+git commit -m "feat(ui): UI quick wins batch - Fixes #18, #17, #22, #23"
 ```
