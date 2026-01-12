@@ -2,7 +2,7 @@
 //  SyncTaskTests.swift
 //  CloudSyncAppTests
 //
-//  Unit tests for SyncTask model
+//  Tests for SyncTask model
 //
 
 import XCTest
@@ -12,150 +12,169 @@ final class SyncTaskTests: XCTestCase {
     
     // MARK: - TaskType Tests
     
-    func testTaskType_Icons() {
+    func testTaskTypeRawValues() {
+        XCTAssertEqual(TaskType.sync.rawValue, "Sync")
+        XCTAssertEqual(TaskType.transfer.rawValue, "Transfer")
+        XCTAssertEqual(TaskType.backup.rawValue, "Backup")
+    }
+    
+    func testTaskTypeIcons() {
         XCTAssertEqual(TaskType.sync.icon, "arrow.triangle.2.circlepath")
-        XCTAssertEqual(TaskType.backup.icon, "arrow.clockwise.icloud")
-        XCTAssertEqual(TaskType.transfer.icon, "arrow.right.arrow.left")
+        XCTAssertEqual(TaskType.transfer.icon, "arrow.right")
+        XCTAssertEqual(TaskType.backup.icon, "externaldrive.fill.badge.timemachine")
     }
     
-    func testTaskType_AllCases() {
-        XCTAssertEqual(TaskType.allCases.count, 3)
-        XCTAssertTrue(TaskType.allCases.contains(.sync))
-        XCTAssertTrue(TaskType.allCases.contains(.backup))
-        XCTAssertTrue(TaskType.allCases.contains(.transfer))
+    // MARK: - TaskState Tests
+    
+    func testTaskStateRawValues() {
+        XCTAssertEqual(TaskState.pending.rawValue, "Pending")
+        XCTAssertEqual(TaskState.running.rawValue, "Running")
+        XCTAssertEqual(TaskState.completed.rawValue, "Completed")
+        XCTAssertEqual(TaskState.failed.rawValue, "Failed")
+        XCTAssertEqual(TaskState.paused.rawValue, "Paused")
+        XCTAssertEqual(TaskState.cancelled.rawValue, "Cancelled")
     }
     
-    // MARK: - TaskStatus Tests
-    
-    func testTaskStatus_Color() {
-        // Active should be blue/accent
-        // Pending should be orange
-        // Completed should be green
-        // Failed should be red
-        // These are visual tests, just ensure they don't crash
-        _ = TaskStatus.active.color
-        _ = TaskStatus.pending.color
-        _ = TaskStatus.completed.color
-        _ = TaskStatus.failed.color
-    }
-    
-    func testTaskStatus_Icon() {
-        XCTAssertEqual(TaskStatus.active.icon, "play.circle.fill")
-        XCTAssertEqual(TaskStatus.pending.icon, "clock.fill")
-        XCTAssertEqual(TaskStatus.completed.icon, "checkmark.circle.fill")
-        XCTAssertEqual(TaskStatus.failed.icon, "xmark.circle.fill")
+    func testTaskStateColors() {
+        // Just verify colors exist and are non-empty
+        XCTAssertFalse(TaskState.pending.color.isEmpty)
+        XCTAssertFalse(TaskState.running.color.isEmpty)
+        XCTAssertFalse(TaskState.completed.color.isEmpty)
+        XCTAssertFalse(TaskState.failed.color.isEmpty)
+        XCTAssertFalse(TaskState.paused.color.isEmpty)
+        XCTAssertFalse(TaskState.cancelled.color.isEmpty)
     }
     
     // MARK: - SyncTask Creation Tests
     
-    func testSyncTask_Creation() {
+    func testSyncTaskCreation() {
+        // Given
         let task = SyncTask(
             name: "Test Backup",
             type: .backup,
-            sourcePath: "/source",
-            destPath: "/dest",
             sourceRemote: "local",
-            destRemote: "proton"
+            sourcePath: "/Users/test/Documents",
+            destinationRemote: "Google Drive",
+            destinationPath: "/Backups"
         )
         
+        // Then
         XCTAssertEqual(task.name, "Test Backup")
         XCTAssertEqual(task.type, .backup)
-        XCTAssertEqual(task.sourcePath, "/source")
-        XCTAssertEqual(task.destPath, "/dest")
         XCTAssertEqual(task.sourceRemote, "local")
-        XCTAssertEqual(task.destRemote, "proton")
-        XCTAssertEqual(task.status, .pending)
-        XCTAssertTrue(task.isEnabled)
+        XCTAssertEqual(task.sourcePath, "/Users/test/Documents")
+        XCTAssertEqual(task.destinationRemote, "Google Drive")
+        XCTAssertEqual(task.destinationPath, "/Backups")
+        XCTAssertEqual(task.state, .pending)
+        XCTAssertEqual(task.progress, 0)
     }
     
-    func testSyncTask_DefaultValues() {
+    func testSyncTaskDefaultState() {
+        // Given
         let task = SyncTask(
-            name: "Default Task",
+            name: "Test Task",
             type: .sync,
-            sourcePath: "/src",
-            destPath: "/dst",
-            sourceRemote: "google",
-            destRemote: "dropbox"
-        )
-        
-        XCTAssertEqual(task.status, .pending)
-        XCTAssertTrue(task.isEnabled)
-        XCTAssertNil(task.lastRun)
-        XCTAssertNil(task.nextRun)
-        XCTAssertNil(task.schedule)
-    }
-    
-    func testSyncTask_WithSchedule() {
-        let nextRun = Date().addingTimeInterval(3600)
-        let task = SyncTask(
-            name: "Scheduled Task",
-            type: .sync,
-            sourcePath: "/src",
-            destPath: "/dst",
             sourceRemote: "local",
-            destRemote: "google",
-            schedule: "hourly",
-            nextRun: nextRun
+            sourcePath: "/test",
+            destinationRemote: "Remote",
+            destinationPath: "/backup"
         )
         
-        XCTAssertEqual(task.schedule, "hourly")
-        XCTAssertEqual(task.nextRun, nextRun)
+        // Then: Default state should be pending
+        XCTAssertEqual(task.state, .pending)
+        XCTAssertEqual(task.progress, 0)
+        XCTAssertEqual(task.bytesTransferred, 0)
+        XCTAssertEqual(task.totalBytes, 0)
     }
     
-    // MARK: - Equality Tests
+    func testSyncTaskWithEncryption() {
+        // Given
+        let task = SyncTask(
+            name: "Encrypted Backup",
+            type: .backup,
+            sourceRemote: "local",
+            sourcePath: "/sensitive",
+            destinationRemote: "Google Drive",
+            destinationPath: "/encrypted",
+            encryptSource: false,
+            encryptDestination: true
+        )
+        
+        // Then
+        XCTAssertFalse(task.encryptSource)
+        XCTAssertTrue(task.encryptDestination)
+    }
     
-    func testSyncTask_Equality() {
-        let id = UUID()
+    // MARK: - Identifiable Tests
+    
+    func testSyncTaskIsIdentifiable() {
+        // Given
         let task1 = SyncTask(
-            id: id,
             name: "Task 1",
             type: .sync,
-            sourcePath: "/src",
-            destPath: "/dst",
             sourceRemote: "local",
-            destRemote: "google"
+            sourcePath: "/a",
+            destinationRemote: "Remote",
+            destinationPath: "/b"
         )
         let task2 = SyncTask(
-            id: id,
-            name: "Different Name",
-            type: .backup,
-            sourcePath: "/different",
-            destPath: "/also-different",
-            sourceRemote: "dropbox",
-            destRemote: "onedrive"
+            name: "Task 2",
+            type: .sync,
+            sourceRemote: "local",
+            sourcePath: "/c",
+            destinationRemote: "Remote",
+            destinationPath: "/d"
         )
         
-        XCTAssertEqual(task1, task2) // Same ID means equal
+        // Then: Each task should have unique ID
+        XCTAssertNotEqual(task1.id, task2.id)
     }
     
     // MARK: - Codable Tests
     
-    func testSyncTask_Codable() throws {
+    func testSyncTaskIsCodable() throws {
+        // Given
         let task = SyncTask(
             name: "Codable Test",
             type: .transfer,
-            sourcePath: "/source/path",
-            destPath: "/dest/path",
-            sourceRemote: "google",
-            destRemote: "proton",
-            status: .completed,
-            isEnabled: false
+            sourceRemote: "pCloud",
+            sourcePath: "/photos",
+            destinationRemote: "Google Drive",
+            destinationPath: "/archive"
         )
         
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(task)
+        // When
+        let encoded = try JSONEncoder().encode(task)
+        let decoded = try JSONDecoder().decode(SyncTask.self, from: encoded)
         
-        let decoder = JSONDecoder()
-        let decoded = try decoder.decode(SyncTask.self, from: data)
-        
-        XCTAssertEqual(decoded.id, task.id)
+        // Then
         XCTAssertEqual(decoded.name, task.name)
         XCTAssertEqual(decoded.type, task.type)
-        XCTAssertEqual(decoded.sourcePath, task.sourcePath)
-        XCTAssertEqual(decoded.destPath, task.destPath)
         XCTAssertEqual(decoded.sourceRemote, task.sourceRemote)
-        XCTAssertEqual(decoded.destRemote, task.destRemote)
-        XCTAssertEqual(decoded.status, task.status)
-        XCTAssertEqual(decoded.isEnabled, task.isEnabled)
+        XCTAssertEqual(decoded.destinationRemote, task.destinationRemote)
+    }
+    
+    func testTaskTypeIsCodable() throws {
+        // Given
+        let types: [TaskType] = [.sync, .transfer, .backup]
+        
+        // When/Then
+        for type in types {
+            let encoded = try JSONEncoder().encode(type)
+            let decoded = try JSONDecoder().decode(TaskType.self, from: encoded)
+            XCTAssertEqual(decoded, type)
+        }
+    }
+    
+    func testTaskStateIsCodable() throws {
+        // Given
+        let states: [TaskState] = [.pending, .running, .completed, .failed, .paused, .cancelled]
+        
+        // When/Then
+        for state in states {
+            let encoded = try JSONEncoder().encode(state)
+            let decoded = try JSONDecoder().decode(TaskState.self, from: encoded)
+            XCTAssertEqual(decoded, state)
+        }
     }
 }

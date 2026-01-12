@@ -22,11 +22,11 @@ final class CloudProviderTests: XCTestCase {
     }
     
     func testDisplayIcon() {
-        XCTAssertEqual(CloudProviderType.protonDrive.displayIcon, "shield.fill")
-        XCTAssertEqual(CloudProviderType.googleDrive.displayIcon, "g.circle.fill")
-        XCTAssertEqual(CloudProviderType.dropbox.displayIcon, "shippingbox.fill")
-        XCTAssertEqual(CloudProviderType.oneDrive.displayIcon, "cloud.fill")
-        XCTAssertEqual(CloudProviderType.local.displayIcon, "folder.fill")
+        XCTAssertEqual(CloudProviderType.protonDrive.iconName, "shield.fill")
+        XCTAssertEqual(CloudProviderType.googleDrive.iconName, "g.circle.fill")
+        XCTAssertEqual(CloudProviderType.dropbox.iconName, "shippingbox.fill")
+        XCTAssertEqual(CloudProviderType.oneDrive.iconName, "cloud.fill")
+        XCTAssertEqual(CloudProviderType.local.iconName, "folder.fill")
     }
     
     func testDefaultRcloneName() {

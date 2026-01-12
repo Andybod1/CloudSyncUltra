@@ -35,7 +35,38 @@
 		C7 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8; };
 		C9 /* Logger+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA; };
 		CB /* EncryptionModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC; };
+/* Test Build Files */
+		TB01 /* BandwidthThrottlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T01; };
+		TB02 /* CloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T02; };
+		TB03 /* CloudSyncUltraIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T03; };
+		TB04 /* EncryptionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T04; };
+		TB07 /* FileItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T07; };
+		TB08 /* JottacloudAuthenticationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T08; };
+		TB09 /* JottacloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T09; };
+		TB10 /* KeychainManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T10; };
+		TB11 /* MainWindowIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T11; };
+		TB12 /* NewFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T12; };
+		TB13 /* OAuthExpansionProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T13; };
+		TB14 /* Phase1Week1ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T14; };
+		TB15 /* Phase1Week2ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T15; };
+		TB16 /* Phase1Week3ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T16; };
+		TB17 /* ProtonDriveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T17; };
+		TB21 /* RemotesViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T21; };
+		TB22 /* SyncManagerPhase2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T22; };
+		TB23 /* SyncManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T23; };
+		TB24 /* SyncTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T24; };
+		TB25 /* TasksViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T25; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		PROXY01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 30;
+			remoteInfo = CloudSyncApp;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		02 /* CloudSyncAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppApp.swift; sourceTree = "<group>"; };
@@ -68,6 +99,28 @@
 		C8 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		CA /* Logger+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Extensions.swift"; sourceTree = "<group>"; };
 		CC /* EncryptionModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionModal.swift; sourceTree = "<group>"; };
+/* Test File References */
+		TESTBUNDLE /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		T01 /* BandwidthThrottlingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandwidthThrottlingTests.swift; sourceTree = "<group>"; };
+		T02 /* CloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProviderTests.swift; sourceTree = "<group>"; };
+		T03 /* CloudSyncUltraIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncUltraIntegrationTests.swift; sourceTree = "<group>"; };
+		T04 /* EncryptionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManagerTests.swift; sourceTree = "<group>"; };
+		T07 /* FileItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItemTests.swift; sourceTree = "<group>"; };
+		T08 /* JottacloudAuthenticationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudAuthenticationTests.swift; sourceTree = "<group>"; };
+		T09 /* JottacloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JottacloudProviderTests.swift; sourceTree = "<group>"; };
+		T10 /* KeychainManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManagerTests.swift; sourceTree = "<group>"; };
+		T11 /* MainWindowIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowIntegrationTests.swift; sourceTree = "<group>"; };
+		T12 /* NewFeaturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeaturesTests.swift; sourceTree = "<group>"; };
+		T13 /* OAuthExpansionProvidersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthExpansionProvidersTests.swift; sourceTree = "<group>"; };
+		T14 /* Phase1Week1ProvidersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week1ProvidersTests.swift; sourceTree = "<group>"; };
+		T15 /* Phase1Week2ProvidersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week2ProvidersTests.swift; sourceTree = "<group>"; };
+		T16 /* Phase1Week3ProvidersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1Week3ProvidersTests.swift; sourceTree = "<group>"; };
+		T17 /* ProtonDriveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonDriveTests.swift; sourceTree = "<group>"; };
+		T21 /* RemotesViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModelTests.swift; sourceTree = "<group>"; };
+		T22 /* SyncManagerPhase2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerPhase2Tests.swift; sourceTree = "<group>"; };
+		T23 /* SyncManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManagerTests.swift; sourceTree = "<group>"; };
+		T24 /* SyncTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTaskTests.swift; sourceTree = "<group>"; };
+		T25 /* TasksViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -75,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				21 /* CloudSyncApp */,
+				GT /* CloudSyncAppTests */,
 				22 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				15 /* CloudSyncApp.app */,
+				TESTBUNDLE /* CloudSyncAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,6 +210,33 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		GT /* CloudSyncAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				T01 /* BandwidthThrottlingTests.swift */,
+				T02 /* CloudProviderTests.swift */,
+				T03 /* CloudSyncUltraIntegrationTests.swift */,
+				T04 /* EncryptionManagerTests.swift */,
+				T07 /* FileItemTests.swift */,
+				T08 /* JottacloudAuthenticationTests.swift */,
+				T09 /* JottacloudProviderTests.swift */,
+				T10 /* KeychainManagerTests.swift */,
+				T11 /* MainWindowIntegrationTests.swift */,
+				T12 /* NewFeaturesTests.swift */,
+				T13 /* OAuthExpansionProvidersTests.swift */,
+				T14 /* Phase1Week1ProvidersTests.swift */,
+				T15 /* Phase1Week2ProvidersTests.swift */,
+				T16 /* Phase1Week3ProvidersTests.swift */,
+				T17 /* ProtonDriveTests.swift */,
+				T21 /* RemotesViewModelTests.swift */,
+				T22 /* SyncManagerPhase2Tests.swift */,
+				T23 /* SyncManagerTests.swift */,
+				T24 /* SyncTaskTests.swift */,
+				T25 /* TasksViewModelTests.swift */,
+			);
+			path = CloudSyncAppTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -173,6 +255,22 @@
 			productName = CloudSyncApp;
 			productReference = 15 /* CloudSyncApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		TESTTARGET /* CloudSyncAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = TESTCONFIGLIST;
+			buildPhases = (
+				TESTSOURCES /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				TESTDEP /* PBXTargetDependency */,
+			);
+			name = CloudSyncAppTests;
+			productName = CloudSyncAppTests;
+			productReference = TESTBUNDLE /* CloudSyncAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -198,6 +296,7 @@
 			projectRoot = "";
 			targets = (
 				30 /* CloudSyncApp */,
+				TESTTARGET /* CloudSyncAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -236,6 +335,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		TESTSOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				TB02 /* CloudProviderTests.swift in Sources */,
+				TB08 /* JottacloudAuthenticationTests.swift in Sources */,
+				TB09 /* JottacloudProviderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -249,6 +358,14 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		TESTDEP /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 30 /* CloudSyncApp */;
+			targetProxy = PROXY01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		50 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -257,11 +374,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CloudSyncApp/CloudSyncApp.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudSyncApp/Info.plist;
 				INFOPLIST_KEY_LSUIElement = NO;
@@ -308,6 +427,46 @@
 			};
 			name = Release;
 		};
+		TESTDEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.CloudSyncAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CloudSyncApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CloudSyncApp";
+			};
+			name = Debug;
+		};
+		TESTRELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.CloudSyncAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CloudSyncApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CloudSyncApp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -325,6 +484,15 @@
 			buildConfigurations = (
 				50 /* Debug */,
 				51 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		TESTCONFIGLIST /* Build configuration list for PBXNativeTarget "CloudSyncAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				TESTDEBUG /* Debug */,
+				TESTRELEASE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

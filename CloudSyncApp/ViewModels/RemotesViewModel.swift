@@ -23,6 +23,11 @@ class RemotesViewModel: ObservableObject {
         loadRemotes()
     }
     
+    /// Internal initializer for testing
+    internal init(forTesting: Bool) {
+        // Don't auto-load for tests
+    }
+    
     func loadRemotes() {
         // Start fresh with local storage
         remotes = [

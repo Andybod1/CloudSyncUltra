@@ -14,7 +14,7 @@ final class RemotesViewModelTests: XCTestCase {
     var viewModel: RemotesViewModel!
     
     override func setUp() async throws {
-        viewModel = RemotesViewModel()
+        viewModel = RemotesViewModel(forTesting: true)
     }
     
     override func tearDown() async throws {

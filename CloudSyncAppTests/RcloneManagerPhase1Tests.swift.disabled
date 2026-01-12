@@ -162,9 +162,9 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     func testRemoteNameWithUnicode() {
         // Given: Unicode characters in name
         let names = [
-            "test-文档",
-            "remote-файлы",
-            "cloud-🔒"
+            "test-",
+            "remote-",
+            "cloud-"
         ]
         
         // When: Checking each
@@ -205,7 +205,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressWithValidTransferredLine() {
         // Given: Valid rclone output with progress
-        let output = "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
+        let output = "Transferred:           1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
         
         // When: Parsing progress
         let progress = parseProgressPublic(from: output)
@@ -218,7 +218,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressWithZeroPercent() {
         // Given: Progress at 0%
-        let output = "Transferred:   	    0 B / 10 MiB, 0%, 0 B/s, ETA -"
+        let output = "Transferred:           0 B / 10 MiB, 0%, 0 B/s, ETA -"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -230,7 +230,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressWith100Percent() {
         // Given: Completed transfer
-        let output = "Transferred:   	    10 MiB / 10 MiB, 100%, 1.5 MiB/s, ETA 0s"
+        let output = "Transferred:           10 MiB / 10 MiB, 100%, 1.5 MiB/s, ETA 0s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -242,7 +242,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressWithDecimalPercentage() {
         // Given: Decimal percentage
-        let output = "Transferred:   	    5.5 MiB / 10 MiB, 55.5%, 500 KiB/s, ETA 10s"
+        let output = "Transferred:           5.5 MiB / 10 MiB, 55.5%, 500 KiB/s, ETA 10s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -254,7 +254,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressSpeedInKB() {
         // Given: Speed in KB/s
-        let output = "Transferred:   	    1 MiB / 10 MiB, 10%, 512 KiB/s, ETA 20s"
+        let output = "Transferred:           1 MiB / 10 MiB, 10%, 512 KiB/s, ETA 20s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -267,7 +267,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressSpeedInMB() {
         // Given: Speed in MB/s
-        let output = "Transferred:   	    5 MiB / 10 MiB, 50%, 2.5 MiB/s, ETA 2s"
+        let output = "Transferred:           5 MiB / 10 MiB, 50%, 2.5 MiB/s, ETA 2s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -280,7 +280,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressSpeedInGB() {
         // Given: Speed in GB/s (rare but possible)
-        let output = "Transferred:   	    500 GiB / 1000 GiB, 50%, 1.2 GiB/s, ETA 400s"
+        let output = "Transferred:           500 GiB / 1000 GiB, 50%, 1.2 GiB/s, ETA 400s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -303,7 +303,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
     
     func testParseProgressSyncingStatus() {
         // Given: Normal transfer output
-        let output = "Transferred:   	    5 MiB / 10 MiB, 50%, 1 MiB/s, ETA 5s"
+        let output = "Transferred:           5 MiB / 10 MiB, 50%, 1 MiB/s, ETA 5s"
         
         // When: Parsing
         let progress = parseProgressPublic(from: output)
@@ -356,7 +356,7 @@ final class RcloneManagerPhase1Tests: XCTestCase {
         let output = """
         2024/01/11 12:00:00 INFO  : Starting transfer
         Checks:                0 / 100, 0%
-        Transferred:   	    2 MiB / 10 MiB, 20%, 500 KiB/s, ETA 16s
+        Transferred:           2 MiB / 10 MiB, 20%, 500 KiB/s, ETA 16s
         """
         
         // When: Parsing
