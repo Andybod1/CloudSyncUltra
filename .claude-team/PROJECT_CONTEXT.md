@@ -12,7 +12,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.3 |
+| **Version** | 2.0.4 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Human** | Andy |
@@ -179,6 +179,10 @@ open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaums
 
 ## Recent History (Latest First)
 
+### v2.0.4 - 2026-01-12
+- **Menu Bar Schedule Indicator** - See next sync at a glance
+- **Two-Tier Architecture docs** - PROJECT_CONTEXT.md, RECOVERY.md, QUICK_START.md
+
 ### v2.0.3 - 2026-01-12
 - **Scheduled Sync** - Hourly/daily/weekly/custom schedules
 - **Two-Tier Architecture** - Strategic Partner + Lead Agent
@@ -214,4 +218,4 @@ Then tell me what state we're in and what needs to happen next.
 ---
 
 *Last Updated: 2026-01-12*
-*CloudSync Ultra v2.0.3*
+*CloudSync Ultra v2.0.4*
