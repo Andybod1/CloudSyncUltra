@@ -33,7 +33,7 @@ CloudSync Ultra syncs files between cloud services (Google Drive, Dropbox, Proto
 
 ## Development System
 
-### Two-Tier Parallel Architecture
+### Parallel Architecture
 
 ```
 Andy (Human) ─────────────────────────────────────────────────
@@ -42,18 +42,10 @@ Andy (Human) ──────────────────────�
 ┌─────────────────────────────────────────────────────────────┐
 │  STRATEGIC PARTNER (Desktop Claude - Opus 4.5)              │
 │  • Architecture & planning                                  │
-│  • Writes DIRECTIVE.md                                      │
+│  • Creates task files directly                              │
 │  • Reviews completed work                                   │
+│  • Integrates code, fixes builds                            │
 │  • Updates CHANGELOG, commits to git                        │
-└─────────────────────┬───────────────────────────────────────┘
-                      │ DIRECTIVE.md
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  LEAD AGENT (CLI Claude - Opus via claude --model opus)     │
-│  • Creates task files from directive                        │
-│  • Coordinates workers                                      │
-│  • Fixes builds, adds files to Xcode                        │
-│  • Writes LEAD_REPORT.md                                    │
 └──────┬─────────┬─────────┬─────────┬────────────────────────┘
        │         │         │         │
        ▼         ▼         ▼         ▼
@@ -90,49 +82,28 @@ Andy (Human) ──────────────────────�
 │   └── CloudSyncAppApp.swift         # App entry
 ├── CloudSyncAppTests/                # Unit tests (QA)
 ├── .claude-team/
-│   ├── STRATEGIC/
-│   │   ├── QUICK_START.md            # Fast context restore
-│   │   ├── DIRECTIVE.md              # Current feature spec
-│   │   ├── SPRINT.md                 # Sprint planning
-│   │   └── ARCHITECTURE.md           # System design
-│   ├── LEAD/
-│   │   ├── LEAD_BRIEFING.md          # Lead instructions
-│   │   └── LEAD_REPORT.md            # Lead completion reports
 │   ├── tasks/                        # Task files for workers
 │   ├── outputs/                      # Worker completion reports
 │   ├── templates/                    # Worker role briefings
 │   ├── scripts/                      # Launch scripts
 │   ├── STATUS.md                     # Real-time worker status
-│   ├── WORKSTREAM.md                 # Sprint tracking
+│   ├── PROJECT_CONTEXT.md            # This file
 │   └── RECOVERY.md                   # Crash recovery guide
 ├── CHANGELOG.md                      # Version history
-├── PARALLEL_TEAM.md                  # Team documentation
 └── README.md                         # Project readme
 ```
 
 ---
 
-## Launch Scripts
+## Launch Workers
 
 ```bash
-# Launch Lead Agent (Opus)
-~/Claude/.claude-team/scripts/launch_lead.sh
-
-# Launch 4 Workers (Sonnet)
 ~/Claude/.claude-team/scripts/launch_workers.sh
-
-# Launch Everyone
-~/Claude/.claude-team/scripts/launch_all.sh
 ```
 
 ---
 
-## Startup Commands
-
-### Lead Agent
-```
-Read /Users/antti/Claude/.claude-team/LEAD/LEAD_BRIEFING.md then check STRATEGIC/DIRECTIVE.md for current directive and execute it. Update STATUS.md and write LEAD_REPORT.md when complete.
-```
+## Worker Startup Commands
 
 ### Dev-1 (UI)
 ```
@@ -153,6 +124,19 @@ Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and e
 ```
 Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
 ```
+
+---
+
+## Workflow
+
+1. **Andy + Strategic Partner** discuss feature
+2. **Strategic Partner** creates task files directly
+3. **Andy** launches workers: `~/Claude/.claude-team/scripts/launch_workers.sh`
+4. **Andy** pastes startup commands in each terminal
+5. **Workers** execute in parallel
+6. **Andy** tells Strategic Partner "workers done"
+7. **Strategic Partner** integrates, fixes builds, runs tests
+8. **Strategic Partner** updates CHANGELOG, commits to git
 
 ---
 
@@ -185,18 +169,15 @@ open "/Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-eqfknxkkaums
 
 ### v2.0.3 - 2026-01-12
 - **Scheduled Sync** - Hourly/daily/weekly/custom schedules
-- **Two-Tier Architecture** - Strategic Partner + Lead Agent
 
 ### v2.0.2 - 2026-01-12
 - **Parallel Team System** - 4 workers, ~4x speedup
-- **Keychain improvements**
 
 ### v2.0.1 - 2026-01-12
 - **Local Storage encryption fix** - Hide encryption UI for local
 
 ### v2.0.0 - 2026-01-11
 - **Major release** - Complete SwiftUI rebuild
-- Dual-pane browser, 42 providers, encryption, tasks
 
 ---
 
@@ -207,10 +188,9 @@ After crash, start new Desktop Claude chat and say:
 ```
 Read these files to restore context for CloudSync Ultra:
 
-1. /Users/antti/Claude/.claude-team/PROJECT_CONTEXT.md (this file)
+1. /Users/antti/Claude/.claude-team/PROJECT_CONTEXT.md
 2. /Users/antti/Claude/.claude-team/STATUS.md
-3. /Users/antti/Claude/.claude-team/STRATEGIC/DIRECTIVE.md
-4. /Users/antti/Claude/CHANGELOG.md
+3. /Users/antti/Claude/CHANGELOG.md
 
 Then tell me what state we're in and what needs to happen next.
 ```
