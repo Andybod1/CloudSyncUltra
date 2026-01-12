@@ -1,35 +1,45 @@
-# Task: Move Schedules to Main Window - Services
+# Dev-3 Task: Remove Jottacloud Experimental Badge
 
-**Assigned to:** Dev-3 (Services)
-**Priority:** N/A
-**Status:** No Work Required
-
----
-
-## Summary
-
-No changes needed to ScheduleManager or Models for this feature. The Schedules UI is being moved from Settings to Main Window, which is purely a UI change. All existing ScheduleManager functionality remains unchanged.
+## Issue
+- #24 (Low): Remove experimental badge from Jottacloud
 
 ---
 
-## Action Required
+## Problem
+Jottacloud integration is stable and tested. The "experimental" badge creates unnecessary user hesitation.
 
-1. Update STATUS.md to mark Dev-3 as COMPLETE
-2. Write brief completion note to `outputs/DEV3_COMPLETE.md`
+## Fix
+Find Jottacloud in `CloudProvider.swift` and set `isExperimental` to `false`.
 
----
-
-## Completion Report Content
-
-```markdown
-# Dev-3 Completion Report
-
-**Feature:** Move Schedules to Main Window
-**Status:** COMPLETE - No changes required
-
-## Summary
-No ScheduleManager or Model changes needed. Existing APIs sufficient.
-
-## Files Modified
-None
+### Implementation
+```swift
+// In CloudProvider.swift - find Jottacloud case
+case .jottacloud:
+    return CloudProviderInfo(
+        displayName: "Jottacloud",
+        ...
+        isExperimental: false,  // ← Change from true to false
+        ...
+    )
 ```
+
+## Files to Modify
+- `CloudSyncApp/Models/CloudProvider.swift`
+
+---
+
+## Completion Checklist
+- [ ] Find Jottacloud provider definition
+- [ ] Change `isExperimental: true` to `isExperimental: false`
+- [ ] Build and verify no "Experimental" badge shows
+- [ ] Update STATUS.md when done
+
+## Commit
+```
+git commit -m "chore(providers): Remove experimental badge from Jottacloud - Fixes #24"
+```
+
+---
+
+## Time Estimate
+5 minutes

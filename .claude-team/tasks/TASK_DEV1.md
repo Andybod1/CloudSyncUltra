@@ -1,194 +1,102 @@
-# Task: Move Schedules to Main Window
+# Dev-1 Task: Bug Fixes + UI Quick Wins
 
-**Assigned to:** Dev-1 (UI Layer)
-**Priority:** High
-**Status:** Ready
-
----
-
-## Objective
-
-Move the Schedules management UI from Settings to the main application window as a primary sidebar navigation item.
+## Issues
+- #28 (Critical): UI freezes in left pane
+- #26 (High): Move schedules position
+- #19 (Low): Remove seconds from completed tasks
 
 ---
 
-## Task 1: Create SchedulesView.swift
+## Task 1: Fix UI Freezing in Left Pane (#28)
 
-**File:** `CloudSyncApp/Views/SchedulesView.swift`
+### Problem
+Left pane sidebar freezes intermittently when clicking cloud service items. Clicks don't register, but app otherwise works. Recovers after clicking elsewhere.
 
-Create a new view that adapts the content from ScheduleSettingsView for the main window:
+### Investigation
+1. Check `MainWindow.swift` sidebar List selection binding
+2. Look for state conflicts or async issues
+3. Verify ForEach uses stable IDs
 
+### Likely Fix
 ```swift
-import SwiftUI
+// Ensure selection binding is simple
+@State private var selectedRemote: CloudRemote.ID?
 
-struct SchedulesView: View {
-    @StateObject private var scheduleManager = ScheduleManager.shared
-    @State private var showingAddSchedule = false
-    @State private var selectedSchedule: SyncSchedule?
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Schedules")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-                Spacer()
-                
-                Button(action: { showingAddSchedule = true }) {
-                    Label("Add Schedule", systemImage: "plus")
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
-            
-            Divider()
-            
-            // Content
-            if scheduleManager.schedules.isEmpty {
-                emptyState
-            } else {
-                scheduleList
-            }
-        }
-        .sheet(isPresented: $showingAddSchedule) {
-            ScheduleEditorSheet(schedule: nil)
-        }
-        .sheet(item: $selectedSchedule) { schedule in
-            ScheduleEditorSheet(schedule: schedule)
-        }
+// Use explicit button for selection (more reliable)
+ForEach(remotes, id: \.id) { remote in
+    Button {
+        selectedRemote = remote.id
+    } label: {
+        RemoteRowView(remote: remote)
     }
-    
-    private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "calendar.badge.clock")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary)
-            Text("No Scheduled Syncs")
-                .font(.title3)
-                .fontWeight(.medium)
-            Text("Create a schedule to automatically sync your files.")
-                .foregroundColor(.secondary)
-            Button("Add Schedule") {
-                showingAddSchedule = true
-            }
-            .buttonStyle(.borderedProminent)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    private var scheduleList: some View {
-        List {
-            ForEach(scheduleManager.schedules) { schedule in
-                ScheduleRowView(schedule: schedule)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedSchedule = schedule
-                    }
-                    .contextMenu {
-                        Button(schedule.isEnabled ? "Disable" : "Enable") {
-                            scheduleManager.toggleSchedule(schedule)
-                        }
-                        Button("Edit") {
-                            selectedSchedule = schedule
-                        }
-                        Divider()
-                        Button("Run Now") {
-                            scheduleManager.runScheduleNow(schedule)
-                        }
-                        Divider()
-                        Button("Delete", role: .destructive) {
-                            scheduleManager.deleteSchedule(schedule)
-                        }
-                    }
-            }
-        }
-        .listStyle(.inset)
-    }
+    .buttonStyle(.plain)
 }
 ```
 
----
-
-## Task 2: Add Schedules to MainWindow Sidebar
-
-**File:** `CloudSyncApp/Views/MainWindow.swift`
-
-Add Schedules to the sidebar navigation. Find the sidebar NavigationLink items and add:
-
-```swift
-// Add after existing sidebar items (Dashboard, Files, Transfer, Tasks, History)
-NavigationLink(value: "schedules") {
-    Label("Schedules", systemImage: "calendar.badge.clock")
-}
-```
-
-Add the destination in the NavigationSplitView detail section:
-
-```swift
-case "schedules":
-    SchedulesView()
-```
-
-Also update the `handleOpenScheduleSettings` notification to navigate to schedules:
-
-```swift
-// Change from opening Settings to selecting schedules in sidebar
-selectedItem = "schedules"
-```
-
----
-
-## Task 3: Remove Schedules Tab from SettingsView
-
-**File:** `CloudSyncApp/SettingsView.swift`
-
-Remove the Schedules tab. The SettingsView should go back to having only these tabs:
-1. General
-2. Accounts  
-3. Sync
-4. About
-
-Remove:
-- The ScheduleSettingsView tab item
-- Any related tag adjustments
-- The SelectSchedulesTab notification handler (schedules now in main window)
-
----
-
-## Task 4: Update StatusBarController
-
-**File:** `CloudSyncApp/StatusBarController.swift`
-
-Update "Manage Schedules..." button to open main window to Schedules view instead of Settings:
-
-The notification should now just open the main window and select schedules. The handler is already in MainWindow - just verify it works.
-
----
-
-## Files to Create
-- `CloudSyncApp/Views/SchedulesView.swift`
-
-## Files to Modify
+### Files
 - `CloudSyncApp/Views/MainWindow.swift`
-- `CloudSyncApp/SettingsView.swift`
-- `CloudSyncApp/StatusBarController.swift` (verify notification works)
 
 ---
 
-## Acceptance Criteria
-- [ ] SchedulesView.swift created
-- [ ] Schedules appears in main window sidebar
-- [ ] Clicking Schedules shows schedule management UI
-- [ ] Settings has 4 tabs (General, Accounts, Sync, About)
-- [ ] Menu bar "Manage Schedules..." opens main window to Schedules
-- [ ] Build succeeds
+## Task 2: Move Schedules Position (#26)
+
+### Problem
+Schedules should appear between Transfer and Tasks in sidebar.
+
+### Fix
+Reorder sidebar items:
+```
+Transfer
+Schedules  ← move here
+Tasks
+History
+```
+
+### Files
+- `CloudSyncApp/Views/MainWindow.swift` - Reorder enum or list
 
 ---
 
-## When Complete
+## Task 3: Remove Seconds from Completed Tasks (#19)
 
-Update STATUS.md and write completion report to `outputs/DEV1_COMPLETE.md`
+### Problem
+Completed tasks show seconds counting up - too noisy. Minutes granularity is enough.
+
+### Fix
+```swift
+func formatCompletionTime(_ date: Date) -> String {
+    let interval = Date().timeIntervalSince(date)
+    
+    if interval < 60 {
+        return "Just now"
+    } else if interval < 3600 {
+        let mins = Int(interval / 60)
+        return "\(mins) min\(mins == 1 ? "" : "s") ago"
+    } else if interval < 86400 {
+        let hours = Int(interval / 3600)
+        return "\(hours) hour\(hours == 1 ? "" : "s") ago"
+    } else {
+        return date.formatted(date: .abbreviated, time: .shortened)
+    }
+}
+```
+
+### Files
+- `CloudSyncApp/Views/TasksView.swift`
+
+---
+
+## Completion Checklist
+- [ ] #28: UI freezing fixed
+- [ ] #26: Schedules moved in sidebar
+- [ ] #19: Time format updated
+- [ ] All changes compile
+- [ ] Update STATUS.md when done
+
+## Commits
+Reference issues in commits:
+```
+git commit -m "fix(ui): Fix sidebar selection freezing - Fixes #28"
+git commit -m "fix(ui): Move schedules between transfer and tasks - Fixes #26"
+git commit -m "fix(ui): Show relative time without seconds - Fixes #19"
+```

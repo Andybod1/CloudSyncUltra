@@ -1,59 +1,44 @@
-# Team Status Board
+# Worker Status
 
-> Real-time status updates from all team members
-> **Strategic Partner** (Desktop Claude) coordinates all work
-> **Current Sprint:** Move Schedules to Main Window
+> Last Updated: 2026-01-12 20:50 UTC
 
----
+## Current Sprint: Bug Fixes + Quick Wins
 
-## Dev-1 (UI Layer)
+| Worker | Status | Current Task |
+|--------|--------|--------------|
+| Dev-1 | ✅ Done | #28 UI freeze, #26 Schedules, #19 Time format |
+| Dev-2 | 🟡 Ready | #21 Cloud-to-cloud progress |
+| Dev-3 | ✅ Done | #24 Remove Jottacloud experimental |
+| QA | ⚪ Idle | - |
 
-**Status:** ✅ COMPLETE
-**Current Task:** Move Schedules to Main Window
-**Progress:** All tasks completed, build succeeded
-**Files to Create:**
-- CloudSyncApp/Views/SchedulesView.swift
-**Files to Modify:**
-- CloudSyncApp/Views/MainWindow.swift
-- CloudSyncApp/SettingsView.swift
-**Blockers:** None
-**Last Update:** 2026-01-12
+## Active Issues
 
----
+| # | Title | Worker | Status |
+|---|-------|--------|--------|
+| #28 | UI freezes in left pane | Dev-1 | ✅ Complete |
+| #26 | Move schedules position | Dev-1 | ✅ Complete |
+| #19 | Remove seconds from completed | Dev-1 | ✅ Complete |
+| #21 | Progress not showing cloud→cloud | Dev-2 | 🟡 In Progress |
+| #24 | Remove Jottacloud experimental | Dev-3 | ✅ Complete |
 
-## Dev-2 (Core Engine)
+## Worker Updates
 
-**Status:** ✅ COMPLETE
-**Current Task:** No changes required
-**Progress:** Complete - UI only feature
-**Blockers:** None
-**Last Update:** 2026-01-12
+### Dev-1
+- Assigned: #28, #26, #19
+- Status: ✅ COMPLETE - All 3 issues fixed, build succeeded
 
----
+### Dev-2
+- Assigned: #21
+- Status: 🔄 ACTIVE - Investigating cloud-to-cloud progress issue
 
-## Dev-3 (Services)
-
-**Status:** ✅ COMPLETE
-**Current Task:** No changes required
-**Progress:** Complete - UI only feature
-**Blockers:** None
-**Last Update:** 2026-01-12
+### Dev-3
+- Assigned: #24
+- Status: ✅ COMPLETE - Jottacloud isExperimental set to false
 
 ---
 
-## QA (Testing)
+## Launch Instructions
 
-**Status:** ✅ COMPLETE
-**Current Task:** Verify UI changes
-**Progress:** Code review passed, build verified
-**Depends on:** Dev-1 completing UI
-**Blockers:** None
-**Last Update:** 2026-01-12
+Run: `~/Claude/.claude-team/scripts/launch_workers.sh`
 
----
-
-## Build Status
-
-**Last Build:** 2026-01-12
-**Result:** SUCCESS
-**Notes:** Ready for new sprint
+Then paste startup commands in each terminal.

@@ -1,16 +1,16 @@
 # Dev-3 Completion Report
 
-**Feature:** Move Schedules to Main Window
-**Status:** COMPLETE - No changes required
+**Feature:** Remove Jottacloud Experimental Badge (#24)
+**Status:** COMPLETE
 
 ## Files Created
 None
 
 ## Files Modified
-None
+- `CloudSyncApp/Models/CloudProvider.swift` - Line 374: Changed `isExperimental` from `true` to `false` for Jottacloud
 
 ## Summary
-No ScheduleManager or Model changes needed for this feature. The Schedules UI is being moved from Settings to Main Window, which is purely a UI change handled by Dev-1. All existing ScheduleManager APIs and data models are sufficient to support the UI changes.
+Removed the experimental badge from Jottacloud provider. The integration is stable and tested, so the badge was creating unnecessary user hesitation. Changed the `isExperimental` property return value from `true` to `false` for the `.jottacloud` case.
 
 ## Build Status
-No build verification needed - no code changes made.
+BUILD SUCCEEDED

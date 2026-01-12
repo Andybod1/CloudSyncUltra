@@ -5,6 +5,14 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2026-01-12
+
+### Fixed
+- **Sidebar selection freezing** (#28) - Removed conflicting double-tap gesture that caused left pane to become unresponsive
+- **Sidebar order** (#26) - Schedules now positioned between Transfer and Tasks for better workflow
+- **Time display noise** (#19) - Completed tasks show "Just now", "X mins ago" instead of counting seconds
+- **Jottacloud experimental badge** (#24) - Removed unnecessary experimental label from stable provider
+
 ## [2.0.6] - 2026-01-12
 
 ### Added
