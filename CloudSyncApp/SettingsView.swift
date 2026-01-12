@@ -31,17 +31,11 @@ struct SettingsView: View {
                     }
                     .tag(2)
 
-                ScheduleSettingsView()
-                    .tabItem {
-                        Label("Schedules", systemImage: "calendar.badge.clock")
-                    }
-                    .tag(3)
-
                 AboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
-                    .tag(4)
+                    .tag(3)
             }
 
             Text("CloudSync Ultra v2.0")
@@ -52,9 +46,6 @@ struct SettingsView: View {
                 .padding(.bottom, 12)
         }
         .frame(width: 600, height: 580)
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SelectSchedulesTab"))) { _ in
-            selectedTab = 3  // Schedules tab
-        }
     }
 }
 

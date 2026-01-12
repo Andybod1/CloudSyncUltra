@@ -5,13 +5,25 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2026-01-12
+
+### Changed
+- **Move Schedules to Main Window** - Schedules now a primary sidebar item
+  - Added "Schedules" to main window sidebar with calendar.badge.clock icon
+  - Created new SchedulesView.swift for main window schedule management
+  - Shows "Next Sync" indicator at top when schedules exist
+  - Empty state with call-to-action when no schedules configured
+  - Full edit/delete/enable/disable/run-now functionality preserved
+  - Removed Schedules tab from Settings (now 4 tabs: General, Accounts, Sync, About)
+  - Menu bar "Manage Schedules..." now opens main window to Schedules section
+
 ## [2.0.4] - 2026-01-12
 
 ### Added
 - **Menu Bar Schedule Indicator** - See next scheduled sync at a glance
   - Shows "Next: [schedule name]" with countdown in menu bar popup
   - Displays "No scheduled syncs" when none configured
-  - "Manage Schedules..." button opens Settings to Schedules tab
+  - "Manage Schedules..." button opens main window to Schedules section
   - 11 new unit tests for schedule indicator logic
 
 - **Two-Tier Parallel Development Architecture**

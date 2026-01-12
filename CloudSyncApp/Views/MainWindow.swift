@@ -22,6 +22,7 @@ struct MainWindow: View {
         case encryption
         case tasks
         case history
+        case schedules
         case settings
         case remote(CloudRemote)
     }
@@ -67,11 +68,7 @@ struct MainWindow: View {
             selectedSection = .dashboard
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenScheduleSettings"))) { _ in
-            selectedSection = .settings
-            // Small delay to ensure settings view is loaded, then select Schedules tab
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                NotificationCenter.default.post(name: NSNotification.Name("SelectSchedulesTab"), object: nil)
-            }
+            selectedSection = .schedules
         }
     }
     
@@ -88,6 +85,8 @@ struct MainWindow: View {
             TasksView()
         case .history:
             HistoryView()
+        case .schedules:
+            SchedulesView()
         case .settings:
             SettingsView()
         case .remote(let remote):
@@ -135,6 +134,12 @@ struct SidebarView: View {
                     icon: "clock.arrow.circlepath",
                     title: "History",
                     section: .history
+                )
+
+                sidebarItem(
+                    icon: "calendar.badge.clock",
+                    title: "Schedules",
+                    section: .schedules
                 )
             }
             

@@ -40,6 +40,7 @@
 		BF05 /* Logger+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FC495CA79185DB2B79982D /* Logger+Extensions.swift */; };
 		BF06 /* ProtonDriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA943E5A37C52E2869C48D0 /* ProtonDriveManager.swift */; };
 		BF07 /* ProtonDriveSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */; };
+		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +79,7 @@
 		DCC849189CAEEFB49851CF23 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Components.swift; path = CloudSyncApp/Components/Components.swift; sourceTree = SOURCE_ROOT; };
 		ECFF45298AC401F4D2887258 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainManager.swift; path = CloudSyncApp/KeychainManager.swift; sourceTree = SOURCE_ROOT; };
 		055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProtonDriveSetupView.swift; path = CloudSyncApp/Views/ProtonDriveSetupView.swift; sourceTree = SOURCE_ROOT; };
+		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -158,6 +160,7 @@
 				C4194F8B8D6C8FBB1644D705 /* ScheduleEditorSheet.swift */,
 				B37C41589EAD874DD98D07E4 /* EncryptionModal.swift */,
 				055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */,
+				SV02 /* SchedulesView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -264,6 +267,7 @@
 				BF05 /* Logger+Extensions.swift in Sources */,
 				BF06 /* ProtonDriveManager.swift in Sources */,
 				BF07 /* ProtonDriveSetupView.swift in Sources */,
+				SV01 /* SchedulesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
