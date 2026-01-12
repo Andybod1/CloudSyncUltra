@@ -584,16 +584,14 @@ class RcloneManager {
             try? await deleteRemote(name: remoteName)
         }
         
-        // Step 1: Initial call - will return config_type prompt
-        var currentState = ""
-        var currentResult = "standard"  // We always use standard auth
-        
+        // Step 1: Initial call to start the config state machine
         // Step 1: Select authentication type (standard)
         print("[RcloneManager] Step 1: Selecting standard authentication type")
         let step1Result = try await runJottacloudConfigStep(
             remoteName: remoteName,
             state: "",
-            result: ""
+            result: "",
+            isFirstStep: true  // Must be true for initial config create
         )
         
         // Parse the response to get the next state
@@ -685,10 +683,13 @@ class RcloneManager {
                 "--config", configPath
             ]
         } else {
-            // Subsequent steps: use "config update" with --continue to progress state machine
+            // Subsequent steps: use "config create" with --continue to progress state machine
+            // Note: Must use "config create" (not "config update") because the remote
+            // doesn't exist until the entire state machine completes
             args = [
-                "config", "update",
+                "config", "create",
                 remoteName,
+                "jottacloud",
                 "--continue",
                 "--state", state,
                 "--result", result,
@@ -698,6 +699,8 @@ class RcloneManager {
         }
         
         process.arguments = args
+        
+        print("[RcloneManager] Running: rclone \(args.joined(separator: " "))")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -716,6 +719,8 @@ class RcloneManager {
         // Combine output and error for parsing
         let fullOutput = output + errorOutput
         
+        print("[RcloneManager] Output: \(fullOutput.prefix(500))")
+        
         // Check for fatal errors
         if fullOutput.contains("Fatal error") || fullOutput.contains("NOTICE: Fatal error") {
             throw RcloneError.configurationFailed(errorOutput.isEmpty ? output : errorOutput)
@@ -726,20 +731,23 @@ class RcloneManager {
     
     /// Parse the State field from rclone's JSON response
     private func parseConfigState(from output: String) -> String? {
-        // Look for "State": "value" in JSON
-        if let range = output.range(of: #""State":\s*"([^"]*)"#, options: .regularExpression) {
-            let match = String(output[range])
-            // Extract the value between quotes
-            if let valueStart = match.range(of: ": \""),
-               let valueEnd = match.lastIndex(of: "\"") {
-                let startIndex = match.index(valueStart.upperBound, offsetBy: 0)
-                return String(match[startIndex..<valueEnd])
-            }
+        // Try to decode as JSON first for reliability
+        if let data = output.data(using: .utf8),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let state = json["State"] as? String {
+            return state
         }
         
-        // If no state found or empty state, config might be complete
-        if output.contains("\"State\": \"\"") || output.contains("\"State\":\"\"") {
-            return ""
+        // Fallback: Look for "State": "value" pattern using simple string search
+        // Pattern: "State": "xxx" or "State":"xxx"
+        let patterns = ["\"State\": \"", "\"State\":\""]
+        for pattern in patterns {
+            if let startRange = output.range(of: pattern) {
+                let afterPattern = output[startRange.upperBound...]
+                if let endQuote = afterPattern.firstIndex(of: "\"") {
+                    return String(afterPattern[..<endQuote])
+                }
+            }
         }
         
         return nil
@@ -747,15 +755,24 @@ class RcloneManager {
     
     /// Parse error message from rclone output
     private func parseConfigError(from output: String) -> String? {
-        // Look for "Error": "value" in JSON
-        if let range = output.range(of: #""Error":\s*"([^"]+)"#, options: .regularExpression) {
-            let match = String(output[range])
-            if let valueStart = match.range(of: ": \""),
-               let valueEnd = match.lastIndex(of: "\"") {
-                let startIndex = match.index(valueStart.upperBound, offsetBy: 0)
-                let error = String(match[startIndex..<valueEnd])
-                if !error.isEmpty {
-                    return error
+        // Try to decode as JSON first
+        if let data = output.data(using: .utf8),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let error = json["Error"] as? String,
+           !error.isEmpty {
+            return error
+        }
+        
+        // Fallback: Look for "Error": "value" pattern
+        let patterns = ["\"Error\": \"", "\"Error\":\""]
+        for pattern in patterns {
+            if let startRange = output.range(of: pattern) {
+                let afterPattern = output[startRange.upperBound...]
+                if let endQuote = afterPattern.firstIndex(of: "\"") {
+                    let error = String(afterPattern[..<endQuote])
+                    if !error.isEmpty {
+                        return error
+                    }
                 }
             }
         }

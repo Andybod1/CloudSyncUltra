@@ -38,7 +38,8 @@ CloudSync Ultra v2.0 has comprehensive test coverage across all core functionali
 - ✅ **Phase1Week2ProvidersTests.swift** - Additional providers
 - ✅ **Phase1Week3ProvidersTests.swift** - Extended providers
 - ✅ **OAuthExpansionProvidersTests.swift** - OAuth expansion
-- ✅ **JottacloudProviderTests.swift** - Jottacloud specific
+- ✅ **JottacloudProviderTests.swift** - Jottacloud provider properties
+- ✅ **JottacloudAuthenticationTests.swift** - Jottacloud state machine auth (NEW)
 - ✅ **ProtonDriveTests.swift** - Proton Drive integration
 
 #### Security Tests
@@ -76,6 +77,51 @@ CloudSync Ultra v2.0 has comprehensive test coverage across all core functionali
   - Provider support verification
   - Local vs remote provider handling
   - Transfer progress tracking
+
+## Jottacloud Authentication Tests (Jan 12, 2026)
+
+### ✅ State Machine Parsing
+- **Tests:** 7 test cases
+- **Coverage:**
+  - Parse state from valid JSON response
+  - Parse state from compact JSON (no spaces)
+  - Handle empty state (config complete)
+  - Return nil for invalid JSON
+  - Return nil for missing State field
+  - Standard token state extraction
+  - Choose device state extraction
+
+### ✅ Error Parsing
+- **Tests:** 3 test cases
+- **Coverage:**
+  - Extract error from JSON response
+  - Return nil when no error present
+  - Detect OAuth token failure messages
+
+### ✅ State Flow Validation
+- **Tests:** 2 test cases
+- **Coverage:**
+  - Document expected state sequence
+  - Verify auth type options (standard/traditional/legacy)
+
+### ✅ Token Validation
+- **Tests:** 3 test cases
+- **Coverage:**
+  - Personal Login Token format expectations
+  - Empty token rejection
+  - Whitespace-only token rejection
+
+### ✅ Command Construction
+- **Tests:** 2 test cases
+- **Coverage:**
+  - First step command structure (config create)
+  - Continue step command structure (--continue --state --result)
+
+### ✅ Provider Configuration
+- **Tests:** 2 test cases
+- **Coverage:**
+  - Jottacloud provider exists
+  - Jottacloud provider is supported
 
 ### ✅ Transfer Progress Model
 - **Tests:** 1 test case
