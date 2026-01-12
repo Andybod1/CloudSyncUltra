@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Local Storage encryption UI** - Removed encryption lock icons and toggles from Local Storage items since encryption only applies to cloud remotes
   - Sidebar no longer shows lock icons for Local Storage
-  - FileBrowserView hides encryption toggle and status indicators for local storage
+  - FileBrowserView hides encryption toggle, banner, and status indicators for local storage
   - TransferView panes hide encryption toggle when Local Storage is selected
+  - EncryptionManager now rejects encryption operations for local storage (defense-in-depth)
 
 ## [2.0.0] - 2026-01-11
 
