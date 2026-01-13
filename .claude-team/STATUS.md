@@ -1,70 +1,100 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 14:15 UTC
+> Last Updated: 2026-01-13 15:00 UTC
+> Version: v2.0.12
 
-## Current Sprint: Quick Wins + Polish
+## Current State: Between Sprints ✅
 
-| Worker | Model | Status | Current Task | Started |
-|--------|-------|--------|--------------|---------|
-| Dev-1 | Sonnet | ✅ COMPLETE | UI for #14, #25, #1 | 2026-01-13 |
-| Dev-2 | Sonnet | ✅ COMPLETE | Bandwidth engine #1 | 2026-01-13 |
-| Dev-3 | Sonnet | ✅ COMPLETE | Model updates #14, #25 | 2026-01-13 |
-| QA | Sonnet | ✅ COMPLETE | Error handling tests | 2026-01-13 |
+All sprints complete. Ready for next sprint planning.
 
-## Sprint Tickets
+| Worker | Model | Status | Last Task |
+|--------|-------|--------|-----------|
+| Dev-1 | Sonnet | 💤 IDLE | UI for #14, #25, #1 |
+| Dev-2 | Sonnet | 💤 IDLE | Bandwidth engine #1 |
+| Dev-3 | Sonnet | 💤 IDLE | Model updates #14, #25 |
+| QA | Opus | 💤 IDLE | Test coverage for sprint |
 
-| Ticket | Title | Priority | Size | Status |
-|--------|-------|----------|------|--------|
-| #14 | Drag & drop cloud service reordering | Medium | S | ⏳ Ready |
-| #25 | Account name in encryption view | Low | S | ⏳ Ready |
-| #1 | Bandwidth throttling controls | Medium | L | ⏳ Ready |
+---
 
-## Execution Order
+## Last Completed Sprint: Quick Wins + Polish (v2.0.12) ✅
 
-### Phase 1: Model Updates (Dev-3 first)
-Dev-3 must complete model changes before Dev-1 can use them:
-1. Add `sortOrder` to CloudRemote
-2. Add `accountName` to CloudRemote
-3. Add `moveCloudRemotes()` to RemotesViewModel
+### Tickets Delivered
+| Ticket | Title | Status |
+|--------|-------|--------|
+| #14 | Drag & drop cloud service reordering | ✅ Closed |
+| #25 | Account name in encryption view | ✅ Closed |
+| #1 | Bandwidth throttling controls | ✅ Closed |
 
-### Phase 2: Parallel Implementation (After Dev-3)
-- Dev-1: UI implementations for all three tickets
-- Dev-2: getBandwidthArgs() fix and verification
-- QA: Write test files
+### Test Results
+- RemoteReorderingTests: 6/6 ✅
+- AccountNameTests: 6/6 ✅
+- BandwidthThrottlingUITests: 7/7 ✅
+- **Total new tests: 19 passed**
 
-### Phase 3: Integration
-- Strategic Partner merges and tests
-- Final commit and push
+### Infrastructure Completed
+- Test target configured (617 tests runnable)
+- Shift-left testing workflow documented
+- QA planning role added
 
-## Task Files
+---
 
-- `/Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md`
-- `/Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md`
-- `/Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md`
-- `/Users/antti/Claude/.claude-team/tasks/TASK_QA.md`
+## Open Issues (Ready for Next Sprint)
 
-## Worker Launch Command
+| # | Title | Priority | Size |
+|---|-------|----------|------|
+| **#35** | Fix 23 pre-existing test failures | Medium | M |
+| **#30** | Google Photos folders appear empty | Critical | M |
+| **#10** | Transfer performance poor | High | L |
+| **#27** | UI test automation / RPA | High | L |
+| **#9** | iCloud integration | High | XL |
+
+---
+
+## Sprint Workflow (Shift-Left Testing)
+
+| Phase | Workers | Duration |
+|-------|---------|----------|
+| 1. Planning | Strategic Partner + QA | 15-20 min |
+| 2. Foundation | Dev-3 (models) | 15-20 min |
+| 3. Implementation | Dev-1, Dev-2, QA (parallel) | 30-45 min |
+| 4. Integration | Strategic Partner | 15-20 min |
+
+---
+
+## Worker Launch Commands
 
 ```bash
-cd /Users/antti/Claude/.claude-team/scripts
-./launch_single_worker.sh dev1  # Repeat for dev2, dev3, qa
+# Launch all workers
+~/Claude/.claude-team/scripts/launch_workers.sh
+
+# Or launch single worker
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
 ```
 
-## Completion Signals
+## Task & Output Locations
 
-Workers create output files when done:
-- `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
-- `/Users/antti/Claude/.claude-team/outputs/DEV2_COMPLETE.md`
-- `/Users/antti/Claude/.claude-team/outputs/DEV3_COMPLETE.md`
-- `/Users/antti/Claude/.claude-team/outputs/QA_COMPLETE.md`
+| Type | Location |
+|------|----------|
+| Tasks | `.claude-team/tasks/TASK_*.md` |
+| Outputs | `.claude-team/outputs/*_COMPLETE.md` |
+| Test Plan | `.claude-team/outputs/QA_TEST_PLAN.md` |
+| Worker Models | `.claude-team/WORKER_MODELS.conf` |
 
-## Previous Sprint Summary
+---
 
-### Error Handling Sprint (v2.0.11) - COMPLETED ✅
+## Previous Sprints
+
+### Error Handling Sprint (v2.0.11) ✅
 - Duration: 3 hours 11 minutes
 - Delivered: Comprehensive error handling (25+ error types)
 - Tests: 61 new tests
-- Commits: 6 commits
+
+### Quick Wins Sprint (v2.0.12) ✅
+- Duration: ~2 hours
+- Delivered: Reordering, account names, bandwidth throttling
+- Tests: 19 new tests
+- Infrastructure: Test target, shift-left workflow
 
 ---
 
