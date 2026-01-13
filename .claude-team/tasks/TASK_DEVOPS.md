@@ -1,47 +1,64 @@
-# TASK: Close Google Photos Issue #30
+# TASK: Set Up GitHub Actions for Project Board Auto-Add (#34)
 
 ## Worker: Dev-Ops
-## Size: XS
-## Model: Opus (ALWAYS for Dev-Ops)
-## Extended Thinking: ENABLED (ALWAYS for Dev-Ops)
+## Size: S
+## Model: Opus (always for Dev-Ops)
+## Ticket: #34
+
+**Use extended thinking (`/think`) before implementing.**
 
 ---
 
-## Background
+## Problem
 
-Investigation revealed that **Google Photos is NOT implemented** in CloudSync Ultra. The 42 supported providers do not include Google Photos (`gphotos` rclone type).
+New GitHub issues are not automatically appearing on the CloudSync Ultra project board. Users must manually add each issue.
 
-Additionally, Google changed their API policy in March 2025 - rclone can now **only access photos it uploaded**, making Google Photos integration of limited value.
+## Solution
 
-## Task
+Create a GitHub Actions workflow using `actions/add-to-project` to automatically add new issues to the project board.
 
-### 1. Close GitHub Issue #30
-```bash
-cd /Users/antti/Claude
-gh issue close 30 -c "Closing: Google Photos is not implemented in CloudSync Ultra.
+## Implementation
 
-**Investigation findings:**
-- Google Photos (gphotos) is not in the 42 supported providers
-- The user may have confused Google Drive with Google Photos
-- Google changed API policy March 2025: rclone can only access photos it uploaded via API
-- Given severe limitations, Google Photos integration is not planned
+### 1. Create Workflow File
 
-**Recommendation:** For Google Photos backup, use Google Takeout instead.
+Create `.github/workflows/add-to-project.yml`:
 
-If Google Drive folders appear empty, please open a new issue with specific details."
+```yaml
+name: Add issues to project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/users/andybod1-lang/projects/1
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
 ```
 
-### 2. Update Documentation
-Add a note to CLAUDE_PROJECT_KNOWLEDGE.md under "Open Issues" section removing #30 from the list.
+### 2. Create Personal Access Token (PAT)
 
-### 3. Verify
-- Confirm issue is closed on GitHub
-- Confirm documentation updated
+Andy needs to create a PAT with `project` scope:
+1. Go to GitHub Settings → Developer settings → Personal access tokens
+2. Create new token (classic) with `project` scope
+3. Add as repository secret named `ADD_TO_PROJECT_PAT`
+
+### 3. Document in README
+
+Add note about automatic project board updates.
 
 ## Acceptance Criteria
-- [ ] Issue #30 closed with detailed explanation
-- [ ] Documentation updated
-- [ ] Changes committed and pushed
+
+- [ ] Workflow file created and committed
+- [ ] Instructions for PAT creation documented
+- [ ] Issue #34 closed with explanation that Andy needs to add the PAT secret
 
 ## Output
+
 Write completion report to `/Users/antti/Claude/.claude-team/outputs/DEVOPS_COMPLETE.md`

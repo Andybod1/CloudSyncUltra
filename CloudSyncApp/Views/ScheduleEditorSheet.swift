@@ -13,6 +13,7 @@ struct ScheduleEditorSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var remotesVM = RemotesViewModel.shared
+    @AppStorage("use24HourTime") private var use24HourTime = false
 
     // Form state
     @State private var name: String = ""
@@ -125,7 +126,8 @@ struct ScheduleEditorSheet: View {
                                     Text(formatHour(hour)).tag(hour)
                                 }
                             }
-                            .frame(width: 100)
+                            .pickerStyle(.menu)
+                            .frame(width: 120)
 
                             Picker("Minute", selection: $scheduledMinute) {
                                 ForEach([0, 15, 30, 45], id: \.self) { min in
@@ -142,7 +144,8 @@ struct ScheduleEditorSheet: View {
                                     Text(formatHour(hour)).tag(hour)
                                 }
                             }
-                            .frame(width: 100)
+                            .pickerStyle(.menu)
+                            .frame(width: 120)
 
                             Picker("Minute", selection: $scheduledMinute) {
                                 ForEach([0, 15, 30, 45], id: \.self) { min in
@@ -215,12 +218,16 @@ struct ScheduleEditorSheet: View {
     }
 
     private func formatHour(_ hour: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h a"
-        var components = DateComponents()
-        components.hour = hour
-        let date = Calendar.current.date(from: components) ?? Date()
-        return formatter.string(from: date)
+        if use24HourTime {
+            return String(format: "%02d:00", hour)
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "h a"
+            var components = DateComponents()
+            components.hour = hour
+            let date = Calendar.current.date(from: components) ?? Date()
+            return formatter.string(from: date)
+        }
     }
 
     private func loadSchedule(_ schedule: SyncSchedule) {

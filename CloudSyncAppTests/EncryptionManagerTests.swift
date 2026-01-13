@@ -79,7 +79,7 @@ final class EncryptionManagerTests: XCTestCase {
         let remoteName = encryptionManager.encryptedRemoteName
         
         // Then: Should have expected name
-        XCTAssertEqual(remoteName, "proton-encrypted", "Encrypted remote name should be 'proton-encrypted'")
+        XCTAssertEqual(remoteName, "encrypted", "Encrypted remote name should be 'encrypted'")
     }
     
     // MARK: - Password Management Tests

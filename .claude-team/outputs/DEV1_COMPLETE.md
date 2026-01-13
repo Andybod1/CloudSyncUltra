@@ -1,43 +1,41 @@
 # Dev-1 Completion Report
 
-**Feature:** Quick Wins UI Sprint - Tickets #14, #25, #1
+**Feature:** Schedule time display fixes and 12/24 hour time format setting
 **Status:** COMPLETE
 
 ## Files Created
-- (none)
+- None
 
 ## Files Modified
-- `/Users/antti/Claude/CloudSyncApp/Views/MainWindow.swift`
+- `/Users/antti/Claude/CloudSyncApp/Views/ScheduleEditorSheet.swift`
 - `/Users/antti/Claude/CloudSyncApp/SettingsView.swift`
+- `/Users/antti/Claude/.claude-team/STATUS.md`
 
 ## Summary
 
-Successfully implemented three UI features for the Quick Wins + Polish sprint:
+Successfully completed both tickets #32 and #33:
 
-### Task 1: Drag & Drop Cloud Service Reordering (#14)
-- **File:** `MainWindow.swift:163-180, 228-230`
-- **Implementation:** Added `.onMove(perform: moveCloudRemotes)` modifier to the cloud services ForEach
-- **Added:** Helper function `moveCloudRemotes()` that calls `RemotesViewModel.shared.moveCloudRemotes()`
-- **Result:** Users can now reorder cloud services via drag and drop
+**Ticket #32 (Bug Fix):** Fixed time not displaying when selecting in schedule editor
+- Added `.pickerStyle(.menu)` to hour pickers for proper display
+- Increased frame width from 100 to 120 points to accommodate time text
+- Applied fix to both daily and weekly schedule hour pickers
 
-### Task 2: Account Name in Encryption View (#25)
-- **File:** `SettingsView.swift:911-941`
-- **Implementation:** Added account name display in `remoteEncryptionRow()` function
-- **Added:** Conditional display of `remote.accountName` with blue caption styling
-- **Result:** Account usernames/emails now display below service names in encryption settings
-
-### Task 3: Bandwidth Throttling UI (#1)
-- **File:** `SettingsView.swift:59-61, 82-152`
-- **Implementation:** Added complete bandwidth controls section to GeneralSettingsView
-- **Added:**
-  - @AppStorage properties for bandwidth settings
-  - Toggle for enabling/disabling bandwidth limits
-  - Upload/download limit text fields
-  - Preset buttons (1, 5, 10, 50 MB/s, unlimited)
-  - Visual feedback and help text
-- **Result:** Full bandwidth throttling UI with persistent settings
+**Ticket #33 (Feature):** Added 12/24 hour time format toggle in Settings
+- Added `@AppStorage("use24HourTime")` property in both SettingsView and ScheduleEditorSheet
+- Created new "Time Format" section in Settings → General with toggle for "Use 24-Hour Time"
+- Updated `formatHour()` function to respect the setting:
+  - 12-hour format: Shows "2 AM", "11 PM" style
+  - 24-hour format: Shows "02:00", "23:00" style
+- Setting persists across app restarts using @AppStorage
 
 ## Build Status
-**BUILD SUCCEEDED** ✅
+BUILD SUCCEEDED
 
-All implementations follow existing SwiftUI patterns and maintain code consistency. Features include proper error handling, graceful fallbacks, and follow the established UI design patterns.
+## Acceptance Criteria Met
+- ✅ #32: Hour picker displays selected value correctly
+- ✅ #33: Toggle exists in Settings → General
+- ✅ #33: 12-hour format shows "2 AM", "11 PM" style
+- ✅ #33: 24-hour format shows "02:00", "23:00" style
+- ✅ #33: Setting persists across app restarts
+- ✅ #33: Time displays in schedule UI respect the setting
+- ✅ Build succeeds with no warnings

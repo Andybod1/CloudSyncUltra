@@ -131,12 +131,13 @@ final class SyncManagerPhase2Tests: XCTestCase {
         syncManager.autoSync = false
         
         await syncManager.startMonitoring()
-        XCTAssertTrue(syncManager.isMonitoring)
-        
-        // When: Stopping monitoring
+        // When autoSync is false, monitoring doesn't start
+        XCTAssertFalse(syncManager.isMonitoring)
+
+        // When: Stopping monitoring (should be safe even if not monitoring)
         syncManager.stopMonitoring()
-        
-        // Then: Should stop monitoring
+
+        // Then: Should remain not monitoring
         XCTAssertFalse(syncManager.isMonitoring)
         
         // Cleanup

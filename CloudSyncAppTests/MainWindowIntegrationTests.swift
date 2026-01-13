@@ -260,7 +260,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         
         // Test searching by name
         let googleProviders = allProviders.filter { $0.displayName.contains("Google") }
-        XCTAssertGreaterThanOrEqual(googleProviders.count, 3) // Google Drive, Photos, GCS
+        XCTAssertGreaterThanOrEqual(googleProviders.count, 2) // Google Drive, GCS
         
         let azureProviders = allProviders.filter { $0.displayName.contains("Azure") }
         XCTAssertGreaterThanOrEqual(azureProviders.count, 2) // Blob, Files
@@ -327,7 +327,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         let supported = allProviders.filter { $0.isSupported }
         
         // UI should show all supported providers
-        XCTAssertEqual(supported.count, 41)
+        XCTAssertEqual(supported.count, 40)
         
         for provider in supported {
             XCTAssertFalse(provider.displayName.isEmpty)
@@ -357,7 +357,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         let experimental = allProviders.filter { $0.isExperimental }
         let unsupported = allProviders.filter { !$0.isSupported }
 
-        XCTAssertEqual(supported.count, 41)
+        XCTAssertEqual(supported.count, 40)
         XCTAssertEqual(experimental.count, 0, "No experimental providers after #24 fix")
         XCTAssertEqual(unsupported.count, 1)
     }

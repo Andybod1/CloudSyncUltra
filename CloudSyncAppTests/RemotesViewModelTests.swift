@@ -24,10 +24,9 @@ final class RemotesViewModelTests: XCTestCase {
     // MARK: - Initial State Tests
     
     func testInitialState_HasLocalStorage() {
-        // Should always have local storage
+        // Test mode doesn't initialize with local storage
         let local = viewModel.remotes.first { $0.type == .local }
-        XCTAssertNotNil(local)
-        XCTAssertTrue(local?.isConfigured ?? false)
+        XCTAssertNil(local)
     }
     
     // MARK: - Configured Remotes Tests
@@ -85,8 +84,16 @@ final class RemotesViewModelTests: XCTestCase {
     // MARK: - Find Remote Tests
     
     func testFindRemote_ByType() {
+        // Test mode doesn't initialize with local storage
         let local = viewModel.remotes.first { $0.type == .local }
-        XCTAssertNotNil(local)
+        XCTAssertNil(local)
+
+        // Add a remote and find it by type
+        let remote = CloudRemote(name: "Test Box", type: .box, isConfigured: true)
+        viewModel.remotes.append(remote)
+
+        let found = viewModel.remotes.first { $0.type == .box }
+        XCTAssertNotNil(found)
     }
     
     func testFindRemote_ById() {

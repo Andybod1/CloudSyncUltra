@@ -56,6 +56,7 @@ struct GeneralSettingsView: View {
     @AppStorage("showDockIcon") private var showDockIcon = false
     @AppStorage("showNotifications") private var showNotifications = true
     @AppStorage("soundEffects") private var soundEffects = true
+    @AppStorage("use24HourTime") private var use24HourTime = false
     @AppStorage("bandwidthLimitEnabled") private var bandwidthEnabled = false
     @AppStorage("uploadLimit") private var uploadLimit: Double = 0
     @AppStorage("downloadLimit") private var downloadLimit: Double = 0
@@ -77,6 +78,12 @@ struct GeneralSettingsView: View {
                 Toggle("Sound Effects", isOn: $soundEffects)
             } header: {
                 Label("Notifications", systemImage: "bell")
+            }
+
+            Section {
+                Toggle("Use 24-Hour Time", isOn: $use24HourTime)
+            } header: {
+                Label("Time Format", systemImage: "clock")
             }
 
             // Bandwidth Settings Section

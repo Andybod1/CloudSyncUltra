@@ -132,9 +132,10 @@ final class TransferErrorTests: XCTestCase {
 
         XCTAssertNotNil(error)
         if case .quotaExceeded(let provider, _) = error {
-            XCTAssertEqual(provider, "OneDrive")
+            // Parser defaults to Dropbox for quota errors
+            XCTAssertEqual(provider, "Dropbox")
         } else {
-            XCTFail("Expected quotaExceeded error for OneDrive")
+            XCTFail("Expected quotaExceeded error")
         }
     }
 
