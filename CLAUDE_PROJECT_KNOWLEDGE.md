@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.13 | **Updated:** 2026-01-13
+> **Version:** 2.0.14 | **Updated:** 2026-01-13
 
 ---
 
@@ -25,6 +25,7 @@ Syncs files between cloud services (Google Drive, Dropbox, Proton Drive, S3, etc
 - Scheduled sync (hourly/daily/weekly)
 - Menu bar integration
 - Bandwidth throttling
+- 12/24 hour time format preference
 
 ---
 
@@ -46,13 +47,11 @@ Strategic Partner (This Claude - Opus 4.5)
 | QA | **ALWAYS Opus** | Always for test design |
 | Dev-Ops | **ALWAYS Opus** | Always for critical ops |
 
-### Sprint Phases (Shift-Left Testing)
-| Phase | Workers | Output |
-|-------|---------|--------|
-| 1. Planning | Strategic Partner + QA | Test Plan |
-| 2. Foundation | Dev-3 | Models ready |
-| 3. Implementation | Dev-1, Dev-2, QA parallel | Features + Tests |
-| 4. Integration | Dev-Ops | Commit, push, docs |
+### Strategic Partner Role
+- **Plans and coordinates** - never implements directly
+- **Delegates ALL work** to specialized workers
+- **Creates tasks** in `.claude-team/tasks/TASK_*.md`
+- **Monitors progress** via STATUS.md and output files
 
 ---
 
@@ -66,16 +65,17 @@ Strategic Partner (This Claude - Opus 4.5)
 │   ├── Models/                   # Dev-3
 │   ├── RcloneManager.swift       # Dev-2
 │   └── *Manager.swift            # Dev-3
-├── CloudSyncAppTests/            # QA (35 files, 617 tests)
+├── CloudSyncAppTests/            # QA (35 files, 616 tests)
+├── docs/                         # User documentation
+│   ├── CLEAN_BUILD_GUIDE.md
+│   └── TEST_ACCOUNTS_GUIDE.md
 ├── .claude-team/
-│   ├── PROJECT_CONTEXT.md        # Full context
-│   ├── STATUS.md                 # Worker status
-│   ├── RECOVERY.md               # Recovery guide
+│   ├── STATUS.md                 # Worker status (live)
 │   ├── WORKER_MODELS.conf        # Model assignments
-│   ├── tasks/TASK_*.md           # Worker tasks
+│   ├── tasks/TASK_*.md           # Active worker tasks
 │   ├── outputs/*_COMPLETE.md     # Worker reports
-│   └── templates/*_BRIEFING.md   # Worker briefings
-├── .github/WORKFLOW.md           # Workflow docs
+│   ├── templates/*_BRIEFING.md   # Worker briefings
+│   └── planning/*.md             # Feature plans
 └── CHANGELOG.md                  # Version history
 ```
 
@@ -87,33 +87,31 @@ Strategic Partner (This Claude - Opus 4.5)
 # Build
 cd /Users/antti/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
 
-# Test
+# Test (616 tests, 0 failures)
 cd /Users/antti/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed" | tail -5
 
 # Launch app
 open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
 
-# Git
-cd /Users/antti/Claude && git status --short
-cd /Users/antti/Claude && git log --oneline -5
-
 # GitHub Issues
 gh issue list
-gh issue list -l ready
 gh issue view <number>
 ```
 
 ---
 
-## Worker Management
+## Worker Launch
 
-### Launch Workers
 ```bash
-~/Claude/.claude-team/scripts/launch_workers.sh
-# Or single: ~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+# Single worker
+~/Claude/.claude-team/scripts/launch_single_worker.sh [worker] [model]
+
+# Examples
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
 ```
 
-### Worker Startup Commands
+### Startup Commands (paste into Claude Code)
 ```
 Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
 
@@ -130,42 +128,41 @@ Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then
 
 ## Current State
 
-### In Progress: v2.0.13 (Test Health Sprint)
-- 🔄 #35 - Fix 23 pre-existing test failures (QA)
+### In Progress: v2.0.14 (Performance Sprint)
+| # | Title | Worker | Status |
+|---|-------|--------|--------|
+| #10 | Transfer performance audit | Dev-2 | 🔄 Working |
+| #20 | Crash reporting feasibility | Dev-3 | 🔄 Working |
+| #34 | GitHub Actions setup | Dev-Ops | 🔄 Working |
 
-### Last Completed: v2.0.12 (Quick Wins Sprint)
-- ✅ Drag & drop sidebar reordering (#14)
-- ✅ Account name in encryption view (#25)
-- ✅ Bandwidth throttling controls (#1)
-- ✅ Test target configured (617 tests)
+### Last Completed: v2.0.13
+- ✅ Schedule time display fixed (#32)
+- ✅ 12/24 hour time setting (#33)
+- ✅ All 616 tests passing (#35)
+- ✅ Clean build guide, test accounts guide
 
 ### Open Issues
-| # | Title | Priority |
-|---|-------|----------|
-| #35 | Fix 23 pre-existing test failures | Medium |
-| #10 | Transfer performance poor | High |
-| #27 | UI test automation | High |
-| #9 | iCloud integration | High |
-| #20 | Crash reporting | Low |
+| # | Title | Priority | Size |
+|---|-------|----------|------|
+| #37 | Dropbox validation | Medium | M |
+| #27 | UI test automation | High | L |
+| #9 | iCloud integration | High | L |
 
 ---
 
 ## Key Reminders
 
 1. **Always launch app** after building/updating code
-2. **Ask Andy for clarifications** - never assume requirements
-3. **QA always uses Opus** regardless of ticket size
-4. **Dev-Ops always uses Opus** with extended thinking
-5. **Extended thinking** (`/think`) for M/L/XL tickets
-6. **Update GitHub** - commit, push, close issues
-7. **Update CHANGELOG.md** after each sprint
-8. **Delegate implementation** - Strategic Partner plans only
+2. **Ask Andy for clarifications** - never assume
+3. **QA & Dev-Ops always use Opus** with extended thinking
+4. **Delegate implementation** - Strategic Partner plans only
+5. **Update GitHub** - commit, push, close issues
+6. **Update CHANGELOG.md** after each sprint
 
 ---
 
 ## Quick Recovery
 
-If context is lost, read these files:
 ```bash
 cat /Users/antti/Claude/.claude-team/STATUS.md
 cat /Users/antti/Claude/CHANGELOG.md
