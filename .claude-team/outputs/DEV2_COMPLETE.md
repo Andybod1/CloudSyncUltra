@@ -1,62 +1,58 @@
 # Dev-2 Completion Report
 
-**Feature:** Cloud-to-Cloud Progress Fix (#21)
+**Feature:** OneDrive Integration Fix
 **Status:** COMPLETE
-**Date:** 2026-01-12
+**Issue:** #29 (High, L) - OneDrive integration is broken
+**Date:** 2026-01-13
 
 ## Files Modified
-- `CloudSyncApp/RcloneManager.swift`: Two fixes applied
+- CloudSyncApp/RcloneManager.swift: Enhanced OneDrive setup with proper OAuth and drive type handling
 
-## Root Cause Analysis
+## Summary
 
-Investigation of `/tmp/cloudsync_transfer_debug.log` revealed:
-1. Cloud-to-cloud transfers showed NO progress entries in the log
-2. The `copyFiles()` method was missing `--stats-one-line` flag needed for consistent progress output
-3. Operator precedence bug in `parseProgress()` was incorrectly evaluating the size unit condition
+### Root Cause Identified
+The OneDrive integration was failing because:
+1. The OAuth authentication flow was working, but the drive type selection wasn't handled
+2. After OAuth, rclone was defaulting to an invalid SharePoint/Business drive instead of personal OneDrive
+3. This caused "ObjectHandle is Invalid" errors when trying to access the drive
 
-## Fixes Applied
+### Investigation Findings
+- OAuth authentication successfully opens browser and gets authorization code
+- The issue occurs after OAuth when OneDrive requires drive type selection
+- Current implementation using `createRemoteInteractive()` doesn't handle the interactive prompts
+- The config path was also incorrectly constructed in manual tests (missing $HOME)
 
-### Fix 1: Added `--stats-one-line` to `copyFiles()` (line 1162)
+### Solution Implemented
+1. Added `OneDriveAccountType` enum to support different OneDrive types (personal, business, sharepoint)
+2. Replaced generic `createRemoteInteractive()` with custom OneDrive setup logic
+3. Added proper parameter handling for `config_is_local` to enable browser auth
+4. Implemented post-OAuth configuration to fix drive type when errors are detected
+5. Added connection testing using `rclone lsd` to verify setup
+6. Enhanced logging throughout the process for better debugging
 
-```swift
-var args = [
-    "copy",
-    source,
-    dest,
-    "--config", self.configPath,
-    "--progress",
-    "--stats", "1s",
-    "--stats-one-line",           // ADDED
-    "--stats-file-name-length", "0",  // ADDED
-    "--transfers", "4",
-    "--verbose",
-    "--ignore-existing"
-]
-```
+### Code Changes
+- Added OneDriveAccountType enum with three cases: personal, business, sharepoint
+- Completely rewrote setupOneDrive() method with:
+  - Explicit OAuth flow handling
+  - Drive type configuration based on account type
+  - Error detection and recovery for invalid drive selection
+  - Connection verification before declaring success
+  - Comprehensive logging at each step
 
-This ensures rclone outputs progress in a single-line format that `parseProgress()` can reliably parse for cloud-to-cloud transfers.
-
-### Fix 2: Fixed operator precedence bug in `parseProgress()` (line 1992)
-
-**Before (buggy):**
-```swift
-if line.contains("Transferred:") && line.contains("MiB") || line.contains("KiB") || line.contains("GiB") {
-```
-
-**After (fixed):**
-```swift
-if line.contains("Transferred:") && (line.contains("MiB") || line.contains("KiB") || line.contains("GiB") || line.contains(" B")) {
-```
-
-The original code was evaluated as `(A && B) || C || D` instead of `A && (B || C || D)`, causing incorrect matching. Also added " B" to handle small transfers in bytes.
-
-## Note for Dev-1
-
-The RcloneManager now provides proper progress output for cloud-to-cloud transfers. Please ensure `TransferView.swift` uses either:
-- `copyFiles()` with progress stream consumption, OR
-- `copyBetweenRemotesWithProgress()` for cloud-to-cloud transfers
-
-The existing `copyBetweenRemotesWithProgress()` method (line 1856) already has the correct flags and should work for cloud-to-cloud progress.
+### Testing Recommendations
+The following scenarios should be tested by QA:
+1. **Fresh OneDrive Personal Setup** - Should open browser, complete OAuth, and list files
+2. **Fresh OneDrive Business Setup** - Should handle business account properly
+3. **List Root Directory** - After setup, browsing OneDrive should show folders/files
+4. **Upload File** - Drag file to OneDrive should work
+5. **Download File** - Drag from OneDrive to local should work
+6. **Token Refresh** - Wait 1+ hour and verify connection still works
 
 ## Build Status
-BUILD SUCCEEDED
+BUILD SUCCEEDED - All changes compile successfully
+
+## Notes
+- The fix defaults to personal OneDrive when called from the UI
+- Future enhancement could add UI to select OneDrive account type
+- Business and SharePoint account types are supported in the code but not exposed in UI yet
+- The solution handles the common case where OAuth succeeds but drive selection fails

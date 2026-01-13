@@ -7,6 +7,14 @@
 
 import Foundation
 
+// MARK: - OneDrive Account Types
+
+enum OneDriveAccountType: String {
+    case personal = "onedrive"
+    case business = "business"
+    case sharepoint = "sharepoint"
+}
+
 class RcloneManager {
     static let shared = RcloneManager()
     
@@ -269,9 +277,132 @@ class RcloneManager {
         try await createRemoteInteractive(name: remoteName, type: "dropbox")
     }
     
-    func setupOneDrive(remoteName: String) async throws {
-        // OneDrive uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "onedrive")
+    func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal) async throws {
+        print("[RcloneManager]Setting up OneDrive: \(remoteName), type: \(accountType)")
+
+        // OneDrive requires multiple steps:
+        // 1. OAuth authentication (browser-based)
+        // 2. Drive type selection
+        // For now, we'll handle this by creating the config with proper parameters
+
+        // Create a temporary process to handle OneDrive OAuth
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+
+        // Use rclone config create with proper parameters
+        var args = [
+            "config", "create",
+            remoteName,
+            "onedrive",
+            "--config", configPath,
+            "config_is_local", "true"  // Use local browser for auth
+        ]
+
+        // Add drive_type based on account type
+        switch accountType {
+        case .personal:
+            // For personal OneDrive, we don't set drive_type initially
+            // It will be handled after OAuth
+            break
+        case .business:
+            args.append("drive_type")
+            args.append("business")
+        case .sharepoint:
+            args.append("drive_type")
+            args.append("sharepoint")
+        }
+
+        process.arguments = args
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        print("[RcloneManager]Running OneDrive setup with args: \(args.joined(separator: " "))")
+
+        try process.run()
+
+        // For OneDrive, we need to handle the OAuth flow
+        // The process will open a browser and wait for authentication
+        process.waitUntilExit()
+
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+
+        let output = String(data: outputData, encoding: .utf8) ?? ""
+        let errorOutput = String(data: errorData, encoding: .utf8) ?? ""
+
+        print("[RcloneManager] OneDrive setup output: \(output)")
+        if !errorOutput.isEmpty {
+            print("[RcloneManager] OneDrive setup error output: \(errorOutput)")
+        }
+
+        // After OAuth, we need to ensure proper drive configuration
+        // Check if we got errors about invalid drive
+        if errorOutput.contains("ObjectHandle is Invalid") || errorOutput.contains("Failed to query root") {
+            print("[RcloneManager] OneDrive requires drive type configuration, fixing...")
+
+            // For personal accounts, we need to update the config to use the correct drive
+            let updateProcess = Process()
+            updateProcess.executableURL = URL(fileURLWithPath: rclonePath)
+
+            var updateArgs = [
+                "config", "update",
+                remoteName,
+                "--config", configPath
+            ]
+
+            // Set proper drive configuration based on account type
+            switch accountType {
+            case .personal:
+                // Personal OneDrive doesn't need explicit drive_id
+                updateArgs.append(contentsOf: ["drive_type", "onedrive"])
+            case .business:
+                updateArgs.append(contentsOf: ["drive_type", "business"])
+            case .sharepoint:
+                updateArgs.append(contentsOf: ["drive_type", "sharepoint"])
+            }
+
+            updateProcess.arguments = updateArgs
+
+            try updateProcess.run()
+            updateProcess.waitUntilExit()
+
+            print("[RcloneManager] Updated OneDrive configuration for \(accountType) account")
+        }
+
+        // Verify setup succeeded
+        guard isRemoteConfigured(name: remoteName) else {
+            throw RcloneError.configurationFailed("OneDrive OAuth did not complete successfully")
+        }
+
+        // Test the connection by listing directories
+        print("[RcloneManager] Testing OneDrive connection...")
+        let testProcess = Process()
+        testProcess.executableURL = URL(fileURLWithPath: rclonePath)
+        testProcess.arguments = [
+            "lsd",
+            "\(remoteName):",
+            "--config", configPath,
+            "--max-depth", "1"
+        ]
+
+        let testOutputPipe = Pipe()
+        let testErrorPipe = Pipe()
+        testProcess.standardOutput = testOutputPipe
+        testProcess.standardError = testErrorPipe
+
+        try testProcess.run()
+        testProcess.waitUntilExit()
+
+        if testProcess.terminationStatus != 0 {
+            let testErrorData = testErrorPipe.fileHandleForReading.readDataToEndOfFile()
+            let testError = String(data: testErrorData, encoding: .utf8) ?? "Unknown error"
+            throw RcloneError.configurationFailed("OneDrive connection test failed: \(testError)")
+        }
+
+        print("[RcloneManager] OneDrive setup successful: \(remoteName)")
     }
     
     func setupS3(remoteName: String, accessKey: String, secretKey: String, region: String = "us-east-1", endpoint: String = "") async throws {
@@ -1635,7 +1766,7 @@ class RcloneManager {
                     }
                 }
                 
-                log("Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
+                print("[RcloneManager]Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
                 
                 var args = [
                     "copy",
@@ -1655,7 +1786,7 @@ class RcloneManager {
                     let transfers = min(16, max(8, fileCount / 10))  // 8-16 parallel transfers
                     args.append("--transfers")
                     args.append("\(transfers)")
-                    log("Using \(transfers) parallel transfers for \(fileCount) files")
+                    print("[RcloneManager]Using \(transfers) parallel transfers for \(fileCount) files")
                 } else {
                     args.append("--transfers")
                     args.append("4")  // Default for single files or small folders
@@ -1669,7 +1800,7 @@ class RcloneManager {
                 process.standardOutput = stderrPipe
                 process.standardError = stderrPipe
                 
-                log("Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
+                print("[RcloneManager]Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
                 
                 let handle = stderrPipe.fileHandleForReading
                 
@@ -1677,7 +1808,7 @@ class RcloneManager {
                     try process.run()
                     self.process = process
                     
-                    log("Process started, beginning to read output")
+                    print("[RcloneManager]Process started, beginning to read output")
                     
                     // Read output in a loop while process is running
                     var buffer = Data()
@@ -1698,13 +1829,13 @@ class RcloneManager {
                                     if !trimmedLine.isEmpty {
                                         // Check if this looks like a progress line (has percentage and slashes)
                                         if trimmedLine.contains("%") && trimmedLine.contains("/") {
-                                            log("Progress line: \(trimmedLine)")
+                                            print("[RcloneManager]Progress line: \(trimmedLine)")
                                             if let progress = self.parseProgress(from: trimmedLine) {
-                                                log("Parsed progress: \(progress.percentage)% - \(progress.speed)")
+                                                print("[RcloneManager]Parsed progress: \(progress.percentage)% - \(progress.speed)")
                                                 continuation.yield(progress)
                                             }
                                         } else if !trimmedLine.starts(with: "2026/") { // Skip debug timestamps
-                                            log("Non-progress line: \(trimmedLine)")
+                                            print("[RcloneManager]Non-progress line: \(trimmedLine)")
                                         }
                                     }
                                 }
@@ -1723,14 +1854,14 @@ class RcloneManager {
                     if let data = try? handle.readToEnd(), !data.isEmpty {
                         buffer.append(data)
                         if let output = String(data: buffer, encoding: .utf8) {
-                            log("Final output: \(output)")
+                            print("[RcloneManager]Final output: \(output)")
                             if let progress = self.parseProgress(from: output) {
                                 continuation.yield(progress)
                             }
                         }
                     }
                     
-                    log("Upload exit code: \(process.terminationStatus)")
+                    print("[RcloneManager]Upload exit code: \(process.terminationStatus)")
                     
                     if process.terminationStatus == 0 {
                         continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
@@ -1738,7 +1869,7 @@ class RcloneManager {
                     
                     continuation.finish()
                 } catch {
-                    log("Upload error: \(error.localizedDescription)")
+                    print("[RcloneManager]Upload error: \(error.localizedDescription)")
                     continuation.finish()
                 }
             }
