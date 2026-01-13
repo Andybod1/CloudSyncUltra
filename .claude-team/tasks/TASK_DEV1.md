@@ -1,97 +1,148 @@
-# TASK: iCloud Phase 1 - UI Integration (#9)
+# TASK: iCloud Local Folder UI Option (#9 Phase 1)
 
 ## Worker: Dev-1 (UI)
 ## Size: S
-## Model: Sonnet (S-sized)
-## Ticket: #9 (Phase 1)
+## Model: Sonnet
+## Ticket: #9
 
-**Depends on:** Dev-3 completing ICloudManager
+**Wait for Dev-3 to complete first** (iCloud detection must be in place)
 
 ---
 
 ## Objective
 
-Add UI support for local iCloud Drive folder access.
+Add UI option to use local iCloud Drive folder when setting up iCloud provider.
 
 ---
 
-## Task 1: Update Add Remote Flow
+## Context
 
-In `MainWindow.swift`, update the iCloud case in the setup switch:
-
-```swift
-case .icloud:
-    // Check if local iCloud folder available
-    if ICloudManager.isLocalFolderAvailable {
-        // Setup as alias to local folder
-        try await rclone.setupLocalAlias(
-            remoteName: rcloneName,
-            path: ICloudManager.expandedPath
-        )
-    } else {
-        throw CloudSyncError.iCloudNotAvailable
-    }
-```
+When user selects iCloud in "Add Cloud Storage":
+- Show choice between "Local Folder" and "Apple ID Login"
+- Local folder option is simpler and works immediately
+- Apple ID login is Phase 2 (not yet implemented)
 
 ---
 
-## Task 2: Add Helper Text
+## Implementation
 
-Update the helper text for iCloud in the setup dialog:
+### File: `CloudSyncApp/Views/MainWindow.swift` (or relevant setup view)
 
-```swift
-case .icloud:
-    if ICloudManager.isLocalFolderAvailable {
-        Text("iCloud Drive will sync via your local iCloud folder.")
-            .foregroundColor(.secondary)
-    } else {
-        Text("iCloud Drive is not available. Please sign in to iCloud in System Settings.")
-            .foregroundColor(.red)
-    }
-```
-
----
-
-## Task 3: Add Error Type
-
-In appropriate error file, add:
+When user selects iCloud provider, show options:
 
 ```swift
-enum CloudSyncError: Error {
-    case iCloudNotAvailable
-    // ...
-}
-
-extension CloudSyncError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .iCloudNotAvailable:
-            return "iCloud Drive is not available on this Mac. Please sign in to iCloud in System Settings."
-        // ...
+// In the setup flow for iCloud
+if selectedProvider == .icloud {
+    VStack(alignment: .leading, spacing: 12) {
+        Text("Choose Connection Method")
+            .font(.headline)
+        
+        // Option 1: Local folder (recommended)
+        Button(action: { setupICloudLocal() }) {
+            HStack {
+                Image(systemName: "folder.fill")
+                VStack(alignment: .leading) {
+                    Text("Use Local iCloud Folder")
+                        .fontWeight(.medium)
+                    Text("Recommended • No login required")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                if CloudProvider.isLocalICloudAvailable {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                } else {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                }
+            }
+            .padding()
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(8)
         }
+        .buttonStyle(.plain)
+        .disabled(!CloudProvider.isLocalICloudAvailable)
+        
+        // Status message
+        if !CloudProvider.isLocalICloudAvailable {
+            Text(CloudProvider.iCloudStatusMessage)
+                .font(.caption)
+                .foregroundColor(.orange)
+        }
+        
+        // Option 2: Apple ID (coming soon)
+        Button(action: { /* Phase 2 */ }) {
+            HStack {
+                Image(systemName: "person.crop.circle")
+                VStack(alignment: .leading) {
+                    Text("Sign in with Apple ID")
+                        .fontWeight(.medium)
+                    Text("Coming soon • Requires 2FA")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+        .disabled(true)  // Phase 2
     }
 }
 ```
 
 ---
 
-## Task 4: Verify Provider Shows Correctly
+## Setup Local iCloud Remote
 
-1. iCloud should appear in provider list
-2. If iCloud folder exists → setup should work
-3. If iCloud folder missing → show clear error
+```swift
+func setupICloudLocal() async throws {
+    let remoteName = generateRemoteName(for: .icloud)
+    
+    // Create a local-type remote pointing to iCloud folder
+    try await rcloneManager.createLocalRemote(
+        name: remoteName,
+        path: CloudProvider.iCloudLocalPath.path
+    )
+    
+    // Or use alias remote
+    // rclone config create <name> alias remote /path/to/icloud
+    
+    // Add to remotes list
+    await refreshRemotes()
+}
+```
 
 ---
 
 ## Verification
 
-1. Build succeeds
-2. Add iCloud remote works (if signed into iCloud)
-3. Browse local iCloud folder contents
-4. Error shown if iCloud not available
+1. Select iCloud in Add Cloud Storage
+2. See two options: Local Folder and Apple ID
+3. Local Folder shows green check if iCloud available
+4. Local Folder shows red X and message if not available
+5. Can successfully add local iCloud remote
+6. Can browse iCloud folder contents
 
 ---
 
 ## Output
 
-Write to `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
+Write completion report to:
+`/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
+
+Update STATUS.md when starting and completing.
+
+---
+
+## Acceptance Criteria
+
+- [ ] iCloud setup shows connection method choice
+- [ ] Local folder option detects availability
+- [ ] Can add iCloud as local remote
+- [ ] Can browse local iCloud contents
+- [ ] Apple ID option shows "Coming soon"
+- [ ] Build succeeds

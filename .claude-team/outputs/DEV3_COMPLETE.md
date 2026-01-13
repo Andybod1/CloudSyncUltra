@@ -1,43 +1,39 @@
 # Dev-3 Completion Report
 
-**Feature:** Model Updates for Remote Reordering & Account Names (#14, #25)
+**Feature:** iCloud Local Folder Support - Foundation (#9 Phase 1)
 **Status:** COMPLETE
 
 ## Files Created
 - None
 
 ## Files Modified
-- `/Users/antti/Claude/CloudSyncApp/Models/CloudProvider.swift`
-- `/Users/antti/Claude/CloudSyncApp/ViewModels/RemotesViewModel.swift`
+- `CloudSyncApp/Models/CloudProvider.swift`
 
 ## Summary
-Successfully implemented model layer support for cloud remote reordering and account name storage. Added sortOrder and accountName properties to CloudRemote model, implemented reordering methods in RemotesViewModel, and updated storage version for clean data migration.
+Successfully implemented iCloud local folder detection foundation for ticket #9 Phase 1. The rclone type mapping was already correctly set to "iclouddrive". Added helper methods to detect local iCloud Drive folder availability and provide status messages. Enabled iCloud as a supported provider in the CloudProviderType enum.
+
+## Implementation Details
+- **iCloud Local Path:** `~/Library/Mobile Documents/com~apple~CloudDocs`
+- **Detection Method:** FileManager.fileExists check
+- **Status Messaging:** User-friendly messages for detection state
+- **Provider Support:** iCloud now shows as supported in provider list
+
+## Changes Made
+- Added CloudProviderType extension with iCloud detection helpers:
+  - `iCloudLocalPath` - Static computed property for local iCloud Drive folder path
+  - `isLocalICloudAvailable` - Static computed property to check availability
+  - `iCloudStatusMessage` - Static computed property for user status messages
+- Updated `isSupported` property to enable iCloud (changed from false to true)
+- rclone type mapping verified as correctly set to "iclouddrive" (lines:249)
 
 ## Build Status
 BUILD SUCCEEDED
 
-## Properties Added to CloudRemote Model
-- `sortOrder: Int` - For custom ordering of cloud remotes in sidebar
-- `accountName: String?` - To store email/username for connected accounts
+## Acceptance Criteria
+- [x] rclone type changed to `iclouddrive` (was already correct)
+- [x] Local iCloud detection working (CloudProviderType:515-535)
+- [x] iCloud shows as supported provider (CloudProviderType:361)
+- [x] Build succeeds
 
-## Methods Added to RemotesViewModel
-- `moveCloudRemotes(from:to:)` - Handles drag & drop reordering with sort order updates
-- `setAccountName(_:for:)` - Updates account name for a specific remote
-
-## Other Changes
-- Updated CloudRemote init method with new parameters (default values: sortOrder=0, accountName=nil)
-- Bumped storage version from v5 to v6 to force data migration
-- Modified loadRemotes() to sort cloud remotes by sortOrder after scanning rclone config
-
-## Implementation Details
-All changes maintain backward compatibility through proper initialization defaults. The storage version bump ensures clean migration of existing user data. These model changes enable Dev-1 to implement the UI features for drag & drop reordering (#14) and account name display (#25).
-
-## Quality Verification
-- ✅ CloudRemote has sortOrder property
-- ✅ CloudRemote has accountName property
-- ✅ Init updated with new parameters
-- ✅ Storage version bumped to v6
-- ✅ moveCloudRemotes() method added
-- ✅ setAccountName() method added
-- ✅ loadRemotes() sorts by sortOrder
-- ✅ Build succeeds
+## Next Steps
+This foundation enables Dev-1 to implement the iCloud local folder UI option. The detection helpers can be used to show iCloud Drive availability status and guide users through setup.

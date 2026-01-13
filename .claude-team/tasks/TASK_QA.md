@@ -1,74 +1,117 @@
-# TASK: Fix 23 Pre-existing Test Failures (#35)
+# TASK: iCloud Phase 1 Testing (#9)
 
 ## Worker: QA
-## Size: M
-## Model: Opus (ALWAYS for QA)
-## Extended Thinking: ENABLED (ALWAYS for QA)
+## Size: S
+## Model: Opus (always for QA)
+## Ticket: #9
+
+**Use extended thinking (`/think`) for test design.**
+
+**Wait for Dev-1 and Dev-3 to complete first.**
 
 ---
 
-## Problem
-Running `xcodebuild test` shows 617 tests with 23 failures. These are pre-existing issues from outdated expectations.
+## Objective
 
-## Failing Tests Analysis
+Test iCloud local folder integration (Phase 1).
 
-### Category 1: Provider Count Tests (5 tests)
-**Root cause:** Provider count increased from 19→27→33→42
-**Files:** `Phase1Week1ProvidersTests.swift`, `Phase1Week2ProvidersTests.swift`, `Phase1Week3ProvidersTests.swift`
-**Fix:** Update expected counts to 42
+---
 
-### Category 2: Experimental Provider Tests (4 tests)
-**Root cause:** Jottacloud no longer marked experimental
-**Files:** `CloudSyncUltraIntegrationTests.swift`
-**Fix:** Update or remove experimental provider expectations
+## Test Cases
 
-### Category 3: File Formatting Tests (5 tests)
-**Root cause:** Locale-dependent formatting ("500 bytes" vs "500 B", "5,2 MB" vs "5 MB")
-**Files:** `FileItemTests.swift`
-**Fix:** Use locale-independent assertions or mock formatters
+### TC-1: Local iCloud Detection (Dev-3 work)
 
-### Category 4: Timing Tests (2 tests)
-**Root cause:** Off-by-one timing edge cases
-**Files:** `MenuBarScheduleTests.swift`
-**Fix:** Add tolerance to timing comparisons
+| Test | Steps | Expected |
+|------|-------|----------|
+| TC-1.1 | Check `CloudProvider.isLocalICloudAvailable` on Mac with iCloud | Returns `true` |
+| TC-1.2 | Check `CloudProvider.iCloudLocalPath` | Points to `~/Library/Mobile Documents/com~apple~CloudDocs` |
+| TC-1.3 | Check rclone type for iCloud | Returns `iclouddrive` |
 
-### Category 5: Other Failures (7 tests)
-- `AddRemoteViewTests.testProviderSearchCoverage`
-- `EncryptionManagerTests.testEncryptedRemoteName`
-- `RemotesViewModelTests.testInitialState_HasLocalStorage`
-- `RemotesViewModelTests.testFindRemote_ByType`
-- `SyncManagerPhase2Tests.testStopMonitoringWithoutAutoSync`
-- `TransferErrorTests.testParseOneDriveQuotaExceeded`
+### TC-2: UI Flow (Dev-1 work)
 
-**Fix:** Investigate each individually and update expectations
+| Test | Steps | Expected |
+|------|-------|----------|
+| TC-2.1 | Open Add Cloud Storage → Select iCloud | Shows connection method options |
+| TC-2.2 | Check Local Folder option availability | Green checkmark if iCloud folder exists |
+| TC-2.3 | Check Apple ID option | Shows "Coming soon", disabled |
+| TC-2.4 | Click Local Folder option | Creates remote successfully |
 
-## Commands
+### TC-3: Local iCloud Browsing
 
-### Run all tests
-```bash
-cd /Users/antti/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Test Case|passed|failed|error:"
+| Test | Steps | Expected |
+|------|-------|----------|
+| TC-3.1 | Add iCloud local → Browse root | Shows iCloud Drive contents |
+| TC-3.2 | Navigate into subfolder | Can enter and list subfolders |
+| TC-3.3 | View file details | Shows size, date correctly |
+
+### TC-4: Local iCloud Sync
+
+| Test | Steps | Expected |
+|------|-------|----------|
+| TC-4.1 | Upload file to iCloud | File appears in Finder iCloud folder |
+| TC-4.2 | Download file from iCloud | File saves to local destination |
+| TC-4.3 | Delete file from iCloud | File removed (if supported) |
+
+### TC-5: Edge Cases
+
+| Test | Steps | Expected |
+|------|-------|----------|
+| TC-5.1 | Test on Mac without iCloud signed in | Shows error message, option disabled |
+| TC-5.2 | Cancel during setup | Returns to provider list cleanly |
+| TC-5.3 | Add iCloud twice | Handles duplicate gracefully |
+
+---
+
+## Unit Tests to Add
+
+Create test file: `CloudSyncAppTests/ICloudIntegrationTests.swift`
+
+```swift
+import XCTest
+@testable import CloudSyncApp
+
+final class ICloudIntegrationTests: XCTestCase {
+    
+    func testRcloneTypeIsICloudDrive() {
+        XCTAssertEqual(CloudProvider.icloud.rcloneType, "iclouddrive")
+    }
+    
+    func testICloudLocalPath() {
+        let expected = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs")
+        XCTAssertEqual(CloudProvider.iCloudLocalPath, expected)
+    }
+    
+    func testICloudIsSupported() {
+        XCTAssertTrue(CloudProvider.icloud.isSupported)
+    }
+    
+    func testICloudDisplayName() {
+        XCTAssertEqual(CloudProvider.icloud.displayName, "iCloud Drive")
+    }
+}
 ```
 
-### Run specific test file
-```bash
-cd /Users/antti/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' -only-testing:CloudSyncAppTests/FileItemTests 2>&1
-```
-
-## Acceptance Criteria
-- [ ] All 617 tests pass
-- [ ] No skipped tests without documentation
-- [ ] Test run completes in < 60 seconds
-- [ ] Changes committed with clear message
-
-## Process
-1. Run full test suite to identify current failures
-2. Fix Category 1 (provider counts) - easiest wins
-3. Fix Category 2 (experimental flags)
-4. Fix Category 3 (formatting) - may need locale handling
-5. Fix Category 4 (timing) - add tolerances
-6. Fix Category 5 (other) - investigate individually
-7. Run full suite again to verify all pass
-8. Commit changes
+---
 
 ## Output
-Write completion report to `/Users/antti/Claude/.claude-team/outputs/QA_COMPLETE.md`
+
+Write test results to:
+`/Users/antti/Claude/.claude-team/outputs/QA_COMPLETE.md`
+
+Include:
+- Test results table (Pass/Fail)
+- Any bugs found
+- Screenshots if relevant
+- Unit test results
+
+Update STATUS.md when starting and completing.
+
+---
+
+## Acceptance Criteria
+
+- [ ] All manual tests executed
+- [ ] Unit tests created and passing
+- [ ] Any bugs reported as GitHub issues
+- [ ] Test report written

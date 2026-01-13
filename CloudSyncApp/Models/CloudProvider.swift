@@ -246,7 +246,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .dropbox: return "dropbox"
         case .oneDrive: return "onedrive"
         case .s3: return "s3"
-        case .icloud: return "icloud"
+        case .icloud: return "iclouddrive"
         case .mega: return "mega"
         case .box: return "box"
         case .pcloud: return "pcloud"
@@ -358,7 +358,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     
     var isSupported: Bool {
         switch self {
-        case .icloud: return false
+        case .icloud: return true  // Enable iCloud
         default: return true
         }
     }
@@ -508,5 +508,28 @@ struct FileItem: Identifiable, Equatable, Hashable {
     // Hashable conformance
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+// MARK: - iCloud Detection Extension
+extension CloudProviderType {
+    /// Path to local iCloud Drive folder on macOS
+    static let iCloudLocalPath: URL = {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs")
+    }()
+
+    /// Check if iCloud Drive is available locally
+    static var isLocalICloudAvailable: Bool {
+        FileManager.default.fileExists(atPath: iCloudLocalPath.path)
+    }
+
+    /// Get iCloud Drive status message
+    static var iCloudStatusMessage: String {
+        if isLocalICloudAvailable {
+            return "iCloud Drive folder detected"
+        } else {
+            return "iCloud Drive not found. Make sure you're signed into iCloud on this Mac."
+        }
     }
 }

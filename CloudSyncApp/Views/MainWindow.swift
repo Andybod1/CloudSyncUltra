@@ -444,18 +444,22 @@ struct AddRemoteSheet: View {
 struct ConnectRemoteSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var remotesVM: RemotesViewModel
-    
+
     let remote: CloudRemote
-    
+
     @State private var username = ""
     @State private var password = ""
     @State private var twoFactorCode = ""
     @State private var isConnecting = false
     @State private var errorMessage: String?
     @State private var isConnected = false
-    
+
     private var needsTwoFactor: Bool {
         remote.type == .protonDrive
+    }
+
+    private var isICloud: Bool {
+        remote.type == .icloud
     }
     
     var body: some View {
@@ -490,28 +494,130 @@ struct ConnectRemoteSheet: View {
                 // Success state
                 VStack(spacing: 20) {
                     Spacer()
-                    
+
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 64))
                         .foregroundColor(.green)
-                    
+
                     Text("Connected Successfully!")
                         .font(.title2)
                         .fontWeight(.semibold)
-                    
+
                     Text("\(remote.name) is now ready to use")
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
-                    
+
                     Button("Done") {
                         dismiss()
                     }
                     .buttonStyle(.borderedProminent)
                 }
                 .padding()
+            } else if isICloud {
+                // iCloud connection method selection
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Choose Connection Method")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    VStack(spacing: 12) {
+                        // Option 1: Local folder (recommended)
+                        Button(action: { setupICloudLocal() }) {
+                            HStack {
+                                Image(systemName: "folder.fill")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 30)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Use Local iCloud Folder")
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    Text("Recommended • No login required")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if CloudProviderType.isLocalICloudAvailable {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                } else {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red)
+                                }
+                            }
+                            .padding()
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!CloudProviderType.isLocalICloudAvailable)
+
+                        // Status message
+                        if !CloudProviderType.isLocalICloudAvailable {
+                            HStack {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.orange)
+                                Text(CloudProviderType.iCloudStatusMessage)
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        // Option 2: Apple ID (coming soon)
+                        Button(action: { /* Phase 2 */ }) {
+                            HStack {
+                                Image(systemName: "person.crop.circle")
+                                    .foregroundColor(.gray)
+                                    .frame(width: 30)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Sign in with Apple ID")
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    Text("Coming soon • Requires 2FA")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(true)  // Phase 2
+                    }
+                    .padding(.horizontal)
+
+                    if let error = errorMessage {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text(error)
+                                .foregroundColor(.red)
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    Spacer()
+
+                    // Footer
+                    Divider()
+                    HStack {
+                        Button("Cancel") { dismiss() }
+                            .keyboardShortcut(.escape)
+
+                        Spacer()
+
+                        if isConnecting {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                    }
+                    .padding()
+                }
             } else {
-                // Credentials form
+                // Credentials form for non-iCloud providers
                 Form {
                     Section {
                         // Hide username field for Jottacloud (only needs token)
@@ -519,7 +625,7 @@ struct ConnectRemoteSheet: View {
                             TextField("Username / Email", text: $username)
                                 .textFieldStyle(.roundedBorder)
                         }
-                        
+
                         // Use appropriate label based on provider
                         if remote.type == .jottacloud {
                             SecureField("Personal Login Token", text: $password)
@@ -528,7 +634,7 @@ struct ConnectRemoteSheet: View {
                             SecureField("Password", text: $password)
                                 .textFieldStyle(.roundedBorder)
                         }
-                        
+
                         if needsTwoFactor {
                             TextField("2FA Code (6 digits)", text: $twoFactorCode)
                                 .textFieldStyle(.roundedBorder)
@@ -542,7 +648,7 @@ struct ConnectRemoteSheet: View {
                     } footer: {
                         credentialsHelp
                     }
-                    
+
                     if let error = errorMessage {
                         Section {
                             HStack {
@@ -556,22 +662,22 @@ struct ConnectRemoteSheet: View {
                 }
                 .formStyle(.grouped)
                 .padding()
-                
+
                 Divider()
-                
+
                 // Footer
                 HStack {
                     Button("Cancel") { dismiss() }
                         .keyboardShortcut(.escape)
-                    
+
                     Spacer()
-                    
+
                     if isConnecting {
                         ProgressView()
                             .scaleEffect(0.8)
                             .padding(.trailing, 8)
                     }
-                    
+
                     Button("Connect") {
                         connect()
                     }
@@ -651,11 +757,38 @@ struct ConnectRemoteSheet: View {
         }
     }
     
+    private func setupICloudLocal() {
+        isConnecting = true
+        errorMessage = nil
+
+        Task {
+            do {
+                // For local iCloud, we don't need rclone configuration
+                // Just mark the remote as configured with the iCloud path
+                var updatedRemote = remote
+                updatedRemote.isConfigured = true
+                updatedRemote.path = CloudProviderType.iCloudLocalPath.path
+                remotesVM.updateRemote(updatedRemote)
+
+                // Small delay to show the connecting state
+                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+
+                isConnected = true
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isConnecting = false
+        }
+    }
+
     private func configureRemote() async throws {
         let rclone = RcloneManager.shared
         let rcloneName = remote.rcloneName
-        
+
         switch remote.type {
+        case .icloud:
+            // iCloud should be handled by setupICloudLocal() instead
+            throw RcloneError.configurationFailed("iCloud setup should use setupICloudLocal()")
         case .protonDrive:
             try await rclone.setupProtonDrive(
                 username: username,
@@ -685,7 +818,7 @@ struct ConnectRemoteSheet: View {
         case .jottacloud:
             // Password field contains the personal login token (not account password)
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
-        
+
         // OAuth Expansion: Media & Consumer
         case .flickr:
             try await rclone.setupFlickr(remoteName: rcloneName)
@@ -693,7 +826,7 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupSugarSync(remoteName: rcloneName)
         case .opendrive:
             try await rclone.setupOpenDrive(remoteName: rcloneName)
-        
+
         // OAuth Expansion: Specialized & Enterprise
         case .putio:
             try await rclone.setupPutio(remoteName: rcloneName)
@@ -703,7 +836,7 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupQuatrix(remoteName: rcloneName)
         case .filefabric:
             try await rclone.setupFileFabric(remoteName: rcloneName)
-        
+
         default:
             throw RcloneError.configurationFailed("Provider \(remote.type.displayName) not yet supported")
         }
