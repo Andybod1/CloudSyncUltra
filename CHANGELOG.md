@@ -5,6 +5,18 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.10] - 2026-01-13
+
+### Fixed
+- **OneDrive Integration** (#29) - Complete overhaul of OneDrive authentication and configuration
+  - Fixed OAuth flow to properly handle drive type selection after authentication
+  - Added support for personal, business, and SharePoint account types
+  - Automatic error recovery when drive type is misconfigured
+  - Connection verification before completing setup
+  - Enhanced logging for debugging OAuth flow
+  - Resolves "ObjectHandle is Invalid" errors that prevented OneDrive access
+  - Root cause: OAuth succeeded but rclone defaulted to invalid drive type
+
 ## [2.0.9] - 2026-01-13
 
 ### Added
