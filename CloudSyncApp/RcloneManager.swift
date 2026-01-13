@@ -53,30 +53,27 @@ class RcloneManager {
     
     // MARK: - Bandwidth Throttling
     
-    /// Get bandwidth limit arguments if enabled
+    /// Get bandwidth limit arguments for rclone
+    /// Format: --bwlimit UPLOAD:DOWNLOAD where each can be "off" or "NM" for N megabytes/s
     private func getBandwidthArgs() -> [String] {
-        var args: [String] = []
-        
-        // Check if bandwidth limits are enabled
-        if UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled") {
-            let uploadLimit = UserDefaults.standard.double(forKey: "uploadLimit")
-            let downloadLimit = UserDefaults.standard.double(forKey: "downloadLimit")
-            
-            // Add upload limit (--bwlimit-file for upload)
-            if uploadLimit > 0 {
-                args.append("--bwlimit")
-                args.append("\(uploadLimit)M")
-            }
-            
-            // rclone uses --bwlimit for both, but we can set different limits per operation
-            // For now, we'll use the more restrictive of the two
-            if downloadLimit > 0 && (uploadLimit == 0 || downloadLimit < uploadLimit) {
-                args.append("--bwlimit")
-                args.append("\(downloadLimit)M")
-            }
+        guard UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled") else {
+            return []
         }
-        
-        return args
+
+        let uploadLimit = UserDefaults.standard.double(forKey: "uploadLimit")
+        let downloadLimit = UserDefaults.standard.double(forKey: "downloadLimit")
+
+        // If both are 0 (unlimited), no need to add any args
+        if uploadLimit <= 0 && downloadLimit <= 0 {
+            return []
+        }
+
+        // rclone format: --bwlimit "UPLOAD:DOWNLOAD"
+        // Use "off" for unlimited, or "NM" for N megabytes/sec
+        let uploadStr = uploadLimit > 0 ? "\(Int(uploadLimit))M" : "off"
+        let downloadStr = downloadLimit > 0 ? "\(Int(downloadLimit))M" : "off"
+
+        return ["--bwlimit", "\(uploadStr):\(downloadStr)"]
     }
     
     // MARK: - rclone Exit Codes

@@ -405,8 +405,10 @@ struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
     var path: String
     var isEncrypted: Bool  // Current encryption view state (toggle)
     var customRcloneName: String?  // Optional custom rclone name
+    var sortOrder: Int  // For custom ordering in sidebar
+    var accountName: String?  // Email/username for the connected account
     
-    init(id: UUID = UUID(), name: String, type: CloudProviderType, isConfigured: Bool = false, path: String = "", isEncrypted: Bool = false, customRcloneName: String? = nil) {
+    init(id: UUID = UUID(), name: String, type: CloudProviderType, isConfigured: Bool = false, path: String = "", isEncrypted: Bool = false, customRcloneName: String? = nil, sortOrder: Int = 0, accountName: String? = nil) {
         self.id = id
         self.name = name
         self.type = type
@@ -414,6 +416,8 @@ struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
         self.path = path
         self.isEncrypted = isEncrypted
         self.customRcloneName = customRcloneName
+        self.sortOrder = sortOrder
+        self.accountName = accountName
     }
     
     var displayIcon: String { type.iconName }

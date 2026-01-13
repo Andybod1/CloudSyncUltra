@@ -78,7 +78,82 @@ Andy (Human) ──────────────────────�
    │Dev-1 │  │Dev-2 │  │Dev-3 │  │  QA  │
    │ UI   │  │Engine│  │Svc   │  │ Test │
    └──────┘  └──────┘  └──────┘  └──────┘
-   Sonnet     Sonnet    Sonnet    Sonnet
+   Sonnet     Sonnet    Sonnet    Opus
+```
+
+### Worker Model Selection
+
+| Worker | Model | Rationale |
+|--------|-------|-----------|
+| Dev-1/2/3 | Sonnet | Fast for implementation tasks |
+| QA | **Always Opus** | Thorough test design, edge case discovery |
+
+Config: `.claude-team/WORKER_MODELS.conf`
+
+### Extended Thinking
+
+Strategic Partner specifies in task files when workers should use `/think`:
+
+| Ticket Size | Extended Thinking |
+|-------------|-------------------|
+| XS/S | Standard (not required) |
+| M/L/XL | ENABLED for complex decisions |
+
+Use extended thinking for:
+- Architecture decisions
+- Complex algorithm design
+- Tricky edge case handling
+- Integration impact analysis
+
+Example in task file:
+```markdown
+## Configuration
+- **Model:** Opus
+- **Extended Thinking:** ENABLED - Use /think before designing the sync algorithm
+```
+
+### Extended Thinking
+
+Strategic Partner specifies in task files when workers should use `/think`:
+
+| Ticket Size | Extended Thinking |
+|-------------|-------------------|
+| XS/S | Standard (not required) |
+| M/L/XL | ENABLED for complex decisions |
+
+Use extended thinking for:
+- Architecture decisions
+- Complex algorithm design
+- Tricky edge case handling
+- Integration impact analysis
+
+Example in task file:
+```markdown
+## Configuration
+- **Model:** Opus
+- **Extended Thinking:** ENABLED - Use /think before designing the sync algorithm
+```
+
+### Extended Thinking
+
+Strategic Partner specifies in task files when workers should use `/think`:
+
+| Ticket Size | Extended Thinking |
+|-------------|-------------------|
+| XS/S | Standard (not required) |
+| M/L/XL | ENABLED for complex decisions |
+
+Use extended thinking for:
+- Architecture decisions
+- Complex algorithm design
+- Tricky edge case handling
+- Integration impact analysis
+
+Example in task file:
+```markdown
+## Configuration
+- **Model:** Opus
+- **Extended Thinking:** ENABLED - Use /think before designing the sync algorithm
 ```
 
 ### Worker Domains (Strict Separation)

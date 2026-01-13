@@ -56,6 +56,9 @@ struct GeneralSettingsView: View {
     @AppStorage("showDockIcon") private var showDockIcon = false
     @AppStorage("showNotifications") private var showNotifications = true
     @AppStorage("soundEffects") private var soundEffects = true
+    @AppStorage("bandwidthLimitEnabled") private var bandwidthEnabled = false
+    @AppStorage("uploadLimit") private var uploadLimit: Double = 0
+    @AppStorage("downloadLimit") private var downloadLimit: Double = 0
     
     var body: some View {
         Form {
@@ -75,7 +78,79 @@ struct GeneralSettingsView: View {
             } header: {
                 Label("Notifications", systemImage: "bell")
             }
-            
+
+            // Bandwidth Settings Section
+            GroupBox {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Image(systemName: "speedometer")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                        Text("Bandwidth Limits")
+                            .font(.headline)
+                        Spacer()
+                        Toggle("", isOn: $bandwidthEnabled)
+                            .toggleStyle(.switch)
+                    }
+
+                    if bandwidthEnabled {
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            // Upload limit
+                            HStack {
+                                Image(systemName: "arrow.up.circle")
+                                    .foregroundColor(.green)
+                                Text("Upload limit:")
+                                Spacer()
+                                TextField("", value: $uploadLimit, format: .number)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 80)
+                                Text("MB/s")
+                                    .foregroundColor(.secondary)
+                            }
+
+                            // Download limit
+                            HStack {
+                                Image(systemName: "arrow.down.circle")
+                                    .foregroundColor(.blue)
+                                Text("Download limit:")
+                                Spacer()
+                                TextField("", value: $downloadLimit, format: .number)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 80)
+                                Text("MB/s")
+                                    .foregroundColor(.secondary)
+                            }
+
+                            // Quick presets
+                            HStack {
+                                Text("Presets:")
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                ForEach([1, 5, 10, 50], id: \.self) { speed in
+                                    Button("\(speed)") {
+                                        uploadLimit = Double(speed)
+                                        downloadLimit = Double(speed)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                                Button("∞") {
+                                    uploadLimit = 0
+                                    downloadLimit = 0
+                                }
+                                .buttonStyle(.bordered)
+                            }
+
+                            Text("Set to 0 or use ∞ for unlimited speed")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding()
+            }
+
             Section {
                 HStack {
                     Text("Config Location")
@@ -911,7 +986,14 @@ struct EncryptionSettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(remote.name)
                         .fontWeight(.semibold)
-                    
+
+                    // Show account name if available
+                    if let accountName = remote.accountName, !accountName.isEmpty {
+                        Text(accountName)
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+
                     if isConfigured {
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark.circle.fill")

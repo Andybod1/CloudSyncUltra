@@ -1,108 +1,43 @@
 # Dev-3 Completion Report
 
-**Task:** TransferError Model Foundation (#11)
+**Feature:** Model Updates for Remote Reordering & Account Names (#14, #25)
 **Status:** COMPLETE
-**Sprint:** Error Handling Phase 1
 
-## Deliverable
-Created comprehensive TransferError enum with:
-- 25+ specific error cases covering all major scenarios
-- User-friendly messages for every error type
-- Pattern matching system for rclone error parsing
-- Retry logic classification
-- Critical error identification
+## Files Created
+- None
 
-## File Created
-- `CloudSyncApp/Models/TransferError.swift` (398 lines)
+## Files Modified
+- `/Users/antti/Claude/CloudSyncApp/Models/CloudProvider.swift`
+- `/Users/antti/Claude/CloudSyncApp/ViewModels/RemotesViewModel.swift`
+
+## Summary
+Successfully implemented model layer support for cloud remote reordering and account name storage. Added sortOrder and accountName properties to CloudRemote model, implemented reordering methods in RemotesViewModel, and updated storage version for clean data migration.
 
 ## Build Status
 BUILD SUCCEEDED
 
-## Key Features
-1. **Comprehensive Coverage:** Storage, auth, network, file, transfer errors
-2. **Provider-Specific:** Google Drive, Dropbox, OneDrive, S3, Proton Drive patterns
-3. **User-Friendly:** Clear, actionable messages instead of technical jargon
-4. **Smart Classification:** isRetryable, isCritical flags for UI logic
-5. **Pattern Matching:** 15+ error patterns for auto-detection
+## Properties Added to CloudRemote Model
+- `sortOrder: Int` - For custom ordering of cloud remotes in sidebar
+- `accountName: String?` - To store email/username for connected accounts
 
-## Error Categories Implemented
+## Methods Added to RemotesViewModel
+- `moveCloudRemotes(from:to:)` - Handles drag & drop reordering with sort order updates
+- `setAccountName(_:for:)` - Updates account name for a specific remote
 
-### Storage & Quota Errors
-- `quotaExceeded(provider:details:)` - Cloud storage full
-- `rateLimitExceeded(provider:retryAfter:)` - Too many requests
-- `localStorageFull` - Mac disk space full
+## Other Changes
+- Updated CloudRemote init method with new parameters (default values: sortOrder=0, accountName=nil)
+- Bumped storage version from v5 to v6 to force data migration
+- Modified loadRemotes() to sort cloud remotes by sortOrder after scanning rclone config
 
-### Authentication Errors
-- `authenticationFailed(provider:reason:)` - Invalid credentials
-- `tokenExpired(provider:)` - OAuth token needs refresh
-- `accessDenied(provider:path:)` - Insufficient permissions
-- `remoteNotConfigured(remoteName:)` - Setup issues
-
-### Network Errors
-- `connectionTimeout` - Network timeout
-- `connectionFailed(reason:)` - Connection issues
-- `dnsResolutionFailed(host:)` - DNS problems
-- `sslError(details:)` - Certificate errors
-- `networkUnreachable` - No network connectivity
-
-### File & Path Errors
-- `fileTooLarge(fileName:maxSize:providerLimit:)` - Size limits
-- `invalidFilename(fileName:reason:)` - Illegal characters
-- `pathTooLong(path:maxLength:)` - Path length limits
-- `notFound(path:)` - Missing files/folders
-- `checksumMismatch(fileName:)` - Data corruption
-- `fileLocked(fileName:)` - File in use
-- `directoryNotEmpty(path:)` - Cannot delete
-
-### Provider-Specific Errors
-- `providerError(provider:code:message:)` - Generic provider issues
-- `encryptionError(details:)` - Encryption problems
-- `twoFactorRequired(provider:)` - 2FA authentication
-
-### Transfer Errors
-- `cancelled` - User cancellation
-- `timeout(duration:)` - Transfer timeout
-- `partialFailure(succeeded:failed:errors:)` - Mixed results
-
-## Pattern Matching Implementation
-- 15+ error patterns for automatic detection from rclone output
-- Provider-specific patterns for Google Drive, Dropbox, OneDrive, S3
-- Smart extraction of retry-after values and hostnames
-- Fallback to generic error parsing
-
-## User Experience Features
-- `userMessage`: Clear, actionable error messages for end users
-- `title`: Short titles for error banners and notifications
-- `isRetryable`: Identifies transient errors that can be retried
-- `isCritical`: Flags errors requiring immediate user attention
-
-## Ready for Phase 2
-✅ Dev-2 can now implement RcloneManager error parsing
-✅ Dev-1 can now enhance ErrorBanner with TransferError support
-✅ Foundation is solid for rest of sprint
+## Implementation Details
+All changes maintain backward compatibility through proper initialization defaults. The storage version bump ensures clean migration of existing user data. These model changes enable Dev-1 to implement the UI features for drag & drop reordering (#14) and account name display (#25).
 
 ## Quality Verification
-- ✅ File created at correct path
-- ✅ All error cases defined with associated values
-- ✅ User-friendly messages for ALL cases
-- ✅ Short titles for ALL cases
-- ✅ Retry logic correctly implemented
-- ✅ Critical error identification implemented
-- ✅ Pattern matching system complete
-- ✅ Provider-specific patterns included
-- ✅ Enum conforms to Error, Equatable, Codable
-- ✅ Code compiles without errors
-- ✅ BUILD SUCCEEDED verification complete
-
-## Commit Ready
-```bash
-git add CloudSyncApp/Models/TransferError.swift
-git commit -m "feat(models): Add comprehensive TransferError system
-
-- 25+ error cases with user-friendly messages
-- Pattern matching for rclone error detection
-- Retry and criticality classification
-- Implements #11, unblocks #12, #13, #15
-
-Part of Error Handling Sprint (Phase 1 complete)"
-```
+- ✅ CloudRemote has sortOrder property
+- ✅ CloudRemote has accountName property
+- ✅ Init updated with new parameters
+- ✅ Storage version bumped to v6
+- ✅ moveCloudRemotes() method added
+- ✅ setAccountName() method added
+- ✅ loadRemotes() sorts by sortOrder
+- ✅ Build succeeds

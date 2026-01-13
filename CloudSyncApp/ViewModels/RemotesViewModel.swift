@@ -17,7 +17,7 @@ class RemotesViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
     
-    private let storageKey = "cloudRemotes_v5"  // Increment to force rescan
+    private let storageKey = "cloudRemotes_v6"  // Increment to force rescan
     
     private init() {
         loadRemotes()
@@ -33,10 +33,15 @@ class RemotesViewModel: ObservableObject {
         remotes = [
             CloudRemote(name: "Local Storage", type: .local, isConfigured: true, path: NSHomeDirectory())
         ]
-        
+
         // Scan rclone config for existing remotes
         scanRcloneConfig()
-        
+
+        // Sort cloud remotes by sortOrder
+        let localRemotes = remotes.filter { $0.type == .local }
+        let cloudRemotes = remotes.filter { $0.type != .local }.sorted { $0.sortOrder < $1.sortOrder }
+        remotes = localRemotes + cloudRemotes
+
         saveRemotes()
     }
     
@@ -115,5 +120,39 @@ class RemotesViewModel: ObservableObject {
     
     var cloudRemotes: [CloudRemote] {
         remotes.filter { $0.type != .local && $0.isConfigured }
+    }
+
+    /// Move cloud remotes to reorder them in the sidebar
+    /// - Parameters:
+    ///   - source: IndexSet of items to move
+    ///   - destination: Target index
+    func moveCloudRemotes(from source: IndexSet, to destination: Int) {
+        // Get cloud-only remotes (excluding local)
+        var cloudRemotes = remotes.filter { $0.type != .local }
+        let localRemotes = remotes.filter { $0.type == .local }
+
+        // Perform the move
+        cloudRemotes.move(fromOffsets: source, toOffset: destination)
+
+        // Update sort orders
+        for (index, _) in cloudRemotes.enumerated() {
+            cloudRemotes[index].sortOrder = index
+        }
+
+        // Rebuild full remotes array: local first, then sorted cloud remotes
+        remotes = localRemotes + cloudRemotes
+
+        saveRemotes()
+    }
+
+    /// Update account name for a remote
+    /// - Parameters:
+    ///   - remoteName: The rclone name of the remote
+    ///   - accountName: The account email or username
+    func setAccountName(_ accountName: String, for remoteName: String) {
+        if let index = remotes.firstIndex(where: { $0.rcloneName == remoteName }) {
+            remotes[index].accountName = accountName
+            saveRemotes()
+        }
     }
 }

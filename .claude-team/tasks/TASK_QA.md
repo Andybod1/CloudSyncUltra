@@ -1,695 +1,367 @@
-# QA Task: Error Handling Test Coverage - Phase 4
+# Task: QA - Quick Wins Test Coverage
 
-## Issue Reference
-GitHub Issue: #16 - Error handling - Test coverage
-Parent Issue: #8 - Comprehensive error handling
-
-## Model: Opus (M ticket - comprehensive test suite creation)
-
-## Sprint Context
-**PHASE 4 (FINAL) of coordinated Error Handling Sprint**
-Dependencies: Requires ALL previous phases complete (#11, #12, #13, #15)
+> **Worker:** QA
+> **Model:** Sonnet
+> **Sprint:** Quick Wins + Polish
+> **Tickets:** #14, #25, #1 (Testing)
 
 ---
 
 ## Objective
-Create comprehensive test coverage for the entire error handling system, validating error detection, parsing, propagation, and UI display.
 
-## Prerequisites
-✅ Phase 1: TransferError model exists
-✅ Phase 2: RcloneManager error parsing implemented, ErrorBanner enhanced
-✅ Phase 3: SyncTask error states and TasksView updated
+Write comprehensive tests for the three new features being implemented in this sprint.
 
 ---
 
-## Test Files to Create/Modify
+## Test File 1: Sidebar Reordering Tests
 
-### File 1: TransferErrorTests.swift (NEW)
-Location: `/Users/antti/Claude/CloudSyncAppTests/TransferErrorTests.swift`
+### Create File
+`/Users/antti/Claude/CloudSyncAppTests/RemoteReorderingTests.swift`
 
 ```swift
+//
+//  RemoteReorderingTests.swift
+//  CloudSyncAppTests
+//
+//  Tests for cloud remote reordering functionality
+//
+
 import XCTest
 @testable import CloudSyncApp
 
-final class TransferErrorTests: XCTestCase {
+final class RemoteReorderingTests: XCTestCase {
     
-    // MARK: - User Message Tests
+    // MARK: - CloudRemote sortOrder Tests
     
-    func testQuotaExceededUserMessage() {
-        let error = TransferError.quotaExceeded(provider: "Google Drive")
-        XCTAssertEqual(error.userMessage, "Google Drive storage is full. Free up space or upgrade your storage plan.")
-    }
-    
-    func testRateLimitExceededWithRetryAfter() {
-        let error = TransferError.rateLimitExceeded(provider: "Dropbox", retryAfter: 60)
-        XCTAssertTrue(error.userMessage.contains("60 seconds"))
-    }
-    
-    func testRateLimitExceededWithoutRetryAfter() {
-        let error = TransferError.rateLimitExceeded(provider: "Dropbox", retryAfter: nil)
-        XCTAssertTrue(error.userMessage.contains("wait a moment"))
-    }
-    
-    func testAuthenticationFailedMessage() {
-        let error = TransferError.authenticationFailed(provider: "OneDrive", reason: "Invalid token")
-        XCTAssertTrue(error.userMessage.contains("authentication failed"))
-        XCTAssertTrue(error.userMessage.contains("Invalid token"))
-    }
-    
-    func testTokenExpiredMessage() {
-        let error = TransferError.tokenExpired(provider: "Google Drive")
-        XCTAssertTrue(error.userMessage.contains("session expired"))
-        XCTAssertTrue(error.userMessage.contains("reconnect"))
-    }
-    
-    func testConnectionTimeoutMessage() {
-        let error = TransferError.connectionTimeout
-        XCTAssertTrue(error.userMessage.contains("Connection timed out"))
-        XCTAssertTrue(error.userMessage.contains("internet connection"))
-    }
-    
-    func testFileTooLargeMessage() {
-        let error = TransferError.fileTooLarge(
-            fileName: "video.mp4",
-            maxSize: 1024 * 1024 * 100, // 100 MB
-            providerLimit: 1024 * 1024 * 100
+    func testCloudRemoteHasSortOrder() {
+        let remote = CloudRemote(
+            name: "Test",
+            type: .googleDrive,
+            isConfigured: true,
+            sortOrder: 5
         )
-        XCTAssertTrue(error.userMessage.contains("video.mp4"))
-        XCTAssertTrue(error.userMessage.contains("too large"))
+        XCTAssertEqual(remote.sortOrder, 5)
     }
     
-    func testPartialFailureMessage() {
-        let error = TransferError.partialFailure(
-            succeeded: 8,
-            failed: 2,
-            errors: ["quota exceeded", "connection timeout"]
+    func testCloudRemoteDefaultSortOrder() {
+        let remote = CloudRemote(
+            name: "Test",
+            type: .dropbox,
+            isConfigured: true
         )
-        XCTAssertTrue(error.userMessage.contains("8 of 10"))
-        XCTAssertTrue(error.userMessage.contains("2 failed"))
+        XCTAssertEqual(remote.sortOrder, 0, "Default sortOrder should be 0")
     }
     
-    // MARK: - Title Tests
-    
-    func testErrorTitles() {
-        XCTAssertEqual(TransferError.quotaExceeded(provider: "").title, "Storage Full")
-        XCTAssertEqual(TransferError.connectionTimeout.title, "Connection Error")
-        XCTAssertEqual(TransferError.authenticationFailed(provider: "").title, "Authentication Failed")
-        XCTAssertEqual(TransferError.tokenExpired(provider: "").title, "Session Expired")
-        XCTAssertEqual(TransferError.fileTooLarge(fileName: "", maxSize: 0, providerLimit: 0).title, "File Too Large")
-    }
-    
-    // MARK: - Retryable Tests
-    
-    func testRetryableErrors() {
-        XCTAssertTrue(TransferError.connectionTimeout.isRetryable)
-        XCTAssertTrue(TransferError.connectionFailed(reason: "test").isRetryable)
-        XCTAssertTrue(TransferError.networkUnreachable.isRetryable)
-        XCTAssertTrue(TransferError.rateLimitExceeded(provider: "", retryAfter: nil).isRetryable)
-        XCTAssertTrue(TransferError.timeout(duration: 30).isRetryable)
-    }
-    
-    func testNonRetryableErrors() {
-        XCTAssertFalse(TransferError.quotaExceeded(provider: "").isRetryable)
-        XCTAssertFalse(TransferError.tokenExpired(provider: "").isRetryable)
-        XCTAssertFalse(TransferError.authenticationFailed(provider: "").isRetryable)
-        XCTAssertFalse(TransferError.cancelled.isRetryable)
-    }
-    
-    // MARK: - Critical Error Tests
-    
-    func testCriticalErrors() {
-        XCTAssertTrue(TransferError.quotaExceeded(provider: "").isCritical)
-        XCTAssertTrue(TransferError.authenticationFailed(provider: "").isCritical)
-        XCTAssertTrue(TransferError.checksumMismatch(fileName: "").isCritical)
-        XCTAssertTrue(TransferError.encryptionError(details: "").isCritical)
-    }
-    
-    func testNonCriticalErrors() {
-        XCTAssertFalse(TransferError.connectionTimeout.isCritical)
-        XCTAssertFalse(TransferError.rateLimitExceeded(provider: "", retryAfter: nil).isCritical)
-        XCTAssertFalse(TransferError.cancelled.isCritical)
-    }
-    
-    // MARK: - Error Pattern Parsing Tests
-    
-    func testParseGoogleDriveQuotaError() {
-        let output = "ERROR : googleapi: Error 403: The user's Drive storage quota has been exceeded., storageQuotaExceeded"
-        let error = TransferError.parse(from: output)
+    func testCloudRemoteSortOrderCodable() throws {
+        let remote = CloudRemote(
+            name: "Test",
+            type: .oneDrive,
+            isConfigured: true,
+            sortOrder: 10
+        )
         
-        XCTAssertNotNil(error)
-        if case .quotaExceeded(let provider, _) = error {
-            XCTAssertEqual(provider, "Google Drive")
-        } else {
-            XCTFail("Expected quotaExceeded error for Google Drive")
-        }
-    }
-    
-    func testParseDropboxInsufficientStorage() {
-        let output = "ERROR : insufficient_storage: not enough space"
-        let error = TransferError.parse(from: output)
+        let encoded = try JSONEncoder().encode(remote)
+        let decoded = try JSONDecoder().decode(CloudRemote.self, from: encoded)
         
-        XCTAssertNotNil(error)
-        if case .quotaExceeded(let provider, _) = error {
-            XCTAssertEqual(provider, "Dropbox")
-        } else {
-            XCTFail("Expected quotaExceeded error for Dropbox")
-        }
+        XCTAssertEqual(decoded.sortOrder, 10)
     }
     
-    func testParseOneDriveQuotaExceeded() {
-        let output = "ERROR : QuotaExceeded: not enough space in OneDrive"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .quotaExceeded(let provider, _) = error {
-            XCTAssertEqual(provider, "OneDrive")
-        } else {
-            XCTFail("Expected quotaExceeded error for OneDrive")
-        }
-    }
+    // MARK: - Sorting Tests
     
-    func testParseRateLimitExceeded() {
-        let output = "ERROR : rateLimitExceeded: too many requests. Retry after 120 seconds"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .rateLimitExceeded(_, let retryAfter) = error {
-            XCTAssertNotNil(retryAfter)
-        } else {
-            XCTFail("Expected rateLimitExceeded error")
-        }
-    }
-    
-    func testParseConnectionTimeout() {
-        let output = "ERROR : connection timed out after 30 seconds"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .connectionTimeout = error {
-            // Success
-        } else {
-            XCTFail("Expected connectionTimeout error")
-        }
-    }
-    
-    func testParseTokenExpired() {
-        let output = "ERROR : token has expired, please reauthenticate"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .tokenExpired = error {
-            // Success
-        } else {
-            XCTFail("Expected tokenExpired error")
-        }
-    }
-    
-    func testParseAuthenticationFailed() {
-        let output = "ERROR : authentication failed: invalid credentials"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .authenticationFailed = error {
-            // Success
-        } else {
-            XCTFail("Expected authenticationFailed error")
-        }
-    }
-    
-    func testParseDNSResolutionFailed() {
-        let output = "ERROR : lookup failed: no such host drive.google.com"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .dnsResolutionFailed(let host) = error {
-            XCTAssertTrue(host.contains("drive.google.com") || host == "unknown")
-        } else {
-            XCTFail("Expected dnsResolutionFailed error")
-        }
-    }
-    
-    func testParseChecksumMismatch() {
-        let output = "ERROR : checksum mismatch for file data.csv"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .checksumMismatch = error {
-            // Success
-        } else {
-            XCTFail("Expected checksumMismatch error")
-        }
-    }
-    
-    func testParseGenericError() {
-        let output = "ERROR : Something went wrong during transfer"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNotNil(error)
-        if case .unknown(let message) = error {
-            XCTAssertTrue(message.contains("Something went wrong"))
-        } else {
-            XCTFail("Expected unknown error")
-        }
-    }
-    
-    func testParseNoError() {
-        let output = "Transferred: 1.5 GiB / 2 GiB, 75%, 50 MiB/s"
-        let error = TransferError.parse(from: output)
-        
-        XCTAssertNil(error, "Should not detect error in normal progress output")
-    }
-    
-    // MARK: - Codable Tests
-    
-    func testTransferErrorCodable() throws {
-        let errors: [TransferError] = [
-            .quotaExceeded(provider: "Google Drive"),
-            .connectionTimeout,
-            .tokenExpired(provider: "Dropbox"),
-            .partialFailure(succeeded: 5, failed: 2, errors: ["quota", "timeout"])
+    func testRemotesSortBySortOrder() {
+        let remotes = [
+            CloudRemote(name: "C", type: .dropbox, sortOrder: 2),
+            CloudRemote(name: "A", type: .googleDrive, sortOrder: 0),
+            CloudRemote(name: "B", type: .oneDrive, sortOrder: 1)
         ]
         
-        for error in errors {
-            let encoded = try JSONEncoder().encode(error)
-            let decoded = try JSONDecoder().decode(TransferError.self, from: encoded)
-            XCTAssertEqual(error, decoded)
+        let sorted = remotes.sorted { $0.sortOrder < $1.sortOrder }
+        
+        XCTAssertEqual(sorted[0].name, "A")
+        XCTAssertEqual(sorted[1].name, "B")
+        XCTAssertEqual(sorted[2].name, "C")
+    }
+    
+    func testLocalRemotesExcludedFromReordering() {
+        let remotes = [
+            CloudRemote(name: "Local", type: .local, sortOrder: 0),
+            CloudRemote(name: "Google", type: .googleDrive, sortOrder: 1),
+            CloudRemote(name: "Dropbox", type: .dropbox, sortOrder: 0)
+        ]
+        
+        let cloudOnly = remotes.filter { $0.type != .local }
+        XCTAssertEqual(cloudOnly.count, 2)
+        XCTAssertFalse(cloudOnly.contains { $0.type == .local })
+    }
+    
+    // MARK: - Move Operation Tests
+    
+    func testMoveRemoteUpdatesOrder() {
+        var remotes = [
+            CloudRemote(name: "A", type: .googleDrive, sortOrder: 0),
+            CloudRemote(name: "B", type: .dropbox, sortOrder: 1),
+            CloudRemote(name: "C", type: .oneDrive, sortOrder: 2)
+        ]
+        
+        // Move item at index 2 to index 0
+        remotes.move(fromOffsets: IndexSet(integer: 2), toOffset: 0)
+        
+        // Update sort orders
+        for (index, _) in remotes.enumerated() {
+            remotes[index].sortOrder = index
         }
+        
+        XCTAssertEqual(remotes[0].name, "C")
+        XCTAssertEqual(remotes[0].sortOrder, 0)
+        XCTAssertEqual(remotes[1].name, "A")
+        XCTAssertEqual(remotes[2].name, "B")
     }
 }
 ```
 
-### File 2: RcloneManagerErrorTests.swift (NEW)
-Location: `/Users/antti/Claude/CloudSyncAppTests/RcloneManagerErrorTests.swift`
+---
+
+## Test File 2: Account Name Tests
+
+### Create File
+`/Users/antti/Claude/CloudSyncAppTests/AccountNameTests.swift`
 
 ```swift
+//
+//  AccountNameTests.swift
+//  CloudSyncAppTests
+//
+//  Tests for account name display functionality
+//
+
 import XCTest
 @testable import CloudSyncApp
 
-final class RcloneManagerErrorTests: XCTestCase {
+final class AccountNameTests: XCTestCase {
     
-    var manager: RcloneManager!
+    // MARK: - CloudRemote accountName Tests
+    
+    func testCloudRemoteHasAccountName() {
+        let remote = CloudRemote(
+            name: "Google Drive",
+            type: .googleDrive,
+            isConfigured: true,
+            accountName: "user@gmail.com"
+        )
+        XCTAssertEqual(remote.accountName, "user@gmail.com")
+    }
+    
+    func testCloudRemoteAccountNameOptional() {
+        let remote = CloudRemote(
+            name: "Dropbox",
+            type: .dropbox,
+            isConfigured: true
+        )
+        XCTAssertNil(remote.accountName)
+    }
+    
+    func testCloudRemoteAccountNameCodable() throws {
+        let remote = CloudRemote(
+            name: "OneDrive",
+            type: .oneDrive,
+            isConfigured: true,
+            accountName: "john@outlook.com"
+        )
+        
+        let encoded = try JSONEncoder().encode(remote)
+        let decoded = try JSONDecoder().decode(CloudRemote.self, from: encoded)
+        
+        XCTAssertEqual(decoded.accountName, "john@outlook.com")
+    }
+    
+    func testCloudRemoteAccountNameNilCodable() throws {
+        let remote = CloudRemote(
+            name: "pCloud",
+            type: .pcloud,
+            isConfigured: true
+        )
+        
+        let encoded = try JSONEncoder().encode(remote)
+        let decoded = try JSONDecoder().decode(CloudRemote.self, from: encoded)
+        
+        XCTAssertNil(decoded.accountName)
+    }
+    
+    // MARK: - Display Tests
+    
+    func testAccountNameDisplayWithEmail() {
+        let remote = CloudRemote(
+            name: "Google Drive",
+            type: .googleDrive,
+            accountName: "user@example.com"
+        )
+        
+        // Account name should be non-empty
+        XCTAssertNotNil(remote.accountName)
+        XCTAssertFalse(remote.accountName?.isEmpty ?? true)
+    }
+    
+    func testAccountNameDisplayGracefulFallback() {
+        let remote = CloudRemote(
+            name: "Mega",
+            type: .mega
+        )
+        
+        // Should gracefully handle nil accountName
+        let displayName = remote.accountName ?? ""
+        XCTAssertTrue(displayName.isEmpty)
+    }
+}
+```
+
+---
+
+## Test File 3: Bandwidth Throttling Tests
+
+### Create File
+`/Users/antti/Claude/CloudSyncAppTests/BandwidthThrottlingUITests.swift`
+
+```swift
+//
+//  BandwidthThrottlingUITests.swift
+//  CloudSyncAppTests
+//
+//  Tests for bandwidth throttling UI and settings
+//
+
+import XCTest
+@testable import CloudSyncApp
+
+final class BandwidthThrottlingUITests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        manager = RcloneManager.shared
+        // Reset UserDefaults for tests
+        UserDefaults.standard.removeObject(forKey: "bandwidthLimitEnabled")
+        UserDefaults.standard.removeObject(forKey: "uploadLimit")
+        UserDefaults.standard.removeObject(forKey: "downloadLimit")
     }
     
-    // MARK: - SyncProgress Error Field Tests
-    
-    func testSyncProgressHasErrorFields() {
-        var progress = RcloneManager.SyncProgress()
-        
-        // Test that error fields exist
-        progress.error = .connectionTimeout
-        progress.failedFiles = ["file1.txt", "file2.txt"]
-        progress.partialSuccess = true
-        progress.errorMessage = "Connection timed out"
-        
-        XCTAssertNotNil(progress.error)
-        XCTAssertEqual(progress.failedFiles.count, 2)
-        XCTAssertTrue(progress.partialSuccess)
-        XCTAssertEqual(progress.errorMessage, "Connection timed out")
+    override func tearDown() {
+        // Clean up
+        UserDefaults.standard.removeObject(forKey: "bandwidthLimitEnabled")
+        UserDefaults.standard.removeObject(forKey: "uploadLimit")
+        UserDefaults.standard.removeObject(forKey: "downloadLimit")
+        super.tearDown()
     }
     
-    // MARK: - Error Detection Integration Tests
+    // MARK: - Settings Persistence Tests
     
-    func testUploadErrorDetection() async throws {
-        // This would require mocking rclone or using a test fixture
-        // For now, document the expected behavior
-        
-        // Expected: When upload fails with quota error
-        // 1. parseError() should identify the error type
-        // 2. SyncProgress should include error field
-        // 3. Stream should yield progress with error
-        // 4. If complete failure, throw TransferError
+    func testBandwidthEnabledPersistence() {
+        UserDefaults.standard.set(true, forKey: "bandwidthLimitEnabled")
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled"))
     }
     
-    func testPartialSuccessDetection() {
-        // Test that partial success is correctly identified
-        var progress = RcloneManager.SyncProgress()
-        progress.totalFiles = 10
-        progress.filesTransferred = 7
-        progress.failedFiles = ["file8.txt", "file9.txt", "file10.txt"]
-        progress.error = .quotaExceeded(provider: "Google Drive")
-        
-        // Partial success should be true when some files succeeded
-        progress.partialSuccess = progress.filesTransferred > 0 && 
-                                  progress.filesTransferred < progress.totalFiles
-        
-        XCTAssertTrue(progress.partialSuccess)
+    func testBandwidthDisabledByDefault() {
+        let enabled = UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled")
+        XCTAssertFalse(enabled, "Bandwidth limiting should be disabled by default")
     }
     
-    func testCompleteFailureDetection() {
-        var progress = RcloneManager.SyncProgress()
-        progress.totalFiles = 10
-        progress.filesTransferred = 0
-        progress.error = .authenticationFailed(provider: "Dropbox")
-        
-        // Not partial success when no files succeeded
-        progress.partialSuccess = progress.filesTransferred > 0 && 
-                                  progress.filesTransferred < progress.totalFiles
-        
-        XCTAssertFalse(progress.partialSuccess)
+    func testUploadLimitPersistence() {
+        UserDefaults.standard.set(10.0, forKey: "uploadLimit")
+        XCTAssertEqual(UserDefaults.standard.double(forKey: "uploadLimit"), 10.0)
     }
-}
-```
-
-### File 3: SyncTaskErrorTests.swift (NEW)
-Location: `/Users/antti/Claude/CloudSyncAppTests/SyncTaskErrorTests.swift`
-
-```swift
-import XCTest
-@testable import CloudSyncApp
-
-final class SyncTaskErrorTests: XCTestCase {
     
-    // MARK: - Task Status Tests
+    func testDownloadLimitPersistence() {
+        UserDefaults.standard.set(5.0, forKey: "downloadLimit")
+        XCTAssertEqual(UserDefaults.standard.double(forKey: "downloadLimit"), 5.0)
+    }
     
-    func testTaskFailedState() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .running,
-            sourceName: "Local",
-            destinationName: "Google Drive",
-            filesTransferred: 0,
-            totalFiles: 5
+    func testZeroLimitMeansUnlimited() {
+        UserDefaults.standard.set(0.0, forKey: "uploadLimit")
+        UserDefaults.standard.set(0.0, forKey: "downloadLimit")
+        
+        let upload = UserDefaults.standard.double(forKey: "uploadLimit")
+        let download = UserDefaults.standard.double(forKey: "downloadLimit")
+        
+        // 0 means unlimited
+        XCTAssertEqual(upload, 0.0)
+        XCTAssertEqual(download, 0.0)
+    }
+    
+    // MARK: - Preset Value Tests
+    
+    func testPresetValues() {
+        let presets = [1, 5, 10, 50]
+        
+        for preset in presets {
+            UserDefaults.standard.set(Double(preset), forKey: "uploadLimit")
+            UserDefaults.standard.set(Double(preset), forKey: "downloadLimit")
+            
+            XCTAssertEqual(
+                UserDefaults.standard.double(forKey: "uploadLimit"),
+                Double(preset)
+            )
+            XCTAssertEqual(
+                UserDefaults.standard.double(forKey: "downloadLimit"),
+                Double(preset)
+            )
+        }
+    }
+    
+    // MARK: - Independent Limits Tests
+    
+    func testIndependentUploadDownloadLimits() {
+        UserDefaults.standard.set(10.0, forKey: "uploadLimit")
+        UserDefaults.standard.set(50.0, forKey: "downloadLimit")
+        
+        XCTAssertEqual(UserDefaults.standard.double(forKey: "uploadLimit"), 10.0)
+        XCTAssertEqual(UserDefaults.standard.double(forKey: "downloadLimit"), 50.0)
+        XCTAssertNotEqual(
+            UserDefaults.standard.double(forKey: "uploadLimit"),
+            UserDefaults.standard.double(forKey: "downloadLimit")
         )
-        
-        task.error = .quotaExceeded(provider: "Google Drive")
-        task.status = .failed
-        
-        XCTAssertEqual(task.status, .failed)
-        XCTAssertNotNil(task.error)
-    }
-    
-    func testTaskPartiallyCompletedState() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .running,
-            sourceName: "Local",
-            destinationName: "Dropbox",
-            filesTransferred: 3,
-            totalFiles: 5
-        )
-        
-        task.error = .quotaExceeded(provider: "Dropbox")
-        task.failedFiles = ["file4.txt", "file5.txt"]
-        task.partiallyCompleted = true
-        task.status = .partiallyCompleted
-        
-        XCTAssertEqual(task.status, .partiallyCompleted)
-        XCTAssertTrue(task.partiallyCompleted)
-        XCTAssertEqual(task.failedFiles.count, 2)
-    }
-    
-    // MARK: - Computed Property Tests
-    
-    func testErrorMessageProperty() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .failed,
-            sourceName: "Local",
-            destinationName: "Google Drive",
-            filesTransferred: 0,
-            totalFiles: 1
-        )
-        
-        task.error = .quotaExceeded(provider: "Google Drive")
-        
-        XCTAssertNotNil(task.errorMessage)
-        XCTAssertTrue(task.errorMessage!.contains("storage is full"))
-    }
-    
-    func testErrorTitleProperty() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .download,
-            status: .failed,
-            sourceName: "Google Drive",
-            destinationName: "Local",
-            filesTransferred: 0,
-            totalFiles: 1
-        )
-        
-        task.error = .connectionTimeout
-        
-        XCTAssertEqual(task.errorTitle, "Connection Error")
-    }
-    
-    func testCanRetryProperty() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .failed,
-            sourceName: "Local",
-            destinationName: "Dropbox",
-            filesTransferred: 0,
-            totalFiles: 1
-        )
-        
-        // Retryable error
-        task.error = .connectionTimeout
-        XCTAssertTrue(task.canRetry)
-        
-        // Non-retryable error
-        task.error = .quotaExceeded(provider: "Dropbox")
-        XCTAssertFalse(task.canRetry)
-    }
-    
-    func testIsCriticalErrorProperty() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .failed,
-            sourceName: "Local",
-            destinationName: "OneDrive",
-            filesTransferred: 0,
-            totalFiles: 1
-        )
-        
-        // Critical error
-        task.error = .quotaExceeded(provider: "OneDrive")
-        XCTAssertTrue(task.isCriticalError)
-        
-        // Non-critical error
-        task.error = .connectionTimeout
-        XCTAssertFalse(task.isCriticalError)
-    }
-    
-    func testFailureSummaryProperty() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .partiallyCompleted,
-            sourceName: "Local",
-            destinationName: "Google Drive",
-            filesTransferred: 8,
-            totalFiles: 10
-        )
-        
-        task.partiallyCompleted = true
-        task.failedFiles = ["file9.txt", "file10.txt"]
-        
-        XCTAssertNotNil(task.failureSummary)
-        XCTAssertTrue(task.failureSummary!.contains("8 of 10"))
-    }
-    
-    func testFailureSummaryNilWhenNotPartial() {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .completed,
-            sourceName: "Local",
-            destinationName: "Google Drive",
-            filesTransferred: 10,
-            totalFiles: 10
-        )
-        
-        task.partiallyCompleted = false
-        
-        XCTAssertNil(task.failureSummary)
-    }
-    
-    // MARK: - Codable Tests
-    
-    func testSyncTaskWithErrorCodable() throws {
-        var task = SyncTask(
-            id: UUID(),
-            type: .upload,
-            status: .failed,
-            sourceName: "Local",
-            destinationName: "Google Drive",
-            filesTransferred: 0,
-            totalFiles: 5
-        )
-        
-        task.error = .quotaExceeded(provider: "Google Drive")
-        task.failedFiles = ["file1.txt", "file2.txt"]
-        task.partiallyCompleted = false
-        task.errorTimestamp = Date()
-        
-        let encoded = try JSONEncoder().encode(task)
-        let decoded = try JSONDecoder().decode(SyncTask.self, from: encoded)
-        
-        XCTAssertEqual(task.id, decoded.id)
-        XCTAssertEqual(task.status, decoded.status)
-        XCTAssertEqual(task.error, decoded.error)
-        XCTAssertEqual(task.failedFiles, decoded.failedFiles)
-        XCTAssertEqual(task.partiallyCompleted, decoded.partiallyCompleted)
     }
 }
 ```
 
 ---
 
-## Test Execution
+## Verification Steps
 
-Run all tests:
+After creating test files:
+
+1. **Build tests:**
 ```bash
 cd /Users/antti/Claude
-
-# Run all tests
-xcodebuild test \
-  -project CloudSyncApp.xcodeproj \
-  -scheme CloudSyncApp \
-  -destination 'platform=macOS' \
-  2>&1 | grep -E '(Test Case|Test Suite|FAIL|PASS|error)'
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "(Test Case|passed|failed|error:)"
 ```
 
-Expected: ALL tests pass
+2. **Verify test count:**
+- RemoteReorderingTests: 6 tests
+- AccountNameTests: 6 tests
+- BandwidthThrottlingUITests: 7 tests
+- **Total: 19 new tests**
 
 ---
 
-## Coverage Goals
+## Completion Checklist
 
-| Component | Target Coverage | Focus Areas |
-|-----------|----------------|-------------|
-| TransferError | 90%+ | All error cases, pattern matching, properties |
-| RcloneManager | 70%+ | Error parsing, progress updates |
-| SyncTask | 90%+ | Error states, computed properties |
-| ErrorBanner | 60%+ | Basic rendering (UI tests limited) |
-
----
-
-## Manual Verification Checklist
-
-After automated tests pass, manually verify:
-
-### 1. Error Detection
-- [ ] Upload to full Google Drive → quota error shown
-- [ ] Disconnect internet → connection error shown
-- [ ] Revoke OAuth → auth error shown
-
-### 2. Error Display
-- [ ] Error banner appears immediately
-- [ ] Correct icon and color for severity
-- [ ] Message is clear and actionable
-- [ ] Auto-dismisses after 10s (non-critical)
-
-### 3. Task Error States
-- [ ] Failed task shows red X in Tasks view
-- [ ] Partial success shows orange triangle
-- [ ] Error message displays in task card
-- [ ] Retry button appears for retryable errors
-
-### 4. Error Propagation
-- [ ] Transfer error → Progress stream → UI banner
-- [ ] Transfer error → SyncTask → Tasks view
-- [ ] Multiple errors stack properly
+- [ ] RemoteReorderingTests.swift created
+- [ ] AccountNameTests.swift created
+- [ ] BandwidthThrottlingUITests.swift created
+- [ ] All tests compile
+- [ ] Tests pass (after Dev-1, Dev-2, Dev-3 complete their work)
 
 ---
 
-## Completion Report
+## Output
 
-When done, create: `/Users/antti/Claude/.claude-team/outputs/QA_REPORT.md`
-
-```markdown
-# QA Report - Error Handling Sprint
-
-**Task:** Error Handling Test Coverage (#16)
-**Status:** COMPLETE
-**Sprint:** Error Handling Phase 4 (Final)
-
-## Tests Created
-
-### TransferErrorTests.swift
-- User message tests (10 tests)
-- Title tests (5 tests)
-- Retryable classification (10 tests)
-- Critical error classification (7 tests)
-- Error pattern parsing (12 tests)
-- Codable tests (4 tests)
-**Total: 48 tests**
-
-### RcloneManagerErrorTests.swift
-- SyncProgress error fields (1 test)
-- Partial success detection (2 tests)
-**Total: 3 tests**
-
-### SyncTaskErrorTests.swift
-- Task status tests (2 tests)
-- Computed property tests (6 tests)
-- Codable tests (1 test)
-**Total: 9 tests**
-
-**Grand Total: 60 new tests**
-
-## Test Results
-✅ All 60 tests PASS
-✅ Zero failures
-✅ Build succeeded
-
-## Coverage Achieved
-- TransferError: 95%+ 
-- RcloneManager: 72%
-- SyncTask: 94%
-- Overall: 87%
-
-## Manual Verification
-[Document manual testing results]
-
-## Issues Found
-[List any issues discovered during testing]
-
-## Build Status
-BUILD SUCCEEDED
-
-## Sprint Complete
-✅ All 5 issues (#8, #11, #12, #13, #15, #16) COMPLETE
-✅ Comprehensive error handling system operational
-✅ 60 new tests protecting the feature
-✅ Professional UX for error scenarios
-
-## Commits
-```bash
-git add CloudSyncAppTests/TransferErrorTests.swift
-git add CloudSyncAppTests/RcloneManagerErrorTests.swift
-git add CloudSyncAppTests/SyncTaskErrorTests.swift
-git commit -m "test(error-handling): Comprehensive test coverage
-
-- 60 new tests covering entire error handling system
-- TransferError pattern matching validation
-- RcloneManager error detection tests
-- SyncTask error state tests
-- 87% coverage achieved
-- Implements #16, completes #8
-
-Error Handling Sprint COMPLETE 🎉"
+When complete, create a summary file:
 ```
+/Users/antti/Claude/.claude-team/outputs/QA_COMPLETE.md
 ```
 
+Include:
+- Test files created
+- Test count
+- Build/test status
+
 ---
 
-## Final Sprint Summary
-
-Update `/Users/antti/Claude/.claude-team/STATUS.md` with sprint completion.
-
----
-
-## Time Estimate
-2-2.5 hours for comprehensive test suite
-
-**WAIT for Phases 1, 2, and 3 to complete before starting!**
+*Task assigned by Strategic Partner*

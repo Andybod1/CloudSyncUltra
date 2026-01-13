@@ -177,6 +177,7 @@ struct SidebarView: View {
                             }
                         }
                 }
+                .onMove(perform: moveCloudRemotes)
                 
                 Button {
                     isAddingRemote = true
@@ -223,7 +224,11 @@ struct SidebarView: View {
             ConnectRemoteSheet(remote: remote)
         }
     }
-    
+
+    private func moveCloudRemotes(from source: IndexSet, to destination: Int) {
+        RemotesViewModel.shared.moveCloudRemotes(from: source, to: destination)
+    }
+
     private func sidebarItem(
         icon: String,
         title: String,
