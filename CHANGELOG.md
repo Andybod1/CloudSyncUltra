@@ -5,6 +5,20 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.9] - 2026-01-13
+
+### Added
+- **Transfer view state persistence** (#18) - Selected remotes and paths now persist when navigating away
+- **Provider search field** (#22) - Filter through 42 cloud providers quickly
+- **Hover highlight on username** (#17) - Visual feedback when hovering over usernames in sidebar
+
+### Changed
+- **Remote name dialog timing** (#23) - Name field only appears after selecting a provider
+
+### Infrastructure
+- **Model selection for workers** - Sonnet for XS/S tickets, Opus for M/L/XL tickets
+- **WORKER_MODELS.conf** - Configure models per worker before launch
+
 ## [2.0.8] - 2026-01-12
 
 ### Fixed
@@ -21,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `launch_single_worker.sh` - Launch one worker
   - `launch_all_workers.sh` - Launch all workers with tasks
 
-## [2.0.8] - 2026-01-12
+## [2.0.7] - 2026-01-12
 
 ### Fixed
 - **Cloud-to-cloud progress** (#21) - Transfers between cloud providers now show progress correctly

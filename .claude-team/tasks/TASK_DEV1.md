@@ -1,6 +1,6 @@
 # Dev-1 Task: UI Quick Wins Batch
 
-## Model: Sonnet (all XS/S tickets)
+## Model: Sonnet (all S/XS tickets)
 
 ## Issues
 - #18 (High, S): Remember transfer view state
@@ -13,106 +13,95 @@
 ## Task 1: Remember Transfer View State (#18)
 
 ### Problem
-When user navigates away from Transfer view and comes back, state resets (selected remotes, paths, etc.)
+When user navigates away from Transfer view and returns, state resets (selected remotes, paths, etc.)
 
 ### Solution
-Create persistent state that survives navigation using @StateObject or @SceneStorage.
+Create persistent state holder using @StateObject or @EnvironmentObject
 
 ### Implementation
 ```swift
-// Option A: StateObject in parent (recommended)
-// In MainWindow.swift or CloudSyncApp.swift
-
+// Create in CloudSyncApp/ViewModels/TransferViewState.swift
 class TransferViewState: ObservableObject {
-    @Published var sourceRemoteId: UUID?
-    @Published var destRemoteId: UUID?
+    @Published var sourceRemote: CloudRemote?
+    @Published var destRemote: CloudRemote?
     @Published var sourcePath: String = ""
     @Published var destPath: String = ""
     @Published var selectedSourceFiles: Set<UUID> = []
     @Published var selectedDestFiles: Set<UUID> = []
 }
 
-// Create once at app level
+// In MainWindow.swift - create once
 @StateObject private var transferState = TransferViewState()
 
 // Pass to TransferView
 TransferView()
     .environmentObject(transferState)
-```
 
-```swift
-// In TransferView.swift - use EnvironmentObject instead of @State
+// In TransferView - use environment object
 @EnvironmentObject var state: TransferViewState
-
-// Replace local @State vars with state.property
 ```
 
 ### Files
-- `CloudSyncApp/Views/MainWindow.swift` - Add StateObject, pass to TransferView
-- `CloudSyncApp/Views/TransferView.swift` - Use EnvironmentObject
+- **Create**: `CloudSyncApp/ViewModels/TransferViewState.swift`
+- **Modify**: `CloudSyncApp/Views/MainWindow.swift`
+- **Modify**: `CloudSyncApp/Views/TransferView.swift`
 
 ---
 
 ## Task 2: Mouseover Highlight (#17)
 
 ### Problem
-Username display in sidebar needs hover highlight for better UX.
+Username in sidebar cloud service list has no hover feedback
 
 ### Solution
-Add onHover modifier to username text.
+Add hover effect to username display
 
 ### Implementation
-Find where username is displayed in sidebar (likely in `remoteSidebarItem` or similar):
-
 ```swift
-// Add state for hover
-@State private var isHoveringUsername = false
+// In sidebar remote item
+@State private var isHovering = false
 
-// In the view
 Text(remote.username ?? "")
     .font(.caption)
     .foregroundColor(.secondary)
     .padding(.horizontal, 4)
     .padding(.vertical, 2)
-    .background(isHoveringUsername ? Color.accentColor.opacity(0.1) : Color.clear)
+    .background(isHovering ? Color.accentColor.opacity(0.1) : Color.clear)
     .cornerRadius(4)
     .onHover { hovering in
-        isHoveringUsername = hovering
+        isHovering = hovering
     }
 ```
 
 ### Files
-- `CloudSyncApp/Views/MainWindow.swift` - remoteSidebarItem function
+- **Modify**: `CloudSyncApp/Views/MainWindow.swift` (sidebar remote item)
 
 ---
 
 ## Task 3: Search Field in Add Cloud Storage (#22)
 
 ### Problem
-With 42 providers, finding one is tedious. Need search/filter.
+42 providers - hard to find specific one by scrolling
 
 ### Solution
-Add search TextField that filters provider grid.
+Add search/filter field at top of provider grid
 
 ### Implementation
 ```swift
-// In AddRemoteView.swift
-
 @State private var searchText = ""
 
 var filteredProviders: [CloudProviderType] {
     if searchText.isEmpty {
-        return CloudProviderType.allCases.filter { $0.isSupported }
+        return CloudProviderType.allCases
     }
-    return CloudProviderType.allCases.filter { provider in
-        provider.isSupported &&
-        provider.displayName.localizedCaseInsensitiveContains(searchText)
+    return CloudProviderType.allCases.filter {
+        $0.displayName.localizedCaseInsensitiveContains(searchText)
     }
 }
 
 var body: some View {
-    VStack(spacing: 0) {
-        // Search bar at top
+    VStack {
+        // Search field
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
@@ -129,13 +118,13 @@ var body: some View {
         .padding(8)
         .background(Color(.textBackgroundColor))
         .cornerRadius(8)
-        .padding()
+        .padding(.horizontal)
         
-        // Provider grid uses filteredProviders
+        // Filtered grid
         ScrollView {
-            LazyVGrid(...) {
+            LazyVGrid(columns: [...], spacing: 12) {
                 ForEach(filteredProviders, id: \.self) { provider in
-                    // existing provider card
+                    ProviderCard(provider: provider)
                 }
             }
         }
@@ -144,79 +133,61 @@ var body: some View {
 ```
 
 ### Files
-- `CloudSyncApp/Views/AddRemoteView.swift`
+- **Modify**: `CloudSyncApp/Views/AddRemoteView.swift`
 
 ---
 
 ## Task 4: Remote Name Dialog Timing (#23)
 
 ### Problem
-Remote name input field shows before provider is selected. Should only appear after selection.
+"Enter remote name" field shows before provider is selected
 
 ### Solution
-Conditionally show name field only when provider is selected.
+Only show name field after provider selection
 
 ### Implementation
 ```swift
-// In AddRemoteView.swift
-
 @State private var selectedProvider: CloudProviderType?
 @State private var remoteName: String = ""
 
 var body: some View {
     VStack {
         // Provider grid (always visible)
-        providerGrid
+        ProviderGridView(selection: $selectedProvider)
         
-        // Name field - only after provider selected
+        // Only show after selection
         if selectedProvider != nil {
             Divider()
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Remote Name")
-                    .font(.headline)
-                TextField("Enter a name for this remote", text: $remoteName)
+            HStack {
+                Text("Remote name:")
+                TextField("my-cloud", text: $remoteName)
                     .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 200)
             }
             .padding()
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
-        }
-        
-        // Continue button
-        if selectedProvider != nil && !remoteName.isEmpty {
-            Button("Continue") {
-                // proceed to configuration
-            }
-            .buttonStyle(.borderedProminent)
         }
     }
-    .animation(.default, value: selectedProvider)
 }
 ```
 
 ### Files
-- `CloudSyncApp/Views/AddRemoteView.swift`
+- **Modify**: `CloudSyncApp/Views/AddRemoteView.swift`
 
 ---
 
 ## Completion Checklist
 - [ ] #18: Transfer view state persists across navigation
-- [ ] #17: Username shows highlight on hover
+- [ ] #17: Username shows hover highlight
 - [ ] #22: Search field filters providers
-- [ ] #23: Name field appears after provider selection
+- [ ] #23: Remote name only shows after provider selected
 - [ ] All changes compile
-- [ ] Test each feature manually
 - [ ] Update STATUS.md when done
 
 ## Commits
-```bash
-git commit -m "feat(ui): Remember transfer view state across navigation - Fixes #18"
-git commit -m "feat(ui): Add hover highlight to sidebar username - Fixes #17"
-git commit -m "feat(ui): Add search field to provider selection - Fixes #22"
-git commit -m "feat(ui): Show remote name field after provider selection - Fixes #23"
 ```
-
-Or combine:
-```bash
-git commit -m "feat(ui): UI quick wins batch - Fixes #18, #17, #22, #23"
+git commit -m "feat(ui): Persist transfer view state - Fixes #18"
+git commit -m "feat(ui): Add hover highlight to username - Fixes #17"
+git commit -m "feat(ui): Add provider search field - Fixes #22"
+git commit -m "feat(ui): Show remote name after provider selection - Fixes #23"
 ```
