@@ -83,6 +83,18 @@ Strategic Partner (Desktop Claude - Opus 4.5)
 | QA, Dev-Ops | **ALWAYS Opus + /think** |
 | All Specialized | **ALWAYS Opus + /think** |
 
+### Ticket Triage Process
+When evaluating tickets, assign to specialized agents when appropriate:
+- Implementation work → Core team
+- UX/design questions → UX-Designer
+- Strategy/roadmap → Product-Manager
+- Architecture decisions → Architect
+- Security concerns → Security-Auditor
+- Performance analysis → Performance-Engineer
+- Documentation → Tech-Writer
+
+Full guide: `.claude-team/TRIAGE_GUIDE.md`
+
 ---
 
 ## Launch Workers
@@ -173,6 +185,7 @@ Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFIN
 ├── CLAUDE_PROJECT_KNOWLEDGE.md   # Claude context
 ├── .claude-team/
 │   ├── STATUS.md                 # Live worker status
+│   ├── TRIAGE_GUIDE.md           # Ticket assignment guide
 │   ├── SPECIALIZED_AGENTS.md     # Agent roster
 │   ├── RECOVERY.md               # This file
 │   ├── tasks/TASK_*.md           # Active tasks
@@ -207,8 +220,8 @@ git log --oneline -5
 
 ## Memory Reminders for Strategic Partner
 
-1. **Delegate ALL implementation** to workers
-2. **Launch specialized agents** for focused expertise
+1. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
+2. **Delegate ALL implementation** to workers
 3. **QA + All Specialized = Always Opus + /think**
 4. **Ask Andy** if requirements unclear
 5. **Update GitHub** after each sprint

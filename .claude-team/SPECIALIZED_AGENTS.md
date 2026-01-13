@@ -4,6 +4,8 @@
 
 Beyond the core dev team, CloudSync Ultra can leverage specialized agents for focused expertise.
 
+**Triage Guide:** See `TRIAGE_GUIDE.md` for assignment decision tree and examples.
+
 ---
 
 ## Agent Roster

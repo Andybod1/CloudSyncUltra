@@ -58,6 +58,13 @@ Strategic Partner (This Claude - Opus 4.5)
 | QA, Dev-Ops | **ALWAYS Opus + /think** |
 | All Specialized | **ALWAYS Opus + /think** |
 
+### Ticket Triage Process
+When evaluating tickets, Strategic Partner decides assignment:
+- **Implementation work** → Core team (Dev-1/2/3, QA, Dev-Ops)
+- **Analysis/strategy/review** → Specialized agents
+
+See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
+
 ---
 
 ## Worker Launch
@@ -85,6 +92,7 @@ Strategic Partner (This Claude - Opus 4.5)
 ├── docs/                         # User documentation
 ├── .claude-team/
 │   ├── STATUS.md                 # Live worker status
+│   ├── TRIAGE_GUIDE.md           # Ticket assignment decisions
 │   ├── SPECIALIZED_AGENTS.md     # Agent roster & usage
 │   ├── tasks/TASK_*.md           # Active tasks
 │   ├── outputs/*_COMPLETE.md     # Reports
@@ -136,9 +144,9 @@ gh issue view <number>
 
 ## Key Reminders
 
-1. **Delegate ALL implementation** to workers
-2. **Launch specialized agents** for focused expertise
-3. **QA + Specialized = Always Opus**
+1. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
+2. **Delegate ALL implementation** to workers
+3. **QA + Specialized = Always Opus + /think**
 4. **Ask Andy** if requirements unclear
 5. **Update GitHub** after each sprint
 

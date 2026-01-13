@@ -1,81 +1,62 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 19:00 UTC
-> Version: v2.0.15 (starting)
+> Last Updated: 2026-01-13 19:20 UTC
+> Version: v2.0.15
 
-## Current State: iCloud Sprint Phase 1 🚀
+## Current State: Parallel Work 🚀
 
-**Sprint:** iCloud Integration Phase 1 (#9)
+**Active Sprints:**
+- iCloud Phase 1 (#9) - QA testing
+- Crash Reporting (#20) - Dev-2 + Dev-3 parallel
+- UX Review (#44) - UX-Designer
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | Sonnet | ✅ COMPLETE | iCloud UI implementation |
-| Dev-2 | - | 💤 IDLE | - |
-| Dev-3 | Sonnet | ✅ COMPLETE | iCloud foundation |
-| QA | Opus | ⏳ WAITING | iCloud tests (waits for Dev-1/3) |
+| Dev-1 | - | 💤 IDLE | Completed iCloud UI |
+| Dev-2 | Opus | 🔄 WORKING | RcloneManager logging (#20) |
+| Dev-3 | Sonnet | 🔄 STARTING | Crash handler infrastructure (#20) |
+| QA | Opus | 🔄 WORKING | iCloud Phase 1 testing (#9) |
 | Dev-Ops | - | 💤 IDLE | - |
+| UX-Designer | Opus | 🔄 WORKING | Full UX review (#44) |
+| Product-Manager | Opus | ✅ COMPLETE | Product strategy (#45) |
 
 ---
 
-## Phase 1 Tasks
+## #20 Crash Reporting Tasks (Parallel)
 
 | Task | Worker | Size | Status |
 |------|--------|------|--------|
-| Fix rclone type + local detection | Dev-3 | S | ✅ COMPLETE |
-| Local folder UI option | Dev-1 | S | ✅ COMPLETE |
-| Phase 1 testing | QA | S | ⏳ WAITING |
+| Convert print() → Logger | Dev-2 | M | 🔄 Working |
+| Crash handler infrastructure | Dev-3 | S | 🔄 Starting |
+| Log export UI | Dev-1 | S | ⏳ Waiting for Dev-3 |
+| Integration tests | QA | S | ⏳ Waiting for all |
 
 ---
 
-## Execution Order
+## iCloud Phase 1 (#9)
 
-1. **Dev-3 first** → Fix foundation (rclone type, detection)
-2. **Dev-1 second** → Build UI on top of Dev-3's work
-3. **QA last** → Test complete integration
-
----
-
-## Phase 2 (Upcoming)
-
-After Phase 1 complete:
-- Apple ID + 2FA authentication flow
-- Token refresh handling
-- ADP detection
+| Task | Worker | Status |
+|------|--------|--------|
+| Foundation | Dev-3 | ✅ COMPLETE |
+| UI | Dev-1 | ✅ COMPLETE |
+| Testing | QA | 🔄 WORKING |
 
 ---
 
-## Completed v2.0.14
+## Specialized Agent Work
 
-| # | Title | Result |
-|---|-------|--------|
-| #10 | Transfer performance | 2x speed boost |
-| #20 | Crash reporting | DIY recommended |
-| #34 | GitHub Actions | Workflow ready |
+| Agent | Task | Status |
+|-------|------|--------|
+| UX-Designer | Full UX review (#44) | 🔄 WORKING |
+| Product-Manager | Product strategy (#45) | ✅ COMPLETE |
 
 ---
 
-## Worker Launch Commands
+## Completed Today
 
-```bash
-# Start Dev-3 first
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 sonnet
-
-# After Dev-3 completes, start Dev-1
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
-
-# After Dev-1 completes, start QA
-~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
-```
-
-### Startup Commands
-
-```
-Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
-
-Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
-
-QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
-```
+| Task | Worker | Deliverable |
+|------|--------|------------|
+| Product Strategy (#45) | Product-Manager | Comprehensive strategy doc with personas, roadmap, 3 new feature issues |
 
 ---
 

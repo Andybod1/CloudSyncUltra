@@ -58,6 +58,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var mainWindowController: NSWindowController?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Setup crash reporting
+        CrashReportingManager.shared.setup()
+
         // Setup menu bar
         statusBarController = StatusBarController()
         statusBarController?.setupMenuBar()

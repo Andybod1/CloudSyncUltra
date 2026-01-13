@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 // MARK: - OneDrive Account Types
 
@@ -17,7 +18,8 @@ enum OneDriveAccountType: String {
 
 class RcloneManager {
     static let shared = RcloneManager()
-    
+
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.cloudsync.ultra", category: "RcloneManager")
     private var rclonePath: String
     private var configPath: String
     private var process: Process?
@@ -151,10 +153,10 @@ class RcloneManager {
 
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             if let output = String(data: data, encoding: .utf8) {
-                print("[RcloneManager] Rclone version: \(output.components(separatedBy: .newlines).first ?? "unknown")")
+                logger.info("Rclone version: \(output.components(separatedBy: .newlines).first ?? "unknown")")
             }
         } catch {
-            print("[RcloneManager] Failed to get rclone version: \(error.localizedDescription)")
+            logger.error("Failed to get rclone version: \(error.localizedDescription)")
         }
     }
 
@@ -176,11 +178,11 @@ class RcloneManager {
         mailboxPassword: String? = nil,
         remoteName: String = "proton"
     ) async throws {
-        print("[RcloneManager] Setting up Proton Drive for: \(username)")
+        logger.info("Setting up Proton Drive for user", metadata: ["user": "\(username, privacy: .private)"])
         
         // CRITICAL: Obscure the password - rclone requires this for protondrive
         let obscuredPassword = try await obscurePassword(password)
-        print("[RcloneManager] Password obscured successfully")
+        logger.debug("Password obscured successfully")
         
         var params: [String: String] = [
             "username": username,
@@ -192,18 +194,18 @@ class RcloneManager {
             // OTP secret allows rclone to generate TOTP codes automatically
             let obscuredOTP = try await obscurePassword(otpSecret)
             params["otp_secret_key"] = obscuredOTP
-            print("[RcloneManager] Using OTP secret key for persistent 2FA")
+            logger.info("Using OTP secret key for persistent 2FA")
         } else if let code = twoFactorCode, !code.isEmpty {
             // Single-use 2FA code (works once, then session may expire)
             params["2fa"] = code
-            print("[RcloneManager] Using single-use 2FA code")
+            logger.info("Using single-use 2FA code")
         }
         
         // Handle two-password Proton accounts
         if let mailbox = mailboxPassword, !mailbox.isEmpty {
             let obscuredMailbox = try await obscurePassword(mailbox)
             params["mailbox_password"] = obscuredMailbox
-            print("[RcloneManager] Mailbox password configured")
+            logger.debug("Mailbox password configured")
         }
         
         // Recommended settings for better reliability
@@ -212,7 +214,7 @@ class RcloneManager {
         
         // Delete existing remote if it exists (clean reconfigure)
         if isRemoteConfigured(name: remoteName) {
-            print("[RcloneManager] Removing existing '\(remoteName)' remote")
+            logger.info("Removing existing '\(remoteName)' remote")
             try? await deleteRemote(name: remoteName)
         }
         
@@ -222,7 +224,7 @@ class RcloneManager {
             parameters: params
         )
         
-        print("[RcloneManager] Proton Drive remote '\(remoteName)' created successfully!")
+        logger.info("Proton Drive remote '\(remoteName)' created successfully!")
     }
     
     /// Test Proton Drive connection without creating a persistent remote
@@ -234,7 +236,7 @@ class RcloneManager {
         twoFactorCode: String? = nil,
         mailboxPassword: String? = nil
     ) async throws -> (success: Bool, message: String) {
-        print("[RcloneManager] Testing Proton Drive connection for: \(username)")
+        logger.info("Testing Proton Drive connection for user", metadata: ["user": "\(username, privacy: .private)"])
         
         let obscuredPassword = try await obscurePassword(password)
         
@@ -271,11 +273,11 @@ class RcloneManager {
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
         
         if process.terminationStatus == 0 {
-            print("[RcloneManager] Proton Drive connection test: SUCCESS")
+            logger.info("Proton Drive connection test: SUCCESS")
             return (true, "Connection successful!")
         } else {
-            print("[RcloneManager] Proton Drive connection test: FAILED")
-            print("[RcloneManager] Error: \(errorString)")
+            logger.error("Proton Drive connection test: FAILED")
+            logger.error("Connection test error: \(errorString, privacy: .public)")
             
             // Parse error for user-friendly message
             let friendlyError = parseProtonDriveError(errorString)
@@ -784,7 +786,7 @@ class RcloneManager {
         
         // Delete existing remote if it exists (clean reconfigure)
         if isRemoteConfigured(name: remoteName) {
-            print("[RcloneManager] Removing existing '\(remoteName)' remote")
+            logger.info("Removing existing '\(remoteName)' remote")
             try? await deleteRemote(name: remoteName)
         }
         
