@@ -1161,14 +1161,15 @@ struct FileBrowserView: View {
                             
                             log("Got progress stream, starting iteration")
                             
-                            for await progress in progressStream {
-                                log("Progress update: \(progress.percentage)% - \(progress.speed)")
+                            for try await progress in progressStream {
+                                let speedStr = String(format: "%.2f MB/s", progress.speed)
+                                log("Progress update: \(progress.percentage)% - \(speedStr)")
                                 uploadProgress = progress.percentage
-                                uploadSpeed = progress.speed
+                                uploadSpeed = speedStr
                                 
                                 // Update task progress
                                 task.progress = Double(index) / Double(panel.urls.count) + (progress.percentage / 100.0) / Double(panel.urls.count)
-                                task.speed = progress.speed
+                                task.speed = speedStr
                                 tasksVM.updateTask(task)
                             }
                             

@@ -111,13 +111,9 @@ class TasksViewModel: ObservableObject {
             
             for await progress in progressStream {
                 updatedTask.progress = progress.percentage / 100
-                updatedTask.speed = progress.speed
-                if let transferred = progress.filesTransferred {
-                    updatedTask.filesTransferred = transferred
-                }
-                if let total = progress.totalFiles {
-                    updatedTask.totalFiles = total
-                }
+                updatedTask.speed = String(format: "%.2f MB/s", progress.speed)
+                updatedTask.filesTransferred = progress.filesTransferred
+                updatedTask.totalFiles = progress.totalFiles
                 updateTask(updatedTask)
             }
             

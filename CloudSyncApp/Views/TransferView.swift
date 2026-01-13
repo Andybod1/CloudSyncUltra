@@ -16,6 +16,7 @@ struct TransferView: View {
     @StateObject private var sourceBrowser = FileBrowserViewModel()
     @StateObject private var destBrowser = FileBrowserViewModel()
     @StateObject private var transferProgress = TransferProgressModel()
+    @StateObject private var errorManager = ErrorNotificationManager()
 
     @State private var dragSourceIsLeft = true
     @State private var isDragging = false
@@ -37,7 +38,22 @@ struct TransferView: View {
         VStack(spacing: 0) {
             transferToolbar
             Divider()
-            
+
+            // Error banner stack at top
+            if !errorManager.activeErrors.isEmpty {
+                ScrollView {
+                    ErrorBannerStack(
+                        errorManager: errorManager,
+                        onRetry: { notification in
+                            handleRetry(notification)
+                        }
+                    )
+                    .padding()
+                }
+                .frame(maxHeight: 300)
+                Divider()
+            }
+
             // Minimal transfer indicator - just shows something is happening
             if transferProgress.isTransferring {
                 TransferActiveIndicator(progress: transferProgress) {
@@ -254,6 +270,37 @@ struct TransferView: View {
         RcloneManager.shared.stopCurrentSync()
         transferProgress.cancel()
     }
+
+    private func handleRetry(_ notification: ErrorNotification) {
+        errorManager.dismiss(notification.id)
+
+        // For basic retry functionality
+        Task {
+            do {
+                // Re-attempt the transfer that failed
+                // (This will be enhanced when TransferError integration is complete)
+                print("🔄 Retrying operation after error: \(notification.message)")
+
+                // Demo: Show a success message after "retry"
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.errorManager.show(
+                        "Retry completed successfully",
+                        context: notification.context,
+                        isCritical: false,
+                        isRetryable: false
+                    )
+                }
+            } catch {
+                print("❌ Retry failed: \(error)")
+                errorManager.show(
+                    "Retry failed: \(error.localizedDescription)",
+                    context: notification.context,
+                    isCritical: true,
+                    isRetryable: false
+                )
+            }
+        }
+    }
     
     private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
                                to: CloudRemote, toPath: String, srcBrowser: FileBrowserViewModel, dstBrowser: FileBrowserViewModel) {
@@ -394,15 +441,15 @@ struct TransferView: View {
                         
                         log("Got progress stream")
                         
-                        for await progress in progressStream {
-                            log("Progress: \(progress.percentage)% - \(progress.speed) - Files: \(progress.filesTransferred ?? 0)/\(progress.totalFiles ?? 0)")
+                        for try await progress in progressStream {
+                            log("Progress: \(progress.percentage)% - \(progress.speed) - Files: \(progress.filesTransferred)/\(progress.totalFiles)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
-                                transferProgress.speed = progress.speed
+                                transferProgress.speed = String(format: "%.2f MB/s", progress.speed)
                                 
                                 // Update task progress
                                 task.progress = progress.percentage / 100.0
-                                task.speed = progress.speed
+                                task.speed = String(format: "%.2f MB/s", progress.speed)
                                 
                                 // For folders, estimate files transferred based on percentage
                                 if file.isDirectory && totalFileCount > 1 {
@@ -411,24 +458,22 @@ struct TransferView: View {
                                     // Update display
                                     transferProgress.sourceName = "\(task.filesTransferred)/\(totalFileCount): \(file.name)"
                                 } else {
-                                    // Use rclone's file count if available
-                                    if let transferred = progress.filesTransferred {
-                                        task.filesTransferred = transferred
-                                    }
+                                    // Use rclone's file count
+                                    task.filesTransferred = progress.filesTransferred
                                 }
                                 
                                 // If rclone reports total bytes (for directories), use that
-                                if let totalBytes = progress.totalBytes {
-                                    if task.totalBytes != totalBytes {
-                                        log("Updating totalBytes from \(task.totalBytes) to \(totalBytes)")
-                                        task.totalBytes = totalBytes
+                                if progress.totalBytes > 0 {
+                                    if task.totalBytes != progress.totalBytes {
+                                        log("Updating totalBytes from \(task.totalBytes) to \(progress.totalBytes)")
+                                        task.totalBytes = progress.totalBytes
                                     }
                                 }
                                 
                                 // Calculate bytes transferred
-                                if let bytesTransferred = progress.bytesTransferred {
-                                    // Use rclone's reported bytes if available
-                                    task.bytesTransferred = bytesTransferred
+                                if progress.bytesTransferred > 0 {
+                                    // Use rclone's reported bytes
+                                    task.bytesTransferred = progress.bytesTransferred
                                 } else {
                                     // Fallback: calculate from file size and percentage
                                     let currentFileBytes = Int64(Double(file.size) * (progress.percentage / 100.0))

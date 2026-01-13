@@ -79,6 +79,58 @@ class RcloneManager {
         return args
     }
     
+    // MARK: - rclone Exit Codes
+    // 0  = Success
+    // 1  = Syntax error
+    // 2  = Error not otherwise categorised
+    // 3  = Directory not found
+    // 4  = File not found
+    // 5  = Temporary error (retry)
+    // 6  = Less serious errors
+    // 7  = Fatal error
+    // 8  = Transfer limit exceeded
+
+    // MARK: - Error Parsing
+
+    /// Parse rclone error output and return structured error
+    /// - Parameter output: stderr output from rclone
+    /// - Returns: TransferError if error detected, nil otherwise
+    private func parseError(from output: String) -> TransferError? {
+        // First try pattern matching from TransferError
+        if let error = TransferError.parse(from: output) {
+            return error
+        }
+
+        // Fallback: Check for generic ERROR: lines
+        let lines = output.components(separatedBy: .newlines)
+        for line in lines {
+            if line.contains("ERROR :") || line.contains("ERROR:") {
+                let message = line
+                    .replacingOccurrences(of: #"^.*ERROR\s*:\s*"#, with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+
+                if !message.isEmpty {
+                    return .unknown(message: message)
+                }
+            }
+        }
+
+        return nil
+    }
+
+    /// Track failures during multi-file transfers
+    private struct TransferFailures {
+        var failedFiles: [String] = []
+        var errors: [TransferError] = []
+        var lastError: TransferError?
+
+        mutating func recordFailure(file: String, error: TransferError) {
+            failedFiles.append(file)
+            errors.append(error)
+            lastError = error
+        }
+    }
+
     // MARK: - Configuration
 
     func isConfigured() -> Bool {
@@ -1706,30 +1758,39 @@ class RcloneManager {
         
         try process.run()
         process.waitUntilExit()
-        
+        let exitCode = process.terminationStatus
+
         // Get both output and error data
         let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
-        
-        // Check for specific scenarios
-        let combinedOutput = outputString + errorString
-        
-        // If file exists, rclone will show "There was nothing to transfer"
-        if combinedOutput.contains("There was nothing to transfer") || 
-           combinedOutput.contains("Unchanged skipping") {
-            throw RcloneError.syncFailed("File already exists at destination")
+
+        // Check for errors
+        if exitCode != 0 {
+            print("Download failed with exit code \(exitCode)")
+            print("Error output: \(errorString)")
+
+            if let error = parseError(from: errorString) {
+                print("Parsed error: \(error.title)")
+                throw error
+            } else {
+                throw TransferError.unknown(message: errorString.isEmpty ? "Download failed" : errorString)
+            }
         }
-        
-        if process.terminationStatus != 0 {
-            throw RcloneError.syncFailed(errorString.isEmpty ? "Download failed" : errorString)
+
+        // Check for specific scenarios even on success
+        let combinedOutput = outputString + errorString
+        if combinedOutput.contains("There was nothing to transfer") ||
+           combinedOutput.contains("Unchanged skipping") {
+            // This is actually a success - file already exists
+            print("File already exists at destination")
         }
     }
     
     /// Upload a file or folder from local to a remote with progress streaming
-    func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncStream<SyncProgress> {
-        return AsyncStream { continuation in
+    func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncThrowingStream<SyncProgress, Error> {
+        return AsyncThrowingStream { continuation in
             Task.detached {
                 let logPath = "/tmp/cloudsync_upload_debug.log"
                 let log = { (msg: String) in
@@ -1812,7 +1873,10 @@ class RcloneManager {
                     
                     // Read output in a loop while process is running
                     var buffer = Data()
-                    
+                    var errorOutput = ""
+                    var currentProgress = SyncProgress()
+                    var failedFiles = [String]()
+
                     while process.isRunning {
                         // Non-blocking read with small chunks
                         let data = handle.availableData
@@ -1827,12 +1891,34 @@ class RcloneManager {
                                 for line in lines {
                                     let trimmedLine = line.trimmingCharacters(in: .whitespaces)
                                     if !trimmedLine.isEmpty {
+                                        // Check for errors
+                                        if line.contains("ERROR :") || line.contains("ERROR:") {
+                                            print("Error detected: \(line)")
+                                            errorOutput += line + "\n"
+
+                                            // Try to extract filename from error
+                                            if let fileMatch = line.range(of: #"\"([^\"]+)\""#, options: .regularExpression) {
+                                                let fileName = String(line[fileMatch]).replacingOccurrences(of: "\"", with: "")
+                                                currentProgress.failedFiles.append(fileName)
+                                            }
+                                        }
+
                                         // Check if this looks like a progress line (has percentage and slashes)
                                         if trimmedLine.contains("%") && trimmedLine.contains("/") {
                                             print("[RcloneManager]Progress line: \(trimmedLine)")
                                             if let progress = self.parseProgress(from: trimmedLine) {
+                                                // Merge with current progress to preserve error state
+                                                currentProgress.percent = progress.percent
+                                                currentProgress.speed = progress.speed
+                                                currentProgress.bytesTransferred = progress.bytesTransferred
+                                                currentProgress.totalBytes = progress.totalBytes
+                                                currentProgress.filesTransferred = progress.filesTransferred
+                                                currentProgress.totalFiles = progress.totalFiles
+                                                currentProgress.currentFile = progress.currentFile
+                                                currentProgress.eta = progress.eta
+
                                                 print("[RcloneManager]Parsed progress: \(progress.percentage)% - \(progress.speed)")
-                                                continuation.yield(progress)
+                                                continuation.yield(currentProgress)
                                             }
                                         } else if !trimmedLine.starts(with: "2026/") { // Skip debug timestamps
                                             print("[RcloneManager]Non-progress line: \(trimmedLine)")
@@ -1862,15 +1948,47 @@ class RcloneManager {
                     }
                     
                     print("[RcloneManager]Upload exit code: \(process.terminationStatus)")
-                    
-                    if process.terminationStatus == 0 {
-                        continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
+
+                    // process.waitUntilExit() is not needed here as we already waited in the while loop
+                    let exitCode = process.terminationStatus
+                    var finalProgress = currentProgress
+
+                    // Check for errors
+                    if exitCode != 0 {
+                        print("Upload failed with exit code \(exitCode)")
+                        print("Error output: \(errorOutput)")
+
+                        // Parse the error
+                        if let error = self.parseError(from: errorOutput) {
+                            finalProgress.errorMessage = error.userMessage
+
+                            // Determine if partial success
+                            if finalProgress.filesTransferred > 0 && finalProgress.filesTransferred < finalProgress.totalFiles {
+                                finalProgress.partialSuccess = true
+                            }
+
+                            print("Detected error: \(error.title) - \(error.userMessage)")
+                        }
+                    } else {
+                        // Success
+                        finalProgress.percent = 100
                     }
-                    
-                    continuation.finish()
+
+                    continuation.yield(finalProgress)
+
+                    // Throw error if complete failure
+                    if exitCode != 0 && finalProgress.filesTransferred == 0 {
+                        if let errorMsg = finalProgress.errorMessage {
+                            continuation.finish(throwing: TransferError.unknown(message: errorMsg))
+                        } else {
+                            continuation.finish(throwing: TransferError.unknown(message: errorOutput))
+                        }
+                    } else {
+                        continuation.finish()
+                    }
                 } catch {
                     print("[RcloneManager]Upload error: \(error.localizedDescription)")
-                    continuation.finish()
+                    continuation.finish(throwing: error)
                 }
             }
         }
@@ -1986,8 +2104,8 @@ class RcloneManager {
     ///   - destination: Full destination path (e.g., "jottacloud:folder/file.txt")
     ///   - isDirectory: Whether the source is a directory (uses "copy" vs "copyto")
     /// - Returns: AsyncStream of SyncProgress updates
-    func copyBetweenRemotesWithProgress(source: String, destination: String, isDirectory: Bool = false) async throws -> AsyncStream<SyncProgress> {
-        return AsyncStream { continuation in
+    func copyBetweenRemotesWithProgress(source: String, destination: String, isDirectory: Bool = false) async throws -> AsyncThrowingStream<SyncProgress, Error> {
+        return AsyncThrowingStream { continuation in
             Task {
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: self.rclonePath)
@@ -2019,12 +2137,40 @@ class RcloneManager {
 
                 print("[RcloneManager] Cloud-to-cloud with progress: \(source) -> \(destination)")
 
+                var errorOutput = ""
+                var currentProgress = SyncProgress()
+
                 pipe.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
                     if !data.isEmpty {
                         if let output = String(data: data, encoding: .utf8) {
+                            // Check for errors
+                            let lines = output.components(separatedBy: .newlines)
+                            for line in lines {
+                                if line.contains("ERROR :") || line.contains("ERROR:") {
+                                    print("Error detected: \(line)")
+                                    errorOutput += line + "\n"
+
+                                    // Try to extract filename from error
+                                    if let fileMatch = line.range(of: #"\"([^\"]+)\""#, options: .regularExpression) {
+                                        let fileName = String(line[fileMatch]).replacingOccurrences(of: "\"", with: "")
+                                        currentProgress.failedFiles.append(fileName)
+                                    }
+                                }
+                            }
+
                             if let progress = self.parseProgress(from: output) {
-                                continuation.yield(progress)
+                                // Merge with current progress to preserve error state
+                                currentProgress.percent = progress.percent
+                                currentProgress.speed = progress.speed
+                                currentProgress.bytesTransferred = progress.bytesTransferred
+                                currentProgress.totalBytes = progress.totalBytes
+                                currentProgress.filesTransferred = progress.filesTransferred
+                                currentProgress.totalFiles = progress.totalFiles
+                                currentProgress.currentFile = progress.currentFile
+                                currentProgress.eta = progress.eta
+
+                                continuation.yield(currentProgress)
                             }
                         }
                     }
@@ -2035,17 +2181,41 @@ class RcloneManager {
                     self.process = process
 
                     process.waitUntilExit()
+                    let exitCode = process.terminationStatus
 
                     pipe.fileHandleForReading.readabilityHandler = nil
 
-                    if process.terminationStatus == 0 {
-                        continuation.yield(SyncProgress(percentage: 100, speed: "", status: .completed))
+                    var finalProgress = currentProgress
+
+                    if exitCode != 0 {
+                        print("Cloud-to-cloud copy failed with exit code \(exitCode)")
+
+                        if let error = self.parseError(from: errorOutput) {
+                            finalProgress.errorMessage = error.userMessage
+
+                            if finalProgress.filesTransferred > 0 {
+                                finalProgress.partialSuccess = true
+                            }
+                        }
+                    } else {
+                        // Success
+                        finalProgress.percent = 100
                     }
 
-                    continuation.finish()
+                    continuation.yield(finalProgress)
+
+                    if exitCode != 0 && finalProgress.filesTransferred == 0 {
+                        if let errorMsg = finalProgress.errorMessage {
+                            continuation.finish(throwing: TransferError.unknown(message: errorMsg))
+                        } else {
+                            continuation.finish(throwing: TransferError.unknown(message: errorOutput))
+                        }
+                    } else {
+                        continuation.finish()
+                    }
                 } catch {
                     print("[RcloneManager] Cloud-to-cloud error: \(error.localizedDescription)")
-                    continuation.finish()
+                    continuation.finish(throwing: error)
                 }
             }
         }
@@ -2077,13 +2247,22 @@ class RcloneManager {
         
         try process.run()
         process.waitUntilExit()
-        
+        let exitCode = process.terminationStatus
+
         // Get error output
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
-        
-        if process.terminationStatus != 0 {
-            throw RcloneError.syncFailed(errorString.isEmpty ? "Copy failed" : errorString)
+
+        if exitCode != 0 {
+            print("Copy failed with exit code \(exitCode)")
+            print("Error output: \(errorString)")
+
+            if let error = parseError(from: errorString) {
+                print("Parsed error: \(error.title)")
+                throw error
+            } else {
+                throw TransferError.unknown(message: errorString.isEmpty ? "Copy failed" : errorString)
+            }
         }
     }
     
@@ -2094,16 +2273,12 @@ class RcloneManager {
         // Format 1: "Transferred:   	    1.234 MiB / 10.567 MiB, 12%, 234.5 KiB/s, ETA 30s"
         // Format 2: "18 B / 18 B, 100%, 17 B/s, ETA 0s" (with --stats-one-line)
         // Format 3: "Transferred:   5 / 100, 5%" (file counts when transferring directories)
-        
+
         let lines = output.components(separatedBy: .newlines)
-        
-        var filesTransferred: Int?
-        var totalFiles: Int?
-        var percentage: Double = 0
-        var speed: String = ""
-        var bytesTransferred: Int64?
-        var totalBytes: Int64?
-        
+
+        var progress = SyncProgress()
+        var foundProgress = false
+
         for line in lines {
             // Check for file count info: "Transferred: 5 / 100, 5%"
             if line.contains("Transferred:") && line.contains("/") {
@@ -2113,12 +2288,13 @@ class RcloneManager {
                    let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) {
                     if let transferredRange = Range(match.range(at: 1), in: line),
                        let totalRange = Range(match.range(at: 2), in: line) {
-                        filesTransferred = Int(line[transferredRange])
-                        totalFiles = Int(line[totalRange])
+                        progress.filesTransferred = Int(line[transferredRange]) ?? 0
+                        progress.totalFiles = Int(line[totalRange]) ?? 0
+                        foundProgress = true
                     }
                 }
             }
-            
+
             // Format 1: Look for "Transferred:" line with bytes
             if line.contains("Transferred:") && (line.contains("MiB") || line.contains("KiB") || line.contains("GiB") || line.contains(" B")) {
                 let components = line.components(separatedBy: ",")
@@ -2126,10 +2302,16 @@ class RcloneManager {
                 if components.count >= 3 {
                     // Parse percentage
                     let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
-                    percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
-                    
+                    progress.percent = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+
                     // Parse speed
-                    speed = components[2].trimmingCharacters(in: .whitespaces)
+                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
+                    // Try to extract numeric value from speed string (e.g., "234.5 KiB/s" -> 234.5)
+                    if let speedMatch = speedStr.range(of: #"([\d.]+)"#, options: .regularExpression),
+                       let speedValue = Double(speedStr[speedMatch]) {
+                        progress.speed = speedValue
+                    }
+                    foundProgress = true
                 }
             }
             
@@ -2138,7 +2320,7 @@ class RcloneManager {
             let trimmedLine = line.trimmingCharacters(in: .whitespaces)
             if trimmedLine.contains("%") && trimmedLine.contains("/") && trimmedLine.contains("B/s") {
                 let components = trimmedLine.components(separatedBy: ",")
-                
+
                 if components.count >= 3 {
                     // Extract bytes from first component: "transferred / total"
                     let bytesPart = components[0].trimmingCharacters(in: .whitespaces)
@@ -2146,41 +2328,69 @@ class RcloneManager {
                     if bytesComponents.count == 2 {
                         let transferredStr = bytesComponents[0].trimmingCharacters(in: .whitespaces)
                         let totalStr = bytesComponents[1].trimmingCharacters(in: .whitespaces)
-                        bytesTransferred = parseSizeString(transferredStr)
-                        totalBytes = parseSizeString(totalStr)
+                        if let transferred = parseSizeString(transferredStr) {
+                            progress.bytesTransferred = transferred
+                        }
+                        if let total = parseSizeString(totalStr) {
+                            progress.totalBytes = total
+                        }
                     }
-                    
+
                     // Parse percentage (second component)
                     let percentageStr = components[1].trimmingCharacters(in: .whitespaces)
-                    percentage = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
-                    
+                    progress.percent = Double(percentageStr.replacingOccurrences(of: "%", with: "")) ?? 0
+
                     // Parse speed (third component)
-                    speed = components[2].trimmingCharacters(in: .whitespaces)
+                    let speedStr = components[2].trimmingCharacters(in: .whitespaces)
+                    if let speedMatch = speedStr.range(of: #"([\d.]+)"#, options: .regularExpression),
+                       let speedValue = Double(speedStr[speedMatch]) {
+                        progress.speed = speedValue
+                    }
+
+                    // Parse ETA if present (fourth component)
+                    if components.count >= 4 {
+                        let etaPart = components[3].trimmingCharacters(in: .whitespaces)
+                        if etaPart.contains("ETA") {
+                            progress.eta = etaPart.replacingOccurrences(of: "ETA", with: "").trimmingCharacters(in: .whitespaces)
+                        }
+                    }
+
+                    foundProgress = true
                 }
             }
             
             if line.contains("Checks:") || line.contains("Need to transfer") {
-                return SyncProgress(percentage: 0, speed: "Checking files...", status: .checking)
+                var checkingProgress = SyncProgress()
+                checkingProgress.percent = 0
+                checkingProgress.speed = 0
+                // Status will be .checking through computed property
+                return checkingProgress
             }
-            
-            if line.contains("ERROR") {
-                return SyncProgress(percentage: 0, speed: "", status: .error(line))
+
+            // Check for errors and add to progress
+            if line.contains("ERROR :") || line.contains("ERROR:") {
+                if let error = parseError(from: line) {
+                    progress.errorMessage = error.userMessage
+                    progress.failedFiles.append(progress.currentFile ?? "Unknown file")
+                }
+            }
+
+            // Extract current file being transferred
+            if line.contains("Transferring:") {
+                let filePattern = "Transferring:\\s*(.+)"
+                if let regex = try? NSRegularExpression(pattern: filePattern),
+                   let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)),
+                   let fileRange = Range(match.range(at: 1), in: line) {
+                    progress.currentFile = String(line[fileRange])
+                }
             }
         }
-        
+
         // Return progress if we found any useful info
-        if percentage > 0 || !speed.isEmpty || filesTransferred != nil {
-            return SyncProgress(
-                percentage: percentage,
-                speed: speed,
-                status: .syncing,
-                filesTransferred: filesTransferred,
-                totalFiles: totalFiles,
-                bytesTransferred: bytesTransferred,
-                totalBytes: totalBytes
-            )
+        if foundProgress || progress.errorMessage != nil {
+            return progress
         }
-        
+
         return nil
     }
     
@@ -2216,32 +2426,44 @@ enum SyncMode {
 }
 
 struct SyncProgress {
-    let percentage: Double
-    let speed: String
-    let status: SyncStatus
-    let filesTransferred: Int?  // Number of files transferred
-    let totalFiles: Int?        // Total number of files
-    let bytesTransferred: Int64? // Bytes transferred so far
-    let totalBytes: Int64?      // Total bytes to transfer
-    
-    init(percentage: Double, speed: String, status: SyncStatus, filesTransferred: Int? = nil, totalFiles: Int? = nil, bytesTransferred: Int64? = nil, totalBytes: Int64? = nil) {
-        self.percentage = percentage
-        self.speed = speed
-        self.status = status
-        self.filesTransferred = filesTransferred
-        self.totalFiles = totalFiles
-        self.bytesTransferred = bytesTransferred
-        self.totalBytes = totalBytes
+    var bytesTransferred: Int64 = 0
+    var totalBytes: Int64 = 0
+    var filesTransferred: Int = 0
+    var totalFiles: Int = 0
+    var currentFile: String?
+    var speed: Double = 0
+    var eta: String?
+    var percent: Double = 0
+
+    // Error fields (non-Codable for now until TransferError is in build target)
+    var errorMessage: String?           // User-friendly error message
+    var failedFiles: [String] = []      // List of files that failed
+    var partialSuccess: Bool = false    // Some succeeded, some failed
+
+    // Legacy compatibility fields
+    var percentage: Double {
+        return percent
+    }
+    var status: SyncStatus {
+        if errorMessage != nil {
+            return .error(errorMessage ?? "Transfer failed")
+        } else if percent >= 100 {
+            return .completed
+        } else if percent > 0 {
+            return .syncing
+        } else {
+            return .idle
+        }
     }
 }
 
-enum SyncStatus: Equatable {
+enum SyncStatus: Equatable, Codable {
     case idle
     case checking
     case syncing
     case completed
     case error(String)
-    
+
     static func == (lhs: SyncStatus, rhs: SyncStatus) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle), (.checking, .checking), (.syncing, .syncing), (.completed, .completed):

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 // MARK: - Loading States
 
@@ -121,22 +122,100 @@ struct EmptyStateView: View {
 
 // MARK: - Error Display
 
-/// Professional error banner
+/// Manages error notifications and their lifecycle
+@MainActor
+class ErrorNotificationManager: ObservableObject {
+
+    /// Active errors currently displayed
+    @Published var activeErrors: [ErrorNotification] = []
+
+    /// Maximum errors to show simultaneously
+    private let maxErrors = 3
+
+    /// Auto-dismiss timeout for non-critical errors (seconds)
+    private let autoDismissDelay: TimeInterval = 10
+
+    /// Show an error notification
+    /// - Parameters:
+    ///   - message: The error message to display
+    ///   - context: Additional context (e.g., filename, remote name)
+    ///   - isCritical: Whether this is a critical error
+    ///   - isRetryable: Whether this error can be retried
+    func show(_ message: String, context: String? = nil, isCritical: Bool = false, isRetryable: Bool = false) {
+        let notification = ErrorNotification(
+            id: UUID(),
+            message: message,
+            context: context,
+            timestamp: Date(),
+            isCritical: isCritical,
+            isRetryable: isRetryable
+        )
+
+        // Add to active errors
+        activeErrors.insert(notification, at: 0)
+
+        // Trim to max if needed
+        if activeErrors.count > maxErrors {
+            activeErrors = Array(activeErrors.prefix(maxErrors))
+        }
+
+        // Auto-dismiss non-critical errors
+        if !isCritical {
+            Task {
+                try? await Task.sleep(nanoseconds: UInt64(autoDismissDelay * 1_000_000_000))
+                dismiss(notification.id)
+            }
+        }
+
+        log("Error notification shown: \(message)")
+    }
+
+    /// Dismiss a specific error notification
+    func dismiss(_ id: UUID) {
+        activeErrors.removeAll { $0.id == id }
+    }
+
+    /// Dismiss all errors
+    func dismissAll() {
+        activeErrors.removeAll()
+    }
+
+    /// Log helper
+    private func log(_ message: String) {
+        print("🔔 ErrorNotificationManager: \(message)")
+    }
+}
+
+/// Represents a single error notification
+struct ErrorNotification: Identifiable, Equatable {
+    let id: UUID
+    let message: String
+    let context: String?
+    let timestamp: Date
+    let isCritical: Bool
+    let isRetryable: Bool
+
+    static func == (lhs: ErrorNotification, rhs: ErrorNotification) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+/// Professional error banner - basic version
 struct ErrorBanner: View {
     let error: String
     let onDismiss: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.yellow)
-            
+                .foregroundStyle(.red)
+
             Text(error)
                 .font(.subheadline)
                 .foregroundStyle(.primary)
-            
+
             Spacer()
-            
+
             Button(action: onDismiss) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.secondary)
@@ -153,6 +232,161 @@ struct ErrorBanner: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Error: \(error)")
+    }
+}
+
+/// Enhanced error banner with full TransferError support
+struct EnhancedErrorBanner: View {
+    let notification: ErrorNotification
+    let onDismiss: () -> Void
+    let onRetry: (() -> Void)?
+
+    init(
+        notification: ErrorNotification,
+        onDismiss: @escaping () -> Void,
+        onRetry: (() -> Void)? = nil
+    ) {
+        self.notification = notification
+        self.onDismiss = onDismiss
+        self.onRetry = onRetry
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            // Icon based on severity
+            icon
+                .font(.title3)
+                .foregroundStyle(iconColor)
+
+            VStack(alignment: .leading, spacing: 4) {
+                // Error title
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                // Error message
+                Text(errorMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                // Retry button if retryable
+                if notification.isRetryable, let retry = onRetry {
+                    Button(action: retry) {
+                        Label("Retry", systemImage: "arrow.clockwise")
+                            .font(.caption.weight(.medium))
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .padding(.top, 4)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            // Dismiss button
+            Button(action: onDismiss) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss error")
+        }
+        .padding()
+        .background(backgroundColor)
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(borderColor, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+    }
+
+    // MARK: - Computed Properties
+
+    private var title: String {
+        if notification.isCritical {
+            return "Critical Error"
+        } else if notification.isRetryable {
+            return "Connection Error"
+        } else {
+            return "Error"
+        }
+    }
+
+    private var errorMessage: String {
+        if let context = notification.context {
+            return "\(notification.message)\n\(context)"
+        }
+        return notification.message
+    }
+
+    private var icon: Image {
+        if notification.isCritical {
+            return Image(systemName: "exclamationmark.octagon.fill")
+        } else if notification.isRetryable {
+            return Image(systemName: "exclamationmark.triangle.fill")
+        } else {
+            return Image(systemName: "info.circle.fill")
+        }
+    }
+
+    private var iconColor: Color {
+        if notification.isCritical {
+            return .red
+        } else if notification.isRetryable {
+            return .orange
+        } else {
+            return .blue
+        }
+    }
+
+    private var backgroundColor: Color {
+        if notification.isCritical {
+            return Color.red.opacity(0.1)
+        } else if notification.isRetryable {
+            return Color.orange.opacity(0.1)
+        } else {
+            return Color.blue.opacity(0.1)
+        }
+    }
+
+    private var borderColor: Color {
+        if notification.isCritical {
+            return .red.opacity(0.3)
+        } else if notification.isRetryable {
+            return .orange.opacity(0.3)
+        } else {
+            return .blue.opacity(0.3)
+        }
+    }
+}
+
+/// Container for displaying multiple error banners
+struct ErrorBannerStack: View {
+    @ObservedObject var errorManager: ErrorNotificationManager
+    let onRetry: ((ErrorNotification) -> Void)?
+
+    init(
+        errorManager: ErrorNotificationManager,
+        onRetry: ((ErrorNotification) -> Void)? = nil
+    ) {
+        self.errorManager = errorManager
+        self.onRetry = onRetry
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(errorManager.activeErrors) { notification in
+                EnhancedErrorBanner(
+                    notification: notification,
+                    onDismiss: { errorManager.dismiss(notification.id) },
+                    onRetry: onRetry != nil ? { onRetry?(notification) } : nil
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.3), value: errorManager.activeErrors)
     }
 }
 

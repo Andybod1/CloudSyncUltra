@@ -7,32 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01 /* CloudSyncAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02; };
-		03 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04; };
-		05 /* RcloneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06; };
-		07 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08; };
-		09 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10; };
-		11 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12; };
-		13 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14; };
-		17 /* CloudSyncApp.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 18; };
-		19 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20; };
-		A1 /* CloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2; };
-		A3 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4; };
-		A5 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6; };
-		A7 /* RemotesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8; };
-		A9 /* TasksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA; };
-		AB /* FileBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC; };
-		AD /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE; };
-		AF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0; };
-		B1 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2; };
-		B3 /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4; };
-		B5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6; };
-		B7 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8; };
+		01 /* CloudSyncAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02 /* CloudSyncAppApp.swift */; };
+		03 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04 /* ContentView.swift */; };
+		05 /* RcloneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06 /* RcloneManager.swift */; };
+		07 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08 /* SyncManager.swift */; };
+		09 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10 /* StatusBarController.swift */; };
 		09E04DE9BBBC3500DBC6D7F4 /* ScheduleEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4194F8B8D6C8FBB1644D705 /* ScheduleEditorSheet.swift */; };
+		11 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12 /* SettingsView.swift */; };
+		13 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14 /* Assets.xcassets */; };
+		19 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20 /* EncryptionManager.swift */; };
 		6D5141DCA9FE66C7D7B06816 /* ScheduleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED492C8829FC2B8ACC2FBB /* ScheduleSettingsView.swift */; };
 		729F47C18417A8B8560B8C1F /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E4CA3A6E61071EE941591 /* ScheduleManager.swift */; };
 		9FF048E78C64843615D3B45A /* SyncSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79142E2AF96EBA935916A2E /* SyncSchedule.swift */; };
-		F9F6431099FEBF1B1708BFA1 /* ScheduleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */; };
+		A1 /* CloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2 /* CloudProvider.swift */; };
+		A3 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4 /* SyncTask.swift */; };
+		A5 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6 /* AppTheme.swift */; };
+		A7 /* RemotesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8 /* RemotesViewModel.swift */; };
+		A9 /* TasksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA /* TasksViewModel.swift */; };
+		AB /* FileBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC /* FileBrowserViewModel.swift */; };
+		AD /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE /* MainWindow.swift */; };
+		AF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0 /* DashboardView.swift */; };
+		B1 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2 /* TransferView.swift */; };
+		B3 /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4 /* TasksView.swift */; };
+		B5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6 /* HistoryView.swift */; };
+		B7 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8 /* FileBrowserView.swift */; };
 		BF01 /* EncryptionModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37C41589EAD874DD98D07E4 /* EncryptionModal.swift */; };
 		BF02 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC849189CAEEFB49851CF23 /* Components.swift */; };
 		BF03 /* CloudSyncErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5E48E7AEC7D5E407F501B9 /* CloudSyncErrors.swift */; };
@@ -40,12 +38,15 @@
 		BF05 /* Logger+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FC495CA79185DB2B79982D /* Logger+Extensions.swift */; };
 		BF06 /* ProtonDriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA943E5A37C52E2869C48D0 /* ProtonDriveManager.swift */; };
 		BF07 /* ProtonDriveSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */; };
+		E47CD27D2F163702001E64FC /* TransferError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47CD27C2F163702001E64FC /* TransferError.swift */; };
+		F9F6431099FEBF1B1708BFA1 /* ScheduleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */; };
 		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		02 /* CloudSyncAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppApp.swift; sourceTree = "<group>"; };
 		04 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProtonDriveSetupView.swift; path = CloudSyncApp/Views/ProtonDriveSetupView.swift; sourceTree = SOURCE_ROOT; };
 		06 /* RcloneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RcloneManager.swift; sourceTree = "<group>"; };
 		08 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		10 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
@@ -55,30 +56,30 @@
 		16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		18 /* CloudSyncApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudSyncApp.entitlements; sourceTree = "<group>"; };
 		20 /* EncryptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManager.swift; sourceTree = "<group>"; };
-		A2 /* CloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProvider.swift; sourceTree = "<group>"; };
-		A4 /* SyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
-		A6 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		A8 /* RemotesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModel.swift; sourceTree = "<group>"; };
-		AA /* TasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
-		AC /* FileBrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserViewModel.swift; sourceTree = "<group>"; };
-		AE /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
-		B0 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-		B2 /* TransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
-		B4 /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
-		B6 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		B8 /* FileBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
 		3EA943E5A37C52E2869C48D0 /* ProtonDriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProtonDriveManager.swift; path = CloudSyncApp/ProtonDriveManager.swift; sourceTree = SOURCE_ROOT; };
 		458E4CA3A6E61071EE941591 /* ScheduleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = CloudSyncApp/ScheduleManager.swift; sourceTree = SOURCE_ROOT; };
 		49FC495CA79185DB2B79982D /* Logger+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Logger+Extensions.swift"; path = "CloudSyncApp/Logger+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		6F5E48E7AEC7D5E407F501B9 /* CloudSyncErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CloudSyncErrors.swift; path = CloudSyncApp/CloudSyncErrors.swift; sourceTree = SOURCE_ROOT; };
 		83ED492C8829FC2B8ACC2FBB /* ScheduleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleSettingsView.swift; path = CloudSyncApp/Views/ScheduleSettingsView.swift; sourceTree = SOURCE_ROOT; };
+		A2 /* CloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProvider.swift; sourceTree = "<group>"; };
+		A4 /* SyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
+		A6 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		A79142E2AF96EBA935916A2E /* SyncSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncSchedule.swift; path = CloudSyncApp/Models/SyncSchedule.swift; sourceTree = SOURCE_ROOT; };
+		A8 /* RemotesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotesViewModel.swift; sourceTree = "<group>"; };
+		AA /* TasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModel.swift; sourceTree = "<group>"; };
+		AC /* FileBrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserViewModel.swift; sourceTree = "<group>"; };
+		AE /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleRowView.swift; path = CloudSyncApp/Views/ScheduleRowView.swift; sourceTree = SOURCE_ROOT; };
+		B0 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		B2 /* TransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
 		B37C41589EAD874DD98D07E4 /* EncryptionModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EncryptionModal.swift; path = CloudSyncApp/Views/EncryptionModal.swift; sourceTree = SOURCE_ROOT; };
+		B4 /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
+		B6 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		B8 /* FileBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
 		C4194F8B8D6C8FBB1644D705 /* ScheduleEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleEditorSheet.swift; path = CloudSyncApp/Views/ScheduleEditorSheet.swift; sourceTree = SOURCE_ROOT; };
 		DCC849189CAEEFB49851CF23 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Components.swift; path = CloudSyncApp/Components/Components.swift; sourceTree = SOURCE_ROOT; };
+		E47CD27C2F163702001E64FC /* TransferError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferError.swift; sourceTree = "<group>"; };
 		ECFF45298AC401F4D2887258 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainManager.swift; path = CloudSyncApp/KeychainManager.swift; sourceTree = SOURCE_ROOT; };
-		055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProtonDriveSetupView.swift; path = CloudSyncApp/Views/ProtonDriveSetupView.swift; sourceTree = SOURCE_ROOT; };
 		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -86,20 +87,20 @@
 		21 /* CloudSyncApp */ = {
 			isa = PBXGroup;
 			children = (
-				02,
-				04,
-				06,
-				08,
-				10,
-				12,
-				20,
-				G1,
-				G2,
-				G3,
-				G4,
-				14,
-				16,
-				18,
+				02 /* CloudSyncAppApp.swift */,
+				04 /* ContentView.swift */,
+				06 /* RcloneManager.swift */,
+				08 /* SyncManager.swift */,
+				10 /* StatusBarController.swift */,
+				12 /* SettingsView.swift */,
+				20 /* EncryptionManager.swift */,
+				G1 /* Models */,
+				G2 /* ViewModels */,
+				G3 /* Views */,
+				G4 /* Components */,
+				14 /* Assets.xcassets */,
+				16 /* Info.plist */,
+				18 /* CloudSyncApp.entitlements */,
 				458E4CA3A6E61071EE941591 /* ScheduleManager.swift */,
 				6F5E48E7AEC7D5E407F501B9 /* CloudSyncErrors.swift */,
 				ECFF45298AC401F4D2887258 /* KeychainManager.swift */,
@@ -112,25 +113,26 @@
 		22 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				15,
+				15 /* CloudSyncApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		G0 /* Root */ = {
+		G0 = {
 			isa = PBXGroup;
 			children = (
-				21,
-				22,
+				21 /* CloudSyncApp */,
+				22 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 		G1 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				A2,
-				A4,
-				A6,
+				E47CD27C2F163702001E64FC /* TransferError.swift */,
+				A2 /* CloudProvider.swift */,
+				A4 /* SyncTask.swift */,
+				A6 /* AppTheme.swift */,
 				A79142E2AF96EBA935916A2E /* SyncSchedule.swift */,
 			);
 			path = Models;
@@ -139,9 +141,9 @@
 		G2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				A8,
-				AA,
-				AC,
+				A8 /* RemotesViewModel.swift */,
+				AA /* TasksViewModel.swift */,
+				AC /* FileBrowserViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -149,12 +151,12 @@
 		G3 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				AE,
-				B0,
-				B2,
-				B4,
-				B6,
-				B8,
+				AE /* MainWindow.swift */,
+				B0 /* DashboardView.swift */,
+				B2 /* TransferView.swift */,
+				B4 /* TasksView.swift */,
+				B6 /* HistoryView.swift */,
+				B8 /* FileBrowserView.swift */,
 				83ED492C8829FC2B8ACC2FBB /* ScheduleSettingsView.swift */,
 				AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */,
 				C4194F8B8D6C8FBB1644D705 /* ScheduleEditorSheet.swift */,
@@ -178,10 +180,10 @@
 /* Begin PBXNativeTarget section */
 		30 /* CloudSyncApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 31;
+			buildConfigurationList = 31 /* Build configuration list for PBXNativeTarget "CloudSyncApp" */;
 			buildPhases = (
-				32,
-				33,
+				32 /* Sources */,
+				33 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -189,7 +191,7 @@
 			);
 			name = CloudSyncApp;
 			productName = CloudSyncApp;
-			productReference = 15;
+			productReference = 15 /* CloudSyncApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -202,7 +204,7 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 			};
-			buildConfigurationList = 41;
+			buildConfigurationList = 41 /* Build configuration list for PBXProject "CloudSyncApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -211,11 +213,11 @@
 				Base,
 			);
 			mainGroup = G0;
-			productRefGroup = 22;
+			productRefGroup = 22 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				30,
+				30 /* CloudSyncApp */,
 			);
 		};
 /* End PBXProject section */
@@ -225,7 +227,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13,
+				13 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,28 +238,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01,
-				03,
-				05,
-				07,
-				09,
-				11,
-				19,
-				A1,
-				A3,
-				A5,
-				A7,
-				A9,
-				AB,
-				AD,
-				AF,
-				B1,
-				B3,
-				B5,
-				B7,
+				01 /* CloudSyncAppApp.swift in Sources */,
+				03 /* ContentView.swift in Sources */,
+				05 /* RcloneManager.swift in Sources */,
+				07 /* SyncManager.swift in Sources */,
+				09 /* StatusBarController.swift in Sources */,
+				11 /* SettingsView.swift in Sources */,
+				19 /* EncryptionManager.swift in Sources */,
+				A1 /* CloudProvider.swift in Sources */,
+				A3 /* SyncTask.swift in Sources */,
+				A5 /* AppTheme.swift in Sources */,
+				A7 /* RemotesViewModel.swift in Sources */,
+				A9 /* TasksViewModel.swift in Sources */,
+				AB /* FileBrowserViewModel.swift in Sources */,
+				AD /* MainWindow.swift in Sources */,
+				AF /* DashboardView.swift in Sources */,
+				B1 /* TransferView.swift in Sources */,
+				B3 /* TasksView.swift in Sources */,
+				B5 /* HistoryView.swift in Sources */,
+				B7 /* FileBrowserView.swift in Sources */,
 				9FF048E78C64843615D3B45A /* SyncSchedule.swift in Sources */,
 				729F47C18417A8B8560B8C1F /* ScheduleManager.swift in Sources */,
 				6D5141DCA9FE66C7D7B06816 /* ScheduleSettingsView.swift in Sources */,
+				E47CD27D2F163702001E64FC /* TransferError.swift in Sources */,
 				F9F6431099FEBF1B1708BFA1 /* ScheduleRowView.swift in Sources */,
 				09E04DE9BBBC3500DBC6D7F4 /* ScheduleEditorSheet.swift in Sources */,
 				BF01 /* EncryptionModal.swift in Sources */,
@@ -335,25 +338,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		31 /* Build configuration list for PBXNativeTarget */ = {
+		31 /* Build configuration list for PBXNativeTarget "CloudSyncApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				50,
-				51,
+				50 /* Debug */,
+				51 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		41 /* Build configuration list for PBXProject */ = {
+		41 /* Build configuration list for PBXProject "CloudSyncApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				50,
-				51,
+				50 /* Debug */,
+				51 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 40;
+	rootObject = 40 /* Project object */;
 }

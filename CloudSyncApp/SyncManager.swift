@@ -105,7 +105,7 @@ class SyncManager: ObservableObject {
         
         syncStatus = .syncing
         let statusMessage = useEncryption ? "Starting encrypted sync..." : "Starting..."
-        currentProgress = SyncProgress(percentage: 0, speed: statusMessage, status: .syncing)
+        currentProgress = SyncProgress(speed: 0, percent: 0)
         
         do {
             let progressStream = try await rclone.sync(
