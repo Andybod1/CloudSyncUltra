@@ -178,7 +178,7 @@ class RcloneManager {
         mailboxPassword: String? = nil,
         remoteName: String = "proton"
     ) async throws {
-        logger.info("Setting up Proton Drive for user", metadata: ["user": "\(username, privacy: .private)"])
+        logger.info("Setting up Proton Drive for user: \(username, privacy: .private)")
         
         // CRITICAL: Obscure the password - rclone requires this for protondrive
         let obscuredPassword = try await obscurePassword(password)
@@ -236,7 +236,7 @@ class RcloneManager {
         twoFactorCode: String? = nil,
         mailboxPassword: String? = nil
     ) async throws -> (success: Bool, message: String) {
-        logger.info("Testing Proton Drive connection for user", metadata: ["user": "\(username, privacy: .private)"])
+        logger.info("Testing Proton Drive connection for user: \(username, privacy: .private)")
         
         let obscuredPassword = try await obscurePassword(password)
         
@@ -329,7 +329,7 @@ class RcloneManager {
     }
     
     func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal) async throws {
-        logger.info("Setting up OneDrive: \(remoteName, privacy: .public), type: \(accountType, privacy: .public)")
+        logger.info("Setting up OneDrive: \(remoteName, privacy: .public), type: \(accountType.rawValue, privacy: .public)")
 
         // OneDrive requires multiple steps:
         // 1. OAuth authentication (browser-based)
@@ -420,7 +420,7 @@ class RcloneManager {
             try updateProcess.run()
             updateProcess.waitUntilExit()
 
-            logger.info("Updated OneDrive configuration for \(accountType, privacy: .public) account")
+            logger.info("Updated OneDrive configuration for \(accountType.rawValue, privacy: .public) account")
         }
 
         // Verify setup succeeded
@@ -833,7 +833,7 @@ class RcloneManager {
         
         // Step 4: Handle device/mountpoint selection (use defaults)
         if let step3State = parseConfigState(from: step3Result), !step3State.isEmpty {
-            print("[RcloneManager] Step 4: Handling device selection, state: \(step3State)")
+            logger.debug("Step 4: Handling device selection, state: \(step3State, privacy: .private)")
             
             // Answer "no" to non-standard device question (use defaults)
             let step4Result = try await runJottacloudConfigStep(
@@ -852,7 +852,7 @@ class RcloneManager {
                   !nextState.isEmpty,
                   iterations < maxIterations {
                 iterations += 1
-                print("[RcloneManager] Additional step \(iterations): state: \(nextState)")
+                logger.debug("Additional step \(iterations): state: \(nextState, privacy: .private)")
                 
                 // For remaining prompts, use defaults (empty result or first option)
                 lastResult = try await runJottacloudConfigStep(
@@ -866,7 +866,7 @@ class RcloneManager {
         
         // Verify the remote was created
         if isRemoteConfigured(name: remoteName) {
-            print("[RcloneManager] ✅ Jottacloud remote '\(remoteName)' created successfully!")
+            logger.info("✅ Jottacloud remote '\(remoteName, privacy: .public)' created successfully!")
         } else {
             throw RcloneError.configurationFailed("Jottacloud remote was not created. Token may be invalid or expired.")
         }
@@ -906,7 +906,7 @@ class RcloneManager {
         
         process.arguments = args
         
-        print("[RcloneManager] Running: rclone \(args.joined(separator: " "))")
+        logger.debug("Running: rclone \(args.joined(separator: " "), privacy: .public)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -925,7 +925,7 @@ class RcloneManager {
         // Combine output and error for parsing
         let fullOutput = output + errorOutput
         
-        print("[RcloneManager] Output: \(fullOutput.prefix(500))")
+        logger.debug("Output: \(String(fullOutput.prefix(500)), privacy: .public)")
         
         // Check for fatal errors
         if fullOutput.contains("Fatal error") || fullOutput.contains("NOTICE: Fatal error") {
@@ -1643,7 +1643,7 @@ class RcloneManager {
             "--config", configPath
         ]
         
-        logger.debug("Running: \(rclonePath, privacy: .public) purge \(remoteName, privacy: .public):\(path, privacy: .private)")
+        logger.debug("Running: \(self.rclonePath, privacy: .public) purge \(remoteName, privacy: .public):\(path, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1675,7 +1675,7 @@ class RcloneManager {
             "--config", configPath
         ]
         
-        logger.debug("Running: \(rclonePath, privacy: .public) moveto \(remoteName, privacy: .public):\(oldPath, privacy: .private) \(remoteName, privacy: .public):\(newPath, privacy: .private)")
+        logger.debug("Running: \(self.rclonePath, privacy: .public) moveto \(remoteName, privacy: .public):\(oldPath, privacy: .private) \(remoteName, privacy: .public):\(newPath, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1780,7 +1780,7 @@ class RcloneManager {
     /// Upload a file or folder from local to a remote with progress streaming
     func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncThrowingStream<SyncProgress, Error> {
         return AsyncThrowingStream { continuation in
-            Task.detached {
+            Task.detached { [self] in
                 let logPath = "/tmp/cloudsync_upload_debug.log"
                 let log = { (msg: String) in
                     let timestamp = Date().description

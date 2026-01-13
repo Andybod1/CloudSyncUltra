@@ -16,8 +16,8 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 | Dev-1 | UI (Views, ViewModels) | Sonnet XS/S, Opus M/L/XL |
 | Dev-2 | Engine (RcloneManager) | Sonnet XS/S, Opus M/L/XL |
 | Dev-3 | Services (Models, Managers) | Sonnet XS/S, Opus M/L/XL |
-| QA | Testing | Always Opus |
-| Dev-Ops | Git, GitHub, Docs, Research | Always Opus |
+| QA | Testing | Always Opus + /think |
+| Dev-Ops | Git, GitHub, Docs, Research | Always Opus + /think |
 
 ### Specialized Agents (On-Demand)
 | Agent | Domain | Model | Use Case |

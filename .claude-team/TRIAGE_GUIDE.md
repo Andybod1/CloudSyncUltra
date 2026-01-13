@@ -87,10 +87,12 @@ Quick reference for assignment:
 | XS | < 30 min | Sonnet | Opus + /think hard |
 | S | 30-60 min | Sonnet | Opus + /think hard |
 | M | 1-2 hours | Opus | Opus + /think hard |
-| L | 2-4 hours | Opus + /think hard | Opus + /think hard |
-| XL | 4+ hours | Opus + /think hard | Opus + /think hard |
+| L | 2-4 hours | Opus + /think | Opus + /think hard |
+| XL | 4+ hours | Opus + /think | Opus + /think hard |
 
-**Note:** All specialized agents ALWAYS use Opus + `/think hard` regardless of size.
+**Notes:**
+- **QA & Dev-Ops:** Always Opus + `/think` (thorough but not max depth)
+- **All Specialized:** Always Opus + `/think hard` (maximum depth analysis)
 
 ---
 

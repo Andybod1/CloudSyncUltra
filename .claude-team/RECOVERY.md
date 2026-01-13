@@ -80,7 +80,7 @@ Strategic Partner (Desktop Claude - Opus 4.5)
 | Agent Type | Model |
 |------------|-------|
 | Dev-1, Dev-2, Dev-3 | Sonnet XS/S, Opus M/L/XL |
-| QA, Dev-Ops | **ALWAYS Opus + /think hard** |
+| QA, Dev-Ops | **ALWAYS Opus + /think** |
 | All Specialized | **ALWAYS Opus + /think hard** |
 
 ### Ticket Triage Process
@@ -222,7 +222,7 @@ git log --oneline -5
 
 1. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
 2. **Delegate ALL implementation** to workers
-3. **QA + All Specialized = Always Opus + /think hard**
+3. **QA = Opus + /think | Specialized = Opus + /think hard**
 4. **Ask Andy** if requirements unclear
 5. **Update GitHub** after each sprint
 6. **Update CHANGELOG.md** after each sprint
