@@ -5,6 +5,37 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.12] - 2026-01-13
+
+### Added
+- **Drag & Drop Cloud Service Reordering** (#14) - Customize sidebar order
+  - Drag cloud services to reorder them in the sidebar
+  - Order persists across app restarts
+  - Local storage remains fixed at bottom
+  - CloudRemote model now has `sortOrder` property
+
+- **Account Name in Encryption View** (#25) - See connected accounts
+  - Email/username displays below service name in encryption settings
+  - CloudRemote model now has `accountName` property
+  - Graceful fallback when account name not available
+
+- **Bandwidth Throttling Controls** (#1) - Manage transfer speeds
+  - New Bandwidth section in Settings
+  - Separate upload/download limits (MB/s)
+  - Quick preset buttons (1, 5, 10, 50, unlimited)
+  - Fixed rclone format to use "UPLOAD:DOWNLOAD" syntax
+  - Limits applied to all transfer operations
+
+### Tests
+- RemoteReorderingTests.swift (6 tests) - sortOrder property and move operations
+- AccountNameTests.swift (6 tests) - accountName property and display logic
+- BandwidthThrottlingUITests.swift (7 tests) - settings persistence and presets
+
+### Infrastructure
+- Worker briefings updated with model selection guidance
+- Extended thinking instructions added for complex tasks
+- QA now always uses Opus for thorough test coverage
+
 ## [2.0.11] - 2026-01-13
 
 ### Added
