@@ -1,68 +1,114 @@
 import XCTest
 @testable import CloudSyncApp
 
-class TransferViewStateTests: XCTestCase {
+final class TransferViewStateTests: XCTestCase {
 
     func testInitialStateEmpty() {
         let state = TransferViewState()
-        XCTAssertNil(state.sourceRemote)
-        XCTAssertNil(state.destRemote)
+        XCTAssertNil(state.sourceRemoteId)
+        XCTAssertNil(state.destRemoteId)
         XCTAssertEqual(state.sourcePath, "")
+        XCTAssertEqual(state.destPath, "")
+        XCTAssertTrue(state.selectedSourceFiles.isEmpty)
+        XCTAssertTrue(state.selectedDestFiles.isEmpty)
+        XCTAssertEqual(state.transferMode, .transfer)
     }
 
-    func testStatePreservation() {
+    func testSourcePathPreservation() {
         let state = TransferViewState()
         state.sourcePath = "/test/path"
         XCTAssertEqual(state.sourcePath, "/test/path")
     }
 
-    func testSourceRemotePreservation() {
+    func testDestPathPreservation() {
         let state = TransferViewState()
-        let testRemote = RemoteConfig(id: UUID(), name: "Test Remote", type: .googleDrive, settings: [:])
-        state.sourceRemote = testRemote
-        XCTAssertEqual(state.sourceRemote?.name, "Test Remote")
-        XCTAssertEqual(state.sourceRemote?.type, .googleDrive)
+        state.destPath = "/destination/path"
+        XCTAssertEqual(state.destPath, "/destination/path")
     }
 
-    func testDestinationRemotePreservation() {
+    func testSourceRemoteIdPreservation() {
         let state = TransferViewState()
-        let testRemote = RemoteConfig(id: UUID(), name: "Dest Remote", type: .dropbox, settings: [:])
-        state.destRemote = testRemote
-        XCTAssertEqual(state.destRemote?.name, "Dest Remote")
-        XCTAssertEqual(state.destRemote?.type, .dropbox)
+        let testId = UUID()
+        state.sourceRemoteId = testId
+        XCTAssertEqual(state.sourceRemoteId, testId)
+    }
+
+    func testDestinationRemoteIdPreservation() {
+        let state = TransferViewState()
+        let testId = UUID()
+        state.destRemoteId = testId
+        XCTAssertEqual(state.destRemoteId, testId)
     }
 
     func testBothRemotesAndPathPreservation() {
         let state = TransferViewState()
-        let sourceRemote = RemoteConfig(id: UUID(), name: "Source", type: .googleDrive, settings: [:])
-        let destRemote = RemoteConfig(id: UUID(), name: "Destination", type: .dropbox, settings: [:])
+        let sourceId = UUID()
+        let destId = UUID()
 
-        state.sourceRemote = sourceRemote
-        state.destRemote = destRemote
+        state.sourceRemoteId = sourceId
+        state.destRemoteId = destId
         state.sourcePath = "/Documents/important"
+        state.destPath = "/Backup/location"
 
-        XCTAssertEqual(state.sourceRemote?.name, "Source")
-        XCTAssertEqual(state.destRemote?.name, "Destination")
+        XCTAssertEqual(state.sourceRemoteId, sourceId)
+        XCTAssertEqual(state.destRemoteId, destId)
         XCTAssertEqual(state.sourcePath, "/Documents/important")
+        XCTAssertEqual(state.destPath, "/Backup/location")
     }
 
-    func testPathUpdating() {
+    func testSelectedFilesPreservation() {
         let state = TransferViewState()
-        state.sourcePath = "/initial/path"
-        XCTAssertEqual(state.sourcePath, "/initial/path")
+        let file1 = UUID()
+        let file2 = UUID()
 
-        state.sourcePath = "/updated/path"
-        XCTAssertEqual(state.sourcePath, "/updated/path")
+        state.selectedSourceFiles.insert(file1)
+        state.selectedSourceFiles.insert(file2)
+
+        XCTAssertEqual(state.selectedSourceFiles.count, 2)
+        XCTAssertTrue(state.selectedSourceFiles.contains(file1))
+        XCTAssertTrue(state.selectedSourceFiles.contains(file2))
+    }
+
+    func testTransferModePreservation() {
+        let state = TransferViewState()
+        state.transferMode = .sync
+        XCTAssertEqual(state.transferMode, .sync)
     }
 
     func testRemoteClearing() {
         let state = TransferViewState()
-        let testRemote = RemoteConfig(id: UUID(), name: "Test", type: .googleDrive, settings: [:])
+        let testId = UUID()
 
-        state.sourceRemote = testRemote
-        XCTAssertNotNil(state.sourceRemote)
+        state.sourceRemoteId = testId
+        XCTAssertNotNil(state.sourceRemoteId)
 
-        state.sourceRemote = nil
-        XCTAssertNil(state.sourceRemote)
+        state.sourceRemoteId = nil
+        XCTAssertNil(state.sourceRemoteId)
+    }
+
+    func testCompleteStatePreservation() {
+        let state = TransferViewState()
+        let sourceId = UUID()
+        let destId = UUID()
+        let fileId1 = UUID()
+        let fileId2 = UUID()
+
+        // Set up complete state
+        state.sourceRemoteId = sourceId
+        state.destRemoteId = destId
+        state.sourcePath = "/source/directory"
+        state.destPath = "/dest/directory"
+        state.selectedSourceFiles.insert(fileId1)
+        state.selectedDestFiles.insert(fileId2)
+        state.transferMode = .sync
+
+        // Verify all state is preserved
+        XCTAssertEqual(state.sourceRemoteId, sourceId)
+        XCTAssertEqual(state.destRemoteId, destId)
+        XCTAssertEqual(state.sourcePath, "/source/directory")
+        XCTAssertEqual(state.destPath, "/dest/directory")
+        XCTAssertTrue(state.selectedSourceFiles.contains(fileId1))
+        XCTAssertTrue(state.selectedDestFiles.contains(fileId2))
+        XCTAssertEqual(state.transferMode, .sync)
     }
 }
