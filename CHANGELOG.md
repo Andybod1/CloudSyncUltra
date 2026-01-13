@@ -5,6 +5,30 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.14] - 2026-01-13
+
+### Performance
+- **Transfer Speed Optimization** (#10) - 2x speed improvement with parallel transfers
+  - Increased `--transfers` from 4 to 8 (parallel file uploads/downloads)
+  - Increased `--checkers` from 8 to 16 (parallel file verification)
+  - Added `--buffer-size 32M` (was 16M default)
+  - Added `--fast-list` for faster directory listings
+  - Large folder parallelism increased to 16-32 transfers (was 8-16)
+  - Full optimization roadmap in `.claude-team/outputs/DEV2_PERFORMANCE_AUDIT.md`
+
+### Research
+- **Crash Reporting Feasibility Study** (#20) - Evaluated options, documented recommendation
+  - Recommend: Enhanced DIY approach using existing OSLog infrastructure
+  - Privacy-first: No external services, local logs only
+  - Implementation estimate: 2-3 days when prioritized
+  - Full analysis in `.claude-team/outputs/DEV3_CRASH_REPORTING.md`
+
+### Infrastructure
+- **GitHub Actions Workflow** (#34) - Auto-add issues to project board
+  - Created `.github/workflows/add-to-project.yml`
+  - Requires PAT with `project` scope (setup instructions in file)
+  - Pending: Manual workflow file creation via GitHub web UI
+
 ## [2.0.13] - 2026-01-13
 
 ### Fixed
