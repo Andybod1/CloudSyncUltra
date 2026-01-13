@@ -1,7 +1,7 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.13
+> **Current Version:** v2.0.15
 > **Last Updated:** 2026-01-13
 
 ---
@@ -52,94 +52,65 @@ git push origin main
 cd ~/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
 ```
 
-### 4. Run Tests (Optional)
-```bash
-cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed" | tail -5
-```
-
 ---
 
-## Current Project State (v2.0.13)
+## Team Architecture
 
-### What's Working
-- ✅ 42 cloud providers supported
-- ✅ Dual-pane file browser with drag & drop
-- ✅ Per-remote encryption
-- ✅ Scheduled sync (hourly/daily/weekly/custom)
-- ✅ Menu bar integration with schedule indicator
-- ✅ Drag & drop sidebar reordering
-- ✅ Bandwidth throttling controls
-- ✅ Comprehensive error handling system
-- ✅ 617 unit tests (35 test files)
-
-### Known Issues
-- 23 pre-existing test failures (Issue #35) - in progress
-- Transfer performance poor (Issue #10)
-- iCloud integration (Issue #9)
-
-### Recent Sprints
-1. **Error Handling Sprint (v2.0.11)** - TransferError types, notification manager
-2. **Quick Wins Sprint (v2.0.12)** - Reordering, account names, bandwidth
-3. **Test Health Sprint (v2.0.13)** - Fix pre-existing test failures, team restructure
-
----
-
-## Development System
-
-### Team Structure (5 Workers)
+### Core Team (5 Workers)
 ```
 Strategic Partner (Desktop Claude - Opus 4.5)
-    ├── Dev-1 (UI)       - Views, ViewModels, Components
-    ├── Dev-2 (Engine)   - RcloneManager.swift
-    ├── Dev-3 (Services) - Models, *Manager.swift
-    ├── QA (Testing)     - CloudSyncAppTests/
-    └── Dev-Ops (Integration) - Git, GitHub, Docs, Research
+    ├── Dev-1 (UI)       → Views, ViewModels, Components
+    ├── Dev-2 (Engine)   → RcloneManager.swift
+    ├── Dev-3 (Services) → Models, *Manager.swift
+    ├── QA (Testing)     → CloudSyncAppTests/
+    └── Dev-Ops          → Git, GitHub, Docs, Research
 ```
 
-### Model Selection Rules
-| Worker | Model | Extended Thinking |
-|--------|-------|-------------------|
-| Dev-1 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
-| Dev-2 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
-| Dev-3 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
-| QA | **ALWAYS Opus** | Always |
-| Dev-Ops | **ALWAYS Opus** | Always |
+### Specialized Agents (On-Demand)
+```
+    ├── UX-Designer      → UI/UX analysis, user flows
+    ├── Product-Manager  → Strategy, requirements, roadmap
+    ├── Architect        → System design, refactoring
+    ├── Security-Auditor → Security review, vulnerabilities
+    ├── Performance-Eng  → Deep optimization analysis
+    └── Tech-Writer      → Documentation, guides
+```
 
-### Sprint Phases (Shift-Left Testing)
-| Phase | Workers | Duration |
-|-------|---------|----------|
-| 1. Planning | Strategic Partner + QA | 15-20 min |
-| 2. Foundation | Dev-3 (models) | 15-20 min |
-| 3. Implementation | Dev-1, Dev-2, QA (parallel) | 30-45 min |
-| 4. Integration | Dev-Ops | 15-20 min |
+### Model Rules
+| Agent Type | Model |
+|------------|-------|
+| Dev-1, Dev-2, Dev-3 | Sonnet XS/S, Opus M/L/XL |
+| QA, Dev-Ops | **ALWAYS Opus + /think** |
+| All Specialized | **ALWAYS Opus + /think** |
 
 ---
 
-## Resume Workers (If Mid-Sprint)
+## Launch Workers
 
-### Check Task Files
+### Core Team
 ```bash
-ls ~/Claude/.claude-team/tasks/
-cat ~/Claude/.claude-team/tasks/TASK_DEV1.md  # Check what was assigned
-```
-
-### Check Worker Status
-```bash
-cat ~/Claude/.claude-team/STATUS.md
-```
-
-### Launch Workers
-```bash
-# Launch all workers
-~/Claude/.claude-team/scripts/launch_workers.sh
-
-# Or launch single worker
 ~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 sonnet
 ~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
 ```
 
-### Worker Startup Commands
+### Specialized Agents
+```bash
+~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh performance-eng opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh tech-writer opus
+```
+
+---
+
+## Startup Commands (Paste into Claude Code)
+
+### Core Team
 ```
 Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
 
@@ -152,18 +123,44 @@ QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and
 Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 ```
 
+### Specialized Agents
+```
+UX-Designer: Read /Users/antti/Claude/.claude-team/templates/UX_DESIGNER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_UX_DESIGNER.md. Update STATUS.md as you work.
+
+Product-Manager: Read /Users/antti/Claude/.claude-team/templates/PRODUCT_MANAGER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PRODUCT_MANAGER.md. Update STATUS.md as you work.
+
+Architect: Read /Users/antti/Claude/.claude-team/templates/ARCHITECT_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_ARCHITECT.md. Update STATUS.md as you work.
+
+Security-Auditor: Read /Users/antti/Claude/.claude-team/templates/SECURITY_AUDITOR_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_SECURITY_AUDITOR.md. Update STATUS.md as you work.
+
+Performance-Engineer: Read /Users/antti/Claude/.claude-team/templates/PERFORMANCE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PERFORMANCE_ENGINEER.md. Update STATUS.md as you work.
+
+Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_TECH_WRITER.md. Update STATUS.md as you work.
+```
+
 ---
 
-## State Recovery Sources
+## Current State (v2.0.15)
 
-| Source | What It Shows | Command |
-|--------|---------------|---------|
-| **GitHub Issues** | All tracked work (crash-proof) | `gh issue list` |
-| **STATUS.md** | Worker status at crash | `cat .claude-team/STATUS.md` |
-| **tasks/*.md** | Assigned tasks | `ls .claude-team/tasks/` |
-| **outputs/*.md** | Completed work | `ls .claude-team/outputs/` |
-| **CHANGELOG.md** | Version history | `head -80 CHANGELOG.md` |
-| **PROJECT_CONTEXT.md** | Full project context | `cat .claude-team/PROJECT_CONTEXT.md` |
+### In Progress: iCloud Phase 1 (#9)
+- Dev-3 ✅ Foundation (rclone type fix, local detection)
+- Dev-1 🔄 UI (local folder option)
+- QA ⏳ Testing (waiting)
+
+### Recent Completed
+- v2.0.14: Performance 2x boost, crash reporting research
+- v2.0.13: Schedule time display, 12/24 hour setting
+- v2.0.12: Sidebar reordering, bandwidth throttling
+
+### Open Issues
+| # | Title | Priority |
+|---|-------|----------|
+| #9 | iCloud integration | High |
+| #10 | Transfer performance | High (done) |
+| #27 | UI test automation | High |
+| #40 | Performance Settings UI | Medium |
+| #44 | UI review | Medium |
+| #45 | Product strategy | Critical |
 
 ---
 
@@ -172,23 +169,17 @@ Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then
 ```
 /Users/antti/Claude/
 ├── CloudSyncApp/                 # Source code
-├── CloudSyncAppTests/            # Unit tests (35 files)
-├── CloudSyncApp.xcodeproj/       # Xcode project
-├── CLAUDE_PROJECT_KNOWLEDGE.md   # Claude context (repo root)
+├── CloudSyncAppTests/            # Tests (616 passing)
+├── CLAUDE_PROJECT_KNOWLEDGE.md   # Claude context
 ├── .claude-team/
-│   ├── PROJECT_CONTEXT.md        # Full project context
-│   ├── STATUS.md                 # Worker status
+│   ├── STATUS.md                 # Live worker status
+│   ├── SPECIALIZED_AGENTS.md     # Agent roster
 │   ├── RECOVERY.md               # This file
-│   ├── WORKER_MODELS.conf        # Model assignments
-│   ├── tasks/                    # Worker task files
-│   ├── outputs/                  # Worker completion reports
-│   ├── templates/                # Worker briefings (5 workers)
+│   ├── tasks/TASK_*.md           # Active tasks
+│   ├── outputs/*_COMPLETE.md     # Reports
+│   ├── templates/*_BRIEFING.md   # All briefings
 │   └── scripts/                  # Launch scripts
-├── .github/
-│   ├── WORKFLOW.md               # Complete workflow docs
-│   └── ISSUE_TEMPLATE/           # Issue templates
-├── CHANGELOG.md                  # Version history
-└── README.md                     # Project readme
+└── CHANGELOG.md
 ```
 
 ---
@@ -196,50 +187,34 @@ Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then
 ## Common Commands
 
 ```bash
-# Build
-cd ~/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
-
-# Test
-cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep "Executed" | tail -3
-
-# Launch app
+# Build & Launch
+cd ~/Claude && xcodebuild build 2>&1 | tail -5
 open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
 
-# Git status
-cd ~/Claude && git log --oneline -5
+# Tests
+xcodebuild test -destination 'platform=macOS' 2>&1 | grep "Executed"
 
-# Issues
+# GitHub
 gh issue list
 gh issue view <number>
-```
 
----
-
-## Emergency: Full Reset
-
-```bash
-cd ~/Claude
-git fetch origin
-git reset --hard origin/main
-rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
+# Git
+git status --short
+git log --oneline -5
 ```
 
 ---
 
 ## Memory Reminders for Strategic Partner
 
-These are stored in Claude's memory system:
-1. Always launch CloudSyncApp after building/updating code
-2. Ask Andy for clarifications - never assume
-3. Dev workers: Sonnet for XS/S, Opus for M/L/XL
-4. **QA: Always Opus** regardless of ticket size
-5. **Dev-Ops: Always Opus** with extended thinking
-6. Extended thinking (`/think`) for M/L/XL tickets
-7. QA participates in Phase 1 planning (shift-left testing)
-8. **Delegate implementation** - Strategic Partner plans only
+1. **Delegate ALL implementation** to workers
+2. **Launch specialized agents** for focused expertise
+3. **QA + All Specialized = Always Opus + /think**
+4. **Ask Andy** if requirements unclear
+5. **Update GitHub** after each sprint
+6. **Update CHANGELOG.md** after each sprint
 
 ---
 
 *Last Updated: 2026-01-13*
-*CloudSync Ultra v2.0.13*
+*CloudSync Ultra v2.0.15*

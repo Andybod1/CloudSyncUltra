@@ -46,8 +46,40 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 ~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh performance-engineer opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh tech-writer sonnet
+~/Claude/.claude-team/scripts/launch_single_worker.sh performance-eng opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh tech-writer opus
+```
+
+---
+
+## Startup Commands (Paste into Claude Code)
+
+### Core Team
+```
+Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
+
+Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
+
+Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
+
+QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+
+Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
+```
+
+### Specialized Agents
+```
+UX-Designer: Read /Users/antti/Claude/.claude-team/templates/UX_DESIGNER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_UX_DESIGNER.md. Update STATUS.md as you work.
+
+Product-Manager: Read /Users/antti/Claude/.claude-team/templates/PRODUCT_MANAGER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PRODUCT_MANAGER.md. Update STATUS.md as you work.
+
+Architect: Read /Users/antti/Claude/.claude-team/templates/ARCHITECT_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_ARCHITECT.md. Update STATUS.md as you work.
+
+Security-Auditor: Read /Users/antti/Claude/.claude-team/templates/SECURITY_AUDITOR_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_SECURITY_AUDITOR.md. Update STATUS.md as you work.
+
+Performance-Engineer: Read /Users/antti/Claude/.claude-team/templates/PERFORMANCE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PERFORMANCE_ENGINEER.md. Update STATUS.md as you work.
+
+Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_TECH_WRITER.md. Update STATUS.md as you work.
 ```
 
 ---
