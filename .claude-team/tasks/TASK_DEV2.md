@@ -1,163 +1,163 @@
-# Task: Dev-2 - Bandwidth Throttling Engine (#1)
+# TASK: Transfer Performance Audit (#10)
 
-> **Worker:** Dev-2 (Core Engine)
-> **Model:** Sonnet (S-sized portion)
-> **Sprint:** Quick Wins + Polish
-> **Ticket:** #1 (Engine portion)
+## Worker: Dev-2 (Engine)
+## Size: L
+## Model: Opus (large ticket)
+## Ticket: #10
 
----
-
-## Objective
-
-Fix the bandwidth throttling implementation in RcloneManager to properly limit upload and download speeds.
+**Use extended thinking (`/think`) for analysis and recommendations.**
 
 ---
 
-## Current State
+## Problem
 
-The app already has basic bandwidth code in `RcloneManager.swift` but it has issues:
-1. Uses wrong rclone format (should be "upload:download")
-2. Only adds one --bwlimit flag instead of using the proper combined format
-3. Not applied consistently to all transfer methods
+All file transfers are slow compared to:
+- Native cloud apps (Dropbox, Google Drive, OneDrive apps)
+- Available bandwidth
 
----
-
-## File to Modify
-`/Users/antti/Claude/CloudSyncApp/RcloneManager.swift`
+User expectation: Match native app speed using efficient parallel transfers.
 
 ---
 
-## Task 1: Fix getBandwidthArgs()
+## Phase 1: Current Implementation Analysis
 
-Find the `getBandwidthArgs()` function (around line 49-73):
+### 1.1 Review RcloneManager.swift
+- Find all transfer-related methods
+- Document current rclone flags being used
+- Identify where parallelization could be added
 
-**CURRENT CODE (incorrect):**
+### 1.2 Check Current Flags
+Look for these in the codebase:
+```
+--transfers      (parallel file transfers, default: 4)
+--checkers       (parallel checkers, default: 8)
+--multi-thread-streams (streams per file, default: 4)
+--buffer-size    (memory buffer, default: 16M)
+--s3-chunk-size  (chunk size for multipart)
+```
+
+### 1.3 Document Findings
+Create a table of current vs recommended settings.
+
+---
+
+## Phase 2: rclone Performance Research
+
+### 2.1 Research rclone Parallel Options
+Use `rclone help flags` or web search to understand:
+
+| Flag | Purpose | Default | Recommended |
+|------|---------|---------|-------------|
+| `--transfers N` | Parallel file transfers | 4 | 8-16? |
+| `--checkers N` | Parallel hash checkers | 8 | 16-32? |
+| `--multi-thread-streams N` | Streams per large file | 4 | 8? |
+| `--multi-thread-cutoff SIZE` | Min size for multi-thread | 250M | 10M? |
+| `--buffer-size SIZE` | In-memory buffer | 16M | 64M? |
+| `--use-mmap` | Memory-mapped files | false | true? |
+| `--fast-list` | Recursive list optimization | false | true? |
+
+### 2.2 Provider-Specific Optimizations
+Research optimizations for our top providers:
+- Google Drive: `--drive-chunk-size`, `--drive-upload-cutoff`
+- Dropbox: `--dropbox-chunk-size`
+- OneDrive: `--onedrive-chunk-size`
+- S3: `--s3-chunk-size`, `--s3-upload-concurrency`
+- Proton Drive: Any specific flags?
+
+### 2.3 Memory/CPU Tradeoffs
+Document resource implications of aggressive parallelization.
+
+---
+
+## Phase 3: Implementation Plan
+
+### 3.1 Design Settings
+Propose user-configurable performance settings:
 ```swift
-private func getBandwidthArgs() -> [String] {
-    var args: [String] = []
-    
-    if UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled") {
-        let uploadLimit = UserDefaults.standard.double(forKey: "uploadLimit")
-        let downloadLimit = UserDefaults.standard.double(forKey: "downloadLimit")
-        
-        if uploadLimit > 0 {
-            args.append("--bwlimit")
-            args.append("\(uploadLimit)M")
-        }
-        
-        if downloadLimit > 0 && (uploadLimit == 0 || downloadLimit < uploadLimit) {
-            args.append("--bwlimit")
-            args.append("\(downloadLimit)M")
-        }
-    }
-    
-    return args
+// Example structure
+struct TransferSettings {
+    var parallelTransfers: Int = 8      // --transfers
+    var parallelCheckers: Int = 16      // --checkers  
+    var multiThreadStreams: Int = 8     // --multi-thread-streams
+    var bufferSize: String = "64M"      // --buffer-size
+    var useMultiThread: Bool = true     // Enable multi-threading
 }
 ```
 
-**REPLACE WITH:**
-```swift
-/// Get bandwidth limit arguments for rclone
-/// Format: --bwlimit UPLOAD:DOWNLOAD where each can be "off" or "NM" for N megabytes/s
-private func getBandwidthArgs() -> [String] {
-    guard UserDefaults.standard.bool(forKey: "bandwidthLimitEnabled") else {
-        return []
-    }
-    
-    let uploadLimit = UserDefaults.standard.double(forKey: "uploadLimit")
-    let downloadLimit = UserDefaults.standard.double(forKey: "downloadLimit")
-    
-    // If both are 0 (unlimited), no need to add any args
-    if uploadLimit <= 0 && downloadLimit <= 0 {
-        return []
-    }
-    
-    // rclone format: --bwlimit "UPLOAD:DOWNLOAD"
-    // Use "off" for unlimited, or "NM" for N megabytes/sec
-    let uploadStr = uploadLimit > 0 ? "\(Int(uploadLimit))M" : "off"
-    let downloadStr = downloadLimit > 0 ? "\(Int(downloadLimit))M" : "off"
-    
-    return ["--bwlimit", "\(uploadStr):\(downloadStr)"]
-}
-```
+### 3.2 Identify Code Changes
+List specific changes needed in:
+- `RcloneManager.swift` - Add flags to transfer commands
+- Settings UI - Add performance settings section
+- Models - Add TransferSettings model
+
+### 3.3 Create Implementation Tickets
+Break down into sub-tasks:
+- [ ] Add parallel transfer flags to RcloneManager
+- [ ] Add performance settings UI
+- [ ] Add per-provider optimizations
+- [ ] Add bandwidth limiting option (already exists?)
 
 ---
 
-## Task 2: Verify getBandwidthArgs() is Called in All Transfer Methods
+## Phase 4: Benchmarking Plan
 
-Check that `getBandwidthArgs()` is added to args in these methods:
-1. `copyFiles()` - around line 1340 ✅ (already there)
-2. `syncFiles()` - find and verify
-3. Any other file transfer methods
+### 4.1 Propose Test Methodology
+- Test file sizes: 1MB, 10MB, 100MB, 1GB
+- Test scenarios: Single file, 100 small files, mixed
+- Measure: Time, throughput (MB/s), CPU%, Memory
 
-Search for methods that build rclone args with "copy" or "sync" commands and ensure they include:
-```swift
-args.append(contentsOf: self.getBandwidthArgs())
-```
+### 4.2 Create Benchmark Script
+If time permits, create a simple benchmark script.
 
 ---
 
-## Task 3: Add Bandwidth Args to Sync Methods
+## Deliverables
 
-Find any sync methods that don't have bandwidth args. Example pattern to look for:
+1. **Audit Report** documenting:
+   - Current implementation
+   - Available optimizations
+   - Recommended settings
+   - Resource tradeoffs
 
-```swift
-func syncFiles(...) {
-    var args = [
-        "sync",
-        source,
-        dest,
-        "--config", self.configPath,
-        // ... other args
-    ]
-    
-    // ADD THIS if missing:
-    args.append(contentsOf: self.getBandwidthArgs())
-    
-    // ...
-}
-```
+2. **Implementation Plan** with:
+   - Code changes needed
+   - Sub-tickets for implementation
+   - Priority order
 
----
-
-## Verification
-
-After making changes:
-1. Build the app
-2. Enable bandwidth limit in Settings (once Dev-1 adds UI)
-3. Set upload/download to 5 MB/s
-4. Start a transfer
-5. Verify speed is limited (check Activity Monitor or transfer progress)
-
-**Quick test command:**
-```bash
-# Test the rclone bwlimit format manually:
-/opt/homebrew/bin/rclone copy test.txt google:test/ --bwlimit "5M:5M" --progress
-```
-
----
-
-## Completion Checklist
-
-- [ ] getBandwidthArgs() uses correct "UPLOAD:DOWNLOAD" format
-- [ ] Returns empty array when disabled or both limits are 0
-- [ ] All transfer methods include getBandwidthArgs()
-- [ ] Build succeeds
+3. **Quick Win** (if obvious):
+   - If a simple flag change can help immediately, implement it
 
 ---
 
 ## Output
 
-When complete, create a summary file:
-```
-/Users/antti/Claude/.claude-team/outputs/DEV2_COMPLETE.md
-```
+Write comprehensive report to:
+`/Users/antti/Claude/.claude-team/outputs/DEV2_PERFORMANCE_AUDIT.md`
 
-Include:
-- Lines changed in getBandwidthArgs()
-- Methods updated with bandwidth args
-- Build status
+Update STATUS.md when starting and completing.
 
 ---
 
-*Task assigned by Strategic Partner*
+## Commands Reference
+
+```bash
+# Check rclone flags
+rclone help flags | grep -E "transfer|parallel|thread|buffer|chunk"
+
+# Test transfer with verbose output
+rclone copy source: dest: -v --stats 1s
+
+# Benchmark a remote
+rclone test info remote: --full
+```
+
+---
+
+## Acceptance Criteria
+
+- [ ] Current implementation documented
+- [ ] All rclone parallel options researched
+- [ ] Provider-specific optimizations listed
+- [ ] Implementation plan with code snippets
+- [ ] Resource tradeoffs documented
+- [ ] Report written to outputs/

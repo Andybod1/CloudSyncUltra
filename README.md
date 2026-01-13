@@ -264,6 +264,10 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+### GitHub Project Board
+
+All new issues are automatically added to the [CloudSync Ultra project board](https://github.com/users/andybod1-lang/projects/1) via GitHub Actions. This helps track and prioritize feature requests and bug reports.
+
 ## 📧 Contact
 
 Created by [@andybod1-lang](https://github.com/andybod1-lang)

@@ -5,6 +5,38 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.13] - 2026-01-13
+
+### Fixed
+- **Schedule Time Display** (#32) - Time picker now shows selected value correctly
+  - Added `.pickerStyle(.menu)` to hour pickers
+  - Increased frame width from 100 to 120 points for better visibility
+
+- **Test Suite Health** (#35) - All 616 tests now pass (was 23 failing)
+  - Updated provider count expectations (now 41 providers)
+  - Fixed locale-dependent formatting tests (ByteCountFormatter)
+  - Resolved timing edge cases in schedule tests
+  - Corrected implementation behavior assumptions
+
+### Added
+- **12/24 Hour Time Format Setting** (#33) - User preference for time display
+  - Toggle in Settings → General → "Use 24-Hour Time"
+  - 12-hour format: "2 AM", "11 PM"
+  - 24-hour format: "02:00", "23:00"
+  - Persists via @AppStorage across restarts
+
+### Documentation
+- `docs/CLEAN_BUILD_GUIDE.md` - Xcode troubleshooting and clean build steps
+- `docs/TEST_ACCOUNTS_GUIDE.md` - Cloud provider signup with Claude Cowork tips
+- `.claude-team/planning/DROPBOX_PLAN.md` - Dropbox validation test plan
+
+### Infrastructure
+- **Dev-Ops Worker Added** - 5th team member for Git, GitHub, docs, research
+  - Always uses Opus with extended thinking
+  - Handles commits, pushes, issue management, CHANGELOG updates
+- **Team Structure Update** - Strategic Partner now delegates ALL implementation
+- Closed issues: #30 (won't fix), #31, #32, #33, #35, #36, #38 (dup), #39 (upstream)
+
 ## [2.0.12] - 2026-01-13
 
 ### Added

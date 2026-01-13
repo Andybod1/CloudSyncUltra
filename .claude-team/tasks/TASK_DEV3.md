@@ -1,204 +1,126 @@
-# Task: Dev-3 - Model Updates (#14, #25)
+# TASK: Crash Reporting Feasibility Study (#20)
 
-> **Worker:** Dev-3 (Services/Models)
-> **Model:** Sonnet (S-sized tasks)
-> **Sprint:** Quick Wins + Polish
-> **Tickets:** #14, #25 (Model portions)
+## Worker: Dev-3 (Services)
+## Size: M
+## Model: Opus (M-sized research task)
+## Ticket: #20
 
----
-
-## Overview
-
-You are implementing model layer changes to support:
-1. Cloud remote reordering (sortOrder)
-2. Account name storage (accountName)
-3. RemotesViewModel methods for reordering
+**Use extended thinking (`/think`) for evaluation and recommendations.**
 
 ---
 
-## Task 1: Update CloudRemote Model
+## Objective
 
-### File to Modify
-`/Users/antti/Claude/CloudSyncApp/Models/CloudProvider.swift`
-
-### Find CloudRemote Struct (around line 441)
-
-**Add two new properties:**
-
-```swift
-struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
-    let id: UUID
-    var name: String
-    var type: CloudProviderType
-    var isConfigured: Bool
-    var path: String
-    var isEncrypted: Bool
-    var customRcloneName: String?
-    var sortOrder: Int  // ADD THIS - for custom ordering
-    var accountName: String?  // ADD THIS - email/username for the connected account
-```
-
-**Update the init:**
-
-```swift
-init(id: UUID = UUID(), name: String, type: CloudProviderType, isConfigured: Bool = false, path: String = "", isEncrypted: Bool = false, customRcloneName: String? = nil, sortOrder: Int = 0, accountName: String? = nil) {
-    self.id = id
-    self.name = name
-    self.type = type
-    self.isConfigured = isConfigured
-    self.path = path
-    self.isEncrypted = isEncrypted
-    self.customRcloneName = customRcloneName
-    self.sortOrder = sortOrder
-    self.accountName = accountName
-}
-```
+Evaluate crash reporting solutions for CloudSync Ultra. Determine feasibility, complexity, and whether it makes sense for a macOS app.
 
 ---
 
-## Task 2: Update RemotesViewModel
+## Phase 1: Research Options
 
-### File to Modify
-`/Users/antti/Claude/CloudSyncApp/ViewModels/RemotesViewModel.swift`
+### 1.1 Apple Native Options
+Research these first (preferred for macOS):
+- **MetricKit** - Apple's native crash/metrics framework
+- **App Store crash reports** - Available if distributed via App Store
+- **Console.app logs** - System crash logs
 
-### Add Storage Version Bump
+### 1.2 Third-Party Services
+Evaluate popular crash reporting services:
 
-Find the storageKey (around line 20) and bump it:
+| Service | Pricing | macOS Support | Privacy |
+|---------|---------|---------------|---------|
+| Sentry | Free tier | ✅ | Self-host option |
+| Firebase Crashlytics | Free | ✅ | Google-hosted |
+| BugSnag | Paid | ✅ | Cloud |
+| Raygun | Paid | ✅ | Cloud |
+| PLCrashReporter | Free/OSS | ✅ | Self-host |
 
-```swift
-private let storageKey = "cloudRemotes_v6"  // Bump from v5 to v6
-```
-
-### Add moveCloudRemotes Method
-
-Add this method to RemotesViewModel:
-
-```swift
-/// Move cloud remotes to reorder them in the sidebar
-/// - Parameters:
-///   - source: IndexSet of items to move
-///   - destination: Target index
-func moveCloudRemotes(from source: IndexSet, to destination: Int) {
-    // Get cloud-only remotes (excluding local)
-    var cloudRemotes = remotes.filter { $0.type != .local }
-    let localRemotes = remotes.filter { $0.type == .local }
-    
-    // Perform the move
-    cloudRemotes.move(fromOffsets: source, toOffset: destination)
-    
-    // Update sort orders
-    for (index, _) in cloudRemotes.enumerated() {
-        cloudRemotes[index].sortOrder = index
-    }
-    
-    // Rebuild full remotes array: local first, then sorted cloud remotes
-    remotes = localRemotes + cloudRemotes
-    
-    saveRemotes()
-}
-
-/// Update account name for a remote
-/// - Parameters:
-///   - remoteName: The rclone name of the remote
-///   - accountName: The account email or username
-func setAccountName(_ accountName: String, for remoteName: String) {
-    if let index = remotes.firstIndex(where: { $0.rcloneName == remoteName }) {
-        remotes[index].accountName = accountName
-        saveRemotes()
-    }
-}
-```
-
-### Update loadRemotes to Sort by sortOrder
-
-Find the `scanRcloneConfig()` call in `loadRemotes()` and add sorting after it:
-
-```swift
-func loadRemotes() {
-    // Start fresh with local storage
-    remotes = [
-        CloudRemote(name: "Local Storage", type: .local, isConfigured: true, path: NSHomeDirectory())
-    ]
-    
-    // Scan rclone config for existing remotes
-    scanRcloneConfig()
-    
-    // Sort cloud remotes by sortOrder
-    let localRemotes = remotes.filter { $0.type == .local }
-    let cloudRemotes = remotes.filter { $0.type != .local }.sorted { $0.sortOrder < $1.sortOrder }
-    remotes = localRemotes + cloudRemotes
-    
-    saveRemotes()
-}
-```
+### 1.3 DIY Approach
+Consider simple custom logging:
+- Write logs to `~/Library/Logs/CloudSyncUltra/`
+- Catch uncaught exceptions
+- User-initiated log export
 
 ---
 
-## Task 3: Account Name Extraction (Optional Enhancement)
+## Phase 2: Evaluate Each Option
 
-For OAuth providers, we can try to extract the email from the token. This is optional but adds value.
+For each viable option, document:
 
-### File to Modify (if time permits)
-`/Users/antti/Claude/CloudSyncApp/Components/ConnectRemoteSheet.swift`
+1. **Implementation complexity** (Low/Medium/High)
+2. **Privacy implications** (What data is collected?)
+3. **User consent required?**
+4. **Cost** (Free/Paid/Self-host costs)
+5. **macOS-specific considerations**
 
-After successful OAuth, try to extract account info:
+---
 
-```swift
-// After OAuth completion, try to extract account name
-private func extractAccountName(from tokenData: String, for providerType: CloudProviderType) -> String? {
-    // For Google services, the token often contains an email
-    guard let data = tokenData.data(using: .utf8),
-          let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-        return nil
-    }
-    
-    // Different providers store email in different places
-    if let email = json["email"] as? String {
-        return email
-    }
-    
-    return nil
-}
+## Phase 3: Check Current Codebase
+
+### 3.1 Existing Logging
+Search for current logging implementation:
+```bash
+grep -r "Logger\|os_log\|NSLog\|print(" CloudSyncApp/ --include="*.swift" | head -20
 ```
 
-**Note:** This is lower priority. The main value comes from the model fields being available for future enhancement.
+### 3.2 Error Handling
+Check how errors are currently handled:
+- Are crashes caught?
+- Is there a global error handler?
 
 ---
 
-## Verification
+## Phase 4: Recommendation
 
-1. Build the app
-2. Verify remotes load correctly (no crashes from model changes)
-3. Check that drag & drop in sidebar triggers moveCloudRemotes (once Dev-1 implements UI)
-4. Verify remotes maintain order after app restart
+Provide a clear recommendation:
+
+### Option A: Minimal (DIY)
+- Local log files only
+- User exports logs manually
+- No external service
+
+### Option B: Apple Native
+- MetricKit for crash data
+- No third-party dependency
+- Privacy-friendly
+
+### Option C: Third-Party (Sentry)
+- Full crash reporting
+- Stack traces, breadcrumbs
+- Self-host option for privacy
+
+### Option D: Skip It
+- Not worth the complexity
+- Rely on user bug reports
 
 ---
 
-## Completion Checklist
+## Deliverables
 
-- [ ] CloudRemote has sortOrder property
-- [ ] CloudRemote has accountName property
-- [ ] Init updated with new parameters
-- [ ] Storage version bumped to v6
-- [ ] moveCloudRemotes() method added
-- [ ] setAccountName() method added
-- [ ] loadRemotes() sorts by sortOrder
-- [ ] Build succeeds
+1. **Feasibility Report** with:
+   - Options comparison table
+   - Privacy analysis
+   - Implementation effort estimate
+   - Clear recommendation
+
+2. **If recommending implementation:**
+   - Code snippets for chosen approach
+   - Sub-tasks breakdown
 
 ---
 
 ## Output
 
-When complete, create a summary file:
-```
-/Users/antti/Claude/.claude-team/outputs/DEV3_COMPLETE.md
-```
+Write report to:
+`/Users/antti/Claude/.claude-team/outputs/DEV3_CRASH_REPORTING.md`
 
-Include:
-- Files modified
-- Properties/methods added
-- Build status
+Update STATUS.md when starting and completing.
 
 ---
 
-*Task assigned by Strategic Partner*
+## Acceptance Criteria
+
+- [ ] All options researched and documented
+- [ ] Privacy implications analyzed
+- [ ] Implementation complexity estimated
+- [ ] Clear recommendation with rationale
+- [ ] Report written to outputs/

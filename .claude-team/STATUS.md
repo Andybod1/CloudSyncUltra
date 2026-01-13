@@ -1,95 +1,68 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 17:30 UTC
-> Version: v2.0.13 (in progress)
+> Last Updated: 2026-01-13 18:32 UTC
+> Version: v2.0.14 (in progress)
 
-## Current State: Sprint Active 🚀
+## Current State: 2 Workers Active 🚀🚀
 
-**Sprint:** Test Health + Issue Cleanup (v2.0.13)
+**Sprint:** Performance + Infrastructure (v2.0.14)
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | Sonnet | ✅ COMPLETE | Schedule time fixes (#32, #33) |
-| Dev-2 | - | 💤 IDLE | - |
-| Dev-3 | - | 💤 IDLE | - |
-| QA | Opus | 🔄 WORKING | Fix 23 test failures (#35) |
-| Dev-Ops | Opus | 🔄 ASSIGNED | GitHub Actions setup (#34) |
+| Dev-1 | - | 💤 IDLE | - |
+| Dev-2 | Opus | 🔄 WORKING | #10 - Performance audit |
+| Dev-3 | Opus | 🔄 WORKING | #20 - Crash reporting feasibility |
+| QA | - | 💤 IDLE | - |
+| Dev-Ops | Opus | ✅ COMPLETE | #34 - GitHub Actions |
 
 ---
 
-## Active Sprint Tasks
+## Active Tasks
 
 | Ticket | Title | Worker | Size | Status |
 |--------|-------|--------|------|--------|
-| #30 | ~~Close Google Photos issue~~ | Dev-Ops | XS | ✅ DONE |
-| #35 | Fix 23 test failures | QA | M | 🔄 WORKING |
-| #32 | Schedule time not displaying | Dev-1 | S | ✅ DONE |
-| #33 | 12/24 hour time setting | Dev-1 | S | ✅ DONE |
-| #34 | GitHub Actions for project board | Dev-Ops | S | 🔄 ASSIGNED |
+| #10 | Transfer performance audit | Dev-2 | L | 🔄 WORKING |
+| #20 | Crash reporting feasibility | Dev-3 | M | 🔄 WORKING |
 
 ---
 
-## Closed This Sprint
+## Expected Deliverables
 
-| # | Title | Resolution |
-|---|-------|------------|
-| #38 | Project board not updating | Duplicate of #34 |
-| #39 | Filen.io integration | Waiting on upstream (rclone) |
-
----
-
-## Documentation Created
-
-| File | Purpose |
-|------|---------|
-| `docs/CLEAN_BUILD_GUIDE.md` | Xcode build troubleshooting (#36) |
-| `docs/TEST_ACCOUNTS_CHECKLIST.md` | Provider signup guide (#31) |
-| `.claude-team/planning/DROPBOX_PLAN.md` | Dropbox validation plan (#37) |
+| Worker | Output File |
+|--------|-------------|
+| Dev-2 | `outputs/DEV2_PERFORMANCE_AUDIT.md` |
+| Dev-3 | `outputs/DEV3_CRASH_REPORTING.md` |
+| Dev-Ops | `outputs/DEVOPS_COMPLETE.md` |
 
 ---
 
-## Team Structure
+## Completed This Sprint (v2.0.14) ✅
 
-| Worker | Domain | Model Rule |
-|--------|--------|------------|
-| Dev-1 | UI (Views, ViewModels) | Sonnet XS/S, Opus M/L/XL |
-| Dev-2 | Engine (RcloneManager) | Sonnet XS/S, Opus M/L/XL |
-| Dev-3 | Services (Models, Managers) | Sonnet XS/S, Opus M/L/XL |
-| QA | Testing | **ALWAYS Opus + /think** |
-| Dev-Ops | Git, GitHub, Docs | **ALWAYS Opus + /think** |
+| # | Title | Result |
+|---|-------|--------|
+| #34 | GitHub Actions project board | Workflow created, PAT setup required |
 
 ---
 
-## Worker Launch Commands
+## Backlog
 
-```bash
-# Launch single worker
-~/Claude/.claude-team/scripts/launch_single_worker.sh [worker] [model]
+| # | Title | Priority | Size |
+|---|-------|----------|------|
+| #37 | Dropbox validation | Medium | M |
+| #27 | UI test automation | High | L |
+| #9 | iCloud integration | High | L |
 
-# Examples:
-~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
-```
+---
 
-### Startup Commands (paste into Claude Code terminal)
+## Worker Startup Commands
 
 ```
+Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
+
+Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
+
 Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
-
-QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
 ```
-
----
-
-## Task & Output Locations
-
-| Type | Location |
-|------|----------|
-| Tasks | `.claude-team/tasks/TASK_*.md` |
-| Outputs | `.claude-team/outputs/*_COMPLETE.md` |
-| Briefings | `.claude-team/templates/*_BRIEFING.md` |
-| Planning | `.claude-team/planning/*.md` |
 
 ---
 
