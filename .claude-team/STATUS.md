@@ -9,11 +9,11 @@
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | - | 💤 IDLE | - |
+| Dev-1 | Sonnet | 📋 READY | Schedule time fixes (#32, #33) |
 | Dev-2 | - | 💤 IDLE | - |
 | Dev-3 | - | 💤 IDLE | - |
 | QA | Opus | 🔄 ASSIGNED | Fix 23 test failures (#35) |
-| Dev-Ops | Opus | 🔄 ASSIGNED | Close #30, update docs |
+| Dev-Ops | Opus | 🔄 WORKING | Close #30, update docs |
 
 ---
 
@@ -23,6 +23,8 @@
 |--------|-------|--------|------|
 | #30 | Close Google Photos issue | Dev-Ops | XS |
 | #35 | Fix 23 test failures | QA | M |
+| #32 | Schedule time not displaying | Dev-1 | S |
+| #33 | 12/24 hour time setting | Dev-1 | S |
 
 ---
 

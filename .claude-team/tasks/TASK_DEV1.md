@@ -1,260 +1,132 @@
-# Task: Dev-1 - Quick Wins UI Sprint
+# TASK: Fix Schedule Time Display + Add 12/24 Hour Setting
 
-> **Worker:** Dev-1 (UI Layer)
-> **Model:** Sonnet (S-sized tasks)
-> **Sprint:** Quick Wins + Polish
-> **Tickets:** #14, #25, #1 (UI portions)
+## Worker: Dev-1 (UI)
+## Size: S
+## Model: Sonnet
+## Tickets: #32, #33
 
 ---
 
 ## Overview
 
-You are implementing three UI features in this sprint. Work through them in order.
+Two related UI fixes for schedule time handling:
+1. **#32 (Bug):** Time not displaying when selecting in schedule editor
+2. **#33 (Feature):** Add 12/24 hour time format toggle in Settings
 
 ---
 
-## Task 1: Drag & Drop Cloud Service Reordering (#14)
+## Task 1: Fix Time Display in Schedule Editor (#32)
 
-### Objective
-Enable users to reorder cloud services in the sidebar via drag and drop.
+### Problem
+In `ScheduleEditorSheet.swift`, when user selects a time from the Hour picker dropdown, the selected value doesn't display properly.
 
-### File to Modify
-`/Users/antti/Claude/CloudSyncApp/Views/MainWindow.swift`
+### File
+`/Users/antti/Claude/CloudSyncApp/Views/ScheduleEditorSheet.swift`
 
-### Implementation
-
-Find the `SidebarView` struct and locate the ForEach for cloud remotes (around line 175):
-
+### Investigation
+The current code (lines 117-124):
 ```swift
-// CURRENT CODE (around line 175):
-ForEach(remotes.filter { $0.type != .local }) { remote in
-    remoteSidebarItem(remote)
-        .contextMenu {
-            // ...
-        }
+Picker("Hour", selection: $scheduledHour) {
+    ForEach(0..<24, id: \.self) { hour in
+        Text(formatHour(hour)).tag(hour)
+    }
 }
+.frame(width: 100)
 ```
 
-**Add `.onMove` modifier:**
-```swift
-ForEach(remotes.filter { $0.type != .local }) { remote in
-    remoteSidebarItem(remote)
-        .contextMenu {
-            // existing context menu...
-        }
-}
-.onMove(perform: moveCloudRemotes)
-```
+### Likely Fixes
+1. Try adding `.pickerStyle(.menu)` to ensure proper display
+2. Or use `.labelsHidden()` if label is interfering
+3. Or increase frame width if text is being truncated
 
-**Add helper function in SidebarView:**
-```swift
-private func moveCloudRemotes(from source: IndexSet, to destination: Int) {
-    RemotesViewModel.shared.moveCloudRemotes(from: source, to: destination)
-}
-```
-
-### Verification
-- Build succeeds
-- Can drag cloud services to reorder
-- Context menu still works
+### Test
+1. Open app → Schedules → New Schedule
+2. Select "Daily" frequency
+3. Click Hour dropdown
+4. Select any hour
+5. Verify the selected hour displays in the picker field
 
 ---
 
-## Task 2: Account Name in Encryption View (#25)
+## Task 2: Add 12/24 Hour Setting (#33)
 
-### Objective
-Display the connected account username/email below service name in encryption settings.
+### Requirements
+Add a toggle in Settings → General to switch between 12-hour (2 PM) and 24-hour (14:00) time format.
 
-### File to Modify
-`/Users/antti/Claude/CloudSyncApp/SettingsView.swift`
+### Files to Modify
 
-### Implementation
-
-Find the `remoteEncryptionRow` function (around line 900) and modify the VStack:
-
+**1. SettingsView.swift** - Add toggle in GeneralSettingsView
 ```swift
-// CURRENT CODE:
-VStack(alignment: .leading, spacing: 4) {
-    Text(remote.name)
-        .fontWeight(.semibold)
-    
-    if isConfigured {
-        HStack(spacing: 4) {
-            // ...
-        }
-    }
+// Add to existing @AppStorage properties (around line 54):
+@AppStorage("use24HourTime") private var use24HourTime = false
+
+// Add in the Notifications section or create new section:
+Section {
+    Toggle("Use 24-Hour Time", isOn: $use24HourTime)
+} header: {
+    Label("Time Format", systemImage: "clock")
 }
 ```
 
-**Replace with:**
+**2. ScheduleEditorSheet.swift** - Update formatHour function
 ```swift
-VStack(alignment: .leading, spacing: 4) {
-    Text(remote.name)
-        .fontWeight(.semibold)
-    
-    // Show account name if available
-    if let accountName = remote.accountName, !accountName.isEmpty {
-        Text(accountName)
-            .font(.caption)
-            .foregroundColor(.blue)
-    }
-    
-    if isConfigured {
-        HStack(spacing: 4) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.green)
-                .font(.caption)
-            Text("Encryption configured")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
+// Add at top of struct:
+@AppStorage("use24HourTime") private var use24HourTime = false
+
+// Update formatHour function (line 212):
+private func formatHour(_ hour: Int) -> String {
+    if use24HourTime {
+        return String(format: "%02d:00", hour)
     } else {
-        HStack(spacing: 4) {
-            Image(systemName: "circle")
-                .foregroundColor(.secondary)
-                .font(.caption)
-            Text("Not configured")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h a"
+        var components = DateComponents()
+        components.hour = hour
+        let date = Calendar.current.date(from: components) ?? Date()
+        return formatter.string(from: date)
     }
 }
 ```
 
-### Verification
-- Build succeeds
-- Account name shows below service name (once Dev-3 adds the field)
-- Graceful fallback when accountName is nil
+**3. ScheduleRowView.swift** - Update any time displays (if applicable)
+Check if this file displays times and update similarly.
+
+**4. SchedulesView.swift** - Update any time displays (if applicable)
+Check if this file displays times and update similarly.
+
+### Test
+1. Open Settings → General
+2. Find "Use 24-Hour Time" toggle
+3. Toggle OFF: Schedule times should show "2 AM", "3 PM" etc.
+4. Toggle ON: Schedule times should show "02:00", "15:00" etc.
+5. Create a new schedule and verify time picker respects the setting
 
 ---
 
-## Task 3: Bandwidth Throttling UI (#1)
+## Acceptance Criteria
 
-### Objective
-Add bandwidth throttling controls to Settings view.
-
-### File to Modify
-`/Users/antti/Claude/CloudSyncApp/SettingsView.swift`
-
-### Implementation
-
-Find `SettingsView` struct and add a new section. Add state variables near the top:
-
-```swift
-// Add to SettingsView's @State properties:
-@AppStorage("bandwidthLimitEnabled") private var bandwidthEnabled = false
-@AppStorage("uploadLimit") private var uploadLimit: Double = 0
-@AppStorage("downloadLimit") private var downloadLimit: Double = 0
-```
-
-**Add new Section in the body (before the "About" section):**
-
-```swift
-// Bandwidth Settings Section
-GroupBox {
-    VStack(alignment: .leading, spacing: 16) {
-        HStack {
-            Image(systemName: "speedometer")
-                .font(.title2)
-                .foregroundColor(.blue)
-            Text("Bandwidth Limits")
-                .font(.headline)
-            Spacer()
-            Toggle("", isOn: $bandwidthEnabled)
-                .toggleStyle(.switch)
-        }
-        
-        if bandwidthEnabled {
-            Divider()
-            
-            VStack(alignment: .leading, spacing: 12) {
-                // Upload limit
-                HStack {
-                    Image(systemName: "arrow.up.circle")
-                        .foregroundColor(.green)
-                    Text("Upload limit:")
-                    Spacer()
-                    TextField("", value: $uploadLimit, format: .number)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 80)
-                    Text("MB/s")
-                        .foregroundColor(.secondary)
-                }
-                
-                // Download limit
-                HStack {
-                    Image(systemName: "arrow.down.circle")
-                        .foregroundColor(.blue)
-                    Text("Download limit:")
-                    Spacer()
-                    TextField("", value: $downloadLimit, format: .number)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 80)
-                    Text("MB/s")
-                        .foregroundColor(.secondary)
-                }
-                
-                // Quick presets
-                HStack {
-                    Text("Presets:")
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    ForEach([1, 5, 10, 50], id: \.self) { speed in
-                        Button("\(speed)") {
-                            uploadLimit = Double(speed)
-                            downloadLimit = Double(speed)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    Button("∞") {
-                        uploadLimit = 0
-                        downloadLimit = 0
-                    }
-                    .buttonStyle(.bordered)
-                }
-                
-                Text("Set to 0 or use ∞ for unlimited speed")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-    .padding()
-}
-```
-
-### Verification
-- Build succeeds
-- Bandwidth section appears in Settings
-- Toggle enables/disables the limit fields
-- Preset buttons set both upload and download limits
-- Values persist after closing Settings
+- [ ] #32: Hour picker displays selected value correctly
+- [ ] #33: Toggle exists in Settings → General
+- [ ] #33: 12-hour format shows "2 AM", "11 PM" style
+- [ ] #33: 24-hour format shows "02:00", "23:00" style
+- [ ] #33: Setting persists across app restarts
+- [ ] #33: All time displays in schedule UI respect the setting
+- [ ] Build succeeds with no warnings
 
 ---
 
-## Completion Checklist
+## Commands
 
-- [ ] Task 1: Drag & drop reordering works
-- [ ] Task 2: Account name displays in encryption view
-- [ ] Task 3: Bandwidth UI complete in Settings
-- [ ] All builds succeed
-- [ ] No regressions in existing functionality
+```bash
+# Build
+cd /Users/antti/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
+
+# Launch app for testing
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+```
 
 ---
 
 ## Output
 
-When complete, create a summary file:
-```
-/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md
-```
-
-Include:
-- Files modified
-- Lines changed
-- Any issues encountered
-- Build status
-
----
-
-*Task assigned by Strategic Partner*
+Write completion report to `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
