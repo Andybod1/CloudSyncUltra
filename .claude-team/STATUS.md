@@ -1,60 +1,60 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 18:45 UTC
-> Version: v2.0.14 (completing)
+> Last Updated: 2026-01-13 19:00 UTC
+> Version: v2.0.15 (iCloud Phase 1)
 
-## Current State: All Workers Complete 🎉
+## Current State: iCloud Sprint Starting 🚀
 
-**Sprint:** Performance + Infrastructure (v2.0.14)
+**Sprint:** iCloud Integration Phase 1 (v2.0.15)
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | - | 💤 IDLE | - |
-| Dev-2 | Opus | ✅ COMPLETE | #10 - Performance (quick wins implemented) |
-| Dev-3 | Opus | ✅ COMPLETE | #20 - Crash reporting (DIY recommended) |
+| Dev-1 | Sonnet | 📋 READY | #9 - iCloud UI integration |
+| Dev-2 | - | 💤 IDLE | - |
+| Dev-3 | Sonnet | 🔄 ACTIVE | #9 - ICloudManager + fixes |
 | QA | - | 💤 IDLE | - |
-| Dev-Ops | Opus | ✅ COMPLETE | #34 - GitHub Actions (workflow created) |
+| Dev-Ops | - | 💤 IDLE | - |
 
 ---
 
-## Completed This Sprint (v2.0.14) ✅
+## iCloud Phase 1 Tasks
 
-| # | Title | Worker | Result |
-|---|-------|--------|--------|
-| #10 | Transfer performance | Dev-2 | **Quick wins: 2x speed boost** |
-| #20 | Crash reporting | Dev-3 | **Recommend: Enhanced DIY (2-3 days)** |
-| #34 | GitHub Actions | Dev-Ops | **Workflow ready, needs PAT** |
+| Task | Worker | Size | Dependency |
+|------|--------|------|------------|
+| Fix rclone type + ICloudManager | Dev-3 | S | None |
+| UI integration | Dev-1 | S | Dev-3 |
 
----
-
-## Performance Improvements Applied
-
-| Setting | Before | After |
-|---------|--------|-------|
-| `--transfers` | 4 | 8 |
-| `--checkers` | 8 | 16 |
-| `--buffer-size` | 16M | 32M |
-| `--fast-list` | ❌ | ✅ |
+**Goal:** Local iCloud folder access in 1 day
 
 ---
 
-## Deliverables
+## Previous Sprint (v2.0.14) - Complete ✅
 
-| Report | Location |
-|--------|----------|
-| Performance Audit | `outputs/DEV2_PERFORMANCE_AUDIT.md` |
-| Crash Reporting Study | `outputs/DEV3_CRASH_REPORTING.md` |
-| GitHub Workflow | `.github/workflows/add-to-project.yml` (local only) |
+| # | Title | Result |
+|---|-------|--------|
+| #10 | Performance | 2x speed boost |
+| #20 | Crash reporting | DIY recommended |
+| #34 | GitHub Actions | Workflow ready |
 
 ---
 
-## Backlog
+## Launch Commands
 
-| # | Title | Priority | Size |
-|---|-------|----------|------|
-| #37 | Dropbox validation | Medium | M |
-| #27 | UI test automation | High | L |
-| #9 | iCloud integration | High | L |
+```bash
+# Launch Dev-3 first (no dependency)
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 sonnet
+
+# Launch Dev-1 after Dev-3 starts
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+```
+
+### Startup Commands
+
+```
+Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
+
+Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
+```
 
 ---
 

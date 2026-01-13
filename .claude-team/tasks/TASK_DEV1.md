@@ -1,132 +1,97 @@
-# TASK: Fix Schedule Time Display + Add 12/24 Hour Setting
+# TASK: iCloud Phase 1 - UI Integration (#9)
 
 ## Worker: Dev-1 (UI)
 ## Size: S
-## Model: Sonnet
-## Tickets: #32, #33
+## Model: Sonnet (S-sized)
+## Ticket: #9 (Phase 1)
+
+**Depends on:** Dev-3 completing ICloudManager
 
 ---
 
-## Overview
+## Objective
 
-Two related UI fixes for schedule time handling:
-1. **#32 (Bug):** Time not displaying when selecting in schedule editor
-2. **#33 (Feature):** Add 12/24 hour time format toggle in Settings
+Add UI support for local iCloud Drive folder access.
 
 ---
 
-## Task 1: Fix Time Display in Schedule Editor (#32)
+## Task 1: Update Add Remote Flow
 
-### Problem
-In `ScheduleEditorSheet.swift`, when user selects a time from the Hour picker dropdown, the selected value doesn't display properly.
+In `MainWindow.swift`, update the iCloud case in the setup switch:
 
-### File
-`/Users/antti/Claude/CloudSyncApp/Views/ScheduleEditorSheet.swift`
-
-### Investigation
-The current code (lines 117-124):
 ```swift
-Picker("Hour", selection: $scheduledHour) {
-    ForEach(0..<24, id: \.self) { hour in
-        Text(formatHour(hour)).tag(hour)
-    }
-}
-.frame(width: 100)
-```
-
-### Likely Fixes
-1. Try adding `.pickerStyle(.menu)` to ensure proper display
-2. Or use `.labelsHidden()` if label is interfering
-3. Or increase frame width if text is being truncated
-
-### Test
-1. Open app → Schedules → New Schedule
-2. Select "Daily" frequency
-3. Click Hour dropdown
-4. Select any hour
-5. Verify the selected hour displays in the picker field
-
----
-
-## Task 2: Add 12/24 Hour Setting (#33)
-
-### Requirements
-Add a toggle in Settings → General to switch between 12-hour (2 PM) and 24-hour (14:00) time format.
-
-### Files to Modify
-
-**1. SettingsView.swift** - Add toggle in GeneralSettingsView
-```swift
-// Add to existing @AppStorage properties (around line 54):
-@AppStorage("use24HourTime") private var use24HourTime = false
-
-// Add in the Notifications section or create new section:
-Section {
-    Toggle("Use 24-Hour Time", isOn: $use24HourTime)
-} header: {
-    Label("Time Format", systemImage: "clock")
-}
-```
-
-**2. ScheduleEditorSheet.swift** - Update formatHour function
-```swift
-// Add at top of struct:
-@AppStorage("use24HourTime") private var use24HourTime = false
-
-// Update formatHour function (line 212):
-private func formatHour(_ hour: Int) -> String {
-    if use24HourTime {
-        return String(format: "%02d:00", hour)
+case .icloud:
+    // Check if local iCloud folder available
+    if ICloudManager.isLocalFolderAvailable {
+        // Setup as alias to local folder
+        try await rclone.setupLocalAlias(
+            remoteName: rcloneName,
+            path: ICloudManager.expandedPath
+        )
     } else {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h a"
-        var components = DateComponents()
-        components.hour = hour
-        let date = Calendar.current.date(from: components) ?? Date()
-        return formatter.string(from: date)
+        throw CloudSyncError.iCloudNotAvailable
+    }
+```
+
+---
+
+## Task 2: Add Helper Text
+
+Update the helper text for iCloud in the setup dialog:
+
+```swift
+case .icloud:
+    if ICloudManager.isLocalFolderAvailable {
+        Text("iCloud Drive will sync via your local iCloud folder.")
+            .foregroundColor(.secondary)
+    } else {
+        Text("iCloud Drive is not available. Please sign in to iCloud in System Settings.")
+            .foregroundColor(.red)
+    }
+```
+
+---
+
+## Task 3: Add Error Type
+
+In appropriate error file, add:
+
+```swift
+enum CloudSyncError: Error {
+    case iCloudNotAvailable
+    // ...
+}
+
+extension CloudSyncError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .iCloudNotAvailable:
+            return "iCloud Drive is not available on this Mac. Please sign in to iCloud in System Settings."
+        // ...
+        }
     }
 }
 ```
 
-**3. ScheduleRowView.swift** - Update any time displays (if applicable)
-Check if this file displays times and update similarly.
+---
 
-**4. SchedulesView.swift** - Update any time displays (if applicable)
-Check if this file displays times and update similarly.
+## Task 4: Verify Provider Shows Correctly
 
-### Test
-1. Open Settings → General
-2. Find "Use 24-Hour Time" toggle
-3. Toggle OFF: Schedule times should show "2 AM", "3 PM" etc.
-4. Toggle ON: Schedule times should show "02:00", "15:00" etc.
-5. Create a new schedule and verify time picker respects the setting
+1. iCloud should appear in provider list
+2. If iCloud folder exists → setup should work
+3. If iCloud folder missing → show clear error
 
 ---
 
-## Acceptance Criteria
+## Verification
 
-- [ ] #32: Hour picker displays selected value correctly
-- [ ] #33: Toggle exists in Settings → General
-- [ ] #33: 12-hour format shows "2 AM", "11 PM" style
-- [ ] #33: 24-hour format shows "02:00", "23:00" style
-- [ ] #33: Setting persists across app restarts
-- [ ] #33: All time displays in schedule UI respect the setting
-- [ ] Build succeeds with no warnings
-
----
-
-## Commands
-
-```bash
-# Build
-cd /Users/antti/Claude && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
-
-# Launch app for testing
-open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
-```
+1. Build succeeds
+2. Add iCloud remote works (if signed into iCloud)
+3. Browse local iCloud folder contents
+4. Error shown if iCloud not available
 
 ---
 
 ## Output
 
-Write completion report to `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
+Write to `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
