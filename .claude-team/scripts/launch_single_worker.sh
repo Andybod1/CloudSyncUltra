@@ -27,19 +27,19 @@ fi
 
 # Determine worker settings first
 case "$WORKER" in
-    DEV1|dev1)
+    DEV1|dev1|dev-1)
         BRIEFING="DEV1_BRIEFING.md"
         TASK="TASK_DEV1.md"
         NAME="Dev-1 (UI)"
         FORCE_OPUS=false
         ;;
-    DEV2|dev2)
+    DEV2|dev2|dev-2)
         BRIEFING="DEV2_BRIEFING.md"
         TASK="TASK_DEV2.md"
         NAME="Dev-2 (Engine)"
         FORCE_OPUS=false
         ;;
-    DEV3|dev3)
+    DEV3|dev3|dev-3)
         BRIEFING="DEV3_BRIEFING.md"
         TASK="TASK_DEV3.md"
         NAME="Dev-3 (Services)"

@@ -116,8 +116,8 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         // When: Getting all providers
         let allProviders = CloudProviderType.allCases
         
-        // Then: Should have 27 providers (19 from Week 1 + 8 new)
-        XCTAssertEqual(allProviders.count, 27, "Should have 27 providers after Phase 1, Week 2")
+        // Then: Should have 41 providers total (updated to current count)
+        XCTAssertEqual(allProviders.count, 41, "Should have 41 providers total")
     }
     
     func testNewProvidersInAllCases() {

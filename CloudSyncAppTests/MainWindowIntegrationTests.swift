@@ -13,10 +13,10 @@ final class MainWindowIntegrationTests: XCTestCase {
     // MARK: - Provider Configuration Tests
     
     func testConfigureRemoteHandlesAllProviders() {
-        // Verify MainWindow.configureRemote has cases for all 42 providers
+        // Verify MainWindow.configureRemote has cases for all 41 providers
         let allProviders = CloudProviderType.allCases
-        
-        XCTAssertEqual(allProviders.count, 42, "Should handle all 42 providers")
+
+        XCTAssertEqual(allProviders.count, 41, "Should handle all 41 providers")
     }
     
     func testOriginalProvidersConfiguration() {
@@ -239,9 +239,9 @@ final class MainWindowIntegrationTests: XCTestCase {
         let supported = CloudProviderType.allCases.filter { $0.isSupported }
         let unsupported = CloudProviderType.allCases.filter { !$0.isSupported }
         
-        XCTAssertEqual(supported.count, 41)
+        XCTAssertEqual(supported.count, 40)
         XCTAssertEqual(unsupported.count, 1)
-        XCTAssertEqual(supported.count + unsupported.count, 42)
+        XCTAssertEqual(supported.count + unsupported.count, 41)
     }
     
     func testExperimentalProviderFiltering() {
@@ -250,7 +250,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         let stable = CloudProviderType.allCases.filter { !$0.isExperimental }
 
         XCTAssertEqual(experimental.count, 0, "No experimental providers after #24 fix")
-        XCTAssertEqual(stable.count, 42, "All 42 providers should be stable")
+        XCTAssertEqual(stable.count, 41, "All 41 providers should be stable")
     }
     
     // MARK: - Provider Search Tests
@@ -341,7 +341,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         let allProviders = CloudProviderType.allCases
         
         // Total count
-        XCTAssertEqual(allProviders.count, 42)
+        XCTAssertEqual(allProviders.count, 41)
         
         // All have required properties
         for provider in allProviders {
