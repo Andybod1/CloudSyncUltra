@@ -261,6 +261,15 @@ gh issue view <number>
 
 ## Recent History (Latest First)
 
+### v2.0.12 - 2026-01-13
+- **Quick Wins Sprint** - Drag & drop reordering, account names, bandwidth throttling
+- Test target configured - 617 tests now runnable
+- Shift-left testing workflow - QA in planning phase
+
+### v2.0.11 - 2026-01-13
+- **Error Handling Sprint** - Comprehensive error handling system
+- TransferError types, error detection, notification manager
+
 ### v2.0.6 - 2026-01-12
 - **GitHub Issues Ticket System** - Crash-proof work tracking
 - Issue templates (bug, feature, task)
@@ -303,5 +312,5 @@ Then tell me what state we're in and what needs to happen next.
 
 ---
 
-*Last Updated: 2026-01-12*
-*CloudSync Ultra v2.0.6*
+*Last Updated: 2026-01-13*
+*CloudSync Ultra v2.0.12*
