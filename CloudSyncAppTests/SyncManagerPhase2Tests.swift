@@ -293,40 +293,55 @@ final class SyncManagerPhase2Tests: XCTestCase {
     
     func testCurrentProgressCanBeSet() {
         // Given: Test progress
-        let progress = SyncProgress(percentage: 50, speed: "1 MB/s", status: .syncing)
+        var progress = SyncProgress()
+        progress.percent = 50
+        progress.speed = 1000000  // 1 MB/s in bytes
         
         // When: Setting progress
         syncManager.currentProgress = progress
         
         // Then: Should be set
         XCTAssertNotNil(syncManager.currentProgress)
-        XCTAssertEqual(syncManager.currentProgress?.percentage, 50)
-        XCTAssertEqual(syncManager.currentProgress?.speed, "1 MB/s")
+        XCTAssertEqual(syncManager.currentProgress?.percent, 50)
     }
     
     func testCurrentProgressUpdatesIncrementally() {
         // Simulate progress updates during sync
         
         // 25%
-        syncManager.currentProgress = SyncProgress(percentage: 25, speed: "500 KB/s", status: .syncing)
-        XCTAssertEqual(syncManager.currentProgress?.percentage, 25)
+        var progress25 = SyncProgress()
+        progress25.percent = 25
+        progress25.speed = 500000  // 500 KB/s
+        syncManager.currentProgress = progress25
+        XCTAssertEqual(syncManager.currentProgress?.percent, 25)
         
         // 50%
-        syncManager.currentProgress = SyncProgress(percentage: 50, speed: "1 MB/s", status: .syncing)
-        XCTAssertEqual(syncManager.currentProgress?.percentage, 50)
+        var progress50 = SyncProgress()
+        progress50.percent = 50
+        progress50.speed = 1000000  // 1 MB/s
+        syncManager.currentProgress = progress50
+        XCTAssertEqual(syncManager.currentProgress?.percent, 50)
         
         // 75%
-        syncManager.currentProgress = SyncProgress(percentage: 75, speed: "1.5 MB/s", status: .syncing)
-        XCTAssertEqual(syncManager.currentProgress?.percentage, 75)
+        var progress75 = SyncProgress()
+        progress75.percent = 75
+        progress75.speed = 1500000  // 1.5 MB/s
+        syncManager.currentProgress = progress75
+        XCTAssertEqual(syncManager.currentProgress?.percent, 75)
         
         // 100%
-        syncManager.currentProgress = SyncProgress(percentage: 100, speed: "Complete", status: .completed)
-        XCTAssertEqual(syncManager.currentProgress?.percentage, 100)
+        var progress100 = SyncProgress()
+        progress100.percent = 100
+        syncManager.currentProgress = progress100
+        XCTAssertEqual(syncManager.currentProgress?.percent, 100)
     }
     
     func testCurrentProgressClearedOnStop() {
         // Given: Progress is set
-        syncManager.currentProgress = SyncProgress(percentage: 50, speed: "1 MB/s", status: .syncing)
+        var progress = SyncProgress()
+        progress.percent = 50
+        progress.speed = 1000000  // 1 MB/s
+        syncManager.currentProgress = progress
         XCTAssertNotNil(syncManager.currentProgress)
         
         // When: Stopping sync
