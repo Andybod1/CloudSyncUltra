@@ -45,7 +45,9 @@ CloudSyncApp/
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start every analysis with `/think` for architectural depth.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY analysis with `/think hard` to ensure thorough architectural reasoning before any output.
 
 ## Output
 `/Users/antti/Claude/.claude-team/outputs/ARCHITECT_COMPLETE.md`

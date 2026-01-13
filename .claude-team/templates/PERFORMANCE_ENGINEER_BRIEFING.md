@@ -51,7 +51,9 @@ rclone about remote: --json
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start with `/think` for deep performance analysis.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY analysis with `/think hard` to ensure thorough performance reasoning before any output.
 
 ## Output
 `/Users/antti/Claude/.claude-team/outputs/PERFORMANCE_ENGINEER_COMPLETE.md`

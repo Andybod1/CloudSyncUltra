@@ -43,7 +43,9 @@ CloudSyncApp/OAuthManager.swift        # OAuth flows
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start every audit with `/think` for thorough security analysis.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY audit with `/think hard` to ensure thorough security analysis before any output.
 
 ## Output
 `/Users/antti/Claude/.claude-team/outputs/SECURITY_AUDIT_COMPLETE.md`

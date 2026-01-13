@@ -329,7 +329,7 @@ class RcloneManager {
     }
     
     func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal) async throws {
-        print("[RcloneManager]Setting up OneDrive: \(remoteName), type: \(accountType)")
+        logger.info("Setting up OneDrive: \(remoteName, privacy: .public), type: \(accountType, privacy: .public)")
 
         // OneDrive requires multiple steps:
         // 1. OAuth authentication (browser-based)
@@ -370,7 +370,7 @@ class RcloneManager {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
 
-        print("[RcloneManager]Running OneDrive setup with args: \(args.joined(separator: " "))")
+        logger.debug("Running OneDrive setup with args: \(args.joined(separator: " "), privacy: .public)")
 
         try process.run()
 
@@ -384,15 +384,15 @@ class RcloneManager {
         let output = String(data: outputData, encoding: .utf8) ?? ""
         let errorOutput = String(data: errorData, encoding: .utf8) ?? ""
 
-        print("[RcloneManager] OneDrive setup output: \(output)")
+        logger.debug("OneDrive setup output: \(output, privacy: .public)")
         if !errorOutput.isEmpty {
-            print("[RcloneManager] OneDrive setup error output: \(errorOutput)")
+            logger.debug("OneDrive setup error output: \(errorOutput, privacy: .public)")
         }
 
         // After OAuth, we need to ensure proper drive configuration
         // Check if we got errors about invalid drive
         if errorOutput.contains("ObjectHandle is Invalid") || errorOutput.contains("Failed to query root") {
-            print("[RcloneManager] OneDrive requires drive type configuration, fixing...")
+            logger.info("OneDrive requires drive type configuration, fixing...")
 
             // For personal accounts, we need to update the config to use the correct drive
             let updateProcess = Process()
@@ -420,7 +420,7 @@ class RcloneManager {
             try updateProcess.run()
             updateProcess.waitUntilExit()
 
-            print("[RcloneManager] Updated OneDrive configuration for \(accountType) account")
+            logger.info("Updated OneDrive configuration for \(accountType, privacy: .public) account")
         }
 
         // Verify setup succeeded
@@ -429,7 +429,7 @@ class RcloneManager {
         }
 
         // Test the connection by listing directories
-        print("[RcloneManager] Testing OneDrive connection...")
+        logger.info("Testing OneDrive connection...")
         let testProcess = Process()
         testProcess.executableURL = URL(fileURLWithPath: rclonePath)
         testProcess.arguments = [
@@ -453,7 +453,7 @@ class RcloneManager {
             throw RcloneError.configurationFailed("OneDrive connection test failed: \(testError)")
         }
 
-        print("[RcloneManager] OneDrive setup successful: \(remoteName)")
+        logger.info("OneDrive setup successful: \(remoteName, privacy: .public)")
     }
     
     func setupS3(remoteName: String, accessKey: String, secretKey: String, region: String = "us-east-1", endpoint: String = "") async throws {
@@ -782,7 +782,7 @@ class RcloneManager {
     ///   - personalLoginToken: Single-use token from jottacloud.com/web/secure
     ///   - useDefaultDevice: If true, uses Jotta/Archive (recommended). If false, may prompt for device.
     func setupJottacloud(remoteName: String, personalLoginToken: String, useDefaultDevice: Bool = true) async throws {
-        print("[RcloneManager] Setting up Jottacloud with personal login token")
+        logger.info("Setting up Jottacloud with personal login token")
         
         // Delete existing remote if it exists (clean reconfigure)
         if isRemoteConfigured(name: remoteName) {
@@ -792,7 +792,7 @@ class RcloneManager {
         
         // Step 1: Initial call to start the config state machine
         // Step 1: Select authentication type (standard)
-        print("[RcloneManager] Step 1: Selecting standard authentication type")
+        logger.debug("Step 1: Selecting standard authentication type")
         let step1Result = try await runJottacloudConfigStep(
             remoteName: remoteName,
             state: "",
@@ -806,7 +806,7 @@ class RcloneManager {
         }
         
         // Step 2: Continue with "standard" auth type
-        print("[RcloneManager] Step 2: Continuing with standard auth, state: \(step1State)")
+        logger.debug("Step 2: Continuing with standard auth, state: \(step1State, privacy: .private)")
         let step2Result = try await runJottacloudConfigStep(
             remoteName: remoteName,
             state: step1State,
@@ -818,7 +818,7 @@ class RcloneManager {
         }
         
         // Step 3: Provide the personal login token
-        print("[RcloneManager] Step 3: Providing personal login token, state: \(step2State)")
+        logger.debug("Step 3: Providing personal login token, state: \(step2State, privacy: .private)")
         let step3Result = try await runJottacloudConfigStep(
             remoteName: remoteName,
             state: step2State,
@@ -1427,15 +1427,15 @@ class RcloneManager {
         wrappedRemote: String,
         wrappedPath: String = ""
     ) async throws {
-        print("[RcloneManager] setupEncryptedRemote called")
-        print("[RcloneManager] Wrapped remote: \(wrappedRemote):\(wrappedPath)")
-        print("[RcloneManager] Filename encryption: \(encryptFilenames), Directory encryption: \(encryptDirectories)")
+        logger.info("setupEncryptedRemote called")
+        logger.debug("Wrapped remote: \(wrappedRemote, privacy: .public):\(wrappedPath, privacy: .private)")
+        logger.debug("Filename encryption: \(encryptFilenames), Directory encryption: \(encryptDirectories)")
         
         // First, obscure the password and salt using rclone
         let obscuredPassword = try await obscurePassword(password)
         let obscuredSalt = try await obscurePassword(salt)
         
-        print("[RcloneManager] Passwords obscured successfully")
+        logger.debug("Passwords obscured successfully")
         
         // Build the full remote path
         // If wrappedPath is empty, wrap the entire remote (e.g., "googledrive:")
@@ -1463,8 +1463,8 @@ class RcloneManager {
             "--non-interactive"
         ]
         
-        print("[RcloneManager] Creating encrypted remote: \(encryptedRemoteName)")
-        print("[RcloneManager] Wrapping: \(fullRemotePath)")
+        logger.info("Creating encrypted remote: \(encryptedRemoteName, privacy: .public)")
+        logger.debug("Wrapping: \(fullRemotePath, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1479,15 +1479,15 @@ class RcloneManager {
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
         
-        print("[RcloneManager] rclone output: \(outputString)")
-        print("[RcloneManager] rclone errors: \(errorString)")
-        print("[RcloneManager] Exit code: \(process.terminationStatus)")
+        logger.debug("rclone output: \(outputString, privacy: .public)")
+        logger.debug("rclone errors: \(errorString, privacy: .public)")
+        logger.debug("Exit code: \(process.terminationStatus)")
         
         if process.terminationStatus != 0 {
             throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Unknown error" : errorString)
         }
         
-        print("[RcloneManager] Encrypted remote '\(encryptedRemoteName)' created successfully!")
+        logger.info("Encrypted remote '\(encryptedRemoteName, privacy: .public)' created successfully!")
     }
     
     /// Removes the encrypted remote configuration
@@ -1536,7 +1536,7 @@ class RcloneManager {
         for baseRemoteName: String,
         config: RemoteEncryptionConfig
     ) async throws {
-        print("[RcloneManager] setupCryptRemote called for \(baseRemoteName)")
+        logger.info("setupCryptRemote called for \(baseRemoteName, privacy: .public)")
         
         // Obscure the password and salt
         let obscuredPassword = try await obscurePassword(config.password)
@@ -1566,10 +1566,10 @@ class RcloneManager {
             "--non-interactive"
         ]
         
-        print("[RcloneManager] Creating crypt remote: \(cryptRemoteName)")
-        print("[RcloneManager] Wrapping: \(wrappedRemote)")
-        print("[RcloneManager] Filename encryption: \(config.filenameEncryptionMode)")
-        print("[RcloneManager] Directory encryption: \(config.encryptFolders)")
+        logger.info("Creating crypt remote: \(cryptRemoteName, privacy: .public)")
+        logger.debug("Wrapping: \(wrappedRemote, privacy: .public)")
+        logger.debug("Filename encryption: \(config.filenameEncryptionMode, privacy: .public)")
+        logger.debug("Directory encryption: \(config.encryptFolders)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1586,7 +1586,7 @@ class RcloneManager {
             throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Failed to create crypt remote" : errorString)
         }
         
-        print("[RcloneManager] Crypt remote '\(cryptRemoteName)' created successfully!")
+        logger.info("Crypt remote '\(cryptRemoteName, privacy: .public)' created successfully!")
         
         // Save the config to EncryptionManager
         try EncryptionManager.shared.saveConfig(config, for: baseRemoteName)
@@ -1603,7 +1603,7 @@ class RcloneManager {
         let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: baseRemoteName)
         try await deleteRemote(name: cryptRemoteName)
         EncryptionManager.shared.deleteConfig(for: baseRemoteName)
-        print("[RcloneManager] Deleted crypt remote '\(cryptRemoteName)'")
+        logger.info("Deleted crypt remote '\(cryptRemoteName, privacy: .public)'")
     }
     
     // MARK: - File Operations
@@ -1633,7 +1633,7 @@ class RcloneManager {
     
     /// Delete a folder and its contents from a remote
     func deleteFolder(remoteName: String, path: String) async throws {
-        print("[RcloneManager] deleteFolder called: remoteName=\(remoteName), path=\(path)")
+        logger.debug("deleteFolder called: remoteName=\(remoteName, privacy: .public), path=\(path, privacy: .private)")
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
@@ -1643,7 +1643,7 @@ class RcloneManager {
             "--config", configPath
         ]
         
-        print("[RcloneManager] Running: \(rclonePath) purge \(remoteName):\(path)")
+        logger.debug("Running: \(rclonePath, privacy: .public) purge \(remoteName, privacy: .public):\(path, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1664,7 +1664,7 @@ class RcloneManager {
     
     /// Rename/move a file or folder on a remote
     func renameFile(remoteName: String, oldPath: String, newPath: String) async throws {
-        print("[RcloneManager] renameFile called: remoteName=\(remoteName), oldPath=\(oldPath), newPath=\(newPath)")
+        logger.debug("renameFile called: remoteName=\(remoteName, privacy: .public), oldPath=\(oldPath, privacy: .private), newPath=\(newPath, privacy: .private)")
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
@@ -1675,7 +1675,7 @@ class RcloneManager {
             "--config", configPath
         ]
         
-        print("[RcloneManager] Running: \(rclonePath) moveto \(remoteName):\(oldPath) \(remoteName):\(newPath)")
+        logger.debug("Running: \(rclonePath, privacy: .public) moveto \(remoteName, privacy: .public):\(oldPath, privacy: .private) \(remoteName, privacy: .public):\(newPath, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1757,11 +1757,11 @@ class RcloneManager {
 
         // Check for errors
         if exitCode != 0 {
-            print("Download failed with exit code \(exitCode)")
-            print("Error output: \(errorString)")
+            logger.error("Download failed with exit code \(exitCode)")
+            logger.error("Error output: \(errorString, privacy: .public)")
 
             if let error = parseError(from: errorString) {
-                print("Parsed error: \(error.title)")
+                logger.error("Parsed error: \(error.title, privacy: .public)")
                 throw error
             } else {
                 throw TransferError.unknown(message: errorString.isEmpty ? "Download failed" : errorString)
@@ -1773,7 +1773,7 @@ class RcloneManager {
         if combinedOutput.contains("There was nothing to transfer") ||
            combinedOutput.contains("Unchanged skipping") {
             // This is actually a success - file already exists
-            print("File already exists at destination")
+            logger.info("File already exists at destination")
         }
     }
     
@@ -1816,7 +1816,7 @@ class RcloneManager {
                     }
                 }
                 
-                print("[RcloneManager]Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
+                logger.debug("Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
                 
                 var args = [
                     "copy",
@@ -1836,7 +1836,7 @@ class RcloneManager {
                     let transfers = min(16, max(8, fileCount / 10))  // 8-16 parallel transfers
                     args.append("--transfers")
                     args.append("\(transfers)")
-                    print("[RcloneManager]Using \(transfers) parallel transfers for \(fileCount) files")
+                    logger.debug("Using \(transfers) parallel transfers for \(fileCount) files")
                 } else {
                     args.append("--transfers")
                     args.append("4")  // Default for single files or small folders
@@ -1850,7 +1850,7 @@ class RcloneManager {
                 process.standardOutput = stderrPipe
                 process.standardError = stderrPipe
                 
-                print("[RcloneManager]Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
+                logger.info("Starting upload: \(localPath, privacy: .private) -> \(remoteName, privacy: .public):\(remotePath, privacy: .private)")
                 
                 let handle = stderrPipe.fileHandleForReading
                 
@@ -1858,7 +1858,7 @@ class RcloneManager {
                     try process.run()
                     self.process = process
                     
-                    print("[RcloneManager]Process started, beginning to read output")
+                    logger.debug("Process started, beginning to read output")
                     
                     // Read output in a loop while process is running
                     var buffer = Data()
@@ -1882,7 +1882,7 @@ class RcloneManager {
                                     if !trimmedLine.isEmpty {
                                         // Check for errors
                                         if line.contains("ERROR :") || line.contains("ERROR:") {
-                                            print("Error detected: \(line)")
+                                            logger.error("Error detected: \(line, privacy: .public)")
                                             errorOutput += line + "\n"
 
                                             // Try to extract filename from error
@@ -1894,7 +1894,7 @@ class RcloneManager {
 
                                         // Check if this looks like a progress line (has percentage and slashes)
                                         if trimmedLine.contains("%") && trimmedLine.contains("/") {
-                                            print("[RcloneManager]Progress line: \(trimmedLine)")
+                                            logger.debug("Progress line: \(trimmedLine, privacy: .public)")
                                             if let progress = self.parseProgress(from: trimmedLine) {
                                                 // Merge with current progress to preserve error state
                                                 currentProgress.percent = progress.percent
@@ -1906,11 +1906,11 @@ class RcloneManager {
                                                 currentProgress.currentFile = progress.currentFile
                                                 currentProgress.eta = progress.eta
 
-                                                print("[RcloneManager]Parsed progress: \(progress.percentage)% - \(progress.speed)")
+                                                logger.debug("Parsed progress: \(progress.percentage)% - \(progress.speed, privacy: .public)")
                                                 continuation.yield(currentProgress)
                                             }
                                         } else if !trimmedLine.starts(with: "2026/") { // Skip debug timestamps
-                                            print("[RcloneManager]Non-progress line: \(trimmedLine)")
+                                            logger.debug("Non-progress line: \(trimmedLine, privacy: .public)")
                                         }
                                     }
                                 }
@@ -1929,14 +1929,14 @@ class RcloneManager {
                     if let data = try? handle.readToEnd(), !data.isEmpty {
                         buffer.append(data)
                         if let output = String(data: buffer, encoding: .utf8) {
-                            print("[RcloneManager]Final output: \(output)")
+                            logger.debug("Final output: \(output, privacy: .public)")
                             if let progress = self.parseProgress(from: output) {
                                 continuation.yield(progress)
                             }
                         }
                     }
                     
-                    print("[RcloneManager]Upload exit code: \(process.terminationStatus)")
+                    logger.debug("Upload exit code: \(process.terminationStatus)")
 
                     // process.waitUntilExit() is not needed here as we already waited in the while loop
                     let exitCode = process.terminationStatus
@@ -1944,8 +1944,8 @@ class RcloneManager {
 
                     // Check for errors
                     if exitCode != 0 {
-                        print("Upload failed with exit code \(exitCode)")
-                        print("Error output: \(errorOutput)")
+                        logger.error("Upload failed with exit code \(exitCode)")
+                        logger.error("Error output: \(errorOutput, privacy: .public)")
 
                         // Parse the error
                         if let error = self.parseError(from: errorOutput) {
@@ -1956,7 +1956,7 @@ class RcloneManager {
                                 finalProgress.partialSuccess = true
                             }
 
-                            print("Detected error: \(error.title) - \(error.userMessage)")
+                            logger.error("Detected error: \(error.title, privacy: .public) - \(error.userMessage, privacy: .public)")
                         }
                     } else {
                         // Success
@@ -1976,7 +1976,7 @@ class RcloneManager {
                         continuation.finish()
                     }
                 } catch {
-                    print("[RcloneManager]Upload error: \(error.localizedDescription)")
+                    logger.error("Upload error: \(error.localizedDescription, privacy: .public)")
                     continuation.finish(throwing: error)
                 }
             }
@@ -2008,7 +2008,7 @@ class RcloneManager {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
         
-        print("[RcloneManager] Starting upload: \(localPath) -> \(remoteName):\(remotePath)")
+        logger.info("Starting upload: \(localPath, privacy: .private) -> \(remoteName, privacy: .public):\(remotePath, privacy: .private)")
         
         try process.run()
         process.waitUntilExit()
@@ -2019,9 +2019,9 @@ class RcloneManager {
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
         
-        print("[RcloneManager] Upload output: \(outputString)")
-        print("[RcloneManager] Upload errors: \(errorString)")
-        print("[RcloneManager] Exit code: \(process.terminationStatus)")
+        logger.debug("Upload output: \(outputString, privacy: .public)")
+        logger.debug("Upload errors: \(errorString, privacy: .public)")
+        logger.debug("Exit code: \(process.terminationStatus)")
         
         // Check for specific scenarios
         let combinedOutput = outputString + errorString
@@ -2030,7 +2030,7 @@ class RcloneManager {
         if combinedOutput.contains("There was nothing to transfer") || 
            combinedOutput.contains("Unchanged skipping") ||
            combinedOutput.contains("Transferred:") && combinedOutput.contains("0 / 0") {
-            print("[RcloneManager] File appears to already exist")
+            logger.info("File appears to already exist")
             throw RcloneError.syncFailed("File already exists at destination")
         }
         
@@ -2124,7 +2124,7 @@ class RcloneManager {
                 process.standardOutput = pipe
                 process.standardError = pipe
 
-                print("[RcloneManager] Cloud-to-cloud with progress: \(source) -> \(destination)")
+                logger.info("Cloud-to-cloud with progress: \(source, privacy: .private) -> \(destination, privacy: .private)")
 
                 var errorOutput = ""
                 var currentProgress = SyncProgress()
@@ -2137,7 +2137,7 @@ class RcloneManager {
                             let lines = output.components(separatedBy: .newlines)
                             for line in lines {
                                 if line.contains("ERROR :") || line.contains("ERROR:") {
-                                    print("Error detected: \(line)")
+                                    logger.error("Error detected: \(line, privacy: .public)")
                                     errorOutput += line + "\n"
 
                                     // Try to extract filename from error
@@ -2177,7 +2177,7 @@ class RcloneManager {
                     var finalProgress = currentProgress
 
                     if exitCode != 0 {
-                        print("Cloud-to-cloud copy failed with exit code \(exitCode)")
+                        logger.error("Cloud-to-cloud copy failed with exit code \(exitCode)")
 
                         if let error = self.parseError(from: errorOutput) {
                             finalProgress.errorMessage = error.userMessage
@@ -2203,7 +2203,7 @@ class RcloneManager {
                         continuation.finish()
                     }
                 } catch {
-                    print("[RcloneManager] Cloud-to-cloud error: \(error.localizedDescription)")
+                    logger.error("Cloud-to-cloud error: \(error.localizedDescription, privacy: .public)")
                     continuation.finish(throwing: error)
                 }
             }
@@ -2243,11 +2243,11 @@ class RcloneManager {
         let errorString = String(data: errorData, encoding: .utf8) ?? ""
 
         if exitCode != 0 {
-            print("Copy failed with exit code \(exitCode)")
-            print("Error output: \(errorString)")
+            logger.error("Copy failed with exit code \(exitCode)")
+            logger.error("Error output: \(errorString, privacy: .public)")
 
             if let error = parseError(from: errorString) {
-                print("Parsed error: \(error.title)")
+                logger.error("Parsed error: \(error.title, privacy: .public)")
                 throw error
             } else {
                 throw TransferError.unknown(message: errorString.isEmpty ? "Copy failed" : errorString)

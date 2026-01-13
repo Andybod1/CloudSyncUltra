@@ -43,7 +43,9 @@ CHANGELOG.md                  # Version history
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start with `/think` for well-structured documentation.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY task with `/think hard` to ensure well-structured documentation before any output.
 
 ## Output
 `/Users/antti/Claude/.claude-team/outputs/TECH_WRITER_COMPLETE.md`

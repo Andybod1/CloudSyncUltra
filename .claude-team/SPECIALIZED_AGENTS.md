@@ -22,14 +22,14 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 ### Specialized Agents (On-Demand)
 | Agent | Domain | Model | Use Case |
 |-------|--------|-------|----------|
-| **UX-Designer** | UI/UX Analysis | Opus + /think | Design review, user flow improvements |
-| **Product-Manager** | Strategy & Requirements | Opus + /think | Feature prioritization, business logic |
-| **Architect** | System Design | Opus + /think | Architecture decisions, refactoring |
-| **Security-Auditor** | Security Review | Opus + /think | Vulnerability analysis, best practices |
-| **Performance-Engineer** | Optimization | Opus + /think | Deep performance analysis |
-| **Tech-Writer** | Documentation | Opus + /think | User guides, API docs, README |
+| **UX-Designer** | UI/UX Analysis | Opus + /think hard | Design review, user flow improvements |
+| **Product-Manager** | Strategy & Requirements | Opus + /think hard | Feature prioritization, business logic |
+| **Architect** | System Design | Opus + /think hard | Architecture decisions, refactoring |
+| **Security-Auditor** | Security Review | Opus + /think hard | Vulnerability analysis, best practices |
+| **Performance-Engineer** | Optimization | Opus + /think hard | Deep performance analysis |
+| **Tech-Writer** | Documentation | Opus + /think hard | User guides, API docs, README |
 
-**All specialized agents use Opus with extended thinking (`/think`) for thorough analysis.**
+**All specialized agents use Opus with `/think hard` for deep, thorough analysis.**
 
 ---
 

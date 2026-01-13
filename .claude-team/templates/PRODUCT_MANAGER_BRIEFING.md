@@ -46,7 +46,9 @@ GitHub Issues                 # Backlog and requests
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start every analysis with `/think` for strategic depth.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY analysis with `/think hard` to ensure thorough, strategic depth before any output.
 
 ## Output Location
 Write reports to: `/Users/antti/Claude/.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`

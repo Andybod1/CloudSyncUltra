@@ -84,13 +84,13 @@ Quick reference for assignment:
 
 | Size | Time Est. | Core Team Model | Specialized Model |
 |------|-----------|-----------------|-------------------|
-| XS | < 30 min | Sonnet | Opus + /think |
-| S | 30-60 min | Sonnet | Opus + /think |
-| M | 1-2 hours | Opus | Opus + /think |
-| L | 2-4 hours | Opus + /think | Opus + /think |
-| XL | 4+ hours | Opus + /think | Opus + /think |
+| XS | < 30 min | Sonnet | Opus + /think hard |
+| S | 30-60 min | Sonnet | Opus + /think hard |
+| M | 1-2 hours | Opus | Opus + /think hard |
+| L | 2-4 hours | Opus + /think hard | Opus + /think hard |
+| XL | 4+ hours | Opus + /think hard | Opus + /think hard |
 
-**Note:** All specialized agents ALWAYS use Opus + /think regardless of size.
+**Note:** All specialized agents ALWAYS use Opus + `/think hard` regardless of size.
 
 ---
 

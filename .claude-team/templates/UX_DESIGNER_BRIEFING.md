@@ -43,7 +43,9 @@ CloudSyncApp/Components/      # Reusable UI components
 ```
 
 ## Model
-Always use **Opus with extended thinking** - start every analysis with `/think` for thorough reasoning.
+**ALWAYS use Opus with extended thinking.**
+
+Start EVERY analysis with `/think hard` to ensure thorough, deep reasoning before any output.
 
 ## Output Location
 Write reports to: `/Users/antti/Claude/.claude-team/outputs/UX_DESIGNER_COMPLETE.md`
