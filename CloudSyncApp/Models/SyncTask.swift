@@ -60,7 +60,9 @@ struct SyncTask: Identifiable, Codable {
     var createdAt: Date
     var startedAt: Date?
     var completedAt: Date?
-    var errorMessage: String?
+    var errorMessage: String?  // Legacy field - kept for backwards compatibility
+    var lastError: TransferError?  // Structured error information
+    var errorContext: String?  // Additional context about when/where error occurred
     var isScheduled: Bool
     var scheduleInterval: TimeInterval?
     var lastRunAt: Date?
@@ -236,6 +238,80 @@ struct SyncTask: Identifiable, Codable {
         } else {
             return String(format: "%.2f GB/s", bytesPerSecond / (1024 * 1024 * 1024))
         }
+    }
+
+    // MARK: - Error Handling Properties
+
+    /// Whether this task has an error
+    var hasError: Bool {
+        return lastError != nil || (errorMessage != nil && !errorMessage!.isEmpty)
+    }
+
+    /// Get the user-friendly error message for display
+    var displayErrorMessage: String? {
+        if let error = lastError {
+            return error.userMessage
+        }
+        return errorMessage // Fallback to legacy error message
+    }
+
+    /// Get the error title for banners/alerts
+    var displayErrorTitle: String? {
+        if let error = lastError {
+            return error.title
+        }
+        if hasError {
+            return "Error" // Generic title for legacy errors
+        }
+        return nil
+    }
+
+    /// Whether the current error can be retried
+    var canRetry: Bool {
+        if let error = lastError {
+            return error.isRetryable
+        }
+        // For legacy errors, allow retry unless task is cancelled
+        return state != .cancelled
+    }
+
+    /// Whether this is a critical error requiring immediate attention
+    var hasCriticalError: Bool {
+        if let error = lastError {
+            return error.isCritical
+        }
+        return false // Legacy errors are not considered critical
+    }
+
+    /// Update error information with TransferError
+    mutating func setError(_ error: TransferError, context: String? = nil) {
+        self.lastError = error
+        self.errorContext = context
+        self.errorMessage = error.userMessage // Keep legacy field updated
+        self.state = .failed
+    }
+
+    /// Clear error information
+    mutating func clearError() {
+        self.lastError = nil
+        self.errorContext = nil
+        self.errorMessage = nil
+    }
+
+    /// Get full error description including context
+    var fullErrorDescription: String? {
+        guard let errorMsg = displayErrorMessage else { return nil }
+
+        if let context = errorContext {
+            return "\(errorMsg)\n\nContext: \(context)"
+        }
+
+        return errorMsg
+    }
+
+    /// Whether this task should show error details in UI
+    var shouldShowErrorDetails: Bool {
+        return hasError && (lastError != nil || errorContext != nil)
     }
 }
 

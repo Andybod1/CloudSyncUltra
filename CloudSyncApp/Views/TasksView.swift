@@ -216,9 +216,8 @@ struct RecentTaskCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Status icon
-            Image(systemName: task.state == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundColor(task.state == .completed ? .green : .red)
+            // Enhanced status icon
+            statusIcon(for: task)
                 .font(.title3)
             
             // Task info
@@ -261,9 +260,51 @@ struct RecentTaskCard: View {
             }
         }
         .padding(12)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .background(cardBackground)
         .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(cardBorder, lineWidth: 1)
+        )
         .onTapGesture(perform: onTap)
+    }
+
+    // MARK: - Status Icon
+
+    @ViewBuilder
+    private func statusIcon(for task: SyncTask) -> some View {
+        switch task.state {
+        case .completed:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        case .failed:
+            Image(systemName: "xmark.circle.fill")
+                .foregroundStyle(.red)
+        case .cancelled:
+            Image(systemName: "stop.circle.fill")
+                .foregroundStyle(.secondary)
+        default:
+            Image(systemName: "clock.fill")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var cardBackground: Color {
+        switch task.state {
+        case .failed:
+            return Color.red.opacity(0.05)
+        default:
+            return Color(NSColor.controlBackgroundColor).opacity(0.5)
+        }
+    }
+
+    private var cardBorder: Color {
+        switch task.state {
+        case .failed:
+            return .red.opacity(0.3)
+        default:
+            return Color.gray.opacity(0.2)
+        }
     }
 }
 
@@ -280,9 +321,8 @@ struct TaskCard: View {
         VStack(spacing: 12) {
             // Header
             HStack {
-                Image(systemName: task.type.icon)
+                statusIcon(for: task)
                     .font(.title2)
-                    .foregroundColor(statusColor)
                     .frame(width: 32)
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -380,18 +420,9 @@ struct TaskCard: View {
                 .foregroundColor(.secondary)
             }
             
-            // Error
-            if case .failed = task.state, let error = task.errorMessage {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.red)
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
-                .padding(8)
-                .background(Color.red.opacity(0.1))
-                .cornerRadius(6)
+            // Enhanced error display
+            if task.state == .failed {
+                errorDisplay(for: task)
             }
         }
         .padding()
@@ -408,23 +439,32 @@ struct TaskCard: View {
                     Image(systemName: "play.fill")
                 }
                 .buttonStyle(.bordered)
-                
+
             case .running:
                 Button(action: onPause) {
                     Image(systemName: "pause.fill")
                 }
                 .buttonStyle(.bordered)
-                
+
             case .paused:
                 Button(action: onStart) {
                     Image(systemName: "play.fill")
                 }
                 .buttonStyle(.bordered)
-                
+
+            case .failed:
+                // Show retry button for failed tasks (temporary - will be enhanced when Dev-3 completes model)
+                Button(action: { retryTask(task) }) {
+                    Label("Retry", systemImage: "arrow.clockwise")
+                        .font(.caption.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
             default:
                 EmptyView()
             }
-            
+
             if task.state != .completed && task.state != .cancelled {
                 Button(action: onCancel) {
                     Image(systemName: "xmark")
@@ -444,6 +484,84 @@ struct TaskCard: View {
         case .paused: return .orange
         case .cancelled: return .gray
         }
+    }
+
+    // MARK: - Enhanced Error Display
+
+    @ViewBuilder
+    private func errorDisplay(for task: SyncTask) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Error message
+            if let errorMessage = task.errorMessage {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+
+            // Action buttons row
+            HStack(spacing: 12) {
+                // Details button
+                Button(action: { showTaskDetails(task) }) {
+                    Label("Details", systemImage: "info.circle")
+                        .font(.caption.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+        .padding(8)
+        .background(Color.red.opacity(0.05))
+        .cornerRadius(6)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(.red.opacity(0.3), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Status Icon
+
+    @ViewBuilder
+    private func statusIcon(for task: SyncTask) -> some View {
+        switch task.state {
+        case .completed:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        case .failed:
+            Image(systemName: "xmark.circle.fill")
+                .foregroundStyle(.red)
+        case .running:
+            ProgressView()
+                .controlSize(.small)
+        case .pending:
+            Image(systemName: "clock.fill")
+                .foregroundStyle(.secondary)
+        case .paused:
+            Image(systemName: "pause.circle.fill")
+                .foregroundStyle(.orange)
+        case .cancelled:
+            Image(systemName: "stop.circle.fill")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private func retryTask(_ task: SyncTask) {
+        // TODO: Implement retry logic when Dev-3 completes enhanced SyncTask model
+        print("🔄 Retrying task: \(task.name)")
+        // This will trigger the task to restart
+    }
+
+    private func showTaskDetails(_ task: SyncTask) {
+        // TODO: Show detailed error info, failed files list, etc.
+        print("📋 Showing details for task: \(task.name)")
+        // This could open a detailed error sheet
     }
 }
 
