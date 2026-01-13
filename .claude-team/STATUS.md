@@ -1,6 +1,6 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 16:45 UTC
+> Last Updated: 2026-01-13 17:30 UTC
 > Version: v2.0.13 (in progress)
 
 ## Current State: Sprint Active 🚀
@@ -12,19 +12,39 @@
 | Dev-1 | Sonnet | ✅ COMPLETE | Schedule time fixes (#32, #33) |
 | Dev-2 | - | 💤 IDLE | - |
 | Dev-3 | - | 💤 IDLE | - |
-| QA | Opus | 🔄 ASSIGNED | Fix 23 test failures (#35) |
-| Dev-Ops | Opus | ✅ DONE | Closed #30, updated docs |
+| QA | Opus | 🔄 WORKING | Fix 23 test failures (#35) |
+| Dev-Ops | Opus | 🔄 ASSIGNED | GitHub Actions setup (#34) |
 
 ---
 
 ## Active Sprint Tasks
 
-| Ticket | Title | Worker | Size |
-|--------|-------|--------|------|
-| #30 | ~~Close Google Photos issue~~ ✅ | Dev-Ops | XS |
-| #35 | Fix 23 test failures | QA | M |
-| #32 | Schedule time not displaying | Dev-1 | S |
-| #33 | 12/24 hour time setting | Dev-1 | S |
+| Ticket | Title | Worker | Size | Status |
+|--------|-------|--------|------|--------|
+| #30 | ~~Close Google Photos issue~~ | Dev-Ops | XS | ✅ DONE |
+| #35 | Fix 23 test failures | QA | M | 🔄 WORKING |
+| #32 | Schedule time not displaying | Dev-1 | S | ✅ DONE |
+| #33 | 12/24 hour time setting | Dev-1 | S | ✅ DONE |
+| #34 | GitHub Actions for project board | Dev-Ops | S | 🔄 ASSIGNED |
+
+---
+
+## Closed This Sprint
+
+| # | Title | Resolution |
+|---|-------|------------|
+| #38 | Project board not updating | Duplicate of #34 |
+| #39 | Filen.io integration | Waiting on upstream (rclone) |
+
+---
+
+## Documentation Created
+
+| File | Purpose |
+|------|---------|
+| `docs/CLEAN_BUILD_GUIDE.md` | Xcode build troubleshooting (#36) |
+| `docs/TEST_ACCOUNTS_CHECKLIST.md` | Provider signup guide (#31) |
+| `.claude-team/planning/DROPBOX_PLAN.md` | Dropbox validation plan (#37) |
 
 ---
 
@@ -35,7 +55,7 @@
 | Dev-1 | UI (Views, ViewModels) | Sonnet XS/S, Opus M/L/XL |
 | Dev-2 | Engine (RcloneManager) | Sonnet XS/S, Opus M/L/XL |
 | Dev-3 | Services (Models, Managers) | Sonnet XS/S, Opus M/L/XL |
-| QA | Testing | **ALWAYS Opus** |
+| QA | Testing | **ALWAYS Opus + /think** |
 | Dev-Ops | Git, GitHub, Docs | **ALWAYS Opus + /think** |
 
 ---
@@ -55,15 +75,9 @@
 ### Startup Commands (paste into Claude Code terminal)
 
 ```
-Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
-
-Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
-
-Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
+Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 
 QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
-
-Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 ```
 
 ---
@@ -75,16 +89,7 @@ Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then
 | Tasks | `.claude-team/tasks/TASK_*.md` |
 | Outputs | `.claude-team/outputs/*_COMPLETE.md` |
 | Briefings | `.claude-team/templates/*_BRIEFING.md` |
-| Worker Models | `.claude-team/WORKER_MODELS.conf` |
-
----
-
-## Previous Sprint: Quick Wins + Polish (v2.0.12) ✅
-
-- #14 Drag & drop sidebar reordering ✅
-- #25 Account name in encryption view ✅
-- #1 Bandwidth throttling controls ✅
-- 19 new tests added
+| Planning | `.claude-team/planning/*.md` |
 
 ---
 

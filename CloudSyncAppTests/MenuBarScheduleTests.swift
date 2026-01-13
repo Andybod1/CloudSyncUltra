@@ -175,7 +175,9 @@ final class MenuBarScheduleTests: XCTestCase {
         schedule.nextRunAt = Date().addingTimeInterval(15 * 60)
 
         let formatted = schedule.formattedNextRun
-        XCTAssertEqual(formatted, "In 15 min")
+        // Allow for timing edge cases (14-15 min)
+        XCTAssertTrue(formatted == "In 14 min" || formatted == "In 15 min",
+                      "Expected 'In 14 min' or 'In 15 min', got '\(formatted)'")
     }
 
     func test_FormattedNextRun_Hours() async {
