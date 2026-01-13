@@ -5,6 +5,30 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.15] - 2026-01-13
+
+### Added
+- **Specialized Agents System** (#44, #45) - On-demand expert agents
+  - UX-Designer: UI/UX analysis, user flow improvements
+  - Product-Manager: Strategy, requirements, roadmap planning
+  - Architect: System design, refactoring decisions
+  - Security-Auditor: Vulnerability analysis, security review
+  - Performance-Engineer: Deep optimization analysis
+  - Tech-Writer: Documentation and guides
+  - All use **Opus + extended thinking** for thorough analysis
+  - Launch: `launch_single_worker.sh ux-designer opus`
+
+- **iCloud Integration Phase 1** (#9) - Local folder support (in progress)
+  - Fixed rclone type: `icloud` → `iclouddrive`
+  - Local folder detection: `~/Library/Mobile Documents/com~apple~CloudDocs/`
+  - New ICloudManager.swift for iCloud-specific logic
+  - UI option: "Use Local iCloud Folder (Recommended)"
+
+### Infrastructure
+- Updated `launch_single_worker.sh` to support 11 agent types
+- `SPECIALIZED_AGENTS.md` - Complete agent documentation
+- `RECOVERY.md` - Updated with all startup commands
+
 ## [2.0.14] - 2026-01-13
 
 ### Performance
