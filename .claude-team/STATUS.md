@@ -1,6 +1,6 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 16:30 UTC
+> Last Updated: 2026-01-13 16:45 UTC
 > Version: v2.0.13 (in progress)
 
 ## Current State: Sprint Active 🚀
@@ -13,7 +13,7 @@
 | Dev-2 | - | 💤 IDLE | - |
 | Dev-3 | - | 💤 IDLE | - |
 | QA | Opus | 🔄 ASSIGNED | Fix 23 test failures (#35) |
-| Dev-Ops | Sonnet | 🔄 ASSIGNED | Close #30, update docs |
+| Dev-Ops | Opus | 🔄 ASSIGNED | Close #30, update docs |
 
 ---
 
@@ -26,25 +26,54 @@
 
 ---
 
+## Team Structure
+
+| Worker | Domain | Model Rule |
+|--------|--------|------------|
+| Dev-1 | UI (Views, ViewModels) | Sonnet XS/S, Opus M/L/XL |
+| Dev-2 | Engine (RcloneManager) | Sonnet XS/S, Opus M/L/XL |
+| Dev-3 | Services (Models, Managers) | Sonnet XS/S, Opus M/L/XL |
+| QA | Testing | **ALWAYS Opus** |
+| Dev-Ops | Git, GitHub, Docs | **ALWAYS Opus + /think** |
+
+---
+
 ## Worker Launch Commands
 
+```bash
+# Launch single worker
+~/Claude/.claude-team/scripts/launch_single_worker.sh [worker] [model]
+
+# Examples:
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
 ```
-Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
+
+### Startup Commands (paste into Claude Code terminal)
+
+```
+Dev-1: Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
+
+Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
+
+Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
 
 QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+
+Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 ```
 
 ---
 
-## Team Structure (Updated)
+## Task & Output Locations
 
-| Worker | Domain | Files |
-|--------|--------|-------|
-| Dev-1 | UI | Views/, ViewModels/, Components/ |
-| Dev-2 | Engine | RcloneManager.swift |
-| Dev-3 | Services | Models/, *Manager.swift |
-| QA | Testing | CloudSyncAppTests/ |
-| **Dev-Ops** | Integration | Git, GitHub, Docs, CHANGELOG |
+| Type | Location |
+|------|----------|
+| Tasks | `.claude-team/tasks/TASK_*.md` |
+| Outputs | `.claude-team/outputs/*_COMPLETE.md` |
+| Briefings | `.claude-team/templates/*_BRIEFING.md` |
+| Worker Models | `.claude-team/WORKER_MODELS.conf` |
 
 ---
 

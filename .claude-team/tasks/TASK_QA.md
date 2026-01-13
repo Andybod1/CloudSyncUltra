@@ -2,7 +2,8 @@
 
 ## Worker: QA
 ## Size: M
-## Model: Opus (always for QA)
+## Model: Opus (ALWAYS for QA)
+## Extended Thinking: ENABLED (ALWAYS for QA)
 
 ---
 

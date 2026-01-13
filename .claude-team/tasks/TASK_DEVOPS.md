@@ -2,7 +2,8 @@
 
 ## Worker: Dev-Ops
 ## Size: XS
-## Model: Sonnet
+## Model: Opus (ALWAYS for Dev-Ops)
+## Extended Thinking: ENABLED (ALWAYS for Dev-Ops)
 
 ---
 

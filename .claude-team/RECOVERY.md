@@ -1,7 +1,7 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.12
+> **Current Version:** v2.0.13
 > **Last Updated:** 2026-01-13
 
 ---
@@ -59,7 +59,7 @@ cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSync
 
 ---
 
-## Current Project State (v2.0.12)
+## Current Project State (v2.0.13)
 
 ### What's Working
 - ✅ 42 cloud providers supported
@@ -73,26 +73,37 @@ cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSync
 - ✅ 617 unit tests (35 test files)
 
 ### Known Issues
-- 23 pre-existing test failures (Issue #35)
-- Google Photos folders appear empty (Issue #30)
+- 23 pre-existing test failures (Issue #35) - in progress
 - Transfer performance poor (Issue #10)
+- iCloud integration (Issue #9)
 
 ### Recent Sprints
 1. **Error Handling Sprint (v2.0.11)** - TransferError types, notification manager
 2. **Quick Wins Sprint (v2.0.12)** - Reordering, account names, bandwidth
+3. **Test Health Sprint (v2.0.13)** - Fix pre-existing test failures, team restructure
 
 ---
 
 ## Development System
 
-### Team Structure
+### Team Structure (5 Workers)
 ```
 Strategic Partner (Desktop Claude - Opus 4.5)
-    ├── Dev-1 (UI)      - Sonnet - Views, ViewModels
-    ├── Dev-2 (Engine)  - Sonnet - RcloneManager
-    ├── Dev-3 (Services)- Sonnet - Models, Managers
-    └── QA (Testing)    - Opus   - Tests + Planning
+    ├── Dev-1 (UI)       - Views, ViewModels, Components
+    ├── Dev-2 (Engine)   - RcloneManager.swift
+    ├── Dev-3 (Services) - Models, *Manager.swift
+    ├── QA (Testing)     - CloudSyncAppTests/
+    └── Dev-Ops (Integration) - Git, GitHub, Docs, Research
 ```
+
+### Model Selection Rules
+| Worker | Model | Extended Thinking |
+|--------|-------|-------------------|
+| Dev-1 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
+| Dev-2 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
+| Dev-3 | Sonnet XS/S, Opus M/L/XL | M/L/XL tickets |
+| QA | **ALWAYS Opus** | Always |
+| Dev-Ops | **ALWAYS Opus** | Always |
 
 ### Sprint Phases (Shift-Left Testing)
 | Phase | Workers | Duration |
@@ -100,11 +111,7 @@ Strategic Partner (Desktop Claude - Opus 4.5)
 | 1. Planning | Strategic Partner + QA | 15-20 min |
 | 2. Foundation | Dev-3 (models) | 15-20 min |
 | 3. Implementation | Dev-1, Dev-2, QA (parallel) | 30-45 min |
-| 4. Integration | Strategic Partner | 15-20 min |
-
-### Worker Model Selection
-- **Dev-1/2/3:** Sonnet for XS/S, Opus for M/L/XL
-- **QA:** Always Opus (thorough test coverage)
+| 4. Integration | Dev-Ops | 15-20 min |
 
 ---
 
@@ -128,6 +135,8 @@ cat ~/Claude/.claude-team/STATUS.md
 
 # Or launch single worker
 ~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
 ```
 
 ### Worker Startup Commands
@@ -139,6 +148,8 @@ Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then rea
 Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
 
 QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+
+Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 ```
 
 ---
@@ -163,6 +174,7 @@ QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and
 ├── CloudSyncApp/                 # Source code
 ├── CloudSyncAppTests/            # Unit tests (35 files)
 ├── CloudSyncApp.xcodeproj/       # Xcode project
+├── CLAUDE_PROJECT_KNOWLEDGE.md   # Claude context (repo root)
 ├── .claude-team/
 │   ├── PROJECT_CONTEXT.md        # Full project context
 │   ├── STATUS.md                 # Worker status
@@ -170,7 +182,7 @@ QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and
 │   ├── WORKER_MODELS.conf        # Model assignments
 │   ├── tasks/                    # Worker task files
 │   ├── outputs/                  # Worker completion reports
-│   ├── templates/                # Worker briefings
+│   ├── templates/                # Worker briefings (5 workers)
 │   └── scripts/                  # Launch scripts
 ├── .github/
 │   ├── WORKFLOW.md               # Complete workflow docs
@@ -221,11 +233,13 @@ These are stored in Claude's memory system:
 1. Always launch CloudSyncApp after building/updating code
 2. Ask Andy for clarifications - never assume
 3. Dev workers: Sonnet for XS/S, Opus for M/L/XL
-4. QA: Always Opus regardless of ticket size
-5. Extended thinking for M/L/XL tickets
-6. QA participates in Phase 1 planning (shift-left testing)
+4. **QA: Always Opus** regardless of ticket size
+5. **Dev-Ops: Always Opus** with extended thinking
+6. Extended thinking (`/think`) for M/L/XL tickets
+7. QA participates in Phase 1 planning (shift-left testing)
+8. **Delegate implementation** - Strategic Partner plans only
 
 ---
 
 *Last Updated: 2026-01-13*
-*CloudSync Ultra v2.0.12*
+*CloudSync Ultra v2.0.13*
