@@ -66,7 +66,7 @@ Andy (Human) ──────────────────────�
         ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  STRATEGIC PARTNER (Desktop Claude - Opus 4.5)              │
-│  • Plans issues, assigns labels                             │
+│  • Plans issues with QA input (shift-left testing)          │
 │  • Creates task files referencing issues                    │
 │  • Reviews completed work                                   │
 │  • Integrates code, fixes builds                            │
@@ -76,7 +76,8 @@ Andy (Human) ──────────────────────�
        ▼         ▼         ▼         ▼
    ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐
    │Dev-1 │  │Dev-2 │  │Dev-3 │  │  QA  │
-   │ UI   │  │Engine│  │Svc   │  │ Test │
+   │ UI   │  │Engine│  │Svc   │  │Plan+ │
+   │      │  │      │  │      │  │ Test │
    └──────┘  └──────┘  └──────┘  └──────┘
    Sonnet     Sonnet    Sonnet    Opus
 ```
@@ -134,27 +135,22 @@ Example in task file:
 - **Extended Thinking:** ENABLED - Use /think before designing the sync algorithm
 ```
 
-### Extended Thinking
+### Sprint Phases (Shift-Left Testing)
 
-Strategic Partner specifies in task files when workers should use `/think`:
+QA participates in planning to catch issues early:
 
-| Ticket Size | Extended Thinking |
-|-------------|-------------------|
-| XS/S | Standard (not required) |
-| M/L/XL | ENABLED for complex decisions |
+| Phase | Workers | Duration | Output |
+|-------|---------|----------|--------|
+| **1. Planning** | Strategic Partner + QA | 15-20 min | Test Plan, refined requirements |
+| **2. Foundation** | Dev-3 (models) | 15-20 min | Model layer ready |
+| **3. Implementation** | Dev-1, Dev-2, QA (parallel) | 30-45 min | Features + tests |
+| **4. Integration** | Strategic Partner | 15-20 min | Build, test, commit |
 
-Use extended thinking for:
-- Architecture decisions
-- Complex algorithm design
-- Tricky edge case handling
-- Integration impact analysis
-
-Example in task file:
-```markdown
-## Configuration
-- **Model:** Opus
-- **Extended Thinking:** ENABLED - Use /think before designing the sync algorithm
-```
+**QA Planning Output:** `outputs/QA_TEST_PLAN.md`
+- Happy path tests
+- Edge cases identified
+- Error scenarios
+- Risks & questions for devs
 
 ### Worker Domains (Strict Separation)
 

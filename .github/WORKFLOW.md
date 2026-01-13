@@ -89,6 +89,59 @@
 
 ## Workflow Details
 
+### Sprint Workflow (Shift-Left Testing)
+
+QA participates in planning to catch issues early. Each sprint has 4 phases:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SPRINT PHASES                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  PHASE 1          PHASE 2           PHASE 3            PHASE 4              │
+│  ┌────────┐      ┌────────┐       ┌────────────┐      ┌──────────┐         │
+│  │PLANNING│─────▶│FOUNDATION│─────▶│IMPLEMENTATION│───▶│INTEGRATION│        │
+│  └────────┘      └────────┘       └────────────┘      └──────────┘         │
+│       │               │                 │                   │               │
+│   Strategic      Dev-3 builds      Dev-1, Dev-2        Strategic           │
+│   Partner +      model layer       implement +         Partner             │
+│   QA review                        QA writes tests     integrates          │
+│                                                                              │
+│   Output:         Output:           Output:             Output:             │
+│   Test Plan      Models ready      Features + Tests    Commit + Push       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Phase | Workers | Duration | Output |
+|-------|---------|----------|--------|
+| **1. Planning** | Strategic Partner + QA | 15-20 min | Test Plan, refined requirements |
+| **2. Foundation** | Dev-3 | 15-20 min | Model layer ready |
+| **3. Implementation** | Dev-1, Dev-2, QA (parallel) | 30-45 min | Features + tests |
+| **4. Integration** | Strategic Partner | 15-20 min | Build, test, commit |
+
+#### Phase 1: Planning with QA
+
+QA reviews requirements and produces a **Test Plan** before implementation:
+
+```bash
+# Strategic Partner creates planning task for QA
+# QA outputs: .claude-team/outputs/QA_TEST_PLAN.md
+```
+
+**Test Plan includes:**
+- Happy path test scenarios
+- Edge cases identified
+- Error scenarios to handle
+- Risks & questions for devs
+- Recommendations
+
+**Benefits:**
+- Edge cases caught before code is written
+- Ambiguous requirements clarified early
+- Fewer rework cycles
+- Tests ready when implementation completes
+
 ### 1. Andy Creates Issue
 ```bash
 # Quick bug
@@ -202,4 +255,4 @@ Implements #47"
 
 ---
 
-*Last Updated: 2025-01-12*
+*Last Updated: 2026-01-13*
