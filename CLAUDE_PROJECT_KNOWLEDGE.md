@@ -132,7 +132,6 @@ Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then
 
 ### In Progress: v2.0.13 (Test Health Sprint)
 - 🔄 #35 - Fix 23 pre-existing test failures (QA)
-- 🔄 #30 - Close as not implemented (Dev-Ops)
 
 ### Last Completed: v2.0.12 (Quick Wins Sprint)
 - ✅ Drag & drop sidebar reordering (#14)
