@@ -44,11 +44,23 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Transfer modes** - Sync, Transfer, or Backup
 - **Cloud-to-cloud transfers** - Direct transfers between any cloud providers
 - **Local-to-cloud and cloud-to-local** - Full bidirectional support
-- **Smart error handling** - Graceful handling of existing files
+- **Professional error handling** - Clear error messages with retry options
+- **Partial success tracking** - See which files succeeded when some fail
 - **Cancel transfers** - Stop any operation mid-transfer
 - **Transfer history** - View all past transfers with speeds and file counts
 - **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
 - **Optimized performance** - Parallel transfers for faster multi-file operations
+
+### 🚨 Error Handling (NEW in v2.0.11)
+- **Clear error messages** - User-friendly explanations instead of technical jargon
+- **Actionable guidance** - Know exactly what to do when errors occur
+- **Smart retry logic** - Retry button appears only for retryable errors
+- **Severity levels** - Visual distinction between critical and recoverable errors
+- **Error details** - Full context available for troubleshooting
+- **Auto-dismiss** - Non-critical notifications disappear after 10 seconds
+- **Multi-error support** - Handle multiple errors gracefully
+- **Provider-specific patterns** - Recognizes Google Drive, Dropbox, OneDrive, S3 error types
+- **Partial failure tracking** - "15 of 20 files uploaded" with clear error indication
 
 ### 🔐 Security
 - **End-to-end encryption** - Optional client-side encryption
@@ -71,7 +83,9 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 ## 🚀 Getting Started
 
-> **New in v2.0:** Complete SwiftUI redesign with dual-pane interface, 40+ cloud providers, and 173+ automated tests. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.11:** Comprehensive error handling system with clear user messages, smart retry logic, and professional error presentation. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+
+> **New in v2.0:** Complete SwiftUI redesign with dual-pane interface, 40+ cloud providers, and 173+ automated tests.
 
 ### Requirements
 - macOS 14.0 (Sonoma) or later
@@ -201,13 +215,16 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
 ```
 
 ### Test Coverage
-- **173+ automated tests** across unit, integration, and UI layers
+- **234+ automated tests** across unit, integration, and UI layers
 - **100+ unit tests** covering models, view models, and managers
+- **61 error handling tests** covering TransferError, SyncTask, and RcloneManager error scenarios
 - **73 UI tests** for end-to-end user workflows (ready for integration)
 - **Real-world scenario coverage** including edge cases and error handling
+- **88%+ coverage** for error handling system
 
 **Test Categories:**
 - Models & Core Logic (FileItem, CloudProvider, SyncTask)
+- Error Handling (TransferError, error detection, error display, retry logic)
 - ViewModels & State Management (FileBrowserViewModel, TasksViewModel, RemotesViewModel)
 - RcloneManager & Provider Integration (OAuth, Phase 1-3 providers)
 - SyncManager & Orchestration
