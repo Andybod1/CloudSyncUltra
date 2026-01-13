@@ -1,73 +1,96 @@
-# CloudSync Ultra - Clean Build Guide
+# Clean Build Guide for CloudSync Ultra
 
-## Quick Commands
+## Quick Reference
 
-### Standard Build
 ```bash
+# Full clean build (recommended when things break)
 cd /Users/antti/Claude
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
-```
-
-### Clean Build (fixes most issues)
-```bash
-cd /Users/antti/Claude
-xcodebuild clean -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
-```
-
-### Nuclear Clean (when all else fails)
-```bash
-# 1. Close Xcode completely
-pkill -9 Xcode
-
-# 2. Clean DerivedData
 rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp clean
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 
-# 3. Clean build folder
-cd /Users/antti/Claude
-rm -rf build/
-
-# 4. Clean SPM cache (if using Swift packages)
-rm -rf ~/Library/Caches/org.swift.swiftpm/
-
-# 5. Rebuild
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
-```
-
-### Launch App After Build
-```bash
+# Launch app after build
 open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
 ```
 
 ---
 
-## Common Build Issues
+## Common Build Issues & Solutions
 
-### Issue: "Module not found"
-**Solution:** Clean DerivedData and rebuild
+### Issue: "No such module" errors
+**Cause:** SPM packages not resolved
+**Solution:**
+```bash
+cd /Users/antti/Claude
+xcodebuild -resolvePackageDependencies -project CloudSyncApp.xcodeproj
+xcodebuild build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
+```
 
-### Issue: "Command PhaseScriptExecution failed"
-**Solution:** Check script permissions and paths in Build Phases
+### Issue: Stale build artifacts
+**Cause:** DerivedData corrupted
+**Solution:**
+```bash
+rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild clean build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
+```
 
-### Issue: "Signing certificate" errors
-**Solution:** Open Xcode → Signing & Capabilities → Re-select team
+### Issue: Code signing errors
+**Cause:** Team/signing identity issues
+**Solution:**
+1. Open project in Xcode
+2. Go to Signing & Capabilities
+3. Select your team
+4. Let Xcode manage signing
 
-### Issue: "Stale file" or "file not found" errors  
-**Solution:** Nuclear clean (see above)
-
-### Issue: Build hangs
-**Solution:** 
-1. Kill Xcode: pkill -9 Xcode
-2. Kill build: pkill -9 xcodebuild
-3. Nuclear clean and retry
+### Issue: SwiftUI preview crashes
+**Cause:** Preview cache corrupted
+**Solution:**
+```bash
+rm -rf ~/Library/Developer/Xcode/DerivedData/*/Build/Intermediates.noindex/Previews
+```
 
 ---
 
-## Run Tests
+## Build Commands Reference
+
+| Command | Purpose |
+|---------|---------|
+| `xcodebuild build` | Standard build |
+| `xcodebuild clean` | Clean build folder |
+| `xcodebuild test` | Run unit tests |
+| `xcodebuild -showBuildSettings` | Show all build settings |
+| `xcodebuild -list` | List schemes and targets |
+
+---
+
+## Verification Steps
+
+After a clean build, verify:
+
+1. **Build succeeds:**
 ```bash
-cd /Users/antti/Claude
-xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed" | tail -5
+xcodebuild build 2>&1 | grep -E "BUILD SUCCEEDED|BUILD FAILED"
 ```
+
+2. **App launches:**
+```bash
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+```
+
+3. **Tests pass:**
+```bash
+xcodebuild test -destination 'platform=macOS' 2>&1 | grep "Test Suite"
+```
+
+---
+
+## Using Claude Cowork for Build Issues
+
+If you have Claude Cowork (Max plan, macOS Desktop):
+
+1. Grant Cowork access to `/Users/antti/Claude/` folder
+2. Ask: "Clean build the CloudSyncApp Xcode project and launch it"
+3. Cowork can execute terminal commands and verify build status
 
 ---
 
