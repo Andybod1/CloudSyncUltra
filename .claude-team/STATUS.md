@@ -1,46 +1,50 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 18:32 UTC
-> Version: v2.0.14 (in progress)
+> Last Updated: 2026-01-13 18:45 UTC
+> Version: v2.0.14 (completing)
 
-## Current State: 2 Workers Active 🚀🚀
+## Current State: All Workers Complete 🎉
 
 **Sprint:** Performance + Infrastructure (v2.0.14)
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
 | Dev-1 | - | 💤 IDLE | - |
-| Dev-2 | Opus | 🔄 WORKING | #10 - Performance audit |
-| Dev-3 | Opus | 🔄 WORKING | #20 - Crash reporting feasibility |
+| Dev-2 | Opus | ✅ COMPLETE | #10 - Performance (quick wins implemented) |
+| Dev-3 | Opus | ✅ COMPLETE | #20 - Crash reporting (DIY recommended) |
 | QA | - | 💤 IDLE | - |
-| Dev-Ops | Opus | ✅ COMPLETE | #34 - GitHub Actions |
-
----
-
-## Active Tasks
-
-| Ticket | Title | Worker | Size | Status |
-|--------|-------|--------|------|--------|
-| #10 | Transfer performance audit | Dev-2 | L | 🔄 WORKING |
-| #20 | Crash reporting feasibility | Dev-3 | M | 🔄 WORKING |
-
----
-
-## Expected Deliverables
-
-| Worker | Output File |
-|--------|-------------|
-| Dev-2 | `outputs/DEV2_PERFORMANCE_AUDIT.md` |
-| Dev-3 | `outputs/DEV3_CRASH_REPORTING.md` |
-| Dev-Ops | `outputs/DEVOPS_COMPLETE.md` |
+| Dev-Ops | Opus | ✅ COMPLETE | #34 - GitHub Actions (workflow created) |
 
 ---
 
 ## Completed This Sprint (v2.0.14) ✅
 
-| # | Title | Result |
-|---|-------|--------|
-| #34 | GitHub Actions project board | Workflow created, PAT setup required |
+| # | Title | Worker | Result |
+|---|-------|--------|--------|
+| #10 | Transfer performance | Dev-2 | **Quick wins: 2x speed boost** |
+| #20 | Crash reporting | Dev-3 | **Recommend: Enhanced DIY (2-3 days)** |
+| #34 | GitHub Actions | Dev-Ops | **Workflow ready, needs PAT** |
+
+---
+
+## Performance Improvements Applied
+
+| Setting | Before | After |
+|---------|--------|-------|
+| `--transfers` | 4 | 8 |
+| `--checkers` | 8 | 16 |
+| `--buffer-size` | 16M | 32M |
+| `--fast-list` | ❌ | ✅ |
+
+---
+
+## Deliverables
+
+| Report | Location |
+|--------|----------|
+| Performance Audit | `outputs/DEV2_PERFORMANCE_AUDIT.md` |
+| Crash Reporting Study | `outputs/DEV3_CRASH_REPORTING.md` |
+| GitHub Workflow | `.github/workflows/add-to-project.yml` (local only) |
 
 ---
 
@@ -51,18 +55,6 @@
 | #37 | Dropbox validation | Medium | M |
 | #27 | UI test automation | High | L |
 | #9 | iCloud integration | High | L |
-
----
-
-## Worker Startup Commands
-
-```
-Dev-2: Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
-
-Dev-3: Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
-
-Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
-```
 
 ---
 
