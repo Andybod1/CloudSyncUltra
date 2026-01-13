@@ -1003,16 +1003,6 @@ class RcloneManager {
     
     // MARK: - OAuth Services Expansion: Media & Consumer
     
-    func setupGooglePhotos(remoteName: String) async throws {
-        // Google Photos uses OAuth with read-only scope
-        // Scope "1" = read_only = photoslibrary.readonly
-        try await createRemoteInteractive(
-            name: remoteName, 
-            type: "gphotos",
-            additionalParams: ["read_only": "true"]
-        )
-    }
-    
     func setupFlickr(remoteName: String) async throws {
         // Flickr uses OAuth - opens browser for authentication
         try await createRemoteInteractive(name: remoteName, type: "flickr")
@@ -1099,7 +1089,7 @@ class RcloneManager {
             "--config", configPath
         ]
         
-        // Add any additional parameters (e.g., scope for Google Photos)
+        // Add any additional parameters (e.g., scope for OAuth providers)
         for (key, value) in additionalParams {
             args.append(key)
             args.append(value)

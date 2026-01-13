@@ -2,8 +2,8 @@
 //  OAuthExpansionProvidersTests.swift
 //  CloudSyncAppTests
 //
-//  Tests for OAuth Services Expansion: 8 new OAuth providers
-//  - Media & Consumer: Google Photos, Flickr, SugarSync, OpenDrive
+//  Tests for OAuth Services Expansion: 7 OAuth providers
+//  - Media & Consumer: Flickr, SugarSync, OpenDrive
 //  - Specialized & Enterprise: Put.io, Premiumize.me, Quatrix, File Fabric
 //
 
@@ -13,17 +13,6 @@ import XCTest
 final class OAuthExpansionProvidersTests: XCTestCase {
     
     // MARK: - Provider Properties Tests
-    
-    func testGooglePhotosProperties() {
-        let provider = CloudProviderType.googlePhotos
-        XCTAssertEqual(provider.displayName, "Google Photos")
-        XCTAssertEqual(provider.rcloneType, "gphotos")
-        XCTAssertEqual(provider.defaultRcloneName, "gphotos")
-        XCTAssertEqual(provider.iconName, "photo.stack.fill")
-        XCTAssertEqual(provider.rawValue, "gphotos")
-        XCTAssertTrue(provider.isSupported)
-        XCTAssertFalse(provider.isExperimental)
-    }
     
     func testFlickrProperties() {
         let provider = CloudProviderType.flickr
@@ -93,19 +82,19 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testProviderCountIncreased() {
         let allProviders = CloudProviderType.allCases
-        XCTAssertGreaterThanOrEqual(allProviders.count, 42, "Should have at least 42 providers (34 + 8 OAuth)")
+        XCTAssertGreaterThanOrEqual(allProviders.count, 41, "Should have at least 41 providers (34 + 7 OAuth)")
     }
     
     func testProviderCountExact() {
         let allProviders = CloudProviderType.allCases
-        XCTAssertEqual(allProviders.count, 42, "Should have exactly 42 providers after OAuth expansion")
+        XCTAssertEqual(allProviders.count, 41, "Should have exactly 41 providers after OAuth expansion (Google Photos removed)")
     }
     
     // MARK: - Codable Tests
     
     func testOAuthProvidersAreCodable() throws {
         let providers: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -117,7 +106,6 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     }
     
     func testOAuthProviderRawValues() {
-        XCTAssertEqual(CloudProviderType.googlePhotos.rawValue, "gphotos")
         XCTAssertEqual(CloudProviderType.flickr.rawValue, "flickr")
         XCTAssertEqual(CloudProviderType.sugarsync.rawValue, "sugarsync")
         XCTAssertEqual(CloudProviderType.opendrive.rawValue, "opendrive")
@@ -131,7 +119,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testOAuthProvidersAreIdentifiable() {
         let providers: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -142,9 +130,9 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     }
     
     func testOAuthProvidersAreHashable() {
-        let provider1 = CloudProviderType.googlePhotos
-        let provider2 = CloudProviderType.googlePhotos
-        let provider3 = CloudProviderType.flickr
+        let provider1 = CloudProviderType.flickr
+        let provider2 = CloudProviderType.flickr
+        let provider3 = CloudProviderType.sugarsync
         
         XCTAssertEqual(provider1.hashValue, provider2.hashValue)
         XCTAssertNotEqual(provider1.hashValue, provider3.hashValue)
@@ -152,12 +140,12 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testOAuthProviderSetOperations() {
         let set: Set<CloudProviderType> = [
-            .googlePhotos, .flickr, .googlePhotos  // Duplicate
+            .flickr, .sugarsync, .flickr  // Duplicate
         ]
         
         XCTAssertEqual(set.count, 2, "Set should contain only unique providers")
-        XCTAssertTrue(set.contains(.googlePhotos))
         XCTAssertTrue(set.contains(.flickr))
+        XCTAssertTrue(set.contains(.sugarsync))
     }
     
     // MARK: - Integration Tests
@@ -165,7 +153,6 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     func testOAuthProvidersInAllCases() {
         let allCases = CloudProviderType.allCases
         
-        XCTAssertTrue(allCases.contains(.googlePhotos))
         XCTAssertTrue(allCases.contains(.flickr))
         XCTAssertTrue(allCases.contains(.sugarsync))
         XCTAssertTrue(allCases.contains(.opendrive))
@@ -177,7 +164,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testOAuthProviderRemoteCreation() {
         let providers: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -196,7 +183,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     // MARK: - Category Tests
     
     func testMediaProviders() {
-        let mediaProviders: [CloudProviderType] = [.googlePhotos, .flickr]
+        let mediaProviders: [CloudProviderType] = [.flickr]
         
         for provider in mediaProviders {
             XCTAssertTrue(provider.isSupported, "\(provider.displayName) should be supported")
@@ -236,7 +223,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testOAuthProvidersBrandColors() {
         let providers: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -249,7 +236,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     
     func testAllOAuthProvidersHaveRequiredProperties() {
         let oauthProviders: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -272,13 +259,13 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     }
     
     func testOAuthExpansionComplete() {
-        // Verify all 8 OAuth providers are present
+        // Verify all 7 OAuth providers are present (Google Photos removed due to API limitations)
         let oauthExpansion: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
-        XCTAssertEqual(oauthExpansion.count, 8, "Should have 8 OAuth expansion providers")
+        XCTAssertEqual(oauthExpansion.count, 7, "Should have 7 OAuth expansion providers")
         
         let allProviders = CloudProviderType.allCases
         for provider in oauthExpansion {
@@ -289,10 +276,10 @@ final class OAuthExpansionProvidersTests: XCTestCase {
     // MARK: - OAuth-Specific Tests
     
     func testAllOAuthProvidersUseInteractiveAuth() {
-        // All 8 new providers should use OAuth (interactive authentication)
+        // All 7 new providers should use OAuth (interactive authentication)
         // This is verified by checking they don't require manual credentials
         let oauthProviders: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -311,11 +298,11 @@ final class OAuthExpansionProvidersTests: XCTestCase {
             // Phase 1 OAuth
             .yandexDisk, .pcloud, .koofr, .mailRuCloud,
             .sharepoint, .oneDriveBusiness, .googleCloudStorage,
-            // OAuth Expansion
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            // OAuth Expansion (Google Photos removed)
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
-        XCTAssertEqual(allOAuthProviders.count, 19, "Should have 19 total OAuth providers")
+        XCTAssertEqual(allOAuthProviders.count, 18, "Should have 18 total OAuth providers")
     }
 }

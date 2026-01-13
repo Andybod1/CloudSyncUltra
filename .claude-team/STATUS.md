@@ -1,100 +1,59 @@
 # Worker Status
 
-> Last Updated: 2026-01-13 15:00 UTC
-> Version: v2.0.12
+> Last Updated: 2026-01-13 16:30 UTC
+> Version: v2.0.13 (in progress)
 
-## Current State: Between Sprints ✅
+## Current State: Sprint Active 🚀
 
-All sprints complete. Ready for next sprint planning.
+**Sprint:** Test Health + Issue Cleanup (v2.0.13)
 
-| Worker | Model | Status | Last Task |
-|--------|-------|--------|-----------|
-| Dev-1 | Sonnet | 💤 IDLE | UI for #14, #25, #1 |
-| Dev-2 | Sonnet | 💤 IDLE | Bandwidth engine #1 |
-| Dev-3 | Sonnet | 💤 IDLE | Model updates #14, #25 |
-| QA | Opus | 💤 IDLE | Test coverage for sprint |
-
----
-
-## Last Completed Sprint: Quick Wins + Polish (v2.0.12) ✅
-
-### Tickets Delivered
-| Ticket | Title | Status |
-|--------|-------|--------|
-| #14 | Drag & drop cloud service reordering | ✅ Closed |
-| #25 | Account name in encryption view | ✅ Closed |
-| #1 | Bandwidth throttling controls | ✅ Closed |
-
-### Test Results
-- RemoteReorderingTests: 6/6 ✅
-- AccountNameTests: 6/6 ✅
-- BandwidthThrottlingUITests: 7/7 ✅
-- **Total new tests: 19 passed**
-
-### Infrastructure Completed
-- Test target configured (617 tests runnable)
-- Shift-left testing workflow documented
-- QA planning role added
+| Worker | Model | Status | Current Task |
+|--------|-------|--------|--------------|
+| Dev-1 | - | 💤 IDLE | - |
+| Dev-2 | - | 💤 IDLE | - |
+| Dev-3 | - | 💤 IDLE | - |
+| QA | Opus | 🔄 ASSIGNED | Fix 23 test failures (#35) |
+| Dev-Ops | Sonnet | 🔄 ASSIGNED | Close #30, update docs |
 
 ---
 
-## Open Issues (Ready for Next Sprint)
+## Active Sprint Tasks
 
-| # | Title | Priority | Size |
-|---|-------|----------|------|
-| **#35** | Fix 23 pre-existing test failures | Medium | M |
-| **#30** | Google Photos folders appear empty | Critical | M |
-| **#10** | Transfer performance poor | High | L |
-| **#27** | UI test automation / RPA | High | L |
-| **#9** | iCloud integration | High | XL |
-
----
-
-## Sprint Workflow (Shift-Left Testing)
-
-| Phase | Workers | Duration |
-|-------|---------|----------|
-| 1. Planning | Strategic Partner + QA | 15-20 min |
-| 2. Foundation | Dev-3 (models) | 15-20 min |
-| 3. Implementation | Dev-1, Dev-2, QA (parallel) | 30-45 min |
-| 4. Integration | Strategic Partner | 15-20 min |
+| Ticket | Title | Worker | Size |
+|--------|-------|--------|------|
+| #30 | Close Google Photos issue | Dev-Ops | XS |
+| #35 | Fix 23 test failures | QA | M |
 
 ---
 
 ## Worker Launch Commands
 
-```bash
-# Launch all workers
-~/Claude/.claude-team/scripts/launch_workers.sh
-
-# Or launch single worker
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
-~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
 ```
+Dev-Ops: Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
 
-## Task & Output Locations
-
-| Type | Location |
-|------|----------|
-| Tasks | `.claude-team/tasks/TASK_*.md` |
-| Outputs | `.claude-team/outputs/*_COMPLETE.md` |
-| Test Plan | `.claude-team/outputs/QA_TEST_PLAN.md` |
-| Worker Models | `.claude-team/WORKER_MODELS.conf` |
+QA: Read /Users/antti/Claude/.claude-team/templates/QA_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
+```
 
 ---
 
-## Previous Sprints
+## Team Structure (Updated)
 
-### Error Handling Sprint (v2.0.11) ✅
-- Duration: 3 hours 11 minutes
-- Delivered: Comprehensive error handling (25+ error types)
-- Tests: 61 new tests
+| Worker | Domain | Files |
+|--------|--------|-------|
+| Dev-1 | UI | Views/, ViewModels/, Components/ |
+| Dev-2 | Engine | RcloneManager.swift |
+| Dev-3 | Services | Models/, *Manager.swift |
+| QA | Testing | CloudSyncAppTests/ |
+| **Dev-Ops** | Integration | Git, GitHub, Docs, CHANGELOG |
 
-### Quick Wins Sprint (v2.0.12) ✅
-- Duration: ~2 hours
-- Delivered: Reordering, account names, bandwidth throttling
-- Tests: 19 new tests
-- Infrastructure: Test target, shift-left workflow
+---
+
+## Previous Sprint: Quick Wins + Polish (v2.0.12) ✅
+
+- #14 Drag & drop sidebar reordering ✅
+- #25 Account name in encryption view ✅
+- #1 Bandwidth throttling controls ✅
+- 19 new tests added
 
 ---
 

@@ -8,7 +8,14 @@ MODEL="${2:-opus}"  # Default to opus if not specified
 TEAM_DIR="/Users/antti/Claude/.claude-team"
 
 if [ -z "$WORKER" ]; then
-    echo "Usage: $0 [DEV1|DEV2|DEV3|QA] [sonnet|opus]"
+    echo "Usage: $0 [DEV1|DEV2|DEV3|QA|DEVOPS] [sonnet|opus]"
+    echo ""
+    echo "Workers:"
+    echo "  DEV1   - UI (Views, ViewModels, Components)"
+    echo "  DEV2   - Engine (RcloneManager)"
+    echo "  DEV3   - Services (Models, Managers)"
+    echo "  QA     - Testing (always uses Opus)"
+    echo "  DEVOPS - Integration (Git, GitHub, Docs)"
     echo ""
     echo "Models:"
     echo "  sonnet - Fast, for simple tasks (XS, S)"
@@ -54,9 +61,14 @@ case "$WORKER" in
         TASK="TASK_QA.md"
         NAME="QA (Testing)"
         ;;
+    DEVOPS|devops|dev-ops)
+        BRIEFING="DEVOPS_BRIEFING.md"
+        TASK="TASK_DEVOPS.md"
+        NAME="Dev-Ops (Integration)"
+        ;;
     *)
         echo "Unknown worker: $WORKER"
-        echo "Use: DEV1, DEV2, DEV3, or QA"
+        echo "Use: DEV1, DEV2, DEV3, QA, or DEVOPS"
         exit 1
         ;;
 esac

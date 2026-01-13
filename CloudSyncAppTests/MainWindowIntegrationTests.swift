@@ -51,13 +51,13 @@ final class MainWindowIntegrationTests: XCTestCase {
     }
     
     func testOAuthExpansionConfiguration() {
-        // Test OAuth expansion providers have configuration
+        // Test OAuth expansion providers have configuration (Google Photos removed)
         let oauthExpansion: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
-        XCTAssertEqual(oauthExpansion.count, 8, "Should have 8 OAuth expansion providers")
+        XCTAssertEqual(oauthExpansion.count, 7, "Should have 7 OAuth expansion providers")
         
         for provider in oauthExpansion {
             XCTAssertTrue(provider.isSupported, "\(provider.displayName) should be supported")
@@ -70,7 +70,7 @@ final class MainWindowIntegrationTests: XCTestCase {
         // OAuth providers should not require credentials in UI
         let oauthProviders: [CloudProviderType] = [
             .googleDrive, .dropbox, .oneDrive, .box, .pcloud,
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -142,7 +142,7 @@ final class MainWindowIntegrationTests: XCTestCase {
     
     func testCloudRemoteCreation() {
         let testProviders: [CloudProviderType] = [
-            .googleDrive, .dropbox, .pcloud, .googlePhotos
+            .googleDrive, .dropbox, .pcloud, .flickr
         ]
         
         for provider in testProviders {
@@ -287,7 +287,7 @@ final class MainWindowIntegrationTests: XCTestCase {
     func testMultipleProvidersSupported() {
         // Should support connecting multiple providers simultaneously
         let providers: [CloudProviderType] = [
-            .googleDrive, .dropbox, .pcloud, .googlePhotos, .protonDrive
+            .googleDrive, .dropbox, .pcloud, .flickr, .protonDrive
         ]
         
         let remotes = providers.map { provider in

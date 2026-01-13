@@ -53,7 +53,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case jottacloud = "jottacloud"
     
     // OAuth Services Expansion: Media & Consumer
-    case googlePhotos = "gphotos"
     case flickr = "flickr"
     case sugarsync = "sugarsync"
     case opendrive = "opendrive"
@@ -112,7 +111,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "Jottacloud"
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos: return "Google Photos"
         case .flickr: return "Flickr"
         case .sugarsync: return "SugarSync"
         case .opendrive: return "OpenDrive"
@@ -171,7 +169,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "j.circle.fill"
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos: return "photo.stack.fill"
         case .flickr: return "camera.fill"
         case .sugarsync: return "arrow.triangle.2.circlepath"
         case .opendrive: return "externaldrive.fill"
@@ -230,7 +227,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return Color(red: 0.0, green: 0.58, blue: 0.77)
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos: return Color(red: 0.93, green: 0.35, blue: 0.35)
         case .flickr: return Color(red: 0.0, green: 0.42, blue: 0.98)
         case .sugarsync: return Color(red: 0.0, green: 0.67, blue: 0.93)
         case .opendrive: return Color(red: 0.29, green: 0.67, blue: 0.31)
@@ -289,7 +285,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "jottacloud"
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos: return "gphotos"
         case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
@@ -347,7 +342,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "jottacloud"
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos: return "gphotos"
         case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
@@ -388,7 +382,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         switch self {
         case .googleDrive, .dropbox, .oneDrive, .box, .yandexDisk,
              .googleCloudStorage, .oneDriveBusiness, .sharepoint,
-             .googlePhotos, .flickr, .sugarsync, .opendrive,
+             .flickr, .sugarsync, .opendrive,
              .putio, .premiumizeme, .quatrix, .filefabric, .pcloud:
             return true
         default:

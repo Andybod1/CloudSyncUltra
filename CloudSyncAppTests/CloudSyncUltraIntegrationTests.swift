@@ -2,7 +2,8 @@
 //  CloudSyncUltraIntegrationTests.swift
 //  CloudSyncAppTests
 //
-//  Integration tests for CloudSync Ultra v2.0 - 42 providers
+//  Integration tests for CloudSync Ultra v2.0 - 41 providers
+//  Note: Google Photos removed due to Google API limitations (March 2025)
 //
 
 import XCTest
@@ -14,7 +15,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     
     func testTotalProviderCount() {
         let allProviders = CloudProviderType.allCases
-        XCTAssertEqual(allProviders.count, 42, "CloudSync Ultra should have exactly 42 providers")
+        XCTAssertEqual(allProviders.count, 41, "CloudSync Ultra should have exactly 41 providers")
     }
     
     func testProviderCountBreakdown() {
@@ -46,9 +47,9 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         // Jottacloud: 1
         let jottacloud: [CloudProviderType] = [.jottacloud]
         
-        // OAuth Expansion: 8
+        // OAuth Expansion: 7 (Google Photos removed due to API limitations)
         let oauthExpansion: [CloudProviderType] = [
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -57,10 +58,10 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         XCTAssertEqual(week2.count, 8, "Should have 8 Week 2 providers")
         XCTAssertEqual(week3.count, 6, "Should have 6 Week 3 providers")
         XCTAssertEqual(jottacloud.count, 1, "Should have 1 Jottacloud provider")
-        XCTAssertEqual(oauthExpansion.count, 8, "Should have 8 OAuth expansion providers")
+        XCTAssertEqual(oauthExpansion.count, 7, "Should have 7 OAuth expansion providers")
         
         let total = original.count + week1.count + week2.count + week3.count + jottacloud.count + oauthExpansion.count
-        XCTAssertEqual(total, 42, "Total should be 42 providers")
+        XCTAssertEqual(total, 41, "Total should be 41 providers")
         XCTAssertEqual(allProviders.count, total, "AllCases should match counted total")
     }
     
@@ -75,12 +76,12 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
             .yandexDisk, .pcloud, .koofr, .mailRuCloud,
             .sharepoint, .oneDriveBusiness, .googleCloudStorage,
             
-            // OAuth Expansion (8)
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            // OAuth Expansion (7) - Google Photos removed
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
-        XCTAssertEqual(oauthProviders.count, 19, "Should have 19 OAuth providers")
+        XCTAssertEqual(oauthProviders.count, 18, "Should have 18 OAuth providers")
     }
     
     func testAllOAuthProvidersAreSupported() {
@@ -88,7 +89,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
             .googleDrive, .dropbox, .oneDrive, .box,
             .yandexDisk, .pcloud, .koofr, .mailRuCloud,
             .sharepoint, .oneDriveBusiness, .googleCloudStorage,
-            .googlePhotos, .flickr, .sugarsync, .opendrive,
+            .flickr, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
         
@@ -126,11 +127,12 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     }
     
     func testMediaProviders() {
+        // Google Photos removed due to API limitations (March 2025)
         let mediaProviders: [CloudProviderType] = [
-            .googlePhotos, .flickr
+            .flickr
         ]
         
-        XCTAssertEqual(mediaProviders.count, 2, "Should have 2 media providers")
+        XCTAssertEqual(mediaProviders.count, 1, "Should have 1 media provider (Google Photos removed)")
         
         for provider in mediaProviders {
             XCTAssertTrue(provider.isSupported)
@@ -187,7 +189,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         ]
         
         XCTAssertEqual(nordicProviders.count, 1, "Should have 1 Nordic provider")
-        XCTAssertTrue(nordicProviders[0].isExperimental, "Jottacloud should be experimental")
+        XCTAssertFalse(nordicProviders[0].isExperimental, "Jottacloud should not be experimental")
     }
     
     func testInternationalProviders() {
@@ -246,16 +248,16 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         let allProviders = CloudProviderType.allCases
         let experimental = allProviders.filter { $0.isExperimental }
         
-        XCTAssertEqual(experimental.count, 1, "Should have 1 experimental provider")
-        XCTAssertTrue(experimental.contains(.jottacloud), "Jottacloud should be experimental")
+        // No providers are currently experimental (Jottacloud was made stable)
+        XCTAssertEqual(experimental.count, 0, "Should have 0 experimental providers")
     }
     
     func testExperimentalProviderHasNote() {
         let jottacloud = CloudProviderType.jottacloud
         
-        XCTAssertTrue(jottacloud.isExperimental)
-        XCTAssertNotNil(jottacloud.experimentalNote)
-        XCTAssertFalse(jottacloud.experimentalNote!.isEmpty)
+        // Jottacloud is no longer experimental but still has setup note
+        XCTAssertFalse(jottacloud.isExperimental)
+        XCTAssertNotNil(jottacloud.experimentalNote, "Jottacloud should have setup instructions")
     }
     
     // MARK: - Unsupported Provider Tests
@@ -276,7 +278,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         let phase1Week2 = 8
         let phase1Week3 = 6
         let jottacloud = 1
-        let oauthExpansion = 8
+        let oauthExpansion = 7  // Google Photos removed
         
         let phase1Total = phase1Week1 + phase1Week2 + phase1Week3
         XCTAssertEqual(phase1Total, 20, "Phase 1 should add 20 providers")
@@ -288,10 +290,10 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         XCTAssertEqual(afterJottacloud, 34, "After Jottacloud should have 34 providers")
         
         let final = afterJottacloud + oauthExpansion
-        XCTAssertEqual(final, 42, "Final should have 42 providers")
+        XCTAssertEqual(final, 41, "Final should have 41 providers")
         
         let growthPercentage = Double(final - original) / Double(original) * 100
-        XCTAssertGreaterThan(growthPercentage, 223, "Growth should be over 223%")
+        XCTAssertGreaterThan(growthPercentage, 215, "Growth should be over 215%")
     }
     
     // MARK: - Authentication Method Tests
@@ -299,12 +301,12 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     func testAuthenticationMethodDistribution() {
         let allProviders = CloudProviderType.allCases.filter { $0.isSupported }
         
-        let oauth = 19
+        let oauth = 18  // Updated: Google Photos removed
         let credentials = 9
         let accessKeys = 14
         
         let totalAuth = oauth + credentials + accessKeys
-        XCTAssertEqual(totalAuth, 42, "Total auth methods should equal 42")
+        XCTAssertEqual(totalAuth, 41, "Total auth methods should equal 41")
         
         // OAuth should be largest category
         XCTAssertGreaterThan(oauth, credentials)
@@ -329,19 +331,19 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         let allProviders = CloudProviderType.allCases
         
         // Total count
-        XCTAssertEqual(allProviders.count, 42, "Should have 42 providers")
+        XCTAssertEqual(allProviders.count, 41, "Should have 41 providers")
         
         // OAuth count
-        let oauthCount = 19
-        XCTAssertGreaterThanOrEqual(oauthCount, 19, "Should have at least 19 OAuth providers")
+        let oauthCount = 18
+        XCTAssertGreaterThanOrEqual(oauthCount, 18, "Should have at least 18 OAuth providers")
         
         // Supported count
         let supported = allProviders.filter { $0.isSupported }
-        XCTAssertEqual(supported.count, 41, "Should have 41 supported providers")
+        XCTAssertEqual(supported.count, 40, "Should have 40 supported providers")
         
         // Experimental count
         let experimental = allProviders.filter { $0.isExperimental }
-        XCTAssertEqual(experimental.count, 1, "Should have 1 experimental provider")
+        XCTAssertEqual(experimental.count, 0, "Should have 0 experimental providers")
         
         // All providers have required properties
         for provider in allProviders {
@@ -358,7 +360,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     func testIndustryLeadingProviderCount() {
         let allProviders = CloudProviderType.allCases
         
-        // CloudSync Ultra: 42 providers
+        // CloudSync Ultra: 41 providers
         // Typical competitor: 5-10 providers
         let typicalCompetitor = 10
         
@@ -366,9 +368,9 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     }
     
     func testIndustryLeadingOAuthCount() {
-        let oauthCount = 19
+        let oauthCount = 18
         
-        // CloudSync Ultra: 19 OAuth
+        // CloudSync Ultra: 18 OAuth
         // Typical competitor: 3-4 OAuth
         let typicalCompetitor = 4
         
@@ -377,11 +379,12 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     
     func testUniqueFeatures() {
         // Features no competitor has
-        let mediaProviders = [CloudProviderType.googlePhotos, .flickr]
-        let specializedProviders = [CloudProviderType.putio, .premiumizeme]
-        let nordicProviders = [CloudProviderType.jottacloud]
+        // Note: Google Photos removed due to API limitations
+        let mediaProviders: [CloudProviderType] = [.flickr]
+        let specializedProviders: [CloudProviderType] = [.putio, .premiumizeme]
+        let nordicProviders: [CloudProviderType] = [.jottacloud]
         
-        XCTAssertEqual(mediaProviders.count, 2, "Unique: 2 media providers")
+        XCTAssertEqual(mediaProviders.count, 1, "Unique: 1 media provider")
         XCTAssertEqual(specializedProviders.count, 2, "Unique: 2 specialized providers")
         XCTAssertEqual(nordicProviders.count, 1, "Unique: Nordic coverage")
     }

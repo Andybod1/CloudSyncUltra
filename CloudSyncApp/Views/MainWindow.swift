@@ -687,8 +687,6 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
         
         // OAuth Expansion: Media & Consumer
-        case .googlePhotos:
-            try await rclone.setupGooglePhotos(remoteName: rcloneName)
         case .flickr:
             try await rclone.setupFlickr(remoteName: rcloneName)
         case .sugarsync:
