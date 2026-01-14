@@ -104,6 +104,7 @@ struct AppTheme {
     static let errorColor = error
     static let infoColor = info
     static let accentColor = Color.accentColor
+    static let encryptionColor = Color.purple  // For encryption status indicators
 
     // MARK: - Text Colors
 
@@ -193,6 +194,10 @@ struct AppTheme {
 
     /// Extra large corner radius
     static let cornerRadiusXL: CGFloat = 20
+
+    // Aliases for legacy compatibility
+    static let cornerRadiusSmall: CGFloat = cornerRadiusS
+    static let cornerRadiusLarge: CGFloat = cornerRadiusL
 
     // MARK: - Shadows
 
