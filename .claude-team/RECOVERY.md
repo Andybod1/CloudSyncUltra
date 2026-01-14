@@ -1,8 +1,8 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.15
-> **Last Updated:** 2026-01-13
+> **Current Version:** v2.0.19
+> **Last Updated:** 2026-01-14
 
 ---
 
@@ -164,33 +164,48 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 
 ---
 
-## Current State (v2.0.15)
+## Current State (v2.0.19)
 
-### Just Completed: v2.0.15
-- ✅ **iCloud Phase 1** (#9) - Local folder integration
-  - ICloudManager.swift for detection
-  - UI option in Add Cloud dialog
-  - 35 unit tests in ICloudIntegrationTests.swift
-- ✅ **Crash Reporting** (#20) - Infrastructure complete
-  - 82 print() → Logger in RcloneManager.swift
-  - CrashReportingManager with exception/signal handlers
-- ✅ **UX Audit** (#44) - Overall score 6.4/10
-  - Critical gap: No onboarding (4.3/10)
-  - Top 10 recommendations documented
-- ✅ **Product Strategy** (#45) - Complete strategy doc
-  - Vision, personas, MoSCoW, 90-day roadmap
+### Just Completed: v2.0.19
+- ✅ **Build Fix** - cornerRadiusSmall alias added to AppTheme
+- ✅ **All 743 tests passing**
+
+### v2.0.18 Sprint (9 Workers)
+- ✅ Multi-thread downloads (#72) - 30+ tests
+- ✅ App icon design spec (#77)
+- ✅ UI visual refresh (#84) - AppTheme to 5 views
+- ✅ Pricing strategy (#85) - $29 one-time
+- ✅ Marketing channels (#86) - Report + checklist
+- ✅ UI test integration (#88) - 69 XCUITests
+- ✅ Notifications system (#90)
+- ✅ CONTRIBUTING.md (#92)
+- ✅ PUBLISHING_GUIDE.md (#94)
+
+### v2.0.17: Accessibility & Infrastructure
+- VoiceOver labels + keyboard shortcuts
+- OSLog replaced print() statements
+- Help system (HelpManager)
+- Onboarding infrastructure (OnboardingManager)
+
+### v2.0.16: Performance & Security
+- TransferOptimizer with dynamic parallelism
+- App Sandbox enabled
+- Path validation, secure temp files
+- rclone.conf secured (0o600)
 
 ### Recent Completed
-- v2.0.14: Performance 2x boost, crash reporting research
+- v2.0.15: iCloud Phase 1, Crash reporting, UX audit
+- v2.0.14: Performance 2x boost
 - v2.0.13: Schedule time display, 12/24 hour setting
 - v2.0.12: Sidebar reordering, bandwidth throttling
 
 ### Open Issues
 | # | Title | Priority |
 |---|-------|----------|
-| #27 | UI test automation | High |
-| #40 | Performance Settings UI | Medium |
-| #46 | Onboarding flow | Critical (from UX audit) |
+| #87 | Fix 11 failing unit tests | Critical |
+| #80-83 | Onboarding sprint | High |
+| #70 | Universal Dynamic Parallelism | High |
+| #77 | Create App Icon Set | High |
 
 ---
 
@@ -199,7 +214,7 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 ```
 /Users/antti/Claude/
 ├── CloudSyncApp/                 # Source code
-├── CloudSyncAppTests/            # Tests (616 passing)
+├── CloudSyncAppTests/            # Tests (743 passing)
 ├── CLAUDE_PROJECT_KNOWLEDGE.md   # Claude context
 ├── .claude-team/
 │   ├── STATUS.md                 # Live worker status
@@ -248,4 +263,4 @@ git log --oneline -5
 ---
 
 *Last Updated: 2026-01-14*
-*CloudSync Ultra v2.0.15*
+*CloudSync Ultra v2.0.19*

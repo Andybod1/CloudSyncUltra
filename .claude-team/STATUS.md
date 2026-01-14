@@ -1,16 +1,25 @@
 # Worker Status
 
 > Last Updated: 2026-01-14 UTC
-> Version: v2.0.15
+> Version: v2.0.19
 
 ## Current State: Ready for Next Sprint 🎯
 
-**Completed:**
-- ✅ iCloud Phase 1 (#9) - Complete with 35 tests
-- ✅ Crash Reporting logging (#20) - RcloneManager converted
-- ✅ UX Review (#44) - Full audit complete
-- ✅ Product Strategy (#45) - Comprehensive doc ready
-- ✅ v2.0.15 pushed to GitHub
+**Just Completed:**
+- ✅ Build fix: cornerRadiusSmall alias added to AppTheme
+- ✅ All 743 tests passing
+- ✅ Documentation audit in progress
+
+**v2.0.18 Sprint Completed:**
+- ✅ Multi-thread downloads (#72)
+- ✅ App icon design spec (#77)
+- ✅ UI visual refresh (#84)
+- ✅ Pricing strategy (#85)
+- ✅ Marketing channels (#86)
+- ✅ UI test integration (#88) - 69 tests
+- ✅ Notifications system (#90)
+- ✅ CONTRIBUTING.md (#92)
+- ✅ PUBLISHING_GUIDE.md (#94)
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
@@ -19,46 +28,38 @@
 | Dev-3 | - | 💤 IDLE | Available |
 | QA | - | 💤 IDLE | Available |
 | Dev-Ops | - | 💤 IDLE | Available |
-| Performance-Engineer | Opus | ✅ COMPLETE | Deep transfer analysis (#10) |
 
 ---
 
-## #20 Crash Reporting Tasks (Parallel)
+## Priority Issues
 
-| Task | Worker | Size | Status |
-|------|--------|------|--------|
-| Convert print() → Logger | Dev-2 | M | ✅ COMPLETE |
-| Crash handler infrastructure | Dev-3 | S | 🔄 Starting |
-| Log export UI | Dev-1 | S | ⏳ Waiting for Dev-3 |
-| Integration tests | QA | S | ⏳ Waiting for all |
-
----
-
-## iCloud Phase 1 (#9)
-
-| Task | Worker | Status |
-|------|--------|--------|
-| Foundation | Dev-3 | ✅ COMPLETE |
-| UI | Dev-1 | ✅ COMPLETE |
-| Testing | QA | ✅ COMPLETE |
+| # | Title | Priority | Size |
+|---|-------|----------|------|
+| #87 | Fix 11 failing unit tests | 🔴 Critical | S-M |
+| #80-83 | Onboarding Sprint | High | L |
+| #70 | Universal Dynamic Parallelism | High | M |
+| #77 | Create App Icon Set | High | M |
 
 ---
 
-## Specialized Agent Work
+## Test Status
 
-| Agent | Task | Status |
-|-------|------|--------|
-| UX-Designer | Full UX review (#44) | 🔄 WORKING |
-| Product-Manager | Product strategy (#45) | ✅ COMPLETE |
+```
+743 tests, 0 failures
+All tests passing ✅
+```
 
 ---
 
-## Completed Today
+## Recent Versions
 
-| Task | Worker | Deliverable |
-|------|--------|------------|
-| Product Strategy (#45) | Product-Manager | Comprehensive strategy doc with personas, roadmap, 3 new feature issues |
-| iCloud Phase 1 Testing (#9) | QA | 35 unit tests in ICloudIntegrationTests.swift |
+| Version | Date | Highlights |
+|---------|------|------------|
+| v2.0.19 | 2026-01-14 | Build fix (cornerRadiusSmall) |
+| v2.0.18 | 2026-01-14 | 9-worker sprint, UI tests, publishing guide |
+| v2.0.17 | 2026-01-14 | Accessibility, OSLog, Help system |
+| v2.0.16 | 2026-01-14 | Performance + Security hardening |
+| v2.0.15 | 2026-01-14 | iCloud Phase 1, Crash reporting |
 
 ---
 

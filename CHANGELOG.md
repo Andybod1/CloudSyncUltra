@@ -5,6 +5,87 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.19] - 2026-01-14
+
+### Fixed
+- **Build Fix** - Added missing AppTheme aliases
+  - `cornerRadiusSmall` and `cornerRadiusLarge` aliases added to AppTheme struct
+  - Fixed build error: 'type AppTheme has no member cornerRadiusSmall'
+  - FileBrowserView.swift was referencing AppTheme.cornerRadiusSmall
+
+### Tests
+- All 743 tests passing
+
+---
+
+## [2.0.18] - 2026-01-14
+
+### Added
+- **Multi-Thread Downloads** (#72) - Verified complete with 30+ tests
+- **App Icon Design** (#77) - Spec, SVG template, generation script
+- **UI Visual Refresh** (#84) - AppTheme applied to 5 views
+- **Pricing Strategy** (#85) - $29 one-time recommended
+- **Marketing Channels** (#86) - Report + launch checklist
+- **UI Test Integration** (#88) - 69 XCUITests integrated
+- **Notifications System** (#90) - NotificationManager verified
+- **CONTRIBUTING.md** (#92) - 450+ lines contributor guide
+- **PUBLISHING_GUIDE.md** (#94) - ~650 lines publishing documentation
+
+### Infrastructure
+- CloudSyncApp/Styles/ directory (AppTheme, ButtonStyles, CardStyles)
+- CloudSyncAppUITests/ (7 test files, 69 tests)
+- Icon generation: SVG template + shell script
+- 5 professional PDFs in docs/pdfs/
+
+---
+
+## [2.0.17] - 2026-01-14
+
+### Added
+- **Accessibility** (Dev-1) - VoiceOver labels + keyboard shortcuts
+- **OSLog Logging** (Dev-2) - Replaced print() with structured logging
+- **Help System** - HelpManager, HelpCategory, HelpTopic models
+- **Onboarding** - OnboardingManager for first-run experience
+- **Pagination** - LazyVStack for large file lists (Performance)
+
+### Fixed
+- Test assertions: 41 supported providers (iCloud enabled)
+- Int64/Int type comparisons in RcloneManager
+
+### Infrastructure
+- Architecture refactor plan for RcloneManager
+- Marketing channels research task
+- All 743 tests passing
+
+---
+
+## [2.0.16] - 2026-01-14
+
+### Performance (#70)
+- TransferOptimizer class with dynamic parallelism
+- Default buffer increased to 32MB
+- Default checkers increased to 16
+- Applied to all transfer methods (sync, download, copy, etc.)
+
+### Security (#58)
+- App Sandbox ENABLED with proper entitlements
+- Path validation to prevent command injection
+- Password passed via stdin (not CLI args)
+- Secure temp file handling (UUID paths, 0o600 permissions)
+- rclone.conf secured with 0o600
+- Input length validation on credential fields
+
+### Tests
+- PathValidationSecurityTests.swift
+- TransferOptimizerTests.swift
+
+### Reports
+- PERFORMANCE_ENGINEER_COMPLETE.md - Deep transfer analysis
+- SECURITY_AUDITOR_COMPLETE.md - 16 vulnerabilities identified
+- BRAND_DESIGNER_COMPLETE.md - Visual identity plan
+
+---
+
 ## [2.0.15] - 2026-01-14
 
 ### Added
