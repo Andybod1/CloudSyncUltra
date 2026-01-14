@@ -888,3 +888,4 @@ Complete redesign and rebuild of CloudSync with SwiftUI and modern macOS archite
 
 [2.0.0]: https://github.com/andybod1-lang/CloudSyncUltra/releases/tag/v2.0.0
 [1.0.0]: https://github.com/andybod1-lang/CloudSyncUltra/releases/tag/v1.0.0
+
