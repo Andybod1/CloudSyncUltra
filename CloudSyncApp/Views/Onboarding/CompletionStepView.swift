@@ -248,13 +248,17 @@ private struct QuickTipCard: View {
                 .font(AppTheme.captionFont)
                 .fontWeight(.semibold)
                 .foregroundColor(AppTheme.textOnDark)
+                .lineLimit(1)
 
             // Description
             Text(tip.description)
                 .font(.caption2)
                 .foregroundColor(AppTheme.textOnDarkTertiary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(height: 28) // Fixed height for 2 lines
         }
-        .frame(width: 130)
+        .frame(width: 140, height: 120)
         .padding(AppTheme.spacingM)
         .background(
             RoundedRectangle(cornerRadius: AppTheme.cornerRadiusM)

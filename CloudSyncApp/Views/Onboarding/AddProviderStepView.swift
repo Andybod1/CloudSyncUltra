@@ -39,26 +39,30 @@ struct AddProviderStepView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.spacingL) {
-            Spacer()
+        VStack(spacing: 0) {
+            // Scrollable content area
+            ScrollView {
+                VStack(spacing: AppTheme.spacingL) {
+                    // Header
+                    headerSection
+                        .padding(.top, AppTheme.spacingL)
 
-            // Header
-            headerSection
+                    // Provider Grid
+                    providerGrid
 
-            // Provider Grid
-            providerGrid
+                    // Show All / Show Less toggle
+                    showAllToggle
 
-            // Show All / Show Less toggle
-            showAllToggle
-
-            // Error message
-            if let error = connectionError {
-                errorView(error)
+                    // Error message
+                    if let error = connectionError {
+                        errorView(error)
+                    }
+                }
+                .padding(.bottom, AppTheme.spacingL)
             }
+            .scrollIndicators(.automatic)
 
-            Spacer()
-
-            // Navigation buttons
+            // Navigation buttons (fixed at bottom)
             navigationButtons
         }
         .onAppear {
@@ -106,51 +110,44 @@ struct AddProviderStepView: View {
     // MARK: - Provider Grid
 
     private var providerGrid: some View {
-        LazyVGrid(columns: [
-            GridItem(.adaptive(minimum: 120, maximum: 150), spacing: AppTheme.spacingM)
-        ], spacing: AppTheme.spacingM) {
-            ForEach(Array(displayedProviders.enumerated()), id: \.element.id) { index, provider in
+        let columns = Array(repeating: GridItem(.fixed(130), spacing: AppTheme.spacingM), count: min(displayedProviders.count, 5))
+        
+        return LazyVGrid(columns: columns, spacing: AppTheme.spacingM) {
+            ForEach(displayedProviders, id: \.id) { provider in
                 OnboardingProviderCard(
                     provider: provider,
                     isSelected: selectedProvider == provider,
                     isOAuth: provider.requiresOAuth
                 ) {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedProvider = provider
-                        connectionError = nil
-                    }
+                    selectedProvider = provider
+                    connectionError = nil
                 }
-                .opacity(animateContent ? 1 : 0)
-                .offset(y: animateContent ? 0 : 20)
-                .animation(
-                    .spring(response: 0.6, dampingFraction: 0.8)
-                    .delay(Double(index) * 0.05 + 0.2),
-                    value: animateContent
-                )
             }
         }
         .padding(.horizontal, AppTheme.spacingXL)
+        .opacity(animateContent ? 1 : 0)
+        .animation(.easeInOut(duration: 0.3).delay(0.2), value: animateContent)
     }
 
     // MARK: - Show All Toggle
 
     private var showAllToggle: some View {
-        Button {
+        HStack(spacing: AppTheme.spacingS) {
+            Text(showAllProviders ? "Show Less" : "Show All 40+ Providers")
+                .font(AppTheme.subheadlineFont)
+
+            Image(systemName: showAllProviders ? "chevron.up" : "chevron.down")
+                .font(.caption)
+        }
+        .foregroundColor(AppTheme.primaryPurple)
+        .padding(.vertical, AppTheme.spacingS)
+        .padding(.horizontal, AppTheme.spacingM)
+        .contentShape(Rectangle())
+        .onTapGesture {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 showAllProviders.toggle()
             }
-        } label: {
-            HStack(spacing: AppTheme.spacingS) {
-                Text(showAllProviders ? "Show Less" : "Show All 40+ Providers")
-                    .font(AppTheme.subheadlineFont)
-
-                Image(systemName: showAllProviders ? "chevron.up" : "chevron.down")
-                    .font(.caption)
-            }
-            .foregroundColor(AppTheme.primaryPurple)
         }
-        .buttonStyle(.plain)
-        .padding(.top, AppTheme.spacingS)
         .opacity(animateContent ? 1 : 0)
     }
 
@@ -276,53 +273,54 @@ private struct OnboardingProviderCard: View {
     @State private var isHovered = false
 
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: AppTheme.spacingS) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(isSelected ? provider.brandColor.opacity(0.3) : Color.white.opacity(0.1))
-                        .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+        VStack(spacing: AppTheme.spacingS) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(isSelected ? provider.brandColor.opacity(0.3) : Color.white.opacity(0.1))
+                    .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
 
-                    Image(systemName: provider.iconName)
-                        .font(.title2)
-                        .foregroundColor(isSelected ? provider.brandColor : AppTheme.primaryPurple)
-                }
-
-                // Provider name
-                Text(provider.displayName)
-                    .font(AppTheme.captionFont)
-                    .fontWeight(.medium)
-                    .foregroundColor(AppTheme.textOnDark)
-                    .lineLimit(1)
-
-                // OAuth indicator
-                if isOAuth {
-                    Text("OAuth")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundColor(AppTheme.textOnDarkTertiary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(Color.white.opacity(0.1))
-                        )
-                }
+                Image(systemName: provider.iconName)
+                    .font(.title2)
+                    .foregroundColor(isSelected ? provider.brandColor : AppTheme.primaryPurple)
             }
-            .frame(width: 120, height: 110)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusL)
-                    .fill(isSelected ? provider.brandColor.opacity(0.15) : AppTheme.cardBackgroundDark)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.cornerRadiusL)
-                            .stroke(isSelected ? provider.brandColor : AppTheme.cardBorderDark, lineWidth: isSelected ? 2 : 1)
+
+            // Provider name
+            Text(provider.displayName)
+                .font(AppTheme.captionFont)
+                .fontWeight(.medium)
+                .foregroundColor(AppTheme.textOnDark)
+                .lineLimit(1)
+
+            // OAuth indicator
+            if isOAuth {
+                Text("OAuth")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundColor(AppTheme.textOnDarkTertiary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.1))
                     )
-            )
-            .scaleEffect(isHovered && !isSelected ? AppTheme.hoverScale : 1.0)
-            .animation(AppTheme.easeInOut, value: isHovered)
-            .animation(AppTheme.easeInOut, value: isSelected)
+            }
         }
-        .buttonStyle(.plain)
+        .frame(width: 120, height: 110)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusL)
+                .fill(isSelected ? provider.brandColor.opacity(0.15) : AppTheme.cardBackgroundDark)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusL)
+                        .stroke(isSelected ? provider.brandColor : AppTheme.cardBorderDark, lineWidth: isSelected ? 2 : 1)
+                )
+        )
+        .contentShape(Rectangle())
+        .scaleEffect(isHovered && !isSelected ? AppTheme.hoverScale : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: isHovered)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
+        .onTapGesture {
+            action()
+        }
         .onHover { hovering in
             isHovered = hovering
         }
