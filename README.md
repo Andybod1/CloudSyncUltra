@@ -2,7 +2,7 @@
 
 A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 
-![Build](https://github.com/andybod1-lang/CloudSyncUltra/actions/workflows/test.yml/badge.svg)
+![CI](https://github.com/andybod1-lang/CloudSyncUltra/actions/workflows/ci.yml/badge.svg)
 ![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)

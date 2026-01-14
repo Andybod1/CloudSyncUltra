@@ -10,14 +10,14 @@
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [██████░░░░] 60%
+Pillar 1: Automation First       [███████░░░] 70%
 Pillar 2: Quality Gates          [░░░░░░░░░░]  0%
 Pillar 3: Single Source of Truth [████░░░░░░] 40%
 Pillar 4: Metrics & Visibility   [░░░░░░░░░░]  0%
 Pillar 5: Knowledge Management   [░░░░░░░░░░]  0%
 Pillar 6: Business Operations    [░░░░░░░░░░]  0%
 ─────────────────────────────────────────────────
-Overall Progress                 [██░░░░░░░░] 17%
+Overall Progress                 [██░░░░░░░░] 18%
 ```
 
 ---
@@ -32,11 +32,11 @@ Overall Progress                 [██░░░░░░░░] 17%
 | Version check script | ✅ Done | `scripts/version-check.sh` | Validates all docs |
 | Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
-| GitHub Actions CI | ❌ TODO | `.github/workflows/ci.yml` | Build + test on push |
+| GitHub Actions CI | ✅ Done | `.github/workflows/ci.yml` | Build + test on push |
 | Pre-commit hooks | ❌ TODO | `.pre-commit-config.yaml` | Local quality gate |
 | Auto-changelog | ❌ TODO | - | From conventional commits |
 
-**Next action:** GitHub Actions CI
+**Next action:** Pre-commit hooks
 
 ---
 

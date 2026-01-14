@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-14
+
+    steps:
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup environment
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      # Cache DerivedData for faster builds
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      # Install xcpretty if not available
+      - name: Install xcpretty
+        run: |
+          if ! command -v xcpretty &> /dev/null; then
+            gem install xcpretty
+          fi
+
+      # Build the project
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            | xcpretty
+
+      # Run tests
+      - name: Run Tests
+        run: |
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -resultBundlePath TestResults \
+            | xcpretty --report junit --output build/reports/junit.xml
+
+      # Check version consistency
+      - name: Version Check
+        run: |
+          chmod +x ./scripts/version-check.sh
+          ./scripts/version-check.sh
+
+      # Upload test results
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            build/reports/
+            TestResults/
+          retention-days: 7
+
+      # Upload test report summary
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: macOS Tests
+          path: build/reports/junit.xml
+          reporter: java-junit
