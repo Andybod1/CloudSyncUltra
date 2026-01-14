@@ -77,12 +77,3 @@ jobs:
             build/reports/
             TestResults/
           retention-days: 7
-
-      # Upload test report summary
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: macOS Tests
-          path: build/reports/junit.xml
-          reporter: java-junit
