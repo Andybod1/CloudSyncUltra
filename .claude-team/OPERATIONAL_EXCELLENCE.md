@@ -14,10 +14,10 @@ Pillar 1: Automation First       [████████░░] 80%
 Pillar 2: Quality Gates          [██░░░░░░░░] 20%
 Pillar 3: Single Source of Truth [████░░░░░░] 40%
 Pillar 4: Metrics & Visibility   [████░░░░░░] 40%
-Pillar 5: Knowledge Management   [░░░░░░░░░░]  0%
+Pillar 5: Knowledge Management   [████░░░░░░] 40%
 Pillar 6: Business Operations    [░░░░░░░░░░]  0%
 ─────────────────────────────────────────────────
-Overall Progress                 [███░░░░░░░] 30%
+Overall Progress                 [████░░░░░░] 37%
 ```
 
 ---
@@ -96,8 +96,8 @@ Overall Progress                 [███░░░░░░░] 30%
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
 | Session summaries | ❌ TODO | `.claude-team/sessions/` | After each session |
-| Worker report archiving | ❌ TODO | `.claude-team/archive/` | Auto-archive old reports |
-| Context restore script | ❌ TODO | `scripts/restore-context.sh` | Quick recovery |
+| Worker report archiving | ✅ Done | `scripts/archive-outputs.sh` | Auto-archive old reports |
+| Context restore script | ✅ Done | `scripts/restore-context.sh` | 2-min onboarding |
 | Sprint retrospectives | ❌ TODO | `.claude-team/retros/` | Lessons learned |
 | Runbook for common tasks | ❌ TODO | `docs/RUNBOOK.md` | Step-by-step guides |
 
