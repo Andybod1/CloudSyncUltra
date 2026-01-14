@@ -28,7 +28,8 @@
       "Bash(swift -frontend -parse:*)",
       "Bash(git checkout:*)",
       "Bash(gh auth:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(gh issue comment:*)"
     ]
   }
 }
