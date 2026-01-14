@@ -10,14 +10,14 @@
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [███████░░░] 70%
+Pillar 1: Automation First       [████████░░] 80%
 Pillar 2: Quality Gates          [░░░░░░░░░░]  0%
 Pillar 3: Single Source of Truth [████░░░░░░] 40%
-Pillar 4: Metrics & Visibility   [░░░░░░░░░░]  0%
+Pillar 4: Metrics & Visibility   [████░░░░░░] 40%
 Pillar 5: Knowledge Management   [░░░░░░░░░░]  0%
 Pillar 6: Business Operations    [░░░░░░░░░░]  0%
 ─────────────────────────────────────────────────
-Overall Progress                 [██░░░░░░░░] 18%
+Overall Progress                 [███░░░░░░░] 27%
 ```
 
 ---
@@ -78,14 +78,14 @@ Overall Progress                 [██░░░░░░░░] 18%
 
 | Item | Status | Tool | Notes |
 |------|--------|------|-------|
-| Health dashboard | ❌ TODO | `scripts/dashboard.sh` | One-glance status |
-| Sprint velocity | ❌ TODO | Dashboard | Issues opened vs closed |
+| Health dashboard | ✅ Done | `scripts/dashboard.sh` | Health score + alerts |
+| Sprint velocity | ✅ Done | Dashboard | 7-day opened vs closed |
 | Test count trend | ❌ TODO | Dashboard | Track over time |
 | Build success rate | ❌ TODO | GitHub Actions | Historical data |
 | Issue age tracking | ❌ TODO | Dashboard | Stale issue alerts |
 | Code coverage report | ❌ TODO | CI + Dashboard | Coverage trends |
 
-**Next action:** Enhanced dashboard.sh
+**Next action:** Test count trend tracking
 
 ---
 
@@ -125,8 +125,8 @@ Overall Progress                 [██░░░░░░░░] 18%
 ## Implementation Priority
 
 ### Now (Today)
-1. ⬜ GitHub Actions CI - Build + test automation
-2. ⬜ Enhanced dashboard.sh - Project health at a glance
+1. ✅ GitHub Actions CI - Build + test automation
+2. ✅ Enhanced dashboard.sh - Project health at a glance
 
 ### This Week
 3. ⬜ project.json centralized config

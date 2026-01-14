@@ -1,189 +1,137 @@
-# DevOps Task: CI/CD Pipeline with GitHub Actions
+# TASK: Implement GitHub Actions CI Pipeline
 
-**Sprint:** Maximum Productivity
-**Priority:** High
-**Worker:** DevOps
+> **Worker:** Dev-Ops
+> **Model:** Opus + /think (MANDATORY - use extended thinking for all decisions)
+> **Priority:** 🔴 Critical
+> **Estimated Time:** 1-2 hours
+
+## ⚠️ Extended Thinking Required
+
+Use `/think` before:
+- Designing the workflow structure
+- Writing the CI yaml file
+- Making any commits
+- Updating documentation
+
+Example: `/think What's the best way to structure this CI workflow for reliability and speed?`
 
 ---
 
 ## Objective
 
-Create GitHub Actions workflow for automated testing on every push and pull request.
+Implement a GitHub Actions CI pipeline that makes broken builds impossible to ship.
 
-## Files to Create
+---
 
-- `.github/workflows/test.yml`
-- `.github/workflows/build.yml` (optional - for release builds)
+## Context
 
-## Tasks
-
-### 1. Create Test Workflow
-
-Create `.github/workflows/test.yml`:
-
-```yaml
-name: Test
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  test:
-    name: Run Tests
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app
-
-      - name: Show Xcode version
-        run: xcodebuild -version
-
-      - name: Build
-        run: |
-          xcodebuild build \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Run Tests
-        run: |
-          xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcpretty --report junit
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: build/reports/junit.xml
-
-  lint:
-    name: SwiftLint
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run SwiftLint
-        run: |
-          if which swiftlint >/dev/null; then
-            swiftlint lint --reporter github-actions-logging
-          else
-            echo "SwiftLint not installed, skipping"
-          fi
+Read the full implementation plan:
+```bash
+cat /Users/antti/Claude/.claude-team/planning/CI_IMPLEMENTATION_PLAN.md
 ```
 
-### 2. Create Build Status Badge
+**Current State:**
+- `.github/workflows/` directory exists but is empty
+- No CI/CD automation currently
+- 743 tests, all passing locally
+- `scripts/version-check.sh` validates doc versions
 
-Add to README.md after the title:
+**Project Requirements:**
+- macOS 14.0+ deployment target
+- Swift 5.0
+- Depends on rclone (brew install rclone)
+- Tests use xcodebuild
 
+---
+
+## Deliverables
+
+### 1. Create CI Workflow File
+**File:** `.github/workflows/ci.yml`
+
+**Must include:**
+- Trigger on push to main AND pull requests
+- macOS runner (macos-14)
+- Xcode setup
+- rclone installation via Homebrew
+- DerivedData caching for faster builds
+- Build step (xcodebuild build)
+- Test step (xcodebuild test)
+- Version check step (./scripts/version-check.sh)
+- Test results artifact upload
+
+### 2. Add Status Badge to README.md
 ```markdown
-![Tests](https://github.com/andybod1-lang/CloudSyncUltra/actions/workflows/test.yml/badge.svg)
+![CI](https://github.com/andybod1-lang/CloudSyncUltra/actions/workflows/ci.yml/badge.svg)
 ```
 
-### 3. Create Branch Protection Rules (Documentation)
+### 3. Verify Pipeline Works
+- Push the workflow
+- Watch the first run complete
+- Ensure all steps pass
+- Fix any issues
 
-Document recommended settings for Andy to configure:
+### 4. Update Documentation
+- Update `OPERATIONAL_EXCELLENCE.md` - mark GitHub Actions CI as ✅ Done
+- Update progress percentage for Pillar 1
 
-```markdown
-## Branch Protection (Recommended)
+---
 
-For `main` branch:
-- [x] Require status checks to pass before merging
-- [x] Require branches to be up to date before merging
-- [x] Required status checks: "Run Tests"
-- [x] Require pull request reviews before merging
+## Technical Notes
+
+### Build Command
+```bash
+xcodebuild build \
+  -project CloudSyncApp.xcodeproj \
+  -scheme CloudSyncApp \
+  -destination 'platform=macOS'
 ```
 
-### 4. Optional: Release Build Workflow
-
-Create `.github/workflows/release.yml` for tagged releases:
-
-```yaml
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  build:
-    name: Build Release
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Archive
-        run: |
-          xcodebuild archive \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
-            -archivePath build/CloudSyncApp.xcarchive \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
-
-      - name: Export App
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath build/CloudSyncApp.xcarchive \
-            -exportPath build/export \
-            -exportOptionsPlist ExportOptions.plist
-
-      - name: Create DMG
-        run: |
-          hdiutil create -volname "CloudSync Ultra" \
-            -srcfolder build/export/CloudSyncApp.app \
-            -ov -format UDZO \
-            build/CloudSyncUltra-${{ github.ref_name }}.dmg
-
-      - name: Upload Release Asset
-        uses: actions/upload-artifact@v4
-        with:
-          name: CloudSyncUltra-${{ github.ref_name }}
-          path: build/CloudSyncUltra-*.dmg
+### Test Command
+```bash
+xcodebuild test \
+  -project CloudSyncApp.xcodeproj \
+  -scheme CloudSyncApp \
+  -destination 'platform=macOS'
 ```
 
-## Verification
+### Version Check
+```bash
+./scripts/version-check.sh
+```
 
-1. Commit workflow files
-2. Push to GitHub
-3. Check Actions tab for workflow runs
-4. Verify tests execute and pass
-5. Verify badge displays correctly
-
-## Output
-
-Write completion report to: `/Users/antti/Claude/.claude-team/outputs/DEVOPS_COMPLETE.md`
-
-Include:
-- Workflow files created
-- Badge markdown
-- Any issues encountered
+---
 
 ## Success Criteria
 
-- [ ] test.yml workflow created
-- [ ] Workflow triggers on push/PR
-- [ ] Tests run successfully in CI
-- [ ] Badge added to README
-- [ ] Documentation for branch protection
+- [ ] CI workflow file created and committed
+- [ ] First CI run completes successfully
+- [ ] Build step passes
+- [ ] All 743 tests pass
+- [ ] version-check.sh passes
+- [ ] Status badge visible in README
+- [ ] OPERATIONAL_EXCELLENCE.md updated
+
+---
+
+## Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `.github/workflows/ci.yml` | CREATE |
+| `README.md` | ADD badge |
+| `.claude-team/OPERATIONAL_EXCELLENCE.md` | UPDATE progress |
+| `.claude-team/STATUS.md` | UPDATE when complete |
+
+---
+
+## When Complete
+
+1. Update STATUS.md with completion
+2. Create output report: `.claude-team/outputs/DEVOPS_CI_COMPLETE.md`
+3. Commit all changes with message: `ci: Add GitHub Actions CI pipeline`
+4. Push to GitHub
+
+---
+
+*Task assigned by Strategic Partner*
