@@ -176,7 +176,19 @@ open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/C
 - [ ] All tests pass
 - [ ] App launches and works
 
-#### 2. Update All Documentation Files
+#### 2. Update Version (use scripts!)
+```bash
+# Update all docs to new version automatically:
+./scripts/update-version.sh 2.0.XX
+
+# Verify all docs match VERSION.txt:
+./scripts/version-check.sh
+```
+- [ ] VERSION.txt updated
+- [ ] All docs updated via script
+- [ ] version-check.sh passes ✅
+
+#### 3. Update Documentation Files
 
 | File | What to Update |
 |------|----------------|
@@ -185,7 +197,7 @@ open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/C
 | `RECOVERY.md` | Version, current state, test count, open issues |
 | `CLAUDE_PROJECT_KNOWLEDGE.md` | Version, test count, current state |
 
-#### 3. GitHub Housekeeping
+#### 4. GitHub Housekeeping
 ```bash
 # Close completed issues
 gh issue close <number> -c "Completed in vX.X.X"
@@ -196,12 +208,12 @@ gh issue list
 - [ ] All completed issues closed
 - [ ] Labels updated (remove `in-progress`, add `done` if applicable)
 
-#### 4. Clean Up Sprint Files
+#### 5. Clean Up Sprint Files
 - [ ] Archive or clear `.claude-team/tasks/TASK_*.md` files
 - [ ] Organize `.claude-team/outputs/*_COMPLETE.md` reports
 - [ ] Update GitHub Project Board (move cards to Done)
 
-#### 5. Commit, Tag & Push
+#### 6. Commit, Tag & Push
 ```bash
 cd ~/Claude
 git add -A
