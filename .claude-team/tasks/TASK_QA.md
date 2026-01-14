@@ -1,66 +1,75 @@
-# QA Task: Fix 11 Failing Unit Tests
+# TASK: Fix 11 Failing Unit Tests
 
-**Sprint:** Maximum Productivity
-**Priority:** CRITICAL
-**Worker:** QA (Opus recommended for debugging)
+**Worker:** QA
+**Model:** Opus + /think (mandatory)
+**Issue:** #87
+**Priority:** Critical
 
 ---
 
 ## Objective
 
-Identify and fix all 11 failing unit tests. Currently 743 tests run with 11 failures.
+Fix the 11 failing unit tests to achieve 100% pass rate (743/743).
 
-## Context
+---
 
-Recent changes:
-- Added OnboardingManager, OnboardingView, WelcomeStepView
-- Added HelpManager, HelpCategory, HelpTopic
-- Modified TransferOptimizer to require `fileCount == 1` for multi-threading
-- Changed `@AppStorage` from Int64 to Int for multiThreadThreshold
+## Steps
 
-## Tasks
+### 1. Run Tests & Capture Failures
+```bash
+cd /Users/antti/Claude
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | tee test-output.txt
+```
 
-1. **Run tests and capture failures:**
-   ```bash
-   cd /Users/antti/Claude && ./run_tests.sh 2>&1 | grep -E "error:|failed|XCTAssert"
-   ```
+### 2. Identify Failing Tests
+```bash
+grep -E "failed|error:|FAILED" test-output.txt
+```
 
-2. **Identify each failing test** - Note test class and method name
+### 3. Analyze Each Failure
+Use /think to analyze:
+- What is the test testing?
+- Why is it failing?
+- Is it a test bug or code bug?
 
-3. **Analyze root cause** for each failure:
-   - Is it a test expectation issue?
-   - Is it a code bug?
-   - Is it a missing dependency?
+### 4. Fix Each Test
+For each failing test:
+- If test is outdated → Update test expectations
+- If code is wrong → Fix the code (coordinate with Dev-1/2/3 if needed)
+- If test is flaky → Make it deterministic
 
-4. **Fix each failure** - Either:
-   - Update test expectations to match correct behavior
-   - Fix code bugs
-   - Add missing implementations
+### 5. Verify All Pass
+```bash
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
+```
 
-5. **Verify all tests pass:**
-   ```bash
-   cd /Users/antti/Claude && ./run_tests.sh
-   ```
+Expected output: `Executed 743 tests, with 0 failures`
 
-## Known Areas to Check
+---
 
-- `MultiThreadDownloadTests` - Recent changes to multi-threading logic
-- `TransferOptimizerTests` - Thread count expectations
-- `OnboardingManagerTests` - New singleton pattern
-- `HelpSystemTests` - New help system
+## Deliverables
 
-## Output
+1. All 743 tests passing
+2. Output file: `.claude-team/outputs/QA_TEST_FIX_COMPLETE.md`
+   - List of tests fixed
+   - Root cause for each
+   - Changes made
+3. Update STATUS.md when done
 
-Write completion report to: `/Users/antti/Claude/.claude-team/outputs/QA_TEST_FIXES.md`
+---
 
-Include:
-- List of all 11 failing tests
-- Root cause for each
-- Fix applied
-- Final test results (should show 743 passed, 0 failed)
+## Completion
 
-## Success Criteria
+When done:
+```bash
+# Update status
+# Commit changes
+cd /Users/antti/Claude
+git add -A
+git commit -m "fix: Resolve 11 failing unit tests (#87)"
 
-- All 743 tests pass
-- Zero failures
-- No test skips or disables (fix properly)
+# Mark issue
+gh issue comment 87 -b "Fixed all 11 failing tests. See QA_TEST_FIX_COMPLETE.md for details."
+```
+
+Then notify Strategic Partner that task is complete.

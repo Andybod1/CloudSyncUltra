@@ -6,7 +6,7 @@
 ## Current State: CI Implementation Sprint 🚀
 
 **In Progress:**
-- None
+- 🔄 QA: Fix 11 failing unit tests (#87) - Opus + /think
 
 **Just Completed:**
 - ✅ GitHub Actions CI Pipeline (Dev-Ops) - Workflow created, awaiting push with workflow permissions
@@ -22,8 +22,8 @@
 | Dev-1 | - | 💤 IDLE | Available |
 | Dev-2 | - | 💤 IDLE | Available |
 | Dev-3 | - | 💤 IDLE | Available |
-| QA | - | 💤 IDLE | Available |
-| Dev-Ops | Opus | ✅ DONE | GitHub Actions CI (#TASK_DEVOPS) |
+| QA | Opus | 🔄 ASSIGNED | Fix 11 failing tests (#87) |
+| Dev-Ops | - | 💤 IDLE | Available |
 
 ---
 
