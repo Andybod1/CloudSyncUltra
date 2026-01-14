@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.17 | **Updated:** 2026-01-14
+> **Version:** 2.0.18 | **Updated:** 2026-01-14
 
 ---
 
@@ -88,7 +88,8 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 ```
 /Users/antti/Claude/
 ├── CloudSyncApp/                 # Source (SwiftUI)
-├── CloudSyncAppTests/            # Tests (743 passing)
+├── CloudSyncAppTests/            # Tests (870 passing)
+├── CloudSyncAppUITests/          # UI Tests (69 tests)
 ├── docs/                         # User documentation
 ├── .claude-team/
 │   ├── STATUS.md                 # Live worker status
@@ -122,33 +123,28 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.17
-- ✅ **Accessibility** - VoiceOver labels + keyboard shortcuts (5 views)
-- ✅ **OSLog** - Replaced 92 print() with structured logging
-- ✅ **Pagination** - LazyVStack for large file lists
-- ✅ **Test Fixes** - All 743 tests passing (was 11 failures)
-- ✅ **Help System** - HelpManager, HelpCategory, HelpTopic
-- ✅ **Onboarding** - OnboardingManager + WelcomeStepView
+### Just Completed: v2.0.18 (9-Worker Sprint)
+- ✅ **#72 Multi-Thread Downloads** - Already implemented, 30+ tests
+- ✅ **#77 App Icon** - SVG template, generation script ready
+- ✅ **#84 UI Visual Refresh** - AppTheme applied to 5 views
+- ✅ **#85 Pricing Strategy** - $29 one-time recommended
+- ✅ **#86 Marketing Channels** - Report + launch checklist
+- ✅ **#88 UI Tests** - 69 XCUITests integrated
+- ✅ **#90 Notifications** - NotificationManager verified
+- ✅ **#92 CONTRIBUTING.md** - 450+ lines
+- ✅ **#94 Publishing Guide** - ~650 lines
 
-### Recent: v2.0.15-v2.0.16
+### Key Docs Created
+- `docs/PUBLISHING_GUIDE.md` - Code signing, notarization, App Store
+- `docs/pdfs/` - 5 professional PDFs for stakeholders
+- `CONTRIBUTING.md` - Contributor guidelines
+- `.claude-team/outputs/PRICING_STRATEGY.md` - Full market analysis
+
+### Recent: v2.0.15-v2.0.17
 - ✅ iCloud Phase 1 (#9) - Local folder integration
-- ✅ Crash Reporting (#20) - CrashReportingManager
-- ✅ UX Audit (#44) - Score 6.4/10
-- ✅ Product Strategy (#45) - Vision, personas, roadmap
-- ✅ Performance + Security hardening
-
-### Next Sprint (9 Workers Ready)
-| # | Title | Worker |
-|---|-------|--------|
-| #72 | Multi-Thread Downloads | Dev-2 |
-| #77 | App Icon Set | Brand Designer |
-| #84 | UI Visual Refresh | UI Designer |
-| #85 | Free tier research | Product Manager |
-| #86 | Marketing Channels | Marketing Strategist |
-| #88 | UI Test Integration | QA Automation |
-| #90 | User Notifications | Dev-3 |
-| #92 | CONTRIBUTING.md | Tech Writer |
-| #94 | Publishing Guide | Tech Writer |
+- ✅ Accessibility - VoiceOver + keyboard shortcuts
+- ✅ OSLog - Structured logging
+- ✅ Help System + Onboarding
 
 ---
 
