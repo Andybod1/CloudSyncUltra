@@ -34,6 +34,8 @@ enum RcloneError: CloudSyncError {
     case configurationFailed(String)
     case syncFailed(String)
     case encryptionSetupFailed(String)
+    case invalidPath(String)
+    case pathTraversal(String)
     
     var errorDescription: String? {
         switch self {
@@ -70,9 +72,13 @@ enum RcloneError: CloudSyncError {
             return "Sync failed: \(message)"
         case .encryptionSetupFailed(let message):
             return "Encryption setup failed: \(message)"
+        case .invalidPath(let path):
+            return "Invalid path: '\(path)'"
+        case .pathTraversal(let path):
+            return "Path traversal detected: '\(path)'"
         }
     }
-    
+
     var recoverySuggestion: String? {
         switch self {
         case .notInstalled:
@@ -105,6 +111,10 @@ enum RcloneError: CloudSyncError {
             return "Check the logs for details and try again"
         case .encryptionSetupFailed:
             return "Check your encryption password and try again"
+        case .invalidPath:
+            return "Use a valid file path without special characters"
+        case .pathTraversal:
+            return "Path cannot contain '..' or attempt to escape directories"
         }
     }
 }

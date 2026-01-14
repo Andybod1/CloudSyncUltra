@@ -659,21 +659,39 @@ struct ProtonDriveSetupView: View {
     }
     
     // MARK: - Validation
-    
+
+    // Security: Maximum input lengths to prevent buffer overflow and DoS attacks
+    private static let maxUsernameLength = 320  // Max email length per RFC
+    private static let maxPasswordLength = 1000  // Reasonable limit for passwords
+    private static let maxTOTPSecretLength = 256  // Base32 encoded TOTP secrets
+    private static let maxMailboxPasswordLength = 1000
+
     private var canTest: Bool {
-        !username.isEmpty && !password.isEmpty && is2FAValid
+        isUsernameValid && isPasswordValid && is2FAValid
     }
-    
+
     private var canConnect: Bool {
-        canTest
+        canTest && isMailboxPasswordValid
     }
-    
+
+    private var isUsernameValid: Bool {
+        !username.isEmpty && username.count <= Self.maxUsernameLength
+    }
+
+    private var isPasswordValid: Bool {
+        !password.isEmpty && password.count <= Self.maxPasswordLength
+    }
+
     private var is2FAValid: Bool {
         switch twoFactorMode {
         case .none: return true
         case .code: return twoFactorCode.count == 6
-        case .totp: return !otpSecretKey.isEmpty
+        case .totp: return !otpSecretKey.isEmpty && otpSecretKey.count <= Self.maxTOTPSecretLength
         }
+    }
+
+    private var isMailboxPasswordValid: Bool {
+        mailboxPassword.isEmpty || mailboxPassword.count <= Self.maxMailboxPasswordLength
     }
     
     // MARK: - Actions

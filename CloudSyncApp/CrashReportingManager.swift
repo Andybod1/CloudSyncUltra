@@ -14,8 +14,10 @@ final class CrashReportingManager {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         logDirectory = appSupport.appendingPathComponent("CloudSyncUltra/Logs", isDirectory: true)
 
-        // Ensure directory exists
+        // Ensure directory exists with restrictive permissions
         try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true)
+        // Set restrictive permissions on the log directory (owner read/write/execute only)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: logDirectory.path)
     }
 
     // MARK: - Setup
@@ -74,11 +76,14 @@ final class CrashReportingManager {
         let fileURL = logDirectory.appendingPathComponent(filename)
 
         try? content.write(to: fileURL, atomically: true, encoding: .utf8)
+        // Set restrictive permissions on crash log files (owner read/write only)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
     }
 
     // MARK: - Log Export
 
     /// Returns URL to zip file containing all logs
+    /// Security: Uses secure temporary directory creation with restrictive permissions
     func exportLogs() throws -> URL {
         // Collect system logs
         let systemLogs = collectSystemLogs()
@@ -86,20 +91,31 @@ final class CrashReportingManager {
         // Collect crash logs
         let crashLogs = try FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
 
-        // Create export directory
-        let exportDir = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs_\(Date().timeIntervalSince1970)")
+        // Create export directory securely using unique random identifier
+        // This prevents predictable path attacks (TOCTOU vulnerabilities)
+        let uniqueId = UUID().uuidString
+        let exportDir = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs_\(uniqueId)")
         try FileManager.default.createDirectory(at: exportDir, withIntermediateDirectories: true)
 
-        // Copy logs
-        try systemLogs.write(to: exportDir.appendingPathComponent("system.log"), atomically: true, encoding: .utf8)
+        // Set restrictive permissions on the export directory (owner read/write/execute only)
+        try FileManager.default.setAttributes(
+            [.posixPermissions: 0o700],
+            ofItemAtPath: exportDir.path
+        )
+
+        // Copy logs with restrictive permissions
+        let systemLogURL = exportDir.appendingPathComponent("system.log")
+        try systemLogs.write(to: systemLogURL, atomically: true, encoding: .utf8)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: systemLogURL.path)
 
         for crashLog in crashLogs {
             let dest = exportDir.appendingPathComponent(crashLog.lastPathComponent)
             try? FileManager.default.copyItem(at: crashLog, to: dest)
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: dest.path)
         }
 
-        // Create zip
-        let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs.zip")
+        // Create zip with unique name
+        let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs_\(uniqueId).zip")
         try? FileManager.default.removeItem(at: zipURL)
 
         let task = Process()
@@ -108,6 +124,12 @@ final class CrashReportingManager {
         task.currentDirectoryURL = exportDir.deletingLastPathComponent()
         try task.run()
         task.waitUntilExit()
+
+        // Set restrictive permissions on the zip file
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: zipURL.path)
+
+        // Clean up the export directory after zipping
+        try? FileManager.default.removeItem(at: exportDir)
 
         return zipURL
     }

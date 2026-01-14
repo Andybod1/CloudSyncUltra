@@ -8,6 +8,137 @@
 import Foundation
 import OSLog
 
+// MARK: - Transfer Optimizer
+
+/// Centralized transfer optimization configuration for dynamic parallelism
+/// Implements universal dynamic parallelism as per performance analysis (#70)
+class TransferOptimizer {
+
+    struct TransferConfig {
+        let transfers: Int
+        let checkers: Int
+        let bufferSize: String
+        let multiThread: Bool
+        let multiThreadStreams: Int
+        let fastList: Bool
+        let chunkSize: String?
+    }
+
+    /// Calculate optimal transfer configuration based on file characteristics
+    /// - Parameters:
+    ///   - fileCount: Number of files to transfer
+    ///   - totalBytes: Total size in bytes
+    ///   - remoteName: Name of the remote (for provider-specific optimizations)
+    ///   - isDirectory: Whether the transfer involves a directory
+    ///   - isDownload: Whether this is a download operation
+    /// - Returns: Optimized TransferConfig
+    static func optimize(
+        fileCount: Int,
+        totalBytes: Int64,
+        remoteName: String,
+        isDirectory: Bool,
+        isDownload: Bool
+    ) -> TransferConfig {
+        let avgFileSize = fileCount > 0 ? totalBytes / Int64(fileCount) : totalBytes
+
+        // Calculate optimal transfers based on file characteristics
+        let transfers: Int
+        if !isDirectory || fileCount <= 10 {
+            transfers = 4
+        } else if avgFileSize < 1_000_000 { // < 1MB average - many small files
+            transfers = min(32, max(16, fileCount / 5))
+        } else if avgFileSize < 100_000_000 { // 1-100MB average
+            transfers = min(16, max(8, fileCount / 10))
+        } else { // >100MB average - large files
+            transfers = min(8, max(4, fileCount / 20))
+        }
+
+        // Calculate optimal checkers (increased default to 16)
+        let checkers: Int
+        if fileCount < 100 {
+            checkers = 16  // Increased from 8
+        } else if fileCount < 1000 {
+            checkers = 24
+        } else {
+            checkers = 32  // Maximum for large directories
+        }
+
+        // Calculate buffer size (default 32M, increased from rclone default 16M)
+        let bufferSize: String
+        if totalBytes > 1_000_000_000 { // > 1GB
+            bufferSize = "128M"
+        } else if totalBytes > 100_000_000 { // > 100MB
+            bufferSize = "64M"
+        } else {
+            bufferSize = "32M"  // Default improvement over 16M
+        }
+
+        // Multi-threading for large single files (downloads)
+        let multiThread = isDownload && fileCount == 1 && totalBytes > 100_000_000
+
+        // Fast list support for providers that support it
+        let fastListProviders = ["googledrive", "onedrive", "dropbox", "s3", "b2"]
+        let fastList = fastListProviders.contains { remoteName.lowercased().contains($0) }
+
+        // Provider-specific chunk size
+        let chunkSize = getProviderChunkSize(remoteName)
+
+        return TransferConfig(
+            transfers: transfers,
+            checkers: checkers,
+            bufferSize: bufferSize,
+            multiThread: multiThread,
+            multiThreadStreams: multiThread ? 8 : 0,
+            fastList: fastList,
+            chunkSize: chunkSize
+        )
+    }
+
+    /// Get provider-specific optimal chunk size
+    private static func getProviderChunkSize(_ remoteName: String) -> String? {
+        let remote = remoteName.lowercased()
+        if remote.contains("googledrive") || remote.contains("drive") { return "64M" }
+        if remote.contains("onedrive") { return "10M" }
+        if remote.contains("dropbox") { return "48M" }
+        if remote.contains("s3") || remote.contains("b2") || remote.contains("wasabi") { return "64M" }
+        return nil
+    }
+
+    /// Build rclone arguments from transfer configuration
+    /// - Parameter config: TransferConfig to convert to arguments
+    /// - Returns: Array of rclone command-line arguments
+    static func buildArgs(from config: TransferConfig) -> [String] {
+        var args: [String] = []
+
+        args.append(contentsOf: ["--transfers", "\(config.transfers)"])
+        args.append(contentsOf: ["--checkers", "\(config.checkers)"])
+        args.append(contentsOf: ["--buffer-size", config.bufferSize])
+
+        if config.multiThread {
+            args.append(contentsOf: ["--multi-thread-streams", "\(config.multiThreadStreams)"])
+            args.append(contentsOf: ["--multi-thread-cutoff", "100M"])
+        }
+
+        if config.fastList {
+            args.append("--fast-list")
+        }
+
+        // Note: Chunk size flags are provider-specific, applied separately if needed
+
+        return args
+    }
+
+    /// Get default optimized arguments for simple transfers (no file analysis available)
+    /// Uses increased defaults: 16 checkers, 32M buffer
+    static func defaultArgs() -> [String] {
+        return [
+            "--transfers", "4",
+            "--checkers", "16",
+            "--buffer-size", "32M"
+        ]
+    }
+}
+
 // MARK: - OneDrive Account Types
 
 enum OneDriveAccountType: String {
@@ -51,8 +182,20 @@ class RcloneManager {
         )
         
         self.configPath = appFolder.appendingPathComponent("rclone.conf").path
+
+        // Secure the config directory and file with restrictive permissions
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: appFolder.path)
+        secureConfigFile()
     }
-    
+
+    /// Ensures the rclone.conf file has restrictive permissions (owner read/write only)
+    /// This prevents other processes from reading sensitive credentials stored in the config
+    private func secureConfigFile() {
+        if FileManager.default.fileExists(atPath: configPath) {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: configPath)
+        }
+    }
+
     // MARK: - Bandwidth Throttling
     
     /// Get bandwidth limit arguments for rclone
@@ -77,7 +220,65 @@ class RcloneManager {
 
         return ["--bwlimit", "\(uploadStr):\(downloadStr)"]
     }
-    
+
+    // MARK: - Path Validation (Security)
+
+    /// Validates and sanitizes file paths to prevent command injection and path traversal attacks.
+    /// - Parameter path: The path to validate
+    /// - Returns: The validated/sanitized path
+    /// - Throws: RcloneError.invalidPath or RcloneError.pathTraversal if path is invalid
+    private func validatePath(_ path: String) throws -> String {
+        // Resolve the path to its canonical form
+        let resolved = (path as NSString).standardizingPath
+
+        // Check for path traversal attempts
+        // After standardizing, there should be no ".." components
+        let components = resolved.components(separatedBy: "/")
+        if components.contains("..") {
+            throw RcloneError.pathTraversal(path)
+        }
+
+        // Also check the original path for encoded or obfuscated traversal attempts
+        if path.contains("..") || path.contains("%2e%2e") || path.contains("%2E%2E") {
+            throw RcloneError.pathTraversal(path)
+        }
+
+        // Validate that path does not contain null bytes or other dangerous characters
+        let dangerousCharacters = CharacterSet(charactersIn: "\0\n\r")
+        if path.unicodeScalars.contains(where: { dangerousCharacters.contains($0) }) {
+            throw RcloneError.invalidPath(path)
+        }
+
+        // Reject paths with shell metacharacters that could be exploited
+        // Note: We're more permissive here since rclone handles paths as arguments,
+        // not shell commands, but we still block the most dangerous ones
+        let shellMetacharacters = CharacterSet(charactersIn: "`$")
+        if path.unicodeScalars.contains(where: { shellMetacharacters.contains($0) }) {
+            throw RcloneError.invalidPath(path)
+        }
+
+        return resolved
+    }
+
+    /// Validates a remote path (the part after "remote:") which has looser requirements
+    /// - Parameter remotePath: The remote path to validate
+    /// - Returns: The validated path
+    /// - Throws: RcloneError.invalidPath or RcloneError.pathTraversal if path is invalid
+    private func validateRemotePath(_ remotePath: String) throws -> String {
+        // Check for path traversal attempts
+        if remotePath.contains("..") || remotePath.contains("%2e%2e") || remotePath.contains("%2E%2E") {
+            throw RcloneError.pathTraversal(remotePath)
+        }
+
+        // Validate that path does not contain null bytes or dangerous characters
+        let dangerousCharacters = CharacterSet(charactersIn: "\0\n\r`$")
+        if remotePath.unicodeScalars.contains(where: { dangerousCharacters.contains($0) }) {
+            throw RcloneError.invalidPath(remotePath)
+        }
+
+        return remotePath
+    }
+
     // MARK: - rclone Exit Codes
     // 0  = Success
     // 1  = Syntax error
@@ -1076,8 +1277,11 @@ class RcloneManager {
             let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
             throw RcloneError.configurationFailed(errorString)
         }
+
+        // Secure the config file after modification
+        secureConfigFile()
     }
-    
+
     private func createRemoteInteractive(name: String, type: String, additionalParams: [String: String] = [:]) async throws {
         // For OAuth providers, we need to run rclone config interactively
         // This will open a browser for authentication
@@ -1111,15 +1315,18 @@ class RcloneManager {
         if process.terminationStatus != 0 {
             let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
             let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            
+
             // Some OAuth flows return non-zero but still succeed
             // Check if the remote was actually created
             if !isRemoteConfigured(name: name) {
                 throw RcloneError.configurationFailed(errorString)
             }
         }
+
+        // Secure the config file after modification
+        secureConfigFile()
     }
-    
+
     func isRemoteConfigured(name: String) -> Bool {
         guard FileManager.default.fileExists(atPath: configPath) else { return false }
         
@@ -1167,10 +1374,10 @@ class RcloneManager {
                         "--config", configPath,
                         "--progress",
                         "--stats", "1s",
-                        "--transfers", "4",
-                        "--checkers", "8",
                         "--verbose"
                     ]
+                    // Apply dynamic parallelism optimization (#70)
+                    args.append(contentsOf: TransferOptimizer.defaultArgs())
                     // Add bandwidth limits
                     args.append(contentsOf: self.getBandwidthArgs())
                 case .biDirectional:
@@ -1186,6 +1393,8 @@ class RcloneManager {
                         "--verbose",
                         "--max-delete", "50"
                     ]
+                    // Apply buffer optimization (#70) - bisync uses different parallelism model
+                    args.append(contentsOf: ["--buffer-size", "32M"])
                     // Add bandwidth limits
                     args.append(contentsOf: self.getBandwidthArgs())
                 }
@@ -1253,10 +1462,10 @@ class RcloneManager {
                         "--config", self.configPath,
                         "--progress",
                         "--stats", "1s",
-                        "--transfers", "4",
-                        "--checkers", "8",
                         "--verbose"
                     ]
+                    // Apply dynamic parallelism optimization (#70)
+                    args.append(contentsOf: TransferOptimizer.defaultArgs())
                 case .biDirectional:
                     args = [
                         "bisync",
@@ -1270,8 +1479,10 @@ class RcloneManager {
                         "--verbose",
                         "--max-delete", "50"
                     ]
+                    // Apply buffer optimization (#70) - bisync uses different parallelism model
+                    args.append(contentsOf: ["--buffer-size", "32M"])
                 }
-                
+
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
                 
@@ -1333,11 +1544,12 @@ class RcloneManager {
                     "--stats", "1s",
                     "--stats-one-line",
                     "--stats-file-name-length", "0",
-                    "--transfers", "4",
                     "--verbose",
                     "--ignore-existing"  // Skip files that already exist at destination
                 ]
-                
+
+                // Apply dynamic parallelism optimization (#70)
+                args.append(contentsOf: TransferOptimizer.defaultArgs())
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
                 
@@ -1486,10 +1698,13 @@ class RcloneManager {
         if process.terminationStatus != 0 {
             throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Unknown error" : errorString)
         }
-        
+
+        // Secure the config file after modification
+        secureConfigFile()
+
         logger.info("Encrypted remote '\(encryptedRemoteName, privacy: .public)' created successfully!")
     }
-    
+
     /// Removes the encrypted remote configuration
     func removeEncryptedRemote() async throws {
         try await deleteRemote(name: EncryptionManager.shared.encryptedRemoteName)
@@ -1497,29 +1712,42 @@ class RcloneManager {
     
     /// Obscures a password using rclone's obscure command.
     /// Rclone requires passwords in its config to be obscured.
+    /// Security: Uses stdin to pass password instead of command line arguments
+    /// to prevent exposure in process listings (ps aux).
     func obscurePassword(_ password: String) async throws -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        process.arguments = ["obscure", password]
-        
+        // Use "-" to read password from stdin instead of command line
+        // This prevents password from being visible in process listings
+        process.arguments = ["obscure", "-"]
+
+        let inputPipe = Pipe()
         let outputPipe = Pipe()
         let errorPipe = Pipe()
+        process.standardInput = inputPipe
         process.standardOutput = outputPipe
         process.standardError = errorPipe
-        
+
         try process.run()
+
+        // Write password to stdin and close to signal EOF
+        if let passwordData = password.data(using: .utf8) {
+            inputPipe.fileHandleForWriting.write(passwordData)
+        }
+        inputPipe.fileHandleForWriting.closeFile()
+
         process.waitUntilExit()
-        
+
         if process.terminationStatus != 0 {
             let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
             let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
             throw RcloneError.encryptionSetupFailed("Failed to obscure password: \(errorString)")
         }
-        
+
         let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
         let obscured = String(data: data, encoding: .utf8)?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
+
         return obscured
     }
     
@@ -1585,13 +1813,16 @@ class RcloneManager {
         if process.terminationStatus != 0 {
             throw RcloneError.encryptionSetupFailed(errorString.isEmpty ? "Failed to create crypt remote" : errorString)
         }
-        
+
+        // Secure the config file after modification
+        secureConfigFile()
+
         logger.info("Crypt remote '\(cryptRemoteName, privacy: .public)' created successfully!")
-        
+
         // Save the config to EncryptionManager
         try EncryptionManager.shared.saveConfig(config, for: baseRemoteName)
     }
-    
+
     /// Check if a crypt remote is configured for a base remote
     func isCryptRemoteConfigured(for baseRemoteName: String) -> Bool {
         let cryptRemoteName = EncryptionManager.shared.getCryptRemoteName(for: baseRemoteName)
@@ -1633,17 +1864,19 @@ class RcloneManager {
     
     /// Delete a folder and its contents from a remote
     func deleteFolder(remoteName: String, path: String) async throws {
-        logger.debug("deleteFolder called: remoteName=\(remoteName, privacy: .public), path=\(path, privacy: .private)")
-        
+        // Validate path before proceeding (security: prevent command injection)
+        let validatedPath = try validateRemotePath(path)
+        logger.debug("deleteFolder called: remoteName=\(remoteName, privacy: .public), path=\(validatedPath, privacy: .private)")
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
         process.arguments = [
             "purge",
-            "\(remoteName):\(path)",
+            "\(remoteName):\(validatedPath)",
             "--config", configPath
         ]
-        
-        logger.debug("Running: \(self.rclonePath, privacy: .public) purge \(remoteName, privacy: .public):\(path, privacy: .private)")
+
+        logger.debug("Running: \(self.rclonePath, privacy: .public) purge \(remoteName, privacy: .public):\(validatedPath, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1664,18 +1897,21 @@ class RcloneManager {
     
     /// Rename/move a file or folder on a remote
     func renameFile(remoteName: String, oldPath: String, newPath: String) async throws {
-        logger.debug("renameFile called: remoteName=\(remoteName, privacy: .public), oldPath=\(oldPath, privacy: .private), newPath=\(newPath, privacy: .private)")
-        
+        // Validate paths before proceeding (security: prevent command injection)
+        let validatedOldPath = try validateRemotePath(oldPath)
+        let validatedNewPath = try validateRemotePath(newPath)
+        logger.debug("renameFile called: remoteName=\(remoteName, privacy: .public), oldPath=\(validatedOldPath, privacy: .private), newPath=\(validatedNewPath, privacy: .private)")
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
         process.arguments = [
             "moveto",
-            "\(remoteName):\(oldPath)",
-            "\(remoteName):\(newPath)",
+            "\(remoteName):\(validatedOldPath)",
+            "\(remoteName):\(validatedNewPath)",
             "--config", configPath
         ]
-        
-        logger.debug("Running: \(self.rclonePath, privacy: .public) moveto \(remoteName, privacy: .public):\(oldPath, privacy: .private) \(remoteName, privacy: .public):\(newPath, privacy: .private)")
+
+        logger.debug("Running: \(self.rclonePath, privacy: .public) moveto \(remoteName, privacy: .public):\(validatedOldPath, privacy: .private) \(remoteName, privacy: .public):\(validatedNewPath, privacy: .private)")
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -1695,11 +1931,14 @@ class RcloneManager {
     
     /// Create a new folder on a remote
     func createFolder(remoteName: String, path: String) async throws {
+        // Validate path before proceeding (security: prevent command injection)
+        let validatedPath = try validateRemotePath(path)
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
         process.arguments = [
             "mkdir",
-            "\(remoteName):\(path)",
+            "\(remoteName):\(validatedPath)",
             "--config", configPath
         ]
         
@@ -1723,18 +1962,24 @@ class RcloneManager {
     
     /// Download a file or folder from a remote to local
     func download(remoteName: String, remotePath: String, localPath: String) async throws {
+        // Validate paths before proceeding (security: prevent command injection)
+        let validatedRemotePath = try validateRemotePath(remotePath)
+        let validatedLocalPath = try validatePath(localPath)
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        
+
         var args = [
             "copy",
-            "\(remoteName):\(remotePath)",
-            localPath,
+            "\(remoteName):\(validatedRemotePath)",
+            validatedLocalPath,
             "--config", configPath,
             "--progress",
             "--verbose"
         ]
-        
+
+        // Apply dynamic parallelism optimization (#70)
+        args.append(contentsOf: TransferOptimizer.defaultArgs())
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
         
@@ -1779,9 +2024,17 @@ class RcloneManager {
     
     /// Upload a file or folder from local to a remote with progress streaming
     func uploadWithProgress(localPath: String, remoteName: String, remotePath: String) async throws -> AsyncThrowingStream<SyncProgress, Error> {
+        // Validate paths before proceeding (security: prevent command injection)
+        let validatedLocalPath = try validatePath(localPath)
+        let validatedRemotePath = try validateRemotePath(remotePath)
+
         return AsyncThrowingStream { continuation in
             Task.detached { [self] in
-                let logPath = "/tmp/cloudsync_upload_debug.log"
+                // Use Application Support for debug logs instead of world-readable /tmp
+                let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                let logDir = appSupport.appendingPathComponent("CloudSyncApp/Logs", isDirectory: true)
+                try? FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true)
+                let logPath = logDir.appendingPathComponent("upload_debug.log").path
                 let log = { (msg: String) in
                     let timestamp = Date().description
                     let line = "\(timestamp): [RcloneManager] \(msg)\n"
@@ -1806,22 +2059,22 @@ class RcloneManager {
                 var fileCount = 0
                 var isDirectory = false
                 var isDirectoryValue: ObjCBool = false
-                if FileManager.default.fileExists(atPath: localPath, isDirectory: &isDirectoryValue) {
+                if FileManager.default.fileExists(atPath: validatedLocalPath, isDirectory: &isDirectoryValue) {
                     isDirectory = isDirectoryValue.boolValue
                     if isDirectory {
                         // Count files in directory (using Array to avoid async iteration warning)
-                        if let enumerator = FileManager.default.enumerator(atPath: localPath) {
+                        if let enumerator = FileManager.default.enumerator(atPath: validatedLocalPath) {
                             fileCount = enumerator.allObjects.count
                         }
                     }
                 }
-                
+
                 logger.debug("Upload info - isDirectory: \(isDirectory), fileCount: \(fileCount)")
-                
+
                 var args = [
                     "copy",
-                    localPath,
-                    "\(remoteName):\(remotePath)",
+                    validatedLocalPath,
+                    "\(remoteName):\(validatedRemotePath)",
                     "--config", self.configPath,
                     "--progress",
                     "--stats", "500ms",
@@ -1850,7 +2103,7 @@ class RcloneManager {
                 process.standardOutput = stderrPipe
                 process.standardError = stderrPipe
                 
-                logger.info("Starting upload: \(localPath, privacy: .private) -> \(remoteName, privacy: .public):\(remotePath, privacy: .private)")
+                logger.info("Starting upload: \(validatedLocalPath, privacy: .private) -> \(remoteName, privacy: .public):\(validatedRemotePath, privacy: .private)")
                 
                 let handle = stderrPipe.fileHandleForReading
                 
@@ -1985,30 +2238,34 @@ class RcloneManager {
     
     /// Upload a file or folder from local to a remote (blocking version)
     func upload(localPath: String, remoteName: String, remotePath: String) async throws {
+        // Validate paths before proceeding (security: prevent command injection)
+        let validatedLocalPath = try validatePath(localPath)
+        let validatedRemotePath = try validateRemotePath(remotePath)
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rclonePath)
-        
+
         var args = [
             "copy",
-            localPath,
-            "\(remoteName):\(remotePath)",
+            validatedLocalPath,
+            "\(remoteName):\(validatedRemotePath)",
             "--config", configPath,
             "--progress",
             "--verbose",
             "--stats", "1s"
         ]
-        
+
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
-        
+
         process.arguments = args
-        
+
         let outputPipe = Pipe()
         let errorPipe = Pipe()
         process.standardOutput = outputPipe
         process.standardError = errorPipe
-        
-        logger.info("Starting upload: \(localPath, privacy: .private) -> \(remoteName, privacy: .public):\(remotePath, privacy: .private)")
+
+        logger.info("Starting upload: \(validatedLocalPath, privacy: .private) -> \(remoteName, privacy: .public):\(validatedRemotePath, privacy: .private)")
         
         try process.run()
         process.waitUntilExit()
@@ -2111,10 +2368,11 @@ class RcloneManager {
                     "--stats", "1s",
                     "--stats-one-line",
                     "--stats-file-name-length", "0",
-                    "--transfers", "4",
                     "--verbose"
                 ]
 
+                // Apply dynamic parallelism optimization (#70)
+                args.append(contentsOf: TransferOptimizer.defaultArgs())
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
 
