@@ -160,7 +160,23 @@ gh issue view <number>
 
 ### ⚠️ MANDATORY: Post-Sprint Documentation
 
-**After EVERY sprint, update ALL of these and push to git:**
+> **🔒 PROTECTED SECTION** - Do NOT remove or modify this section without written permission from Andy.
+
+**After EVERY sprint, complete ALL steps:**
+
+#### 1. Verify Build & Tests
+```bash
+# Run all tests
+cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
+
+# Build and launch app
+cd ~/Claude && xcodebuild build 2>&1 | tail -5
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+```
+- [ ] All tests pass
+- [ ] App launches and works
+
+#### 2. Update All Documentation Files
 
 | File | What to Update |
 |------|----------------|
@@ -169,12 +185,35 @@ gh issue view <number>
 | `RECOVERY.md` | Version, current state, test count, open issues |
 | `CLAUDE_PROJECT_KNOWLEDGE.md` | Version, test count, current state |
 
+#### 3. GitHub Housekeeping
 ```bash
-# After updates:
-cd ~/Claude && git add -A && git commit -m "docs: Update documentation to vX.X.X" && git push origin main
-```
+# Close completed issues
+gh issue close <number> -c "Completed in vX.X.X"
 
-**Do this immediately after each sprint - don't wait to be asked!**
+# Verify issue states
+gh issue list
+```
+- [ ] All completed issues closed
+- [ ] Labels updated (remove `in-progress`, add `done` if applicable)
+
+#### 4. Clean Up Sprint Files
+- [ ] Archive or clear `.claude-team/tasks/TASK_*.md` files
+- [ ] Organize `.claude-team/outputs/*_COMPLETE.md` reports
+- [ ] Update GitHub Project Board (move cards to Done)
+
+#### 5. Commit, Tag & Push
+```bash
+cd ~/Claude
+git add -A
+git commit -m "docs: Update documentation to vX.X.X"
+git tag vX.X.X
+git push --tags origin main
+```
+- [ ] Changes committed
+- [ ] Version tagged
+- [ ] Pushed to GitHub
+
+**⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
 ---
 
