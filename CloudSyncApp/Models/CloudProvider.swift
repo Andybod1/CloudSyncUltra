@@ -125,117 +125,119 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     
     var iconName: String {
         switch self {
-        case .protonDrive: return "shield.checkered"
-        case .googleDrive: return "g.circle.fill"
+        // Major cloud providers - SF Symbols with brand recognition
+        case .protonDrive: return "lock.shield.fill"
+        case .googleDrive: return "externaldrive.fill"
         case .dropbox: return "shippingbox.fill"
         case .oneDrive: return "cloud.fill"
-        case .s3: return "externaldrive.fill.badge.icloud"
+        case .s3: return "cube.fill"
         case .icloud: return "icloud.fill"
-        case .mega: return "m.circle.fill"
-        case .box: return "cube.fill"
-        case .pcloud: return "cloud.circle.fill"
+        case .mega: return "m.square.fill"
+        case .box: return "archivebox.fill"
+        case .pcloud: return "cloud.fill"
         case .webdav: return "globe"
         case .sftp: return "terminal.fill"
         case .ftp: return "network"
         case .local: return "folder.fill"
-        
-        // Phase 1, Week 1
+
+        // Phase 1, Week 1: Self-Hosted & International
         case .nextcloud: return "cloud.circle"
         case .owncloud: return "cloud.circle.fill"
         case .seafile: return "server.rack"
         case .koofr: return "arrow.triangle.2.circlepath.circle"
         case .yandexDisk: return "y.circle.fill"
         case .mailRuCloud: return "envelope.circle.fill"
-        
-        // Phase 1, Week 2
-        case .backblazeB2: return "b.circle.fill"
-        case .wasabi: return "w.circle.fill"
+
+        // Phase 1, Week 2: Object Storage
+        case .backblazeB2: return "externaldrive.fill"
+        case .wasabi: return "leaf.fill"
         case .digitalOceanSpaces: return "water.waves"
-        case .cloudflareR2: return "r.circle.fill"
-        case .scaleway: return "s.circle.fill"
-        case .oracleCloud: return "o.circle.fill"
-        case .storj: return "lock.trianglebadge.exclamationmark.fill"
+        case .cloudflareR2: return "flame.fill"
+        case .scaleway: return "square.stack.3d.up.fill"
+        case .oracleCloud: return "building.2.fill"
+        case .storj: return "lock.shield.fill"
         case .filebase: return "square.stack.3d.up.fill"
-        
-        // Phase 1, Week 3
+
+        // Phase 1, Week 3: Enterprise Services
         case .googleCloudStorage: return "cloud.fill"
         case .azureBlob: return "cylinder.fill"
         case .azureFiles: return "doc.on.doc.fill"
         case .oneDriveBusiness: return "briefcase.fill"
         case .sharepoint: return "folder.badge.person.crop"
-        case .alibabaOSS: return "a.circle.fill"
-        
-        // Additional Providers
-        case .jottacloud: return "j.circle.fill"
-        
+        case .alibabaOSS: return "building.fill"
+
+        // Additional Providers: Nordic & Unlimited Storage
+        case .jottacloud: return "cloud.fill"
+
         // OAuth Expansion: Media & Consumer
         case .flickr: return "camera.fill"
         case .sugarsync: return "arrow.triangle.2.circlepath"
         case .opendrive: return "externaldrive.fill"
-        
+
         // OAuth Expansion: Specialized & Enterprise
         case .putio: return "arrow.down.circle.fill"
         case .premiumizeme: return "star.circle.fill"
-        case .quatrix: return "q.circle.fill"
-        case .filefabric: return "fabric.circle.fill"
+        case .quatrix: return "square.grid.3x3.fill"
+        case .filefabric: return "rectangle.grid.2x2.fill"
         }
     }
     
     var brandColor: Color {
         switch self {
-        case .protonDrive: return Color(red: 0.42, green: 0.31, blue: 0.78)
-        case .googleDrive: return Color(red: 0.26, green: 0.52, blue: 0.96)
-        case .dropbox: return Color(red: 0.0, green: 0.38, blue: 1.0)
-        case .oneDrive: return Color(red: 0.0, green: 0.47, blue: 0.84)
-        case .s3: return Color(red: 1.0, green: 0.6, blue: 0.0)
-        case .icloud: return Color(red: 0.2, green: 0.68, blue: 0.9)
-        case .mega: return Color(red: 0.85, green: 0.0, blue: 0.0)
-        case .box: return Color(red: 0.0, green: 0.38, blue: 0.65)
-        case .pcloud: return Color(red: 0.0, green: 0.75, blue: 0.65)
+        // Major cloud providers - official brand colors (hex values)
+        case .protonDrive: return Color(hex: "6D4AFF")  // Proton Purple
+        case .googleDrive: return Color(hex: "4285F4")  // Google Blue
+        case .dropbox: return Color(hex: "0061FF")      // Dropbox Blue
+        case .oneDrive: return Color(hex: "0078D4")     // Microsoft Blue
+        case .s3: return Color(hex: "FF9900")           // AWS Orange
+        case .icloud: return Color(hex: "3693F3")       // iCloud Blue
+        case .mega: return Color(hex: "D9272E")         // MEGA Red
+        case .box: return Color(hex: "0061D5")          // Box Blue
+        case .pcloud: return Color(hex: "00C0FF")       // pCloud Cyan
         case .webdav: return Color.gray
         case .sftp: return Color.green
         case .ftp: return Color.orange
         case .local: return Color.secondary
-        
-        // Phase 1, Week 1
-        case .nextcloud: return Color(red: 0.0, green: 0.51, blue: 0.79)
-        case .owncloud: return Color(red: 0.04, green: 0.26, blue: 0.49)
-        case .seafile: return Color(red: 0.0, green: 0.62, blue: 0.42)
-        case .koofr: return Color(red: 0.2, green: 0.6, blue: 0.86)
-        case .yandexDisk: return Color(red: 1.0, green: 0.2, blue: 0.0)
-        case .mailRuCloud: return Color(red: 0.05, green: 0.52, blue: 0.97)
-        
-        // Phase 1, Week 2
-        case .backblazeB2: return Color(red: 0.9, green: 0.11, blue: 0.14)
-        case .wasabi: return Color(red: 0.0, green: 0.71, blue: 0.31)
-        case .digitalOceanSpaces: return Color(red: 0.0, green: 0.42, blue: 0.98)
-        case .cloudflareR2: return Color(red: 0.97, green: 0.49, blue: 0.09)
-        case .scaleway: return Color(red: 0.31, green: 0.15, blue: 0.55)
-        case .oracleCloud: return Color(red: 0.93, green: 0.22, blue: 0.13)
-        case .storj: return Color(red: 0.0, green: 0.47, blue: 1.0)
-        case .filebase: return Color(red: 0.18, green: 0.8, blue: 0.44)
-        
-        // Phase 1, Week 3
-        case .googleCloudStorage: return Color(red: 0.26, green: 0.52, blue: 0.96)
-        case .azureBlob: return Color(red: 0.0, green: 0.47, blue: 0.84)
-        case .azureFiles: return Color(red: 0.0, green: 0.62, blue: 0.89)
-        case .oneDriveBusiness: return Color(red: 0.0, green: 0.35, blue: 0.67)
-        case .sharepoint: return Color(red: 0.01, green: 0.53, blue: 0.75)
-        case .alibabaOSS: return Color(red: 1.0, green: 0.42, blue: 0.0)
-        
-        // Additional Providers
-        case .jottacloud: return Color(red: 0.0, green: 0.58, blue: 0.77)
-        
+
+        // Phase 1, Week 1: Self-Hosted & International
+        case .nextcloud: return Color(hex: "0082C9")    // Nextcloud Blue
+        case .owncloud: return Color(hex: "0B427C")     // ownCloud Blue
+        case .seafile: return Color(hex: "009E6B")      // Seafile Green
+        case .koofr: return Color(hex: "3399DB")        // Koofr Blue
+        case .yandexDisk: return Color(hex: "FF3333")   // Yandex Red
+        case .mailRuCloud: return Color(hex: "0D85F8")  // Mail.ru Blue
+
+        // Phase 1, Week 2: Object Storage
+        case .backblazeB2: return Color(hex: "E21E29")  // Backblaze Red
+        case .wasabi: return Color(hex: "00B64F")       // Wasabi Green
+        case .digitalOceanSpaces: return Color(hex: "006BF4")  // DO Blue
+        case .cloudflareR2: return Color(hex: "F87D1E") // Cloudflare Orange
+        case .scaleway: return Color(hex: "4F0599")     // Scaleway Purple
+        case .oracleCloud: return Color(hex: "F80000")  // Oracle Red
+        case .storj: return Color(hex: "0078FF")        // Storj Blue
+        case .filebase: return Color(hex: "2ECC71")     // Filebase Green
+
+        // Phase 1, Week 3: Enterprise Services
+        case .googleCloudStorage: return Color(hex: "4285F4")  // Google Blue
+        case .azureBlob: return Color(hex: "0078D4")    // Azure Blue
+        case .azureFiles: return Color(hex: "009EDA")   // Azure Light Blue
+        case .oneDriveBusiness: return Color(hex: "0058AD")    // MS Business Blue
+        case .sharepoint: return Color(hex: "0287BF")   // SharePoint Blue
+        case .alibabaOSS: return Color(hex: "FF6A00")   // Alibaba Orange
+
+        // Additional Providers: Nordic & Unlimited Storage
+        case .jottacloud: return Color(hex: "0093C5")   // Jottacloud Blue
+
         // OAuth Expansion: Media & Consumer
-        case .flickr: return Color(red: 0.0, green: 0.42, blue: 0.98)
-        case .sugarsync: return Color(red: 0.0, green: 0.67, blue: 0.93)
-        case .opendrive: return Color(red: 0.29, green: 0.67, blue: 0.31)
-        
+        case .flickr: return Color(hex: "0063DC")       // Flickr Blue
+        case .sugarsync: return Color(hex: "00ABE6")    // SugarSync Blue
+        case .opendrive: return Color(hex: "4AAB4F")    // OpenDrive Green
+
         // OAuth Expansion: Specialized & Enterprise
-        case .putio: return Color(red: 0.96, green: 0.65, blue: 0.14)
-        case .premiumizeme: return Color(red: 0.85, green: 0.33, blue: 0.0)
-        case .quatrix: return Color(red: 0.2, green: 0.4, blue: 0.8)
-        case .filefabric: return Color(red: 0.4, green: 0.2, blue: 0.6)
+        case .putio: return Color(hex: "F5A622")        // Put.io Gold
+        case .premiumizeme: return Color(hex: "DA5500") // Premiumize Orange
+        case .quatrix: return Color(hex: "3366CC")      // Quatrix Blue
+        case .filefabric: return Color(hex: "663399")   // FileFabric Purple
         }
     }
     
@@ -508,6 +510,49 @@ struct FileItem: Identifiable, Equatable, Hashable {
     // Hashable conformance
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+// MARK: - Fast-List Support Extension (#71)
+extension CloudProviderType {
+    /// Whether this provider supports the --fast-list flag for efficient directory listing
+    /// Fast-list uses more memory but reduces API calls significantly for large directories
+    var supportsFastList: Bool {
+        switch self {
+        case .googleDrive, .googleCloudStorage, .s3, .dropbox, .box, .oneDrive, .oneDriveBusiness, .backblazeB2:
+            return true
+        // S3-compatible providers also support fast-list
+        case .wasabi, .digitalOceanSpaces, .cloudflareR2, .scaleway, .oracleCloud, .filebase:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Provider-specific parallelism configuration for optimal transfer performance (#70)
+    var defaultParallelism: (transfers: Int, checkers: Int) {
+        switch self {
+        case .googleDrive, .googleCloudStorage:
+            return (transfers: 8, checkers: 16)
+        case .dropbox:
+            return (transfers: 4, checkers: 8)
+        case .s3, .backblazeB2, .wasabi, .digitalOceanSpaces, .cloudflareR2, .scaleway, .oracleCloud, .filebase, .storj:
+            return (transfers: 16, checkers: 32)
+        case .local, .sftp:
+            return (transfers: 8, checkers: 16)
+        case .protonDrive:
+            return (transfers: 2, checkers: 4) // Rate limited
+        case .oneDrive, .oneDriveBusiness, .sharepoint:
+            return (transfers: 4, checkers: 8)
+        case .box:
+            return (transfers: 4, checkers: 8)
+        case .mega:
+            return (transfers: 4, checkers: 8)
+        case .jottacloud:
+            return (transfers: 4, checkers: 8)
+        default:
+            return (transfers: 4, checkers: 16) // Conservative default
+        }
     }
 }
 

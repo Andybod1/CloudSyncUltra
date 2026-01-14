@@ -1,11 +1,137 @@
 import XCTest
 @testable import CloudSyncApp
 
-/// Tests for TransferOptimizer performance optimization (#70)
+/// Tests for TransferOptimizer performance optimization (#70, #71)
 /// Verifies dynamic parallelism configuration based on transfer characteristics
+/// and fast-list support for compatible providers
 final class TransferOptimizerTests: XCTestCase {
 
-    // MARK: - TransferConfig Structure Tests
+    // MARK: - DynamicParallelismConfig Tests (#70)
+
+    func testDynamicParallelismForGoogleDrive() {
+        // Google Drive should use provider-specific defaults: transfers=8, checkers=16
+        let config = TransferOptimizer.calculateOptimalParallelism(
+            provider: .googleDrive,
+            fileCount: 50,
+            totalSize: 500_000_000,  // 500MB
+            averageFileSize: 10_000_000  // 10MB average
+        )
+
+        // Base defaults for Google Drive
+        XCTAssertGreaterThanOrEqual(config.transfers, 8, "Google Drive should have at least 8 transfers")
+        XCTAssertGreaterThanOrEqual(config.checkers, 16, "Google Drive should have at least 16 checkers")
+    }
+
+    func testDynamicParallelismForSmallFiles() {
+        // Many small files should increase parallelism
+        let config = TransferOptimizer.calculateOptimalParallelism(
+            provider: .googleDrive,
+            fileCount: 500,
+            totalSize: 50_000_000,  // 50MB total
+            averageFileSize: 100_000  // 100KB average (small files)
+        )
+
+        // Small files should trigger high parallelism
+        XCTAssertGreaterThanOrEqual(config.transfers, 16, "Many small files should use high transfers")
+    }
+
+    func testDynamicParallelismForLargeFiles() {
+        // Large files should reduce parallelism to avoid overwhelming bandwidth
+        let config = TransferOptimizer.calculateOptimalParallelism(
+            provider: .s3,
+            fileCount: 5,
+            totalSize: 5_000_000_000,  // 5GB total
+            averageFileSize: 1_000_000_000  // 1GB average (large files)
+        )
+
+        // Large files should use fewer parallel transfers
+        XCTAssertLessThanOrEqual(config.transfers, 8, "Large files should use fewer transfers")
+    }
+
+    func testDynamicParallelismForProtonDrive() {
+        // Proton Drive has rate limits - should use conservative defaults
+        let config = TransferOptimizer.calculateOptimalParallelism(
+            provider: .protonDrive,
+            fileCount: 100,
+            totalSize: 1_000_000_000,
+            averageFileSize: 10_000_000
+        )
+
+        // Proton Drive base is transfers=2, checkers=4
+        XCTAssertLessThanOrEqual(config.transfers, 8, "Proton Drive should respect rate limits")
+    }
+
+    func testDynamicParallelismForS3() {
+        // S3 providers support high parallelism: transfers=16, checkers=32
+        let config = TransferOptimizer.calculateOptimalParallelism(
+            provider: .s3,
+            fileCount: 100,
+            totalSize: 1_000_000_000,
+            averageFileSize: 10_000_000
+        )
+
+        XCTAssertGreaterThanOrEqual(config.transfers, 8, "S3 should support high parallelism")
+        XCTAssertGreaterThanOrEqual(config.checkers, 16, "S3 should have high checkers")
+    }
+
+    // MARK: - Fast-List Tests (#71)
+
+    func testFastListSupportedProviders() {
+        // All providers that should support fast-list
+        let supportedProviders: [CloudProviderType] = [
+            .googleDrive, .googleCloudStorage, .s3, .dropbox, .box, .oneDrive, .backblazeB2,
+            .wasabi, .digitalOceanSpaces, .cloudflareR2, .scaleway, .oracleCloud, .filebase
+        ]
+
+        for provider in supportedProviders {
+            XCTAssertTrue(provider.supportsFastList, "\(provider.displayName) should support fast-list")
+        }
+    }
+
+    func testFastListUnsupportedProviders() {
+        // Providers that do NOT support fast-list
+        let unsupportedProviders: [CloudProviderType] = [
+            .protonDrive, .sftp, .ftp, .local, .webdav, .mega, .jottacloud
+        ]
+
+        for provider in unsupportedProviders {
+            XCTAssertFalse(provider.supportsFastList, "\(provider.displayName) should NOT support fast-list")
+        }
+    }
+
+    func testProviderDefaultParallelism() {
+        // Verify provider-specific defaults are set correctly
+        XCTAssertEqual(CloudProviderType.googleDrive.defaultParallelism.transfers, 8)
+        XCTAssertEqual(CloudProviderType.googleDrive.defaultParallelism.checkers, 16)
+
+        XCTAssertEqual(CloudProviderType.dropbox.defaultParallelism.transfers, 4)
+        XCTAssertEqual(CloudProviderType.dropbox.defaultParallelism.checkers, 8)
+
+        XCTAssertEqual(CloudProviderType.s3.defaultParallelism.transfers, 16)
+        XCTAssertEqual(CloudProviderType.s3.defaultParallelism.checkers, 32)
+
+        XCTAssertEqual(CloudProviderType.protonDrive.defaultParallelism.transfers, 2)
+        XCTAssertEqual(CloudProviderType.protonDrive.defaultParallelism.checkers, 4)
+    }
+
+    func testDynamicParallelismConfigBuildArgs() {
+        let config = TransferOptimizer.DynamicParallelismConfig(
+            transfers: 8,
+            checkers: 16,
+            multiThreadStreams: 4
+        )
+
+        let args = TransferOptimizer.buildArgs(from: config)
+
+        XCTAssertTrue(args.contains("--transfers"))
+        XCTAssertTrue(args.contains("8"))
+        XCTAssertTrue(args.contains("--checkers"))
+        XCTAssertTrue(args.contains("16"))
+        XCTAssertTrue(args.contains("--multi-thread-streams"))
+        XCTAssertTrue(args.contains("4"))
+    }
+
+    // MARK: - TransferConfig Structure Tests (Legacy)
 
     func testTransferConfigStructExists() {
         // Verify TransferConfig has all required fields

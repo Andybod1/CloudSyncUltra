@@ -122,6 +122,8 @@ enum ProviderMultiThreadCapability {
 /// Enhanced with multi-threaded download support (#72)
 class TransferOptimizer {
 
+    // MARK: - Configuration Structs
+
     struct TransferConfig {
         let transfers: Int
         let checkers: Int
@@ -131,6 +133,81 @@ class TransferOptimizer {
         let multiThreadCutoff: String
         let fastList: Bool
         let chunkSize: String?
+    }
+
+    /// Dynamic parallelism configuration based on provider and file characteristics (#70)
+    struct DynamicParallelismConfig {
+        let transfers: Int          // --transfers flag
+        let checkers: Int           // --checkers flag
+        let multiThreadStreams: Int // --multi-thread-streams flag
+    }
+
+    // MARK: - Dynamic Parallelism (#70)
+
+    /// Calculate optimal parallelism based on provider type, file count, and sizes
+    /// Uses provider-specific defaults as base, then adjusts for file characteristics
+    /// - Parameters:
+    ///   - provider: The cloud provider type for provider-specific optimization
+    ///   - fileCount: Number of files to transfer
+    ///   - totalSize: Total size in bytes
+    ///   - averageFileSize: Average file size in bytes
+    /// - Returns: Optimized DynamicParallelismConfig
+    static func calculateOptimalParallelism(
+        provider: CloudProviderType,
+        fileCount: Int,
+        totalSize: Int64,
+        averageFileSize: Int64
+    ) -> DynamicParallelismConfig {
+        // Start with provider-specific defaults
+        let baseDefaults = provider.defaultParallelism
+
+        // Adjust transfers based on file characteristics
+        var transfers = baseDefaults.transfers
+
+        if fileCount > 10 {
+            if averageFileSize < 1_000_000 { // < 1MB average - many small files
+                // Increase parallelism for small files (more API calls, less bandwidth per file)
+                transfers = min(32, max(transfers * 2, fileCount / 5))
+            } else if averageFileSize > 100_000_000 { // > 100MB average - large files
+                // Reduce parallelism for large files (fewer but heavier transfers)
+                transfers = max(2, min(8, transfers / 2))
+            }
+        }
+
+        // Adjust checkers based on file count
+        var checkers = baseDefaults.checkers
+
+        if fileCount > 1000 {
+            checkers = min(32, checkers + 8) // Scale up for large directories
+        } else if fileCount > 100 {
+            checkers = min(24, checkers + 4) // Moderate increase for medium directories
+        }
+
+        // Multi-thread streams: only useful for large single files
+        let multiThreadStreams: Int
+        if fileCount == 1 && averageFileSize > 100_000_000 {
+            // For single large files, use multi-threading
+            multiThreadStreams = min(8, ProviderMultiThreadCapability.forProvider(provider.rcloneType).maxRecommendedThreads)
+        } else {
+            multiThreadStreams = 0
+        }
+
+        return DynamicParallelismConfig(
+            transfers: transfers,
+            checkers: checkers,
+            multiThreadStreams: multiThreadStreams
+        )
+    }
+
+    /// Build rclone arguments from DynamicParallelismConfig
+    static func buildArgs(from config: DynamicParallelismConfig) -> [String] {
+        var args: [String] = []
+        args.append(contentsOf: ["--transfers", "\(config.transfers)"])
+        args.append(contentsOf: ["--checkers", "\(config.checkers)"])
+        if config.multiThreadStreams > 0 {
+            args.append(contentsOf: ["--multi-thread-streams", "\(config.multiThreadStreams)"])
+        }
+        return args
     }
 
     /// Calculate optimal transfer configuration based on file characteristics
