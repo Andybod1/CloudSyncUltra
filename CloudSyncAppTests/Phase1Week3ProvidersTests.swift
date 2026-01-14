@@ -63,7 +63,7 @@ final class Phase1Week3ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Alibaba Cloud OSS")
         XCTAssertEqual(provider.rcloneType, "oss")
         XCTAssertEqual(provider.defaultRcloneName, "oss")
-        XCTAssertEqual(provider.iconName, "a.circle.fill")
+        XCTAssertEqual(provider.iconName, "building.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -193,7 +193,7 @@ final class Phase1Week3ProvidersTests: XCTestCase {
             "doc.on.doc.fill",            // azureFiles
             "briefcase.fill",              // oneDriveBusiness
             "folder.badge.person.crop",    // sharepoint
-            "a.circle.fill"                // alibabaOSS
+            "building.fill"                // alibabaOSS
         ]
         
         let newProviders: [CloudProviderType] = [

@@ -10,7 +10,7 @@ import SwiftUI
 
 /// Welcome screen shown as the first step of onboarding
 struct WelcomeStepView: View {
-    @ObservedObject private var onboardingManager = OnboardingManager.shared
+    @ObservedObject private var onboardingVM = OnboardingViewModel.shared
 
     @State private var animateIcon = false
     @State private var animateFeatures = false
@@ -160,7 +160,7 @@ struct WelcomeStepView: View {
 
     private var getStartedButton: some View {
         Button {
-            onboardingManager.completeOnboarding()
+            onboardingVM.nextStep()
         } label: {
             HStack(spacing: 8) {
                 Text("Get Started")

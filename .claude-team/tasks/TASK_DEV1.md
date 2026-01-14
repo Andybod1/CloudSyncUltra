@@ -1,119 +1,138 @@
-# Dev-1 Task: Accessibility Support
+# Dev-1 Task: Onboarding Flow Implementation
 
-**Sprint:** Maximum Productivity
-**Priority:** Medium
-**Worker:** Dev-1 (UI Layer)
+**Created:** 2026-01-14 22:20
+**Worker:** Dev-1 (UI)
+**Model:** Opus with /think for complex decisions
+**Issues:** #80, #81, #82
 
 ---
 
-## Objective
+## Context
 
-Add VoiceOver accessibility labels and keyboard shortcuts to main views for users with disabilities.
+CloudSync Ultra needs a first-time user onboarding experience for App Store launch. Users should understand the app's value and successfully connect their first cloud provider.
 
-## Files to Modify
+---
 
-- `CloudSyncApp/Views/DashboardView.swift`
-- `CloudSyncApp/Views/TransferView.swift`
-- `CloudSyncApp/Views/FileBrowserView.swift`
-- `CloudSyncApp/Views/TasksView.swift`
-- `CloudSyncApp/Views/SettingsView.swift`
+## Your Files (Exclusive Ownership)
 
-## Tasks
+```
+CloudSyncApp/Views/         # All view files
+CloudSyncApp/ViewModels/    # All view model files
+CloudSyncApp/Views/Onboarding/  # CREATE THIS
+```
 
-### 1. Add VoiceOver Labels
+---
 
-Add `.accessibilityLabel()` and `.accessibilityHint()` to all interactive elements:
+## Objectives
+
+### Issue #80: Onboarding Infrastructure + Welcome Screen
+
+1. **Create Onboarding Infrastructure**
+   ```swift
+   // CloudSyncApp/Views/Onboarding/OnboardingView.swift
+   // CloudSyncApp/ViewModels/OnboardingViewModel.swift
+   ```
+   
+2. **OnboardingViewModel** should track:
+   - `currentStep: Int` (0, 1, 2, 3)
+   - `hasCompletedOnboarding: Bool` (persisted in UserDefaults)
+   - `canSkip: Bool`
+
+3. **Welcome Screen (Step 0)**
+   - App logo/icon
+   - "Welcome to CloudSync Ultra"
+   - 3-4 key benefits with icons:
+     - 🔄 "Sync across 42+ cloud providers"
+     - 🔒 "Your files, encrypted your way"
+     - ⚡ "Fast, parallel transfers"
+   - "Get Started" button
+   - "Skip" link (small, subtle)
+
+### Issue #81: Guide to Add First Provider (Step 1)
+
+1. **Provider Selection Screen**
+   - "Connect Your First Cloud" heading
+   - Grid of popular providers (Google Drive, Dropbox, OneDrive, iCloud, Proton Drive)
+   - "Show All Providers" expansion
+   - Visual indication of OAuth vs manual config
+
+2. **Connection Flow**
+   - Guide user through OAuth or config
+   - Show success animation on completion
+   - "Continue" to next step
+
+### Issue #82: Guide to First Sync (Step 2)
+
+1. **First Sync Walkthrough**
+   - "Let's sync some files!" heading
+   - Simple explanation of sync vs copy
+   - Show the dual-pane interface briefly
+   - Suggest a small test sync
+
+2. **Completion Screen (Step 3)**
+   - 🎉 Celebration animation
+   - "You're all set!"
+   - Quick tips for power users
+   - "Open Dashboard" button
+
+---
+
+## Design Guidelines
+
+- Use `AppTheme` for all styling (colors, spacing, fonts)
+- Follow existing app visual language
+- Smooth transitions between steps (slide or fade)
+- Progress indicator showing current step
+- Allow going back to previous steps
+- Responsive to window size
+
+---
+
+## Integration Points
 
 ```swift
-// Example for buttons
-Button(action: startTransfer) {
-    Image(systemName: "arrow.right.circle.fill")
+// In CloudSyncApp.swift or MainView.swift
+// Check if onboarding needed on launch:
+if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+    // Show OnboardingView
 }
-.accessibilityLabel("Start Transfer")
-.accessibilityHint("Double-tap to begin transferring selected files")
-
-// Example for status indicators
-Circle()
-    .fill(isConnected ? .green : .red)
-.accessibilityLabel(isConnected ? "Connected" : "Disconnected")
-.accessibilityValue(remoteName)
 ```
 
-### 2. Add Keyboard Shortcuts
+---
 
-Create keyboard shortcuts for common actions:
+## Deliverables
 
-```swift
-// In main window or appropriate view
-.keyboardShortcut("n", modifiers: .command)  // New folder
-.keyboardShortcut("r", modifiers: .command)  // Refresh
-.keyboardShortcut("t", modifiers: .command)  // Start transfer
-.keyboardShortcut(",", modifiers: .command)  // Settings
-.keyboardShortcut("d", modifiers: .command)  // Dashboard
-```
+1. **New Files:**
+   - `CloudSyncApp/Views/Onboarding/OnboardingView.swift`
+   - `CloudSyncApp/Views/Onboarding/WelcomeStepView.swift`
+   - `CloudSyncApp/Views/Onboarding/AddProviderStepView.swift`
+   - `CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift`
+   - `CloudSyncApp/Views/Onboarding/CompletionStepView.swift`
+   - `CloudSyncApp/ViewModels/OnboardingViewModel.swift`
 
-### 3. Key Areas to Cover
+2. **Modified Files:**
+   - `CloudSyncApp/CloudSyncApp.swift` - Add onboarding check
 
-**DashboardView:**
-- Provider cards: accessibility label with provider name and status
-- Quick action buttons: labels and hints
-- Statistics: value descriptions
+3. **Tests:**
+   - `CloudSyncAppTests/OnboardingViewModelTests.swift`
 
-**TransferView:**
-- Source/destination panes: accessibility labels
-- File selection: announce selected count
-- Transfer button: state-dependent label
-- Progress indicator: announce percentage
+4. **Git Commit:**
+   ```
+   feat(ui): Add first-time user onboarding flow
+   
+   - Welcome screen with app benefits (#80)
+   - Guided provider connection (#81)
+   - First sync walkthrough (#82)
+   - Progress tracking with skip option
+   
+   Implements #80, #81, #82
+   ```
 
-**FileBrowserView:**
-- File rows: label with name, size, type
-- Navigation breadcrumbs: announce path
-- Context menu items: clear labels
-- Empty state: descriptive message
+---
 
-**TasksView:**
-- Task cards: status, progress, name
-- Action buttons: pause, resume, cancel labels
-- Filter controls: current filter state
+## Notes
 
-**SettingsView:**
-- All toggles and pickers: clear labels
-- Section headers: group accessibility
-
-### 4. Add accessibilityElement Grouping
-
-Group related elements:
-```swift
-HStack {
-    Image(...)
-    VStack {
-        Text(fileName)
-        Text(fileSize)
-    }
-}
-.accessibilityElement(children: .combine)
-.accessibilityLabel("\(fileName), \(fileSize)")
-```
-
-## Verification
-
-1. Enable VoiceOver (⌘ + F5)
-2. Navigate through each view
-3. Verify all elements are announced properly
-4. Test keyboard shortcuts work
-
-## Output
-
-Write completion report to: `/Users/antti/Claude/.claude-team/outputs/DEV1_COMPLETE.md`
-
-Include:
-- List of files modified
-- Keyboard shortcuts added
-- VoiceOver coverage summary
-
-## Success Criteria
-
-- [ ] All interactive elements have accessibility labels
-- [ ] Keyboard shortcuts for common actions
-- [ ] VoiceOver navigation works smoothly
-- [ ] Build succeeds
+- Use /think for complex state management decisions
+- Keep each step focused and not overwhelming
+- Test with fresh UserDefaults to simulate new user
+- Consider accessibility (VoiceOver support)

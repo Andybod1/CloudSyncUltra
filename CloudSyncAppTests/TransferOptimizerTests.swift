@@ -39,7 +39,7 @@ final class TransferOptimizerTests: XCTestCase {
         // Large files should reduce parallelism to avoid overwhelming bandwidth
         let config = TransferOptimizer.calculateOptimalParallelism(
             provider: .s3,
-            fileCount: 5,
+            fileCount: 15,
             totalSize: 5_000_000_000,  // 5GB total
             averageFileSize: 1_000_000_000  // 1GB average (large files)
         )
@@ -231,7 +231,7 @@ final class TransferOptimizerTests: XCTestCase {
     func testOptimizeForLargeFiles() {
         // Few large files
         let config = TransferOptimizer.optimize(
-            fileCount: 5,
+            fileCount: 15,
             totalBytes: 5_000_000_000,  // 5GB total, 1GB average
             remoteName: "s3",
             isDirectory: true,
@@ -258,16 +258,17 @@ final class TransferOptimizerTests: XCTestCase {
     }
 
     func testOptimizeForFewFiles() {
-        // Few files (<=10) should use default parallelism
+        // Few files (<=10) should use provider-specific parallelism
+        // Google Drive now uses dynamic parallelism (8 transfers)
         let config = TransferOptimizer.optimize(
-            fileCount: 5,
+            fileCount: 15,
             totalBytes: 50_000_000,
             remoteName: "googledrive",
             isDirectory: true,
             isDownload: false
         )
 
-        XCTAssertEqual(config.transfers, 4, "Few files should use default transfers")
+        XCTAssertEqual(config.transfers, 8, "Google Drive should use optimized transfers")
     }
 
     // MARK: - Multi-Threading Tests

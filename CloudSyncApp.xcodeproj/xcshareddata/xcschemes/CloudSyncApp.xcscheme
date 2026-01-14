@@ -38,6 +38,16 @@
                ReferencedContainer = "container:CloudSyncApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BB68CAB9B0EE2AA176F0020A"
+               BuildableName = "CloudSyncAppUITests.xctest"
+               BlueprintName = "CloudSyncAppUITests"
+               ReferencedContainer = "container:CloudSyncApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

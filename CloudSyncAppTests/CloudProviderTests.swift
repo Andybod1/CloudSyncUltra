@@ -22,8 +22,8 @@ final class CloudProviderTests: XCTestCase {
     }
     
     func testDisplayIcon() {
-        XCTAssertEqual(CloudProviderType.protonDrive.iconName, "shield.checkered")
-        XCTAssertEqual(CloudProviderType.googleDrive.iconName, "g.circle.fill")
+        XCTAssertEqual(CloudProviderType.protonDrive.iconName, "lock.shield.fill")
+        XCTAssertEqual(CloudProviderType.googleDrive.iconName, "externaldrive.fill")
         XCTAssertEqual(CloudProviderType.dropbox.iconName, "shippingbox.fill")
         XCTAssertEqual(CloudProviderType.oneDrive.iconName, "cloud.fill")
         XCTAssertEqual(CloudProviderType.local.iconName, "folder.fill")
@@ -89,7 +89,7 @@ final class CloudProviderTests: XCTestCase {
     
     func testCloudRemote_DisplayIcon() {
         let remote = CloudRemote(name: "Proton", type: .protonDrive, isConfigured: true)
-        XCTAssertEqual(remote.displayIcon, "shield.checkered")
+        XCTAssertEqual(remote.displayIcon, "lock.shield.fill")
     }
     
     func testCloudRemote_LocalStorage() {

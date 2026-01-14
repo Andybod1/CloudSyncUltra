@@ -1,75 +1,107 @@
-# TASK: Fix 11 Failing Unit Tests
+# QA Task: Post-Cleanup Verification & Test Suite Integration
 
+**Created:** 2026-01-14 22:10
+**RETRY:** 2026-01-14 22:35 - Quarantine issue fixed with `xattr -cr`
 **Worker:** QA
-**Model:** Opus + /think (mandatory)
-**Issue:** #87
-**Priority:** Critical
+**Model:** Opus with /think
+**Priority:** High
 
 ---
 
-## Objective
+## Context
 
-Fix the 11 failing unit tests to achieve 100% pass rate (743/743).
+Project cleanup was just completed - all unused files archived. All 743 unit tests pass. Need to verify app functionality and address high-priority test integration issue.
 
 ---
 
-## Steps
+## Objectives
 
-### 1. Run Tests & Capture Failures
-```bash
-cd /Users/antti/Claude
-xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | tee test-output.txt
+### Phase 1: Post-Cleanup Smoke Test (15 min)
+
+1. **Build & Launch Verification**
+   - Clean build the app: `xcodebuild clean build -scheme CloudSyncApp -destination 'platform=macOS'`
+   - Launch CloudSyncApp and verify it opens correctly
+   - Check Console.app for any errors on launch
+
+2. **Core Feature Smoke Test**
+   - Open Settings → verify all tabs load
+   - Open Providers → verify list renders
+   - Check Dashboard → verify no crashes
+   - Verify menu bar icon appears
+
+3. **Document any issues found**
+
+### Phase 2: GitHub Issue #88 - UI Test Integration (Main Task)
+
+**Issue:** [Feature] Integrate UI test suite into Xcode project
+**Priority:** High
+**Component:** Tests
+
+**Background:**
+We have UI tests in `CloudSyncAppUITests/` but need to verify they're properly integrated into the Xcode project and can run via `xcodebuild test`.
+
+**Tasks:**
+1. Verify CloudSyncAppUITests target exists in project
+2. Check UI test files are included in target
+3. Attempt to run UI tests: 
+   ```bash
+   xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' -only-testing:CloudSyncAppUITests
+   ```
+4. Document what works and what fails
+5. If tests fail, investigate and fix configuration issues
+6. Create/update test documentation
+
+---
+
+## Files You Own
+
 ```
-
-### 2. Identify Failing Tests
-```bash
-grep -E "failed|error:|FAILED" test-output.txt
+CloudSyncAppTests/          # All test files
+CloudSyncAppUITests/        # UI test files  
+docs/TEST_*.md              # Test documentation
 ```
-
-### 3. Analyze Each Failure
-Use /think to analyze:
-- What is the test testing?
-- Why is it failing?
-- Is it a test bug or code bug?
-
-### 4. Fix Each Test
-For each failing test:
-- If test is outdated → Update test expectations
-- If code is wrong → Fix the code (coordinate with Dev-1/2/3 if needed)
-- If test is flaky → Make it deterministic
-
-### 5. Verify All Pass
-```bash
-xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
-```
-
-Expected output: `Executed 743 tests, with 0 failures`
 
 ---
 
 ## Deliverables
 
-1. All 743 tests passing
-2. Output file: `.claude-team/outputs/QA_TEST_FIX_COMPLETE.md`
-   - List of tests fixed
-   - Root cause for each
-   - Changes made
-3. Update STATUS.md when done
+1. **SMOKE_TEST_REPORT.md** in `.claude-team/outputs/`
+   - Build status
+   - Launch verification
+   - Feature smoke test results
+   - Issues found (if any)
+
+2. **UI Test Integration Status**
+   - Whether UI tests run successfully
+   - Any fixes applied
+   - Remaining issues
+
+3. **Git commits** for any fixes made
 
 ---
 
-## Completion
+## Commands Reference
 
-When done:
 ```bash
-# Update status
-# Commit changes
-cd /Users/antti/Claude
-git add -A
-git commit -m "fix: Resolve 11 failing unit tests (#87)"
+# Build
+xcodebuild clean build -scheme CloudSyncApp -destination 'platform=macOS'
 
-# Mark issue
-gh issue comment 87 -b "Fixed all 11 failing tests. See QA_TEST_FIX_COMPLETE.md for details."
+# Run unit tests
+xcodebuild test -scheme CloudSyncApp -destination 'platform=macOS' -only-testing:CloudSyncAppTests
+
+# Run UI tests  
+xcodebuild test -scheme CloudSyncApp -destination 'platform=macOS' -only-testing:CloudSyncAppUITests
+
+# Launch app
+open /Users/antti/Claude/CloudSyncApp.xcodeproj
+# Then Cmd+R in Xcode
 ```
 
-Then notify Strategic Partner that task is complete.
+---
+
+## Notes
+
+- Use /think for complex debugging decisions
+- Document everything - we maintain comprehensive records
+- If UI tests need significant fixes, create follow-up tickets
+- Update CHANGELOG.md if you make code changes

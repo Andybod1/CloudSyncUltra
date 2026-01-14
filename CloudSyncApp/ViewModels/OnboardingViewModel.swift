@@ -1,5 +1,5 @@
 //
-//  OnboardingManager.swift
+//  OnboardingViewModel.swift
 //  CloudSyncApp
 //
 //  Manages onboarding state and flow for new users.
@@ -12,10 +12,9 @@ import Combine
 /// Represents the different steps in the onboarding flow
 enum OnboardingStep: Int, CaseIterable, Identifiable {
     case welcome = 0
-    // Future steps can be added here:
-    // case cloudSetup = 1
-    // case folderSelection = 2
-    // case complete = 3
+    case addProvider = 1
+    case firstSync = 2
+    case completion = 3
 
     var id: Int { rawValue }
 
@@ -23,17 +22,30 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .welcome: return "Welcome"
+        case .addProvider: return "Connect Cloud"
+        case .firstSync: return "First Sync"
+        case .completion: return "Complete"
+        }
+    }
+
+    /// Short description for each step
+    var description: String {
+        switch self {
+        case .welcome: return "Get to know CloudSync Ultra"
+        case .addProvider: return "Connect your first cloud provider"
+        case .firstSync: return "Learn how to sync files"
+        case .completion: return "You're all set!"
         }
     }
 }
 
 /// Manages the onboarding flow state and persistence
 @MainActor
-class OnboardingManager: ObservableObject {
+class OnboardingViewModel: ObservableObject {
 
     // MARK: - Singleton
 
-    static let shared = OnboardingManager()
+    static let shared = OnboardingViewModel()
 
     // MARK: - Published Properties
 
@@ -48,6 +60,18 @@ class OnboardingManager: ObservableObject {
 
     /// Animation state for transitions between steps
     @Published var isTransitioning: Bool = false
+
+    /// Whether a provider has been successfully connected during onboarding
+    @Published var hasConnectedProvider: Bool = false
+
+    /// The connected provider name (for display in later steps)
+    @Published var connectedProviderName: String?
+
+    /// Whether the user can skip the current step
+    var canSkip: Bool {
+        // Users can always skip, but we encourage completing the flow
+        true
+    }
 
     // MARK: - Computed Properties
 
@@ -74,6 +98,11 @@ class OnboardingManager: ObservableObject {
     /// Whether we're on the first step
     var isFirstStep: Bool {
         currentStep.rawValue == 0
+    }
+
+    /// Whether the back button should be shown
+    var canGoBack: Bool {
+        !isFirstStep && currentStep != .completion
     }
 
     // MARK: - Initialization
@@ -133,6 +162,14 @@ class OnboardingManager: ObservableObject {
         }
     }
 
+    /// Called when a provider is successfully connected
+    func providerConnected(name: String) {
+        hasConnectedProvider = true
+        connectedProviderName = name
+        // Automatically advance to the next step
+        nextStep()
+    }
+
     /// Completes the onboarding flow and marks it as finished
     func completeOnboarding() {
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -149,6 +186,11 @@ class OnboardingManager: ObservableObject {
         completeOnboarding()
     }
 
+    /// Skips just the current step without completing onboarding
+    func skipCurrentStep() {
+        nextStep()
+    }
+
     // MARK: - Reset Methods (for testing/settings)
 
     /// Resets the onboarding state to show it again
@@ -156,6 +198,8 @@ class OnboardingManager: ObservableObject {
         hasCompletedOnboarding = false
         currentStep = .welcome
         shouldShowOnboarding = true
+        hasConnectedProvider = false
+        connectedProviderName = nil
 
         // Post notification for any listeners
         NotificationCenter.default.post(name: .onboardingReset, object: nil)
@@ -171,3 +215,8 @@ extension Notification.Name {
     /// Posted when onboarding is reset
     static let onboardingReset = Notification.Name("onboardingReset")
 }
+
+// MARK: - Legacy Alias
+
+/// Alias for backward compatibility with existing code
+typealias OnboardingManager = OnboardingViewModel

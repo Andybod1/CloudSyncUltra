@@ -38,13 +38,16 @@
 		594A3E4BB5CAD8296F41B5EF /* HelpManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F558D6C3377DEC3C817F705C /* HelpManager.swift */; };
 		5D33408EE5730FB66E7A7434 /* CloudSyncAppTests/CloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE598E5C958E81790046D8C1 /* CloudSyncAppTests/CloudProviderTests.swift */; };
 		631B9EE64D50FDF1A7CF8114 /* CloudSyncAppTests/AddRemoteViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11DA4CAA0CBE2C9F2F5FFA6 /* CloudSyncAppTests/AddRemoteViewTests.swift */; };
-		676D68533A41294BC4FB5960 /* CloudSyncAppTests/OnboardingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingManagerTests.swift */; };
+		676D68533A41294BC4FB5960 /* CloudSyncAppTests/OnboardingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingViewModelTests.swift */; };
 		6D5141DCA9FE66C7D7B06816 /* ScheduleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED492C8829FC2B8ACC2FBB /* ScheduleSettingsView.swift */; };
 		6E423B404C4C7CF88C086CC3 /* CloudSyncAppTests/RemotesViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E8DABB2B86630B83F6834B3 /* CloudSyncAppTests/RemotesViewModelTests.swift */; };
 		729F47C18417A8B8560B8C1F /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458E4CA3A6E61071EE941591 /* ScheduleManager.swift */; };
 		73FD6B6E5AFA2A841C8B50D6 /* CloudSyncAppTests/JottacloudAuthenticationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3897FF2136C42413E2F8A10B /* CloudSyncAppTests/JottacloudAuthenticationTests.swift */; };
 		742B29A5D981D9A5F17C62BA /* CloudSyncAppTests/AccountNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00674214001C9A1082D1207D /* CloudSyncAppTests/AccountNameTests.swift */; };
-		77068DEE976DCBE38155F97B /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */; };
+		77068DEE976DCBE38155F97B /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1947B9C996D3BC4E388965B7 /* OnboardingViewModel.swift */; };
+		ADD01 /* AddProviderStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD02 /* AddProviderStepView.swift */; };
+		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
+		CMP01 /* CompletionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CMP02 /* CompletionStepView.swift */; };
 		783863546852C7EA2EEBEC28 /* CloudSyncAppTests/TransferErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DB2CF33F725AD280A7EEE5 /* CloudSyncAppTests/TransferErrorTests.swift */; };
 		7C5F9037D207CCDFBE127ED0 /* CloudSyncAppTests/RemoteReorderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5106C877AA4817D4F7C064FC /* CloudSyncAppTests/RemoteReorderingTests.swift */; };
 		81CE811892E52A5E68CC65D7 /* CloudSyncAppTests/TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E62C7A70FE07F84F99CBBB6 /* CloudSyncAppTests/TimeFormattingTests.swift */; };
@@ -126,7 +129,10 @@
 		15 /* CloudSyncApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudSyncApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		18 /* CloudSyncApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudSyncApp.entitlements; sourceTree = "<group>"; };
-		1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingManager.swift; path = CloudSyncApp/ViewModels/OnboardingManager.swift; sourceTree = SOURCE_ROOT; };
+		1947B9C996D3BC4E388965B7 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingViewModel.swift; path = CloudSyncApp/ViewModels/OnboardingViewModel.swift; sourceTree = SOURCE_ROOT; };
+		ADD02 /* AddProviderStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddProviderStepView.swift; path = CloudSyncApp/Views/Onboarding/AddProviderStepView.swift; sourceTree = SOURCE_ROOT; };
+		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
+		CMP02 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletionStepView.swift; path = CloudSyncApp/Views/Onboarding/CompletionStepView.swift; sourceTree = SOURCE_ROOT; };
 		20 /* EncryptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionManager.swift; sourceTree = "<group>"; };
 		26DB2CF33F725AD280A7EEE5 /* CloudSyncAppTests/TransferErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/TransferErrorTests.swift; sourceTree = SOURCE_ROOT; };
 		29FCF855FFAADD6680076AD2 /* CloudSyncAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppUITests.swift; sourceTree = "<group>"; };
@@ -205,7 +211,7 @@
 		EF64D6804F2A00547C7B4675 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4547BACA8D0CFB390C1E064 /* CloudSyncAppTests/Phase1Week1ProvidersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/Phase1Week1ProvidersTests.swift; sourceTree = SOURCE_ROOT; };
 		F558D6C3377DEC3C817F705C /* HelpManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpManager.swift; path = CloudSyncApp/HelpManager.swift; sourceTree = SOURCE_ROOT; };
-		FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingManagerTests.swift; sourceTree = SOURCE_ROOT; };
+		FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -233,6 +239,9 @@
 			children = (
 				9D9DEA3C203CF6EE7F9C00D8 /* OnboardingView.swift */,
 				6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */,
+				ADD02 /* AddProviderStepView.swift */,
+				FSS02 /* FirstSyncStepView.swift */,
+				CMP02 /* CompletionStepView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -279,7 +288,7 @@
 				C7DCC18765B1FACCAA965FF5 /* CloudSyncAppTests/SyncTaskTests.swift */,
 				C7DA7F1856757AB4C4C72C7A /* CloudSyncAppTests/ErrorNotificationManagerTests.swift */,
 				5106C877AA4817D4F7C064FC /* CloudSyncAppTests/RemoteReorderingTests.swift */,
-				FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingManagerTests.swift */,
+				FB6D4BA40F093273E2CEC341 /* CloudSyncAppTests/OnboardingViewModelTests.swift */,
 				A4FBA4CD745F10F3CCD929EE /* CloudSyncAppTests/HelpSystemTests.swift */,
 				AA8C7CCAC4914E5A58E0B9D0 /* CloudSyncAppTests/MultiThreadDownloadTests.swift */,
 				C7640A97C61011358757E1FB /* CloudSyncAppTests/TransferOptimizerTests.swift */,
@@ -380,7 +389,7 @@
 		G2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */,
+				1947B9C996D3BC4E388965B7 /* OnboardingViewModel.swift */,
 				A8 /* RemotesViewModel.swift */,
 				AA /* TasksViewModel.swift */,
 				AC /* FileBrowserViewModel.swift */,
@@ -567,7 +576,10 @@
 				BF06 /* ProtonDriveManager.swift in Sources */,
 				BF07 /* ProtonDriveSetupView.swift in Sources */,
 				SV01 /* SchedulesView.swift in Sources */,
-				77068DEE976DCBE38155F97B /* OnboardingManager.swift in Sources */,
+				77068DEE976DCBE38155F97B /* OnboardingViewModel.swift in Sources */,
+				ADD01 /* AddProviderStepView.swift in Sources */,
+				FSS01 /* FirstSyncStepView.swift in Sources */,
+				CMP01 /* CompletionStepView.swift in Sources */,
 				E3E6EE7BAF23B655BF7648F7 /* OnboardingView.swift in Sources */,
 				C83C9D658C9DAD85749F1716 /* WelcomeStepView.swift in Sources */,
 				594A3E4BB5CAD8296F41B5EF /* HelpManager.swift in Sources */,
@@ -611,7 +623,7 @@
 				38907F9E82A0FBD76721788A /* CloudSyncAppTests/SyncTaskTests.swift in Sources */,
 				3EE41743EA0D6C4FFB2B9E83 /* CloudSyncAppTests/ErrorNotificationManagerTests.swift in Sources */,
 				7C5F9037D207CCDFBE127ED0 /* CloudSyncAppTests/RemoteReorderingTests.swift in Sources */,
-				676D68533A41294BC4FB5960 /* CloudSyncAppTests/OnboardingManagerTests.swift in Sources */,
+				676D68533A41294BC4FB5960 /* CloudSyncAppTests/OnboardingViewModelTests.swift in Sources */,
 				9B85615EC4EC33CB802ABFA2 /* CloudSyncAppTests/HelpSystemTests.swift in Sources */,
 				2CBA14FDB5D8407B9937F012 /* CloudSyncAppTests/MultiThreadDownloadTests.swift in Sources */,
 				0A2F78C6C44A00F629D3291A /* CloudSyncAppTests/TransferOptimizerTests.swift in Sources */,

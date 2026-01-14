@@ -22,7 +22,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Backblaze B2")
         XCTAssertEqual(provider.rcloneType, "b2")
         XCTAssertEqual(provider.defaultRcloneName, "b2")
-        XCTAssertEqual(provider.iconName, "b.circle.fill")
+        XCTAssertEqual(provider.iconName, "externaldrive.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -34,7 +34,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Wasabi")
         XCTAssertEqual(provider.rcloneType, "s3")
         XCTAssertEqual(provider.defaultRcloneName, "wasabi")
-        XCTAssertEqual(provider.iconName, "w.circle.fill")
+        XCTAssertEqual(provider.iconName, "leaf.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -58,7 +58,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Cloudflare R2")
         XCTAssertEqual(provider.rcloneType, "s3")
         XCTAssertEqual(provider.defaultRcloneName, "r2")
-        XCTAssertEqual(provider.iconName, "r.circle.fill")
+        XCTAssertEqual(provider.iconName, "flame.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -70,7 +70,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Scaleway")
         XCTAssertEqual(provider.rcloneType, "s3")
         XCTAssertEqual(provider.defaultRcloneName, "scaleway")
-        XCTAssertEqual(provider.iconName, "s.circle.fill")
+        XCTAssertEqual(provider.iconName, "square.stack.3d.up.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -82,7 +82,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Oracle Cloud")
         XCTAssertEqual(provider.rcloneType, "s3")
         XCTAssertEqual(provider.defaultRcloneName, "oraclecloud")
-        XCTAssertEqual(provider.iconName, "o.circle.fill")
+        XCTAssertEqual(provider.iconName, "building.2.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -94,7 +94,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Storj")
         XCTAssertEqual(provider.rcloneType, "storj")
         XCTAssertEqual(provider.defaultRcloneName, "storj")
-        XCTAssertEqual(provider.iconName, "lock.trianglebadge.exclamationmark.fill")
+        XCTAssertEqual(provider.iconName, "lock.shield.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -306,13 +306,13 @@ final class Phase1Week2ProvidersTests: XCTestCase {
     func testIconNamesAreValid() {
         // Valid SF Symbol names for new providers
         let validIconNames = [
-            "b.circle.fill",                            // backblazeB2
-            "w.circle.fill",                            // wasabi
+            "externaldrive.fill",                            // backblazeB2
+            "leaf.fill",                            // wasabi
             "water.waves",                              // digitalOceanSpaces
-            "r.circle.fill",                            // cloudflareR2
-            "s.circle.fill",                            // scaleway
-            "o.circle.fill",                            // oracleCloud
-            "lock.trianglebadge.exclamationmark.fill",  // storj
+            "flame.fill",                            // cloudflareR2
+            "square.stack.3d.up.fill",                            // scaleway
+            "building.2.fill",                            // oracleCloud
+            "lock.shield.fill",  // storj
             "square.stack.3d.up.fill"                   // filebase
         ]
         
@@ -418,7 +418,7 @@ final class Phase1Week2ProvidersTests: XCTestCase {
         XCTAssertEqual(remote.name, "B2 Backup")
         XCTAssertEqual(remote.type, .backblazeB2)
         XCTAssertEqual(remote.rcloneName, "my-b2")
-        XCTAssertEqual(remote.displayIcon, "b.circle.fill")
+        XCTAssertEqual(remote.displayIcon, "externaldrive.fill")
     }
     
     func testCloudRemoteDefaultRcloneName() {

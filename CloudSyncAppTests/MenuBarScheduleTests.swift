@@ -191,8 +191,8 @@ final class MenuBarScheduleTests: XCTestCase {
             customIntervalMinutes: 60
         )
 
-        // Set nextRunAt to 3 hours from now
-        schedule.nextRunAt = Date().addingTimeInterval(3 * 3600)
+        // Set nextRunAt to 3 hours + 30 minutes from now (to avoid boundary issues)
+        schedule.nextRunAt = Date().addingTimeInterval(3 * 3600 + 1800)
 
         let formatted = schedule.formattedNextRun
         XCTAssertEqual(formatted, "In 3 hr")

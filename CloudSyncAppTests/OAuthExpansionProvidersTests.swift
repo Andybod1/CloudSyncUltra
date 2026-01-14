@@ -65,7 +65,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Quatrix")
         XCTAssertEqual(provider.rcloneType, "quatrix")
         XCTAssertEqual(provider.defaultRcloneName, "quatrix")
-        XCTAssertEqual(provider.iconName, "q.circle.fill")
+        XCTAssertEqual(provider.iconName, "square.grid.3x3.fill")
         XCTAssertTrue(provider.isSupported)
     }
     
@@ -74,7 +74,7 @@ final class OAuthExpansionProvidersTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "File Fabric")
         XCTAssertEqual(provider.rcloneType, "filefabric")
         XCTAssertEqual(provider.defaultRcloneName, "filefabric")
-        XCTAssertEqual(provider.iconName, "fabric.circle.fill")
+        XCTAssertEqual(provider.iconName, "rectangle.grid.2x2.fill")
         XCTAssertTrue(provider.isSupported)
     }
     

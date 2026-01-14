@@ -1,142 +1,195 @@
-# Dev-2 Task: OSLog Implementation
+# Dev-2 Task: Performance Optimizations
 
-**Sprint:** Maximum Productivity
-**Priority:** Medium
-**Worker:** Dev-2 (Engine Layer)
+**Created:** 2026-01-14 22:20
+**Completed:** 2026-01-14 22:30
+**Worker:** Dev-2 (Engine)
+**Model:** Opus with /think for optimization decisions
+**Issues:** #70, #71
+**Status:** ✅ COMPLETE
 
 ---
 
-## Objective
+## Completion Summary
 
-Replace all print() statements in RcloneManager.swift with Apple's OSLog unified logging system.
+### Implemented Changes:
 
-## Files to Modify
+1. **CloudProviderType Extensions** (`CloudSyncApp/Models/CloudProvider.swift`):
+   - Added `supportsFastList` property for all providers
+   - Added `defaultParallelism` property with provider-specific (transfers, checkers) tuples
 
-- `CloudSyncApp/RcloneManager.swift`
-- Create `CloudSyncApp/Logger+Extensions.swift` (if not exists)
+2. **TransferOptimizer Enhancements** (`CloudSyncApp/RcloneManager.swift`):
+   - Added `DynamicParallelismConfig` struct
+   - Added `calculateOptimalParallelism(provider:fileCount:totalSize:averageFileSize:)` function
+   - Implemented provider-specific base defaults with file-size adjustments
+   - Added `buildArgs(from: DynamicParallelismConfig)` for argument generation
 
-## Tasks
+3. **Tests Added** (`CloudSyncAppTests/TransferOptimizerTests.swift`):
+   - `testDynamicParallelismForGoogleDrive()`
+   - `testDynamicParallelismForSmallFiles()`
+   - `testDynamicParallelismForLargeFiles()`
+   - `testDynamicParallelismForProtonDrive()`
+   - `testDynamicParallelismForS3()`
+   - `testFastListSupportedProviders()`
+   - `testFastListUnsupportedProviders()`
+   - `testProviderDefaultParallelism()`
+   - `testDynamicParallelismConfigBuildArgs()`
 
-### 1. Create Logger Extension (if needed)
+### Git Commit:
+```
+perf(engine): Add dynamic parallelism and fast-list support
+Implements #70, #71
+```
+
+### Known Issue:
+- Project has pre-existing build failure (OnboardingViewModel.swift not in Xcode project)
+- This is outside Dev-2's task scope; build works if OnboardingViewModel is added to project
+
+---
+
+## Context
+
+Transfer performance is critical for user satisfaction. We need to implement smart parallelism and provider-specific optimizations.
+
+---
+
+## Your Files (Exclusive Ownership)
+
+```
+CloudSyncApp/Services/RcloneManager.swift
+CloudSyncApp/Services/TransferOptimizer.swift
+CloudSyncApp/Services/RcloneCommands.swift
+```
+
+---
+
+## Objectives
+
+### Issue #70: Universal Dynamic Parallelism
+
+**Goal:** Automatically adjust `--transfers` and `--checkers` based on:
+- Provider type (some handle more parallelism)
+- File sizes (many small files vs few large files)
+- Network conditions
+
+**Implementation:**
+
+1. **Add to TransferOptimizer.swift:**
+   ```swift
+   struct DynamicParallelismConfig {
+       let transfers: Int      // --transfers flag
+       let checkers: Int       // --checkers flag
+       let multiThreadStreams: Int  // --multi-thread-streams
+   }
+   
+   func calculateOptimalParallelism(
+       provider: CloudProvider,
+       fileCount: Int,
+       totalSize: Int64,
+       averageFileSize: Int64
+   ) -> DynamicParallelismConfig
+   ```
+
+2. **Provider-specific defaults:**
+   ```
+   Google Drive: transfers=8, checkers=16
+   Dropbox: transfers=4, checkers=8  
+   S3/B2: transfers=16, checkers=32
+   Local/SFTP: transfers=8, checkers=16
+   Proton Drive: transfers=2, checkers=4 (rate limited)
+   ```
+
+3. **File-size adjustments:**
+   ```
+   Many small files (<1MB avg): More checkers, fewer transfers
+   Large files (>100MB avg): More multi-thread-streams
+   Mixed: Balanced approach
+   ```
+
+4. **Apply in RcloneManager.swift** when building transfer commands
+
+### Issue #71: Fast-List for Supported Providers
+
+**Goal:** Enable `--fast-list` flag for providers that support it (reduces API calls)
+
+**Supported Providers:**
+- Google Drive ✅
+- Google Cloud Storage ✅
+- S3 ✅
+- Dropbox ✅
+- Box ✅
+- OneDrive ✅
+- B2 ✅
+
+**Implementation:**
+
+1. **Add provider capability check:**
+   ```swift
+   extension CloudProvider {
+       var supportsFastList: Bool {
+           switch self.type {
+           case "drive", "s3", "dropbox", "box", "onedrive", "b2", "gcs":
+               return true
+           default:
+               return false
+           }
+       }
+   }
+   ```
+
+2. **Apply in list operations:**
+   ```swift
+   func buildListCommand(remote: String, path: String) -> [String] {
+       var args = ["lsjson", "\(remote):\(path)"]
+       if provider.supportsFastList {
+           args.append("--fast-list")
+       }
+       return args
+   }
+   ```
+
+---
+
+## Testing Requirements
+
+Create/update tests in `CloudSyncAppTests/`:
 
 ```swift
-// Logger+Extensions.swift
-import OSLog
-
-extension Logger {
-    private static var subsystem = Bundle.main.bundleIdentifier ?? "com.cloudsync.ultra"
-
-    /// Logs related to network operations
-    static let network = Logger(subsystem: subsystem, category: "network")
-
-    /// Logs related to sync operations
-    static let sync = Logger(subsystem: subsystem, category: "sync")
-
-    /// Logs related to file operations
-    static let fileOps = Logger(subsystem: subsystem, category: "fileops")
-
-    /// Logs related to rclone execution
-    static let rclone = Logger(subsystem: subsystem, category: "rclone")
-
-    /// Logs related to UI events
-    static let ui = Logger(subsystem: subsystem, category: "ui")
-}
+// TransferOptimizerTests.swift
+func testDynamicParallelismForGoogleDrive()
+func testDynamicParallelismForSmallFiles()
+func testDynamicParallelismForLargeFiles()
+func testFastListSupportedProviders()
+func testFastListUnsupportedProviders()
 ```
 
-### 2. Find All print() Statements
+---
 
-```bash
-grep -n "print(" CloudSyncApp/RcloneManager.swift | wc -l
-```
+## Deliverables
 
-### 3. Convert Each print() to Logger
+1. **Modified Files:**
+   - `TransferOptimizer.swift` - Add dynamic parallelism logic
+   - `RcloneManager.swift` - Apply parallelism and fast-list
 
-**Conversion rules:**
+2. **New/Updated Tests:**
+   - `TransferOptimizerTests.swift`
 
-| print() content | Logger method | Category |
-|-----------------|---------------|----------|
-| Error messages | `.error()` | rclone |
-| Warnings | `.warning()` | rclone |
-| Debug/verbose | `.debug()` | rclone |
-| Transfer progress | `.info()` | sync |
-| File operations | `.info()` | fileOps |
-| Network calls | `.debug()` | network |
+3. **Git Commit:**
+   ```
+   perf(engine): Add dynamic parallelism and fast-list support
+   
+   - Dynamic transfer/checker counts based on provider (#70)
+   - File-size aware parallelism tuning
+   - Enable --fast-list for supported providers (#71)
+   - Add comprehensive tests
+   
+   Implements #70, #71
+   ```
 
-**Examples:**
+---
 
-```swift
-// Before
-print("Error executing rclone: \(error)")
+## Notes
 
-// After
-Logger.rclone.error("Execution failed: \(error.localizedDescription, privacy: .public)")
-```
-
-```swift
-// Before
-print("Starting transfer from \(source) to \(dest)")
-
-// After
-Logger.sync.info("Starting transfer from \(source, privacy: .private) to \(dest, privacy: .private)")
-```
-
-```swift
-// Before
-print("Remote created: \(name)")
-
-// After
-Logger.rclone.info("Remote created: \(name, privacy: .public)")
-```
-
-### 4. Privacy Guidelines
-
-- **Public:** Error messages, status messages, remote names
-- **Private:** File paths, user data, tokens
-- **Auto:** Let system decide based on context
-
-```swift
-// Sensitive data - use private
-Logger.rclone.debug("Token received: \(token, privacy: .private)")
-
-// Non-sensitive - use public
-Logger.rclone.info("Provider: \(providerType, privacy: .public)")
-```
-
-### 5. Add Structured Logging Where Helpful
-
-```swift
-Logger.sync.info("Transfer complete", metadata: [
-    "source": "\(source)",
-    "destination": "\(destination)",
-    "bytes": "\(bytesTransferred)",
-    "duration": "\(duration)"
-])
-```
-
-## Verification
-
-```bash
-# Should return 0 after completion
-grep -c "print(" CloudSyncApp/RcloneManager.swift
-
-# Test logs appear in Console.app
-# Filter by: subsystem:com.cloudsync.ultra
-```
-
-## Output
-
-Write completion report to: `/Users/antti/Claude/.claude-team/outputs/DEV2_COMPLETE.md`
-
-Include:
-- Count of print() statements converted
-- Logger categories used
-- Any complex conversions
-
-## Success Criteria
-
-- [ ] Zero print() statements remaining
-- [ ] Logger+Extensions.swift created
-- [ ] Appropriate log levels used
-- [ ] Privacy annotations on sensitive data
-- [ ] Build succeeds
-- [ ] Logs visible in Console.app
+- Use /think when deciding parallelism algorithms
+- Don't over-parallelize - respect provider rate limits
+- Log parallelism decisions for debugging
+- Measure before/after if possible

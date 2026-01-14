@@ -10,7 +10,7 @@ import SwiftUI
 
 /// Main container view for the onboarding experience
 struct OnboardingView: View {
-    @ObservedObject private var onboardingManager = OnboardingManager.shared
+    @ObservedObject private var onboardingVM = OnboardingViewModel.shared
 
     var body: some View {
         ZStack {
@@ -18,20 +18,26 @@ struct OnboardingView: View {
             backgroundGradient
 
             VStack(spacing: 0) {
-                // Skip button (top-right)
-                skipButton
+                // Skip button (top-right) - hidden on completion step
+                if onboardingVM.currentStep != .completion {
+                    skipButton
+                } else {
+                    Spacer()
+                        .frame(height: 40)
+                }
 
                 // Main content area
                 stepContent
-                    .opacity(onboardingManager.isTransitioning ? 0.5 : 1.0)
+                    .opacity(onboardingVM.isTransitioning ? 0.5 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: onboardingVM.isTransitioning)
 
-                // Progress indicator (at bottom)
-                if onboardingManager.totalSteps > 1 {
+                // Progress indicator (at bottom) - hidden on completion step
+                if onboardingVM.currentStep != .completion {
                     progressIndicator
                 }
             }
-            .padding(.horizontal, 40)
-            .padding(.vertical, 24)
+            .padding(.horizontal, AppTheme.contentPaddingH)
+            .padding(.vertical, AppTheme.contentPaddingV)
         }
         .frame(minWidth: 700, minHeight: 500)
         .frame(idealWidth: 800, idealHeight: 600)
@@ -40,16 +46,8 @@ struct OnboardingView: View {
     // MARK: - Background
 
     private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [
-                Color(hex: "1a1a2e"),
-                Color(hex: "16213e"),
-                Color(hex: "0f3460")
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        AppTheme.backgroundGradient
+            .ignoresSafeArea()
     }
 
     // MARK: - Skip Button
@@ -59,14 +57,14 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                onboardingManager.skipOnboarding()
+                onboardingVM.skipOnboarding()
             } label: {
                 Text("Skip")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(AppTheme.subheadlineFont)
+                    .foregroundColor(AppTheme.textOnDarkSecondary)
             }
             .buttonStyle(.plain)
-            .padding(.top, 8)
+            .padding(.top, AppTheme.spacingS)
         }
     }
 
@@ -74,34 +72,96 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private var stepContent: some View {
-        switch onboardingManager.currentStep {
+        switch onboardingVM.currentStep {
         case .welcome:
             WelcomeStepView()
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+
+        case .addProvider:
+            AddProviderStepView()
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+
+        case .firstSync:
+            FirstSyncStepView()
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+
+        case .completion:
+            CompletionStepView()
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
         }
     }
 
     // MARK: - Progress Indicator
 
     private var progressIndicator: some View {
-        VStack(spacing: 12) {
-            // Step dots
-            HStack(spacing: 8) {
+        VStack(spacing: AppTheme.spacingM) {
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background track
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusS)
+                        .fill(Color.white.opacity(0.2))
+                        .frame(height: 4)
+
+                    // Progress fill
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusS)
+                        .fill(AppTheme.primaryGradient)
+                        .frame(width: geometry.size.width * onboardingVM.progress, height: 4)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: onboardingVM.progress)
+                }
+            }
+            .frame(height: 4)
+            .padding(.horizontal, AppTheme.spacingXL)
+
+            // Step dots with labels
+            HStack(spacing: 0) {
                 ForEach(OnboardingStep.allCases) { step in
-                    Circle()
-                        .fill(step == onboardingManager.currentStep
-                              ? Color.white
-                              : Color.white.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                        .animation(.easeInOut(duration: 0.2), value: onboardingManager.currentStep)
+                    VStack(spacing: AppTheme.spacingXS) {
+                        // Dot
+                        ZStack {
+                            Circle()
+                                .fill(step.rawValue <= onboardingVM.currentStep.rawValue
+                                      ? Color.white
+                                      : Color.white.opacity(0.3))
+                                .frame(width: 10, height: 10)
+
+                            if step == onboardingVM.currentStep {
+                                Circle()
+                                    .stroke(Color.white.opacity(0.5), lineWidth: 2)
+                                    .frame(width: 18, height: 18)
+                            }
+                        }
+                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: onboardingVM.currentStep)
+
+                        // Label
+                        Text(step.title)
+                            .font(AppTheme.caption2Font)
+                            .foregroundColor(step == onboardingVM.currentStep
+                                             ? AppTheme.textOnDark
+                                             : AppTheme.textOnDarkTertiary)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
 
-            // Step label
-            Text("Step \(onboardingManager.currentStepNumber) of \(onboardingManager.totalSteps)")
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.6))
+            // Step counter
+            Text("Step \(onboardingVM.currentStepNumber) of \(onboardingVM.totalSteps)")
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textOnDarkTertiary)
         }
-        .padding(.bottom, 16)
+        .padding(.bottom, AppTheme.spacing)
     }
 }
 

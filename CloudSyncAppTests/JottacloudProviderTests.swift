@@ -21,7 +21,7 @@ final class JottacloudProviderTests: XCTestCase {
         XCTAssertEqual(provider.displayName, "Jottacloud")
         XCTAssertEqual(provider.rcloneType, "jottacloud")
         XCTAssertEqual(provider.defaultRcloneName, "jottacloud")
-        XCTAssertEqual(provider.iconName, "j.circle.fill")
+        XCTAssertEqual(provider.iconName, "cloud.fill")
         XCTAssertNotNil(provider.brandColor)
     }
     
@@ -56,7 +56,7 @@ final class JottacloudProviderTests: XCTestCase {
         let provider = CloudProviderType.jottacloud
         
         // Then: Should have valid SF Symbol icon
-        XCTAssertEqual(provider.iconName, "j.circle.fill")
+        XCTAssertEqual(provider.iconName, "cloud.fill")
         XCTAssertFalse(provider.iconName.isEmpty)
     }
     
@@ -173,7 +173,7 @@ final class JottacloudProviderTests: XCTestCase {
         XCTAssertEqual(remote.name, "Unlimited Backup")
         XCTAssertEqual(remote.type, .jottacloud)
         XCTAssertEqual(remote.rcloneName, "my-jottacloud")
-        XCTAssertEqual(remote.displayIcon, "j.circle.fill")
+        XCTAssertEqual(remote.displayIcon, "cloud.fill")
     }
     
     func testDefaultRcloneName() {
