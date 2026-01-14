@@ -248,8 +248,9 @@ cat ~/.claude-team/OPERATIONAL_EXCELLENCE.md
 - [ ] Check if any new gaps emerged
 - [ ] Note any process friction encountered
 - [ ] Identify next operational improvement to tackle
+- [ ] **If scripts improved → Update `templates/project-ops-kit/`**
 
-**Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`
+**Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`, `templates/project-ops-kit/`
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
