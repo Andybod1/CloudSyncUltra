@@ -155,6 +155,11 @@ gh issue view <number>
 3. **QA = Opus + /think | Specialized = Opus + /think hard**
 4. **Ask Andy** if requirements unclear
 5. **Update GitHub** after each sprint
+6. **⚠️ ALWAYS update docs proactively** after completing work:
+   - `CLAUDE_PROJECT_KNOWLEDGE.md` → version, test counts, completed items
+   - `RECOVERY.md` → version, test counts
+   - `CHANGELOG.md` → new features/fixes
+   - Don't wait to be asked - do it immediately after each sprint/commit
 
 ---
 
