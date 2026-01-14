@@ -78,8 +78,10 @@ if ! ./scripts/version-check.sh > /dev/null 2>&1; then
 fi
 
 # Worker status from STATUS.md
-WORKERS_ACTIVE=$(grep -c "🔄" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null || echo "0")
-WORKERS_IDLE=$(grep -c "💤" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null || echo "0")
+WORKERS_ACTIVE=$(grep -c "🔄" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null | tr -d '[:space:]' || echo "0")
+WORKERS_IDLE=$(grep -c "💤" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null | tr -d '[:space:]' || echo "0")
+[[ -z "$WORKERS_ACTIVE" ]] && WORKERS_ACTIVE=0
+[[ -z "$WORKERS_IDLE" ]] && WORKERS_IDLE=0
 WORKERS_TOTAL=$((WORKERS_ACTIVE + WORKERS_IDLE))
 
 # Output files accumulation
