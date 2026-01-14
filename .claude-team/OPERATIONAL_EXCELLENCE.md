@@ -11,13 +11,13 @@
 
 ```
 Pillar 1: Automation First       [████████░░] 80%
-Pillar 2: Quality Gates          [░░░░░░░░░░]  0%
+Pillar 2: Quality Gates          [██░░░░░░░░] 20%
 Pillar 3: Single Source of Truth [████░░░░░░] 40%
 Pillar 4: Metrics & Visibility   [████░░░░░░] 40%
 Pillar 5: Knowledge Management   [░░░░░░░░░░]  0%
 Pillar 6: Business Operations    [░░░░░░░░░░]  0%
 ─────────────────────────────────────────────────
-Overall Progress                 [███░░░░░░░] 27%
+Overall Progress                 [███░░░░░░░] 30%
 ```
 
 ---
@@ -46,13 +46,13 @@ Overall Progress                 [███░░░░░░░] 27%
 
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
-| Protected main branch | ❌ TODO | GitHub Settings | Require CI to pass |
+| Protected main branch | ✅ Done | GitHub Settings | CI must pass, no force push |
 | PR required for changes | ❌ TODO | GitHub Settings | No direct push to main |
 | Definition of Done check | ❌ TODO | CI workflow | Automated validation |
 | Test coverage threshold | ❌ TODO | CI workflow | Fail if coverage drops |
 | Build verification | ❌ TODO | CI workflow | Every commit builds |
 
-**Next action:** After CI is set up
+**Next action:** Pre-commit hooks or test coverage threshold
 
 ---
 
