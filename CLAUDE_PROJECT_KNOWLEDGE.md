@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.18 | **Updated:** 2026-01-14
+> **Version:** 2.0.19 | **Updated:** 2026-01-14
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Key | Value |
 |-----|-------|
-| **App** | CloudSync Ultra - macOS cloud sync with 41 providers |
+| **App** | CloudSync Ultra - macOS cloud sync with 42 providers |
 | **Tech** | SwiftUI + rclone |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
@@ -88,7 +88,7 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 ```
 /Users/antti/Claude/
 ├── CloudSyncApp/                 # Source (SwiftUI)
-├── CloudSyncAppTests/            # Tests (870 passing)
+├── CloudSyncAppTests/            # Tests (743 passing)
 ├── CloudSyncAppUITests/          # UI Tests (69 tests)
 ├── docs/                         # User documentation
 ├── .claude-team/
@@ -123,7 +123,11 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.18 (9-Worker Sprint)
+### Just Completed: v2.0.19
+- ✅ **Build Fix** - cornerRadiusSmall alias added to AppTheme
+- ✅ **All 743 tests passing**
+
+### v2.0.18 (9-Worker Sprint)
 - ✅ **#72 Multi-Thread Downloads** - Already implemented, 30+ tests
 - ✅ **#77 App Icon** - SVG template, generation script ready
 - ✅ **#84 UI Visual Refresh** - AppTheme applied to 5 views
@@ -141,10 +145,9 @@ gh issue view <number>
 - `.claude-team/outputs/PRICING_STRATEGY.md` - Full market analysis
 
 ### Recent: v2.0.15-v2.0.17
-- ✅ iCloud Phase 1 (#9) - Local folder integration
-- ✅ Accessibility - VoiceOver + keyboard shortcuts
-- ✅ OSLog - Structured logging
-- ✅ Help System + Onboarding
+- v2.0.17: Accessibility (VoiceOver + keyboard), OSLog, Help system
+- v2.0.16: TransferOptimizer, App Sandbox, Security hardening
+- v2.0.15: iCloud Phase 1, Crash reporting infrastructure
 
 ---
 
@@ -154,12 +157,24 @@ gh issue view <number>
 2. **Delegate ALL implementation** to workers
 3. **QA = Opus + /think | Specialized = Opus + /think hard**
 4. **Ask Andy** if requirements unclear
-5. **Update GitHub** after each sprint
-6. **⚠️ ALWAYS update docs proactively** after completing work:
-   - `CLAUDE_PROJECT_KNOWLEDGE.md` → version, test counts, completed items
-   - `RECOVERY.md` → version, test counts
-   - `CHANGELOG.md` → new features/fixes
-   - Don't wait to be asked - do it immediately after each sprint/commit
+
+### ⚠️ MANDATORY: Post-Sprint Documentation
+
+**After EVERY sprint, update ALL of these and push to git:**
+
+| File | What to Update |
+|------|----------------|
+| `CHANGELOG.md` | New version entry with features/fixes |
+| `STATUS.md` | Version, completed items, test count, worker status |
+| `RECOVERY.md` | Version, current state, test count, open issues |
+| `CLAUDE_PROJECT_KNOWLEDGE.md` | Version, test count, current state |
+
+```bash
+# After updates:
+cd ~/Claude && git add -A && git commit -m "docs: Update documentation to vX.X.X" && git push origin main
+```
+
+**Do this immediately after each sprint - don't wait to be asked!**
 
 ---
 
