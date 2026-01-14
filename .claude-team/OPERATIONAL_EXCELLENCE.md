@@ -3,7 +3,7 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** In Progress
-> **Last Updated:** 2026-01-14
+> **Last Updated:** 2026-01-14 (v2.0.20)
 
 ---
 
@@ -28,7 +28,7 @@ Overall Progress                 [████░░░░░░] 37%
 
 | Item | Status | Script/File | Notes |
 |------|--------|-------------|-------|
-| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.19" |
+| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.20" |
 | Version check script | ✅ Done | `scripts/version-check.sh` | Validates all docs |
 | Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
@@ -96,7 +96,7 @@ Overall Progress                 [████░░░░░░] 37%
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
 | Session summaries | ❌ TODO | `.claude-team/sessions/` | After each session |
-| Worker report archiving | ✅ Done | `scripts/archive-outputs.sh` | Auto-archive old reports |
+| Worker report archiving | ✅ Done | `tasks/archive/` | Sprint task archiving |
 | Context restore script | ✅ Done | `scripts/restore-context.sh` | 2-min onboarding |
 | Sprint retrospectives | ❌ TODO | `.claude-team/retros/` | Lessons learned |
 | Runbook for common tasks | ❌ TODO | `docs/RUNBOOK.md` | Step-by-step guides |

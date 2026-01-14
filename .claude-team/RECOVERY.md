@@ -1,7 +1,7 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.19
+> **Current Version:** v2.0.20
 > **Last Updated:** 2026-01-14
 
 ---
@@ -164,9 +164,9 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 
 ---
 
-## Current State (v2.0.19)
+## Current State (v2.0.20)
 
-### Just Completed: v2.0.19
+### Just Completed: v2.0.20
 - ✅ **Build Fix** - cornerRadiusSmall alias added to AppTheme
 - ✅ **All 743 tests passing**
 
@@ -263,4 +263,4 @@ git log --oneline -5
 ---
 
 *Last Updated: 2026-01-14*
-*CloudSync Ultra v2.0.19*
+*CloudSync Ultra v2.0.20*

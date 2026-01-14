@@ -1,48 +1,48 @@
 # Worker Status
 
 > Last Updated: 2026-01-14 UTC
-> Version: v2.0.19
+> Version: v2.0.20
 
-## Current State: CI Implementation Sprint 🚀
+## Current State: Sprint "Launch Ready" Complete ✅
 
 **In Progress:**
 - None
 
-**Just Completed:**
-- ✅ QA: Fixed failing unit test (#87) - All 743 tests passing
-- ✅ GitHub Actions CI Pipeline (Dev-Ops) - Workflow created, awaiting push with workflow permissions
-- ✅ Build fix: cornerRadiusSmall alias added to AppTheme
-- ✅ VERSION.txt single source of truth
-- ✅ version-check.sh, update-version.sh, release.sh scripts
-- ✅ Protected post-sprint checklist (7 steps)
-- ✅ OPERATIONAL_EXCELLENCE.md tracker
-- ✅ All 743 tests passing
+**Just Completed (v2.0.20):**
+- ✅ Onboarding Flow (#80, #81, #82) - 4-step first-time user experience
+- ✅ Dynamic Parallelism (#70) - Provider-aware transfer optimization
+- ✅ Fast-List Support (#71) - Faster directory listings
+- ✅ Provider Icons (#95) - ProviderIconView + brand colors
+- ✅ Visual Polish (#84) - Consistent AppTheme styling
+- ✅ UI Tests (#88) - 69 XCUITests integrated
+- ✅ All 762 tests passing
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | - | 💤 IDLE | Available |
-| Dev-2 | - | 💤 IDLE | Available |
-| Dev-3 | - | 💤 IDLE | Available |
+| Dev-1 | Opus | 💤 IDLE | Available |
+| Dev-2 | Opus | 💤 IDLE | Available |
+| Dev-3 | Opus | 💤 IDLE | Available |
 | QA | Opus | 💤 IDLE | Available |
-| Dev-Ops | - | 💤 IDLE | Available |
+| Dev-Ops | Opus | 💤 IDLE | Available |
 
 ---
 
-## Priority Issues
+## Priority Issues (Next Sprint)
 
 | # | Title | Priority | Size |
 |---|-------|----------|------|
-| #87 | Fix 11 failing unit tests | 🔴 Critical | S-M |
-| #80-83 | Onboarding Sprint | High | L |
-| #70 | Universal Dynamic Parallelism | High | M |
-| #77 | Create App Icon Set | High | M |
+| #77 | Create App Icon Set | 🔴 High | M |
+| #78 | App Store Screenshots & Content | High | M |
+| #79 | Brand Identity Suite | Medium | L |
+| #73 | Provider-Specific Chunk Sizes | Medium | M |
+| #10 | Transfer Performance | High | L |
 
 ---
 
 ## Test Status
 
 ```
-743 tests, 0 failures
+762 tests, 0 failures
 All tests passing ✅
 ```
 
@@ -52,11 +52,11 @@ All tests passing ✅
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| v2.0.20 | 2026-01-14 | Onboarding, Dynamic Parallelism, Provider Icons |
 | v2.0.19 | 2026-01-14 | Build fix (cornerRadiusSmall) |
 | v2.0.18 | 2026-01-14 | 9-worker sprint, UI tests, publishing guide |
 | v2.0.17 | 2026-01-14 | Accessibility, OSLog, Help system |
 | v2.0.16 | 2026-01-14 | Performance + Security hardening |
-| v2.0.15 | 2026-01-14 | iCloud Phase 1, Crash reporting |
 
 ---
 
