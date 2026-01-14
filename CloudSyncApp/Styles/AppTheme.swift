@@ -98,6 +98,13 @@ struct AppTheme {
     static let error = Color.red
     static let info = Color.blue
 
+    // Aliases for compatibility
+    static let successColor = success
+    static let warningColor = warning
+    static let errorColor = error
+    static let infoColor = info
+    static let accentColor = Color.accentColor
+
     // MARK: - Text Colors
 
     /// Primary text on dark background
@@ -125,6 +132,9 @@ struct AppTheme {
 
     /// Title font
     static let titleFont = Font.title2.weight(.medium)
+
+    /// Title2 font (alias)
+    static let title2Font = Font.title2
 
     /// Headline font
     static let headlineFont = Font.headline.weight(.semibold)
