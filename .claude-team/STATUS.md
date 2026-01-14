@@ -16,7 +16,7 @@
 | Dev-2 | Opus | ✅ COMPLETE | RcloneManager logging (#20) |
 | Dev-3 | Sonnet | 🔄 STARTING | Crash handler infrastructure (#20) |
 | QA | Opus | ✅ COMPLETE | iCloud Phase 1 testing (#9) - 35 tests created |
-| Dev-Ops | Opus | 🔄 WORKING | v2.0.15 commit, CHANGELOG, docs |
+| Dev-Ops | Opus | ✅ COMPLETE | v2.0.15 committed (push pending) |
 | UX-Designer | Opus | 🔄 WORKING | Full UX review (#44) |
 | Product-Manager | Opus | ✅ COMPLETE | Product strategy (#45) |
 
