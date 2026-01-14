@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TransferOptimizer now uses provider-aware optimization
 - Test timing fixes for edge cases
 
+### Fixed
+- **Onboarding UX issues discovered in real-world testing:**
+  - Provider card grid alignment (changed to fixed 130px columns)
+  - Click detection on provider cards not working
+  - Provider list overflow hiding navigation buttons (added ScrollView)
+  - "Show All 40+ Providers" toggle not responding to clicks
+  - Quick Tips cards inconsistent sizing (now uniform 140x120px)
+
 ### Infrastructure
 - CloudSyncApp/Components/ProviderIconView.swift
 - CloudSyncApp/Assets.xcassets/ProviderColors/
