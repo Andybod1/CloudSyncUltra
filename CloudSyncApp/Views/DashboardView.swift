@@ -21,18 +21,27 @@ struct DashboardView: View {
             VStack(spacing: 24) {
                 // Header
                 headerSection
-                
+                    .accessibilityElement(children: .combine)
+
                 // Quick Stats
                 statsSection
-                
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Statistics Overview")
+
                 // Connected Services
                 connectedServicesSection
-                
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Connected Cloud Services")
+
                 // Recent Activity
                 recentActivitySection
-                
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Recent Activity")
+
                 // Quick Actions
                 quickActionsSection
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Quick Actions")
             }
             .padding(24)
         }
@@ -132,6 +141,9 @@ struct DashboardView: View {
                     Label("Add New", systemImage: "plus")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Add New Cloud Service")
+                .accessibilityHint("Opens a sheet to add a new cloud storage provider")
+                .keyboardShortcut("n", modifiers: .command)
             }
             
             let cloudServices = remotesVM.remotes.filter { $0.type != .local }
@@ -187,6 +199,8 @@ struct DashboardView: View {
                 Label("Add Cloud Storage", systemImage: "plus")
             }
             .buttonStyle(PrimaryButtonStyle())
+            .accessibilityLabel("Add Cloud Storage")
+            .accessibilityHint("Opens a sheet to connect your first cloud storage service")
         }
         .frame(maxWidth: .infinity)
         .padding(32)
@@ -207,6 +221,8 @@ struct DashboardView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.accentColor)
+                .accessibilityLabel("View All History")
+                .accessibilityHint("Opens the complete transfer history")
             }
             
             if tasksVM.taskHistory.isEmpty {
@@ -241,7 +257,8 @@ struct DashboardView: View {
                 ) {
                     NotificationCenter.default.post(name: .navigateToTransfer, object: nil)
                 }
-                
+                .keyboardShortcut("t", modifiers: .command)
+
                 QuickActionButton(
                     icon: "list.bullet.clipboard",
                     title: "View Tasks",
@@ -250,7 +267,8 @@ struct DashboardView: View {
                 ) {
                     NotificationCenter.default.post(name: .navigateToTasks, object: nil)
                 }
-                
+                .keyboardShortcut("k", modifiers: .command)
+
                 QuickActionButton(
                     icon: "clock.arrow.circlepath",
                     title: "History",
@@ -259,7 +277,8 @@ struct DashboardView: View {
                 ) {
                     NotificationCenter.default.post(name: .navigateToHistory, object: nil)
                 }
-                
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+
                 QuickActionButton(
                     icon: "gearshape.fill",
                     title: "Settings",
@@ -268,6 +287,7 @@ struct DashboardView: View {
                 ) {
                     NotificationCenter.default.post(name: .navigateToSettings, object: nil)
                 }
+                .keyboardShortcut(",", modifiers: .command)
             }
         }
     }
@@ -308,6 +328,9 @@ struct SyncStatusBadge: View {
         .padding(.vertical, 12)
         .background(statusColor.opacity(0.1))
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Sync Status: \(statusText)")
+        .accessibilityValue(statusSubtitle ?? "")
     }
     
     @ViewBuilder
@@ -412,6 +435,9 @@ struct StatCard: View {
                 isHovered = hovering
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value) \(subtitle)")
+        .accessibilityHint(action != nil ? "Double-tap to view details" : "")
     }
 }
 
@@ -492,6 +518,9 @@ struct ConnectedServiceCard: View {
                 isHovered = hovering
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(remote.name), \(remote.isConfigured ? "Connected" : "Setup required")\(remote.isEncrypted ? ", Encrypted" : "")")
+        .accessibilityHint(remote.isConfigured ? "Double-tap to browse files" : "Double-tap to connect this service")
     }
 }
 
@@ -529,8 +558,11 @@ struct ActivityRow: View {
             }
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(task.name), \(task.sourceRemote) to \(task.destinationRemote), \(task.state.rawValue)")
+        .accessibilityValue(task.completedAt != nil ? "Completed" : "")
     }
-    
+
     private var stateColor: Color {
         switch task.state {
         case .completed: return .green
@@ -592,6 +624,9 @@ struct QuickActionButton: View {
                 isHovered = hovering
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
     }
 }
 

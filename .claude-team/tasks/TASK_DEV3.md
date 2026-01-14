@@ -1,190 +1,270 @@
-# TASK: Crash Handler Infrastructure (#20 Part 2)
+# Dev-3 Task: User Notifications for Transfer Completion
 
-## Worker: Dev-3 (Services)
-## Model: Sonnet (S ticket)
-## Issue: #20
+**Sprint:** Maximum Productivity
+**Priority:** Medium
+**Worker:** Dev-3 (Services Layer)
 
 ---
 
 ## Objective
 
-Create crash handling infrastructure that captures uncaught exceptions and prepares logs for export.
+Add macOS notifications when transfers complete or fail, and show progress in the Dock icon.
 
----
+## Files to Create
 
-## Implementation
+- `CloudSyncApp/NotificationManager.swift`
 
-### 1. Create CrashReportingManager.swift
+## Files to Modify
+
+- `CloudSyncApp/CloudSyncApp.swift` (initialize notification manager)
+- `CloudSyncApp/RcloneManager.swift` (trigger notifications)
+- `CloudSyncApp/SyncManager.swift` (trigger notifications)
+
+## Tasks
+
+### 1. Create NotificationManager.swift
 
 ```swift
 import Foundation
-import OSLog
+import UserNotifications
+import AppKit
 
-/// Manages crash reporting and log collection for CloudSync Ultra
-/// Privacy-first: All data stays local, user controls sharing
-final class CrashReportingManager {
-    static let shared = CrashReportingManager()
-    
-    private let logger = Logger(subsystem: "com.cloudsync.ultra", category: "CrashReporting")
-    private let logDirectory: URL
-    
-    private init() {
-        // Store logs in Application Support
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        logDirectory = appSupport.appendingPathComponent("CloudSyncUltra/Logs", isDirectory: true)
-        
-        // Ensure directory exists
-        try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true)
+/// Manages macOS notifications for CloudSync Ultra
+final class NotificationManager: NSObject {
+    static let shared = NotificationManager()
+
+    private override init() {
+        super.init()
     }
-    
+
     // MARK: - Setup
-    
-    /// Call this at app launch to install crash handlers
-    func setup() {
-        installExceptionHandler()
-        installSignalHandlers()
-        logger.info("Crash reporting initialized")
+
+    /// Request notification permissions
+    func requestPermissions() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if granted {
+                print("Notification permissions granted")
+            }
+        }
+        UNUserNotificationCenter.current().delegate = self
     }
-    
-    // MARK: - Exception Handling
-    
-    private func installExceptionHandler() {
-        NSSetUncaughtExceptionHandler { exception in
-            CrashReportingManager.shared.handleException(exception)
+
+    // MARK: - Transfer Notifications
+
+    /// Notify when transfer completes successfully
+    func notifyTransferComplete(
+        source: String,
+        destination: String,
+        fileCount: Int,
+        bytesTransferred: Int64
+    ) {
+        let content = UNMutableNotificationContent()
+        content.title = "Transfer Complete"
+        content.body = "\(fileCount) file(s) transferred to \(destination)"
+        content.sound = .default
+        content.categoryIdentifier = "TRANSFER_COMPLETE"
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request)
+
+        // Clear dock badge
+        updateDockBadge(nil)
+    }
+
+    /// Notify when transfer fails
+    func notifyTransferFailed(
+        source: String,
+        destination: String,
+        error: String
+    ) {
+        let content = UNMutableNotificationContent()
+        content.title = "Transfer Failed"
+        content.body = "Could not transfer to \(destination): \(error)"
+        content.sound = .defaultCritical
+        content.categoryIdentifier = "TRANSFER_FAILED"
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request)
+
+        // Clear dock badge
+        updateDockBadge(nil)
+    }
+
+    /// Notify partial success
+    func notifyTransferPartial(
+        succeeded: Int,
+        failed: Int,
+        destination: String
+    ) {
+        let content = UNMutableNotificationContent()
+        content.title = "Transfer Partially Complete"
+        content.body = "\(succeeded) files transferred, \(failed) failed"
+        content.sound = .default
+        content.categoryIdentifier = "TRANSFER_PARTIAL"
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    // MARK: - Dock Badge
+
+    /// Update dock badge with progress or count
+    func updateDockBadge(_ value: String?) {
+        DispatchQueue.main.async {
+            NSApp.dockTile.badgeLabel = value
         }
     }
-    
-    private func installSignalHandlers() {
-        // Handle common crash signals
-        signal(SIGABRT) { _ in CrashReportingManager.shared.handleSignal("SIGABRT") }
-        signal(SIGILL) { _ in CrashReportingManager.shared.handleSignal("SIGILL") }
-        signal(SIGSEGV) { _ in CrashReportingManager.shared.handleSignal("SIGSEGV") }
-        signal(SIGBUS) { _ in CrashReportingManager.shared.handleSignal("SIGBUS") }
-    }
-    
-    private func handleException(_ exception: NSException) {
-        let crashLog = """
-        === CRASH REPORT ===
-        Date: \(Date())
-        Exception: \(exception.name.rawValue)
-        Reason: \(exception.reason ?? "Unknown")
-        
-        Call Stack:
-        \(exception.callStackSymbols.joined(separator: "\n"))
-        """
-        
-        saveCrashLog(crashLog)
-    }
-    
-    private func handleSignal(_ signal: String) {
-        let crashLog = """
-        === CRASH REPORT ===
-        Date: \(Date())
-        Signal: \(signal)
-        
-        Thread: \(Thread.current)
-        """
-        
-        saveCrashLog(crashLog)
-    }
-    
-    private func saveCrashLog(_ content: String) {
-        let filename = "crash_\(ISO8601DateFormatter().string(from: Date())).log"
-        let fileURL = logDirectory.appendingPathComponent(filename)
-        
-        try? content.write(to: fileURL, atomically: true, encoding: .utf8)
-    }
-    
-    // MARK: - Log Export
-    
-    /// Returns URL to zip file containing all logs
-    func exportLogs() throws -> URL {
-        // Collect system logs
-        let systemLogs = collectSystemLogs()
-        
-        // Collect crash logs
-        let crashLogs = try FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
-        
-        // Create export directory
-        let exportDir = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs_\(Date().timeIntervalSince1970)")
-        try FileManager.default.createDirectory(at: exportDir, withIntermediateDirectories: true)
-        
-        // Copy logs
-        try systemLogs.write(to: exportDir.appendingPathComponent("system.log"), atomically: true, encoding: .utf8)
-        
-        for crashLog in crashLogs {
-            let dest = exportDir.appendingPathComponent(crashLog.lastPathComponent)
-            try? FileManager.default.copyItem(at: crashLog, to: dest)
+
+    /// Update dock progress indicator
+    func updateDockProgress(_ progress: Double) {
+        DispatchQueue.main.async {
+            // Show percentage as badge during transfer
+            if progress > 0 && progress < 1 {
+                let percentage = Int(progress * 100)
+                NSApp.dockTile.badgeLabel = "\(percentage)%"
+            } else {
+                NSApp.dockTile.badgeLabel = nil
+            }
         }
-        
-        // Create zip
-        let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent("CloudSyncLogs.zip")
-        try? FileManager.default.removeItem(at: zipURL)
-        
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
-        task.arguments = ["-r", zipURL.path, exportDir.lastPathComponent]
-        task.currentDirectoryURL = exportDir.deletingLastPathComponent()
-        try task.run()
-        task.waitUntilExit()
-        
-        return zipURL
     }
-    
-    private func collectSystemLogs() -> String {
-        // Use OSLog to get recent app logs
-        var logs = "=== SYSTEM LOGS ===\n"
-        logs += "Date: \(Date())\n"
-        logs += "App Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")\n"
-        logs += "macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)\n\n"
-        
-        // Note: Actual OSLog retrieval requires OSLogStore (macOS 12+)
-        // For now, include basic system info
-        logs += "Memory: \(ProcessInfo.processInfo.physicalMemory / 1024 / 1024) MB\n"
-        logs += "Processors: \(ProcessInfo.processInfo.processorCount)\n"
-        
-        return logs
+
+    // MARK: - Scheduled Sync Notifications
+
+    func notifyScheduledSyncStarting(taskName: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Scheduled Sync Starting"
+        content.body = taskName
+        content.sound = nil  // Silent for scheduled
+
+        let request = UNNotificationRequest(
+            identifier: "scheduled_\(taskName)",
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request)
     }
-    
-    /// Clears all stored crash logs
-    func clearLogs() {
-        let files = try? FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
-        files?.forEach { try? FileManager.default.removeItem(at: $0) }
-        logger.info("Crash logs cleared")
+
+    func notifyScheduledSyncComplete(taskName: String, fileCount: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = "Scheduled Sync Complete"
+        content.body = "\(taskName): \(fileCount) files synced"
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+
+extension NotificationManager: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // Show notification even when app is in foreground
+        completionHandler([.banner, .sound])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        // Handle notification tap - bring app to front
+        NSApp.activate(ignoringOtherApps: true)
+        completionHandler()
     }
 }
 ```
 
 ### 2. Initialize in CloudSyncApp.swift
 
-Add to app init:
 ```swift
-CrashReportingManager.shared.setup()
+// Add to app init or onAppear
+NotificationManager.shared.requestPermissions()
 ```
 
----
+### 3. Integrate with RcloneManager
 
-## Files to Create
-- `CloudSyncApp/CrashReportingManager.swift`
+In transfer completion handlers:
 
-## Files to Modify
-- `CloudSyncApp/CloudSyncApp.swift` (add setup call)
+```swift
+// On success
+NotificationManager.shared.notifyTransferComplete(
+    source: source,
+    destination: destination,
+    fileCount: fileCount,
+    bytesTransferred: bytesTransferred
+)
 
----
+// On failure
+NotificationManager.shared.notifyTransferFailed(
+    source: source,
+    destination: destination,
+    error: error.localizedDescription
+)
 
-## Acceptance Criteria
+// During transfer - update dock
+NotificationManager.shared.updateDockProgress(progress)
+```
 
-- [ ] CrashReportingManager.swift created
-- [ ] Exception handler installed
-- [ ] Signal handlers installed
-- [ ] Log export method works
-- [ ] Initialized at app launch
-- [ ] Build succeeds
+### 4. Add Preference Toggle
 
----
+In SettingsView, add option to enable/disable notifications:
+
+```swift
+@AppStorage("notificationsEnabled") private var notificationsEnabled = true
+
+Toggle("Show notifications for transfers", isOn: $notificationsEnabled)
+```
+
+## Verification
+
+1. Start a transfer
+2. Minimize app
+3. Wait for completion
+4. Verify notification appears
+5. Verify dock badge shows progress during transfer
+6. Test failure notification
 
 ## Output
 
-Write report to: `/Users/antti/Claude/.claude-team/outputs/DEV3_COMPLETE.md`
+Write completion report to: `/Users/antti/Claude/.claude-team/outputs/DEV3_COMPLETE.md`
 
-Update STATUS.md when starting/completing.
+Include:
+- Files created/modified
+- Integration points
+- Testing notes
+
+## Success Criteria
+
+- [ ] NotificationManager.swift created
+- [ ] Permissions requested at launch
+- [ ] Success notification works
+- [ ] Failure notification works
+- [ ] Dock badge shows progress
+- [ ] Preference toggle in Settings
+- [ ] Build succeeds

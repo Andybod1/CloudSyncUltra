@@ -133,9 +133,9 @@ final class MainWindowIntegrationTests: XCTestCase {
     
     func testUnsupportedProviderHidden() {
         let unsupported = CloudProviderType.allCases.filter { !$0.isSupported }
-        
-        XCTAssertEqual(unsupported.count, 1, "Should have 1 unsupported provider")
-        XCTAssertTrue(unsupported.contains(.icloud))
+
+        // iCloud is now supported, so 0 unsupported providers
+        XCTAssertEqual(unsupported.count, 0, "Should have 0 unsupported providers")
     }
     
     // MARK: - Remote Creation Tests
@@ -238,9 +238,9 @@ final class MainWindowIntegrationTests: XCTestCase {
     func testSupportedProvidersOnly() {
         let supported = CloudProviderType.allCases.filter { $0.isSupported }
         let unsupported = CloudProviderType.allCases.filter { !$0.isSupported }
-        
-        XCTAssertEqual(supported.count, 40)
-        XCTAssertEqual(unsupported.count, 1)
+
+        XCTAssertEqual(supported.count, 41)
+        XCTAssertEqual(unsupported.count, 0)
         XCTAssertEqual(supported.count + unsupported.count, 41)
     }
     
@@ -325,9 +325,9 @@ final class MainWindowIntegrationTests: XCTestCase {
     func testAllProvidersAvailableInUI() {
         let allProviders = CloudProviderType.allCases
         let supported = allProviders.filter { $0.isSupported }
-        
+
         // UI should show all supported providers
-        XCTAssertEqual(supported.count, 40)
+        XCTAssertEqual(supported.count, 41)
         
         for provider in supported {
             XCTAssertFalse(provider.displayName.isEmpty)
@@ -357,8 +357,8 @@ final class MainWindowIntegrationTests: XCTestCase {
         let experimental = allProviders.filter { $0.isExperimental }
         let unsupported = allProviders.filter { !$0.isSupported }
 
-        XCTAssertEqual(supported.count, 40)
+        XCTAssertEqual(supported.count, 41)
         XCTAssertEqual(experimental.count, 0, "No experimental providers after #24 fix")
-        XCTAssertEqual(unsupported.count, 1)
+        XCTAssertEqual(unsupported.count, 0)
     }
 }

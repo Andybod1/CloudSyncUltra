@@ -73,6 +73,17 @@
 		F38D53E8FEFE68995CC4A069 /* ScheduleFrequencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D2881ED8DA0ABD6E7BFC23 /* ScheduleFrequencyTests.swift */; };
 		F9F6431099FEBF1B1708BFA1 /* ScheduleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */; };
 		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
+
+		77068DEE976DCBE38155F97B /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */; };
+		E3E6EE7BAF23B655BF7648F7 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D9DEA3C203CF6EE7F9C00D8 /* OnboardingView.swift */; };
+		C83C9D658C9DAD85749F1716 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */; };
+		594A3E4BB5CAD8296F41B5EF /* HelpManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F558D6C3377DEC3C817F705C /* HelpManager.swift */; };
+		1E2C4260CDBD4302607AD61C /* HelpCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAAD6BF7230D609CD93447E /* HelpCategory.swift */; };
+		8DE760D3EA5661EC1C772802 /* HelpTopic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84316305CEA5BCD30DFFB7BC /* HelpTopic.swift */; };
+		676D68533A41294BC4FB5960 /* OnboardingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6D4BA40F093273E2CEC341 /* OnboardingManagerTests.swift */; };
+		9B85615EC4EC33CB802ABFA2 /* HelpSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */; };
+		2CBA14FDB5D8407B9937F012 /* MultiThreadDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */; };
+		0A2F78C6C44A00F629D3291A /* TransferOptimizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,6 +170,16 @@
 		EF64D6804F2A00547C7B4675 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4547BACA8D0CFB390C1E064 /* Phase1Week1ProvidersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/Phase1Week1ProvidersTests.swift; sourceTree = SOURCE_ROOT; };
 		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
+		1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingManager.swift; path = CloudSyncApp/ViewModels/OnboardingManager.swift; sourceTree = SOURCE_ROOT; };
+		9D9DEA3C203CF6EE7F9C00D8 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = CloudSyncApp/Views/Onboarding/OnboardingView.swift; sourceTree = SOURCE_ROOT; };
+		6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WelcomeStepView.swift; path = CloudSyncApp/Views/Onboarding/WelcomeStepView.swift; sourceTree = SOURCE_ROOT; };
+		F558D6C3377DEC3C817F705C /* HelpManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpManager.swift; path = CloudSyncApp/HelpManager.swift; sourceTree = SOURCE_ROOT; };
+		EEAAD6BF7230D609CD93447E /* HelpCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpCategory.swift; path = CloudSyncApp/Models/HelpCategory.swift; sourceTree = SOURCE_ROOT; };
+		84316305CEA5BCD30DFFB7BC /* HelpTopic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpTopic.swift; path = CloudSyncApp/Models/HelpTopic.swift; sourceTree = SOURCE_ROOT; };
+		FB6D4BA40F093273E2CEC341 /* OnboardingManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingManagerTests.swift; sourceTree = SOURCE_ROOT; };
+		A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/HelpSystemTests.swift; sourceTree = SOURCE_ROOT; };
+		AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/MultiThreadDownloadTests.swift; sourceTree = SOURCE_ROOT; };
+		C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/TransferOptimizerTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +236,10 @@
 				C7DCC18765B1FACCAA965FF5 /* SyncTaskTests.swift */,
 				C7DA7F1856757AB4C4C72C7A /* ErrorNotificationManagerTests.swift */,
 				5106C877AA4817D4F7C064FC /* RemoteReorderingTests.swift */,
+				FB6D4BA40F093273E2CEC341 /* OnboardingManagerTests.swift */,
+				A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */,
+				AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */,
+				C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */,
 			);
 			name = CloudSyncAppTests;
 			path = CloudSyncAppTests;
@@ -242,6 +267,7 @@
 				ECFF45298AC401F4D2887258 /* KeychainManager.swift */,
 				49FC495CA79185DB2B79982D /* Logger+Extensions.swift */,
 				3EA943E5A37C52E2869C48D0 /* ProtonDriveManager.swift */,
+				F558D6C3377DEC3C817F705C /* HelpManager.swift */,
 			);
 			path = CloudSyncApp;
 			sourceTree = "<group>";
@@ -279,6 +305,8 @@
 		G1 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EEAAD6BF7230D609CD93447E /* HelpCategory.swift */,
+				84316305CEA5BCD30DFFB7BC /* HelpTopic.swift */,
 				E47CD27C2F163702001E64FC /* TransferError.swift */,
 				A2 /* CloudProvider.swift */,
 				A4 /* SyncTask.swift */,
@@ -291,6 +319,7 @@
 		G2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				1947B9C996D3BC4E388965B7 /* OnboardingManager.swift */,
 				A8 /* RemotesViewModel.swift */,
 				AA /* TasksViewModel.swift */,
 				AC /* FileBrowserViewModel.swift */,
@@ -301,6 +330,7 @@
 		G3 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0AEBE8ADAA923BC2FFC65123 /* Onboarding */,
 				AE /* MainWindow.swift */,
 				B0 /* DashboardView.swift */,
 				B2 /* TransferView.swift */,
@@ -323,6 +353,15 @@
 				DCC849189CAEEFB49851CF23 /* Components.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		0AEBE8ADAA923BC2FFC65123 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				9D9DEA3C203CF6EE7F9C00D8 /* OnboardingView.swift */,
+				6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -447,6 +486,12 @@
 				BF06 /* ProtonDriveManager.swift in Sources */,
 				BF07 /* ProtonDriveSetupView.swift in Sources */,
 				SV01 /* SchedulesView.swift in Sources */,
+				77068DEE976DCBE38155F97B /* OnboardingManager.swift in Sources */,
+				E3E6EE7BAF23B655BF7648F7 /* OnboardingView.swift in Sources */,
+				C83C9D658C9DAD85749F1716 /* WelcomeStepView.swift in Sources */,
+				594A3E4BB5CAD8296F41B5EF /* HelpManager.swift in Sources */,
+				1E2C4260CDBD4302607AD61C /* HelpCategory.swift in Sources */,
+				8DE760D3EA5661EC1C772802 /* HelpTopic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,6 +530,10 @@
 				38907F9E82A0FBD76721788A /* SyncTaskTests.swift in Sources */,
 				3EE41743EA0D6C4FFB2B9E83 /* ErrorNotificationManagerTests.swift in Sources */,
 				7C5F9037D207CCDFBE127ED0 /* RemoteReorderingTests.swift in Sources */,
+				676D68533A41294BC4FB5960 /* OnboardingManagerTests.swift in Sources */,
+				9B85615EC4EC33CB802ABFA2 /* HelpSystemTests.swift in Sources */,
+				2CBA14FDB5D8407B9937F012 /* MultiThreadDownloadTests.swift in Sources */,
+				0A2F78C6C44A00F629D3291A /* TransferOptimizerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

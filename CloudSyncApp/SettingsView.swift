@@ -141,12 +141,16 @@ struct GeneralSettingsView: View {
                                         downloadLimit = Double(speed)
                                     }
                                     .buttonStyle(.bordered)
+                                    .accessibilityLabel("\(speed) MB per second")
+                                    .accessibilityHint("Sets both upload and download limits to \(speed) MB per second")
                                 }
                                 Button("∞") {
                                     uploadLimit = 0
                                     downloadLimit = 0
                                 }
                                 .buttonStyle(.bordered)
+                                .accessibilityLabel("Unlimited")
+                                .accessibilityHint("Removes bandwidth limits")
                             }
 
                             Text("Set to 0 or use ∞ for unlimited speed")
@@ -165,38 +169,71 @@ struct GeneralSettingsView: View {
                     Text("~/Library/Application Support/CloudSyncApp")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                    
+
                     Button("Open") {
                         openConfigFolder()
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Open Config Folder")
+                    .accessibilityHint("Opens the configuration folder in Finder")
                 }
-                
+
                 HStack {
                     Text("Cache")
                     Spacer()
                     Text("0 MB")
                         .foregroundColor(.secondary)
-                    
+
                     Button("Clear") {
                         // Clear cache
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Clear Cache")
+                    .accessibilityHint("Clears cached data to free up space")
                 }
             } header: {
                 Label("Storage", systemImage: "externaldrive")
+            }
+
+            // Developer/Testing Section
+            Section {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Reset Onboarding")
+                        Text("Show the welcome screen again on next launch")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Reset") {
+                        resetOnboarding()
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel("Reset Onboarding")
+                    .accessibilityHint("Shows the welcome screen again on next launch")
+                }
+            } header: {
+                Label("Testing", systemImage: "hammer")
+            } footer: {
+                Text("Use this option to test the onboarding flow or show the welcome screen to new users on this device.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
         .formStyle(.grouped)
         .padding()
     }
-    
+
     private func openConfigFolder() {
         let path = FileManager.default.urls(
             for: .applicationSupportDirectory,
             in: .userDomainMask
         )[0].appendingPathComponent("CloudSyncApp")
         NSWorkspace.shared.open(path)
+    }
+
+    private func resetOnboarding() {
+        OnboardingManager.shared.resetOnboarding()
     }
 }
 
@@ -210,13 +247,18 @@ struct SyncSettingsView: View {
     @State private var syncInterval: Double = 300
     @State private var conflictResolution: String = "newer"
     @State private var deleteMode: String = "trash"
-    
+
     // Bandwidth throttling
     @AppStorage("bandwidthLimitEnabled") private var bandwidthLimitEnabled = false
     @AppStorage("uploadLimit") private var uploadLimit: Double = 0
     @AppStorage("downloadLimit") private var downloadLimit: Double = 0
     @State private var uploadLimitText = ""
     @State private var downloadLimitText = ""
+
+    // Multi-threaded download settings (#72)
+    @AppStorage("multiThreadDownloadEnabled") private var multiThreadEnabled = true
+    @AppStorage("multiThreadDownloadThreads") private var multiThreadCount = 4
+    @AppStorage("multiThreadDownloadThreshold") private var multiThreadThreshold: Int = 100_000_000
     
     var body: some View {
         Form {
@@ -232,8 +274,10 @@ struct SyncSettingsView: View {
                     Button("Choose...") {
                         selectFolder()
                     }
+                    .accessibilityLabel("Choose Folder")
+                    .accessibilityHint("Opens a folder picker to select the local sync folder")
                 }
-                
+
                 HStack {
                     Text("Remote Path")
                     Spacer()
@@ -312,7 +356,59 @@ struct SyncSettingsView: View {
             } header: {
                 Label("Bandwidth Throttling", systemImage: "gauge")
             }
-            
+
+            // Multi-Threaded Downloads Section (#72)
+            Section {
+                Toggle("Enable Multi-Threaded Downloads", isOn: $multiThreadEnabled)
+
+                if multiThreadEnabled {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Thread Count")
+                                .frame(width: 120, alignment: .leading)
+                            Picker("", selection: $multiThreadCount) {
+                                Text("2 threads").tag(2)
+                                Text("4 threads").tag(4)
+                                Text("8 threads").tag(8)
+                                Text("12 threads").tag(12)
+                                Text("16 threads").tag(16)
+                            }
+                            .pickerStyle(.menu)
+                            .frame(width: 120)
+                        }
+
+                        HStack {
+                            Text("File Size Threshold")
+                                .frame(width: 120, alignment: .leading)
+                            Picker("", selection: $multiThreadThreshold) {
+                                Text("50 MB").tag(50_000_000)
+                                Text("100 MB").tag(100_000_000)
+                                Text("250 MB").tag(250_000_000)
+                                Text("500 MB").tag(500_000_000)
+                                Text("1 GB").tag(1_000_000_000)
+                            }
+                            .pickerStyle(.menu)
+                            .frame(width: 120)
+                        }
+
+                        Text("Multi-threaded downloads use multiple concurrent streams to download large files faster. Thread count may be automatically reduced for providers with limited support.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        // Provider capability info
+                        HStack(spacing: 4) {
+                            Image(systemName: "info.circle")
+                                .foregroundColor(.blue)
+                            Text("Full support: S3, B2, Azure, GCS | Limited: Google Drive, OneDrive, Dropbox")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Label("Large File Downloads", systemImage: "arrow.down.circle.fill")
+            }
+
             Section {
                 HStack {
                     Spacer()
@@ -320,6 +416,9 @@ struct SyncSettingsView: View {
                         saveSettings()
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityLabel("Save Settings")
+                    .accessibilityHint("Saves all sync settings and applies changes")
+                    .keyboardShortcut("s", modifiers: .command)
                 }
             }
         }
@@ -411,6 +510,9 @@ struct AccountSettingsView: View {
                         showAddSheet = true
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityLabel("Add Cloud Storage")
+                    .accessibilityHint("Opens a sheet to add a new cloud storage provider")
+                    .keyboardShortcut("n", modifiers: .command)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -527,13 +629,17 @@ struct RemoteDetailView: View {
                     // Test
                 }
                 .buttonStyle(.bordered)
-                
+                .accessibilityLabel("Test Connection")
+                .accessibilityHint("Tests connectivity to the cloud service")
+
                 Spacer()
-                
+
                 Button("Disconnect") {
                     disconnect()
                 }
                 .foregroundColor(.red)
+                .accessibilityLabel("Disconnect")
+                .accessibilityHint("Disconnects from this cloud service")
             }
         }
     }
@@ -600,6 +706,8 @@ struct RemoteDetailView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .accessibilityLabel("Open Setup Wizard")
+            .accessibilityHint("Opens the Proton Drive setup wizard for authentication")
             
             Text("The setup wizard will guide you through connecting to Proton Drive.")
                 .font(.caption)
@@ -699,6 +807,8 @@ struct RemoteDetailView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(username.isEmpty || password.isEmpty || isConfiguring)
+                .accessibilityLabel("Connect")
+                .accessibilityHint("Connects to the cloud service with the provided credentials")
             }
             
             Text("Your credentials are stored securely in the macOS Keychain.")
@@ -897,10 +1007,12 @@ struct EncryptionSettingsView: View {
                                     showExportConfirmation = true
                                 }
                                 .buttonStyle(.bordered)
+                                .accessibilityLabel("Export Configuration")
+                                .accessibilityHint("Exports rclone configuration to a file")
                             }
-                            
+
                             Divider()
-                            
+
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Import Configuration")
@@ -914,6 +1026,8 @@ struct EncryptionSettingsView: View {
                                     importRcloneConfig()
                                 }
                                 .buttonStyle(.bordered)
+                                .accessibilityLabel("Import Configuration")
+                                .accessibilityHint("Imports rclone configuration from a backup file")
                             }
                         }
                         .padding(8)
@@ -1049,10 +1163,14 @@ struct EncryptionSettingsView: View {
                         selectedRemoteForSetup = remote
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityLabel("Setup Encryption")
+                    .accessibilityHint("Opens encryption setup for \(remote.name)")
                 }
             }
             .padding(8)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(remote.name), encryption \(encryptionManager.isEncryptionConfigured(for: remote.rcloneName) ? "configured" : "not configured")")
     }
     
     private func setupEncryption(for remote: CloudRemote, config: EncryptionConfig) async {
@@ -1218,7 +1336,11 @@ struct AboutView: View {
                 
                 HStack(spacing: 16) {
                     Link("Website", destination: URL(string: "https://rclone.org")!)
+                        .accessibilityLabel("rclone Website")
+                        .accessibilityHint("Opens the rclone website in your browser")
                     Link("Documentation", destination: URL(string: "https://rclone.org/docs/")!)
+                        .accessibilityLabel("rclone Documentation")
+                        .accessibilityHint("Opens the rclone documentation in your browser")
                 }
                 .font(.caption)
             }

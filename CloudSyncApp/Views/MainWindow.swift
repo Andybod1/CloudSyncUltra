@@ -25,6 +25,7 @@ struct MainWindow: View {
     @StateObject private var remotesVM = RemotesViewModel.shared
     @StateObject private var tasksVM = TasksViewModel.shared
     @StateObject private var transferState = TransferViewState()
+    @StateObject private var onboardingManager = OnboardingManager.shared
 
     @State private var selectedSection: SidebarSection = .dashboard
     @State private var selectedRemote: CloudRemote?
@@ -42,6 +43,20 @@ struct MainWindow: View {
     }
     
     var body: some View {
+        Group {
+            if onboardingManager.shouldShowOnboarding {
+                // Show onboarding for first-time users
+                OnboardingView()
+            } else {
+                // Show main app content
+                mainContent
+            }
+        }
+    }
+
+    // MARK: - Main Content
+
+    private var mainContent: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(
                 selectedSection: $selectedSection,

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import os
 
 @MainActor
 class FileBrowserViewModel: ObservableObject {
@@ -18,8 +19,8 @@ class FileBrowserViewModel: ObservableObject {
     @Published var sortOrder: SortOrder = .nameAsc
     @Published var viewMode: ViewMode = .list
     @Published var searchQuery: String = ""
-    
-    // Pagination
+
+    // Legacy Pagination (page-based)
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 100 {
         didSet {
@@ -28,7 +29,16 @@ class FileBrowserViewModel: ObservableObject {
         }
     }
     @Published var isPaginationEnabled: Bool = true
-    
+
+    // Lazy Loading / Infinite Scroll State
+    @Published var displayedFiles: [FileItem] = []
+    @Published var isLoadingMore = false
+    @Published var useLazyLoading: Bool = true
+    private let lazyPageSize = 100
+
+    // Performance logging
+    private let logger = Logger(subsystem: "com.cloudsync", category: "performance")
+
     var remote: CloudRemote?
     
     enum SortOrder: String, CaseIterable {
@@ -126,16 +136,17 @@ class FileBrowserViewModel: ObservableObject {
     
     func loadFiles() async {
         guard let remote = remote else { return }
-        
+
         // Don't try to load if remote is not configured
         guard remote.isConfigured else {
             error = "Remote '\(remote.name)' is not connected. Please connect it first."
             return
         }
-        
+
+        let startTime = CFAbsoluteTimeGetCurrent()
         isLoading = true
         error = nil
-        
+
         do {
             if remote.type == .local {
                 files = try loadLocalFiles(at: currentPath)
@@ -143,14 +154,21 @@ class FileBrowserViewModel: ObservableObject {
                 files = try await loadRemoteFiles(remote: remote, path: currentPath)
             }
             sortFiles()
-            
+
             // Reset to first page when loading new directory
             currentPage = 1
             selectedFiles.removeAll()
+
+            // Reset lazy loading display
+            resetDisplayedFiles()
+
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            logger.info("Loaded \(self.files.count) files in \(String(format: "%.3f", duration))s")
         } catch {
             self.error = error.localizedDescription
+            logger.error("Failed to load files: \(error.localizedDescription)")
         }
-        
+
         isLoading = false
     }
     
@@ -194,8 +212,13 @@ class FileBrowserViewModel: ObservableObject {
         
         return remoteFiles.map { file in
             let dateFormatter = ISO8601DateFormatter()
-            let modDate = dateFormatter.date(from: file.ModTime) ?? Date()
-            
+            let modDate: Date
+            if let modTimeString = file.ModTime {
+                modDate = dateFormatter.date(from: modTimeString) ?? Date()
+            } else {
+                modDate = Date()
+            }
+
             // Construct full path by combining current path with file name
             let fullPath: String
             if path.isEmpty {
@@ -203,14 +226,14 @@ class FileBrowserViewModel: ObservableObject {
             } else {
                 fullPath = (path as NSString).appendingPathComponent(file.Name)
             }
-            
+
             return FileItem(
                 name: file.Name,
                 path: fullPath,
                 isDirectory: file.IsDir,
                 size: file.Size,
                 modifiedDate: modDate,
-                mimeType: file.MimeType
+                mimeType: file.MimeType  // Now optional, matches FileItem definition
             )
         }
     }
@@ -287,43 +310,135 @@ class FileBrowserViewModel: ObservableObject {
         // Select all files in directory (all pages)
         selectedFiles = Set(files.map { $0.id })
     }
-    
+
     func deselectAll() {
         selectedFiles.removeAll()
     }
-    
+
     var filteredFiles: [FileItem] {
         if searchQuery.isEmpty {
             return files
         }
         return files.filter { $0.name.localizedCaseInsensitiveContains(searchQuery) }
     }
-    
+
     var selectedItems: [FileItem] {
         files.filter { selectedFiles.contains($0.id) }
     }
-    
+
     var pathComponents: [(name: String, path: String)] {
         var components: [(String, String)] = []
         var path = currentPath
-        
+
         // For cloud remotes, empty path is root
         if remote?.type != .local && path.isEmpty {
             return [(remote?.name ?? "Root", "")]
         }
-        
+
         while !path.isEmpty && path != "/" {
             let name = (path as NSString).lastPathComponent
             components.insert((name, path), at: 0)
             path = (path as NSString).deletingLastPathComponent
         }
-        
+
         if remote?.type == .local {
             components.insert(("/", "/"), at: 0)
         } else {
             components.insert((remote?.name ?? "Root", ""), at: 0)
         }
-        
+
         return components
+    }
+
+    // MARK: - Lazy Loading / Infinite Scroll
+
+    /// Total count of all files in the current directory (for status display)
+    var totalFileCount: Int {
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        return baseFiles.count
+    }
+
+    /// Count of files currently displayed (for infinite scroll)
+    var displayedFileCount: Int {
+        displayedFiles.count
+    }
+
+    /// Whether there are more files to load
+    var hasMoreFilesToLoad: Bool {
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        return displayedFiles.count < baseFiles.count
+    }
+
+    /// Progress indicator text for lazy loading
+    var lazyLoadingInfo: String {
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        return "Showing \(displayedFiles.count) of \(baseFiles.count) files"
+    }
+
+    /// Reset displayed files to initial page
+    func resetDisplayedFiles() {
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        displayedFiles = Array(baseFiles.prefix(lazyPageSize))
+        logger.info("Reset displayed files: \(self.displayedFiles.count) of \(baseFiles.count)")
+    }
+
+    /// Load more files for infinite scroll
+    func loadMoreIfNeeded(currentFile: FileItem? = nil) {
+        // Only load more if the current file is near the end
+        guard let file = currentFile else {
+            loadMoreFiles()
+            return
+        }
+
+        // Check if we're near the end of displayed files
+        if let index = displayedFiles.firstIndex(where: { $0.id == file.id }) {
+            let threshold = displayedFiles.count - 10 // Load more when 10 items from end
+            if index >= threshold {
+                loadMoreFiles()
+            }
+        }
+    }
+
+    /// Load the next batch of files for infinite scroll
+    func loadMoreFiles() {
+        guard !isLoadingMore && hasMoreFilesToLoad else { return }
+
+        let startTime = CFAbsoluteTimeGetCurrent()
+        isLoadingMore = true
+
+        let baseFiles = searchQuery.isEmpty ? files : filteredFiles
+        let startIndex = displayedFiles.count
+        let endIndex = min(startIndex + lazyPageSize, baseFiles.count)
+
+        // Simulate async loading to prevent UI blocking on large datasets
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            guard let self = self else { return }
+            self.displayedFiles.append(contentsOf: baseFiles[startIndex..<endIndex])
+            self.isLoadingMore = false
+
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            self.logger.info("Loaded \(endIndex - startIndex) more files in \(String(format: "%.3f", duration))s. Total displayed: \(self.displayedFiles.count)")
+        }
+    }
+
+    /// Files to display in lazy scroll view
+    var lazyScrollFiles: [FileItem] {
+        guard useLazyLoading else {
+            return searchQuery.isEmpty ? files : filteredFiles
+        }
+
+        // Apply search filter if active
+        if !searchQuery.isEmpty {
+            // For search, filter displayed files
+            return displayedFiles.filter { $0.name.localizedCaseInsensitiveContains(searchQuery) }
+        }
+
+        return displayedFiles
+    }
+
+    /// Called when search query changes to reset lazy loading
+    func onSearchQueryChanged() {
+        currentPage = 1
+        resetDisplayedFiles()
     }
 }

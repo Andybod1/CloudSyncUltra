@@ -121,8 +121,8 @@ struct FileBrowserView: View {
         
         contentArea
         
-        // Pagination Controls
-        if !browser.isLoading && browser.files.count > browser.pageSize {
+        // Pagination Controls (only when lazy loading is disabled)
+        if !browser.isLoading && !browser.useLazyLoading && browser.files.count > browser.pageSize {
             Divider()
             paginationBar
         }
@@ -187,10 +187,14 @@ struct FileBrowserView: View {
             }
             .font(.caption)
             .buttonStyle(.bordered)
+            .accessibilityLabel("Enable Decryption")
+            .accessibilityHint("Switches to decrypted view to see readable filenames")
         }
         .padding(.horizontal)
         .padding(.vertical, 6)
         .background(Color.orange.opacity(0.1))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Raw encrypted data warning. Enable decryption to see readable filenames.")
     }
     
     // MARK: - Pagination Bar
@@ -245,7 +249,9 @@ struct FileBrowserView: View {
             }
             .disabled(!browser.canGoToPreviousPage)
             .help("First page")
-            
+            .accessibilityLabel("First Page")
+            .accessibilityHint("Jump to the first page of files")
+
             // Previous page button
             Button {
                 browser.previousPage()
@@ -255,6 +261,8 @@ struct FileBrowserView: View {
             .disabled(!browser.canGoToPreviousPage)
             .help("Previous page")
             .keyboardShortcut("[", modifiers: [.command])
+            .accessibilityLabel("Previous Page")
+            .accessibilityHint("Go to the previous page of files")
             
             // Page indicator with jump capability
             HStack(spacing: 4) {
@@ -300,7 +308,9 @@ struct FileBrowserView: View {
             .disabled(!browser.canGoToNextPage)
             .help("Next page")
             .keyboardShortcut("]", modifiers: [.command])
-            
+            .accessibilityLabel("Next Page")
+            .accessibilityHint("Go to the next page of files")
+
             // Last page button
             Button {
                 browser.lastPage()
@@ -309,6 +319,8 @@ struct FileBrowserView: View {
             }
             .disabled(!browser.canGoToNextPage)
             .help("Last page")
+            .accessibilityLabel("Last Page")
+            .accessibilityHint("Jump to the last page of files")
             
             Divider()
                 .frame(height: 16)
@@ -321,8 +333,10 @@ struct FileBrowserView: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Pagination: Page \(browser.currentPage) of \(browser.totalPages)")
     }
-    
+
     // MARK: - Not Connected View
     
     private var notConnectedView: some View {
@@ -356,6 +370,8 @@ struct FileBrowserView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .accessibilityLabel("Connect Now")
+            .accessibilityHint("Opens setup to connect your cloud storage account")
             
             Spacer()
         }
@@ -373,12 +389,18 @@ struct FileBrowserView: View {
                     Image(systemName: "chevron.left")
                 }
                 .disabled(browser.currentPath.isEmpty && remote.type != .local)
-                
+                .accessibilityLabel("Go Back")
+                .accessibilityHint("Navigate to parent folder")
+                .keyboardShortcut(.leftArrow, modifiers: .command)
+
                 Button {
                     browser.refresh()
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
+                .accessibilityLabel("Refresh")
+                .accessibilityHint("Refreshes the current folder contents")
+                .keyboardShortcut("r", modifiers: .command)
             }
             
             Divider()
@@ -390,9 +412,11 @@ struct FileBrowserView: View {
                 TextField("Search...", text: $browser.searchQuery)
                     .textFieldStyle(.plain)
                     .onChange(of: browser.searchQuery) {
-                        // Reset to first page when searching
-                        browser.currentPage = 1
+                        // Reset pagination and lazy loading when searching
+                        browser.onSearchQueryChanged()
                     }
+                    .accessibilityLabel("Search Files")
+                    .accessibilityHint("Type to filter files in the current folder")
                 
                 if !browser.searchQuery.isEmpty {
                     Button {
@@ -418,14 +442,20 @@ struct FileBrowserView: View {
                     Image(systemName: "folder.badge.plus")
                 }
                 .help("New Folder")
-                
+                .accessibilityLabel("New Folder")
+                .accessibilityHint("Creates a new folder in the current location")
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
                 Button {
                     uploadFiles()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
                 .help("Upload")
-                
+                .accessibilityLabel("Upload Files")
+                .accessibilityHint("Opens a file picker to select files for upload")
+                .keyboardShortcut("u", modifiers: .command)
+
                 Button {
                     downloadSelectedFiles()
                 } label: {
@@ -433,6 +463,9 @@ struct FileBrowserView: View {
                 }
                 .disabled(browser.selectedFiles.isEmpty)
                 .help("Download")
+                .accessibilityLabel("Download Selected")
+                .accessibilityHint("Downloads selected files to your computer")
+                .keyboardShortcut("d", modifiers: .command)
                 
                 // Only show encryption controls for cloud remotes, not local storage
                 if remote.type != .local {
@@ -453,6 +486,9 @@ struct FileBrowserView: View {
                 }
                 .disabled(browser.selectedFiles.isEmpty)
                 .help("Delete")
+                .accessibilityLabel("Delete Selected")
+                .accessibilityHint("Deletes selected files permanently")
+                .keyboardShortcut(.delete, modifiers: .command)
             }
             
             Divider()
@@ -468,7 +504,10 @@ struct FileBrowserView: View {
                 .buttonStyle(.bordered)
                 .background(browser.viewMode == .list ? Color.accentColor.opacity(0.2) : Color.clear)
                 .cornerRadius(6)
-                
+                .accessibilityLabel("List View")
+                .accessibilityHint("Display files as a list")
+                .accessibilityValue(browser.viewMode == .list ? "Selected" : "")
+
                 Button {
                     browser.viewMode = .grid
                 } label: {
@@ -478,7 +517,12 @@ struct FileBrowserView: View {
                 .buttonStyle(.bordered)
                 .background(browser.viewMode == .grid ? Color.accentColor.opacity(0.2) : Color.clear)
                 .cornerRadius(6)
+                .accessibilityLabel("Grid View")
+                .accessibilityHint("Display files as a grid")
+                .accessibilityValue(browser.viewMode == .grid ? "Selected" : "")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("View Mode")
         }
         .padding()
     }
@@ -497,6 +541,9 @@ struct FileBrowserView: View {
             }
             .toggleStyle(.switch)
             .controlSize(.small)
+            .accessibilityLabel("Encryption")
+            .accessibilityValue(encryptionEnabled ? "Enabled" : "Disabled")
+            .accessibilityHint("Toggle to enable or disable end-to-end encryption")
             
             // Configuration button (gear icon)
             if EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
@@ -655,6 +702,8 @@ struct FileBrowserView: View {
                 browser.refresh()
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityLabel("Retry")
+            .accessibilityHint("Try loading the files again")
             
             Spacer()
         }
@@ -680,11 +729,15 @@ struct FileBrowserView: View {
                     showNewFolderSheet = true
                 }
                 .buttonStyle(.bordered)
-                
+                .accessibilityLabel("New Folder")
+                .accessibilityHint("Creates a new folder in the current location")
+
                 Button("Upload Files") {
                     uploadFiles()
                 }
                 .buttonStyle(.borderedProminent)
+                .accessibilityLabel("Upload Files")
+                .accessibilityHint("Opens a file picker to select files for upload")
             }
             
             Spacer()
@@ -702,80 +755,119 @@ struct FileBrowserView: View {
     }
     
     private var listView: some View {
-        Table(browser.paginatedFiles, selection: $browser.selectedFiles) {
-            TableColumn("Name") { file in
-                HStack(spacing: 8) {
-                    Image(systemName: file.icon)
-                        .foregroundColor(file.isDirectory ? .accentColor : .secondary)
-                        .frame(width: 20)
-                    
-                    Text(file.name)
-                        .lineLimit(1)
-                    
-                    // Show encrypted indicator for gibberish-looking names
-                    if isViewingRawEncrypted && looksEncrypted(file.name) {
-                        Image(systemName: "lock.fill")
-                            .font(.caption2)
-                            .foregroundColor(.orange)
-                    }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                // Header row
+                HStack(spacing: 0) {
+                    Text("Name")
+                        .fontWeight(.medium)
+                        .frame(minWidth: 200, alignment: .leading)
+                    Spacer()
+                    Text("Size")
+                        .fontWeight(.medium)
+                        .frame(width: 80, alignment: .trailing)
+                    Text("Modified")
+                        .fontWeight(.medium)
+                        .frame(width: 150, alignment: .trailing)
+                        .padding(.trailing, 8)
                 }
-            }
-            .width(min: 200)
-            
-            TableColumn("Size") { file in
-                Text(file.formattedSize)
-                    .foregroundColor(.secondary)
-            }
-            .width(80)
-            
-            TableColumn("Modified") { file in
-                Text(file.formattedDate)
-                    .foregroundColor(.secondary)
-            }
-            .width(150)
-        }
-        .tableStyle(.inset)
-        .contextMenu(forSelectionType: UUID.self) { selection in
-            if !selection.isEmpty {
-                Button("Open") {
-                    if let file = browser.files.first(where: { selection.contains($0.id) }) {
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+
+                Divider()
+
+                // File rows with lazy loading
+                ForEach(browser.lazyScrollFiles) { file in
+                    FileListRow(
+                        file: file,
+                        isSelected: browser.selectedFiles.contains(file.id),
+                        showEncryptedIndicator: isViewingRawEncrypted && looksEncrypted(file.name)
+                    )
+                    .onTapGesture {
+                        browser.toggleSelection(file)
+                    }
+                    .onTapGesture(count: 2) {
                         browser.navigateToFile(file)
                     }
-                }
-                Divider()
-                if selection.count == 1 {
-                    Button("Rename") {
-                        if let file = browser.files.first(where: { selection.contains($0.id) }) {
+                    .contextMenu {
+                        Button("Open") {
+                            browser.navigateToFile(file)
+                        }
+                        Divider()
+                        Button("Rename") {
                             renameFile = file
                             newFileName = file.name
                             showRenameSheet = true
                         }
+                        Button("Download") {
+                            browser.selectedFiles.removeAll()
+                            browser.selectedFiles.insert(file.id)
+                            downloadSelectedFiles()
+                        }
+                        Divider()
+                        Button("Delete", role: .destructive) {
+                            browser.selectedFiles.removeAll()
+                            browser.selectedFiles.insert(file.id)
+                            showDeleteConfirm = true
+                        }
                     }
+                    .onAppear {
+                        // Trigger lazy loading when approaching end of list
+                        browser.loadMoreIfNeeded(currentFile: file)
+                    }
+
+                    Divider()
+                        .padding(.leading, 40)
                 }
-                Button("Download") {
-                    downloadSelectedFiles()
+
+                // Loading indicator for infinite scroll
+                if browser.isLoadingMore {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Loading more files...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .padding()
                 }
-                Divider()
-                Button("Delete", role: .destructive) {
-                    showDeleteConfirm = true
-                }
-            } else {
-                // Context menu for empty space
-                Button("New Folder") {
-                    showNewFolderSheet = true
-                }
-                Button("Upload Files") {
-                    uploadFiles()
-                }
-                Divider()
-                Button("Refresh") {
-                    browser.refresh()
+
+                // Load more button (optional fallback)
+                if browser.hasMoreFilesToLoad && !browser.isLoadingMore {
+                    HStack {
+                        Spacer()
+                        Button {
+                            browser.loadMoreFiles()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.down.circle")
+                                Text("Load More (\(browser.totalFileCount - browser.displayedFileCount) remaining)")
+                            }
+                            .font(.caption)
+                        }
+                        .buttonStyle(.link)
+                        Spacer()
+                    }
+                    .padding()
                 }
             }
-        } primaryAction: { selection in
-            if let fileId = selection.first,
-               let file = browser.files.first(where: { $0.id == fileId }) {
-                browser.navigateToFile(file)
+        }
+        .contextMenu {
+            // Context menu for empty space
+            Button("New Folder") {
+                showNewFolderSheet = true
+            }
+            Button("Upload Files") {
+                uploadFiles()
+            }
+            Divider()
+            Button("Refresh") {
+                browser.refresh()
             }
         }
     }
@@ -785,7 +877,7 @@ struct FileBrowserView: View {
             LazyVGrid(columns: [
                 GridItem(.adaptive(minimum: 100, maximum: 120), spacing: 16)
             ], spacing: 16) {
-                ForEach(browser.paginatedFiles) { file in
+                ForEach(browser.lazyScrollFiles) { file in
                     FileGridItem(
                         file: file,
                         isSelected: browser.selectedFiles.contains(file.id),
@@ -819,9 +911,46 @@ struct FileBrowserView: View {
                             showDeleteConfirm = true
                         }
                     }
+                    .onAppear {
+                        // Trigger lazy loading when approaching end of grid
+                        browser.loadMoreIfNeeded(currentFile: file)
+                    }
                 }
             }
             .padding()
+
+            // Loading indicator for infinite scroll
+            if browser.isLoadingMore {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Loading more files...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+                .padding()
+            }
+
+            // Load more button (optional fallback)
+            if browser.hasMoreFilesToLoad && !browser.isLoadingMore {
+                HStack {
+                    Spacer()
+                    Button {
+                        browser.loadMoreFiles()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.down.circle")
+                            Text("Load More (\(browser.totalFileCount - browser.displayedFileCount) remaining)")
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.link)
+                    Spacer()
+                }
+                .padding(.bottom)
+            }
         }
         .contextMenu {
             // Context menu for empty space in grid view
@@ -870,17 +999,24 @@ struct FileBrowserView: View {
             
             Divider()
                 .frame(height: 12)
-            
-            Text("\(browser.files.count) items")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            if !browser.selectedFiles.isEmpty {
-                Text("• \(browser.selectedFiles.count) selected")
+
+            // Show displayed vs total count for lazy loading
+            if browser.useLazyLoading && browser.totalFileCount > browser.displayedFileCount {
+                Text("\(browser.displayedFileCount) of \(browser.totalFileCount) items")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                Text("\(browser.files.count) items")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
+            if !browser.selectedFiles.isEmpty {
+                Text(" | \(browser.selectedFiles.count) selected")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
             Spacer()
             
             // Selection controls for pagination
@@ -1331,24 +1467,73 @@ struct FileBrowserView: View {
     }
 }
 
+// MARK: - List Row Item (for LazyVStack)
+
+struct FileListRow: View {
+    let file: FileItem
+    let isSelected: Bool
+    var showEncryptedIndicator: Bool = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Image(systemName: file.icon)
+                    .foregroundColor(file.isDirectory ? .accentColor : .secondary)
+                    .frame(width: 20)
+
+                Text(file.name)
+                    .lineLimit(1)
+
+                // Show encrypted indicator for gibberish-looking names
+                if showEncryptedIndicator {
+                    Image(systemName: "lock.fill")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                }
+            }
+            .frame(minWidth: 200, alignment: .leading)
+
+            Spacer()
+
+            Text(file.formattedSize)
+                .foregroundColor(.secondary)
+                .frame(width: 80, alignment: .trailing)
+
+            Text(file.formattedDate)
+                .foregroundColor(.secondary)
+                .frame(width: 150, alignment: .trailing)
+                .padding(.trailing, 8)
+        }
+        .font(.system(size: 13))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(file.name), \(file.isDirectory ? "folder" : file.formattedSize)")
+        .accessibilityHint(file.isDirectory ? "Double-tap to open folder" : "Double-tap to select")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 // MARK: - Grid Item
 
 struct FileGridItem: View {
     let file: FileItem
     let isSelected: Bool
     var showEncryptedIndicator: Bool = false
-    
+
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(isSelected ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
                     .frame(width: 80, height: 80)
-                
+
                 Image(systemName: file.icon)
                     .font(.system(size: 32))
                     .foregroundColor(file.isDirectory ? .accentColor : .secondary)
-                
+
                 // Encrypted indicator overlay
                 if showEncryptedIndicator {
                     VStack {
@@ -1367,7 +1552,7 @@ struct FileGridItem: View {
                     .padding(4)
                 }
             }
-            
+
             Text(file.name)
                 .font(.caption)
                 .lineLimit(2)
@@ -1379,6 +1564,10 @@ struct FileGridItem: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(file.name), \(file.isDirectory ? "folder" : file.formattedSize)")
+        .accessibilityHint(file.isDirectory ? "Double-tap to open folder" : "Double-tap to select")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

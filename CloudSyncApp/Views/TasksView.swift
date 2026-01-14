@@ -94,8 +94,13 @@ struct TasksView: View {
                 Label("New Task", systemImage: "plus")
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityLabel("New Task")
+            .accessibilityHint("Create a new sync, transfer, or backup task")
+            .keyboardShortcut("n", modifiers: .command)
         }
         .padding()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Tasks Header")
     }
     
     private var emptyState: some View {
@@ -120,6 +125,8 @@ struct TasksView: View {
                 Label("Create Task", systemImage: "plus")
             }
             .buttonStyle(PrimaryButtonStyle())
+            .accessibilityLabel("Create Task")
+            .accessibilityHint("Opens a sheet to create a new task")
             
             Spacer()
         }
@@ -267,6 +274,10 @@ struct RecentTaskCard: View {
                 .strokeBorder(cardBorder, lineWidth: 1)
         )
         .onTapGesture(perform: onTap)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(task.name), \(task.state.rawValue), \(task.sourceRemote) to \(task.destinationRemote)")
+        .accessibilityValue(task.formattedBytesTransferred)
+        .accessibilityHint("Double-tap to view task details")
     }
 
     // MARK: - Status Icon
@@ -429,8 +440,11 @@ struct TaskCard: View {
         .background(Color(NSColor.controlBackgroundColor))
         .cornerRadius(AppDimensions.cornerRadius)
         .onTapGesture(perform: onTap)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Task: \(task.name), \(task.state.rawValue)")
+        .accessibilityHint("Double-tap to view task details")
     }
-    
+
     private var taskActions: some View {
         HStack(spacing: 8) {
             switch task.state {
@@ -439,18 +453,24 @@ struct TaskCard: View {
                     Image(systemName: "play.fill")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Start Task")
+                .accessibilityHint("Starts this task")
 
             case .running:
                 Button(action: onPause) {
                     Image(systemName: "pause.fill")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Pause Task")
+                .accessibilityHint("Pauses this task")
 
             case .paused:
                 Button(action: onStart) {
                     Image(systemName: "play.fill")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Resume Task")
+                .accessibilityHint("Resumes this paused task")
 
             case .failed:
                 // Show retry button for failed tasks (temporary - will be enhanced when Dev-3 completes model)
@@ -460,6 +480,8 @@ struct TaskCard: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .accessibilityLabel("Retry Task")
+                .accessibilityHint("Retries this failed task")
 
             default:
                 EmptyView()
@@ -471,6 +493,8 @@ struct TaskCard: View {
                 }
                 .buttonStyle(.bordered)
                 .foregroundColor(.red)
+                .accessibilityLabel("Cancel Task")
+                .accessibilityHint("Cancels this task")
             }
         }
     }
@@ -577,8 +601,9 @@ struct TaskStatusBadge: View {
             .padding(.vertical, 4)
             .background(color.opacity(0.15))
             .cornerRadius(4)
+            .accessibilityLabel("Status: \(state.rawValue)")
     }
-    
+
     private var color: Color {
         switch state {
         case .pending: return .gray
@@ -772,12 +797,16 @@ struct NewTaskSheet: View {
                 
                 Button("Cancel") { dismiss() }
                     .keyboardShortcut(.escape)
-                
+                    .accessibilityLabel("Cancel")
+                    .accessibilityHint("Closes the dialog without creating a task")
+
                 Button("Create Task") {
                     createTask()
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(!isValid)
+                .accessibilityLabel("Create Task")
+                .accessibilityHint("Creates the new task with the specified settings")
             }
             .padding()
         }
@@ -1206,9 +1235,13 @@ struct RunningTaskIndicator: View {
             }
             .buttonStyle(.plain)
             .help("Cancel transfer")
+            .accessibilityLabel("Cancel Transfer")
+            .accessibilityHint("Cancels the current transfer operation")
         }
         .padding()
         .background(Color.accentColor.opacity(0.08))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Running task: \(task.name), \(Int(task.progress * 100)) percent complete")
     }
 }
 

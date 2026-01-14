@@ -1,117 +1,66 @@
-# TASK: iCloud Phase 1 Testing (#9)
+# QA Task: Fix 11 Failing Unit Tests
 
-## Worker: QA
-## Size: S
-## Model: Opus (always for QA)
-## Ticket: #9
-
-**Use extended thinking (`/think`) for test design.**
-
-**Wait for Dev-1 and Dev-3 to complete first.**
+**Sprint:** Maximum Productivity
+**Priority:** CRITICAL
+**Worker:** QA (Opus recommended for debugging)
 
 ---
 
 ## Objective
 
-Test iCloud local folder integration (Phase 1).
+Identify and fix all 11 failing unit tests. Currently 743 tests run with 11 failures.
 
----
+## Context
 
-## Test Cases
+Recent changes:
+- Added OnboardingManager, OnboardingView, WelcomeStepView
+- Added HelpManager, HelpCategory, HelpTopic
+- Modified TransferOptimizer to require `fileCount == 1` for multi-threading
+- Changed `@AppStorage` from Int64 to Int for multiThreadThreshold
 
-### TC-1: Local iCloud Detection (Dev-3 work)
+## Tasks
 
-| Test | Steps | Expected |
-|------|-------|----------|
-| TC-1.1 | Check `CloudProvider.isLocalICloudAvailable` on Mac with iCloud | Returns `true` |
-| TC-1.2 | Check `CloudProvider.iCloudLocalPath` | Points to `~/Library/Mobile Documents/com~apple~CloudDocs` |
-| TC-1.3 | Check rclone type for iCloud | Returns `iclouddrive` |
+1. **Run tests and capture failures:**
+   ```bash
+   cd /Users/antti/Claude && ./run_tests.sh 2>&1 | grep -E "error:|failed|XCTAssert"
+   ```
 
-### TC-2: UI Flow (Dev-1 work)
+2. **Identify each failing test** - Note test class and method name
 
-| Test | Steps | Expected |
-|------|-------|----------|
-| TC-2.1 | Open Add Cloud Storage → Select iCloud | Shows connection method options |
-| TC-2.2 | Check Local Folder option availability | Green checkmark if iCloud folder exists |
-| TC-2.3 | Check Apple ID option | Shows "Coming soon", disabled |
-| TC-2.4 | Click Local Folder option | Creates remote successfully |
+3. **Analyze root cause** for each failure:
+   - Is it a test expectation issue?
+   - Is it a code bug?
+   - Is it a missing dependency?
 
-### TC-3: Local iCloud Browsing
+4. **Fix each failure** - Either:
+   - Update test expectations to match correct behavior
+   - Fix code bugs
+   - Add missing implementations
 
-| Test | Steps | Expected |
-|------|-------|----------|
-| TC-3.1 | Add iCloud local → Browse root | Shows iCloud Drive contents |
-| TC-3.2 | Navigate into subfolder | Can enter and list subfolders |
-| TC-3.3 | View file details | Shows size, date correctly |
+5. **Verify all tests pass:**
+   ```bash
+   cd /Users/antti/Claude && ./run_tests.sh
+   ```
 
-### TC-4: Local iCloud Sync
+## Known Areas to Check
 
-| Test | Steps | Expected |
-|------|-------|----------|
-| TC-4.1 | Upload file to iCloud | File appears in Finder iCloud folder |
-| TC-4.2 | Download file from iCloud | File saves to local destination |
-| TC-4.3 | Delete file from iCloud | File removed (if supported) |
-
-### TC-5: Edge Cases
-
-| Test | Steps | Expected |
-|------|-------|----------|
-| TC-5.1 | Test on Mac without iCloud signed in | Shows error message, option disabled |
-| TC-5.2 | Cancel during setup | Returns to provider list cleanly |
-| TC-5.3 | Add iCloud twice | Handles duplicate gracefully |
-
----
-
-## Unit Tests to Add
-
-Create test file: `CloudSyncAppTests/ICloudIntegrationTests.swift`
-
-```swift
-import XCTest
-@testable import CloudSyncApp
-
-final class ICloudIntegrationTests: XCTestCase {
-    
-    func testRcloneTypeIsICloudDrive() {
-        XCTAssertEqual(CloudProvider.icloud.rcloneType, "iclouddrive")
-    }
-    
-    func testICloudLocalPath() {
-        let expected = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs")
-        XCTAssertEqual(CloudProvider.iCloudLocalPath, expected)
-    }
-    
-    func testICloudIsSupported() {
-        XCTAssertTrue(CloudProvider.icloud.isSupported)
-    }
-    
-    func testICloudDisplayName() {
-        XCTAssertEqual(CloudProvider.icloud.displayName, "iCloud Drive")
-    }
-}
-```
-
----
+- `MultiThreadDownloadTests` - Recent changes to multi-threading logic
+- `TransferOptimizerTests` - Thread count expectations
+- `OnboardingManagerTests` - New singleton pattern
+- `HelpSystemTests` - New help system
 
 ## Output
 
-Write test results to:
-`/Users/antti/Claude/.claude-team/outputs/QA_COMPLETE.md`
+Write completion report to: `/Users/antti/Claude/.claude-team/outputs/QA_TEST_FIXES.md`
 
 Include:
-- Test results table (Pass/Fail)
-- Any bugs found
-- Screenshots if relevant
-- Unit test results
+- List of all 11 failing tests
+- Root cause for each
+- Fix applied
+- Final test results (should show 743 passed, 0 failed)
 
-Update STATUS.md when starting and completing.
+## Success Criteria
 
----
-
-## Acceptance Criteria
-
-- [ ] All manual tests executed
-- [ ] Unit tests created and passing
-- [ ] Any bugs reported as GitHub issues
-- [ ] Test report written
+- All 743 tests pass
+- Zero failures
+- No test skips or disables (fix properly)

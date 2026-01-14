@@ -158,6 +158,8 @@ struct TransferView: View {
             .pickerStyle(.segmented)
             .frame(width: 300)
             .disabled(transferProgress.isTransferring)
+            .accessibilityLabel("Transfer Mode")
+            .accessibilityHint("Select the type of transfer operation")
             
             Spacer()
             
@@ -174,11 +176,15 @@ struct TransferView: View {
                 Image(systemName: "arrow.clockwise")
             }
             .disabled(transferProgress.isTransferring)
+            .accessibilityLabel("Refresh")
+            .accessibilityHint("Refreshes both source and destination file lists")
+            .keyboardShortcut("r", modifiers: .command)
             
             Divider().frame(height: 20)
             
             Text("\(sourceBrowser.selectedFiles.count + destBrowser.selectedFiles.count) selected")
                 .font(.caption).foregroundColor(.secondary)
+                .accessibilityLabel("\(sourceBrowser.selectedFiles.count + destBrowser.selectedFiles.count) files selected")
         }
         .padding()
     }
@@ -192,7 +198,10 @@ struct TransferView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(sourceBrowser.selectedFiles.isEmpty || selectedDestRemote == nil || transferProgress.isTransferring)
-            
+            .accessibilityLabel("Transfer to Right")
+            .accessibilityHint("Transfers selected files from source to destination")
+            .keyboardShortcut(.rightArrow, modifiers: [.command, .shift])
+
             Button {
                 let tempId = transferState.sourceRemoteId
                 transferState.sourceRemoteId = transferState.destRemoteId
@@ -202,12 +211,17 @@ struct TransferView: View {
             }
             .buttonStyle(.bordered)
             .disabled(transferProgress.isTransferring)
-            
+            .accessibilityLabel("Swap Panes")
+            .accessibilityHint("Swaps source and destination locations")
+
             Button { transferFromRightToLeft() } label: {
                 Image(systemName: "chevron.left.2").font(.title2)
             }
             .buttonStyle(.borderedProminent)
             .disabled(destBrowser.selectedFiles.isEmpty || selectedSourceRemote == nil || transferProgress.isTransferring)
+            .accessibilityLabel("Transfer to Left")
+            .accessibilityHint("Transfers selected files from destination to source")
+            .keyboardShortcut(.leftArrow, modifiers: [.command, .shift])
             
             Spacer()
             
@@ -216,6 +230,9 @@ struct TransferView: View {
                     Label("Cancel", systemImage: "xmark.circle").font(.caption)
                 }
                 .buttonStyle(.bordered).tint(.red)
+                .accessibilityLabel("Cancel Transfer")
+                .accessibilityHint("Cancels the current transfer operation")
+                .keyboardShortcut(.escape)
             }
             
             Spacer()
@@ -784,8 +801,11 @@ struct TransferProgressBar: View {
         }
         .padding()
         .background(statusColor.opacity(0.05))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Transfer Progress: \(Int(progress.percentage)) percent, \(progress.sourceName) to \(progress.destName)")
+        .accessibilityValue(progress.statusMessage)
     }
-    
+
     private var statusColor: Color {
         if progress.hasError { return .red }
         if progress.isCancelled { return .orange }
@@ -842,7 +862,9 @@ struct TransferActiveIndicator: View {
                     .font(.caption)
             }
             .buttonStyle(.bordered)
-            
+            .accessibilityLabel("View in Tasks")
+            .accessibilityHint("Opens the tasks view to see detailed progress")
+
             // Cancel button
             Button {
                 onCancel?()
@@ -852,10 +874,14 @@ struct TransferActiveIndicator: View {
             }
             .buttonStyle(.plain)
             .help("Cancel transfer")
+            .accessibilityLabel("Cancel Transfer")
+            .accessibilityHint("Cancels the current transfer operation")
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(Color.accentColor.opacity(0.08))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Transfer in progress: \(Int(progress.percentage)) percent complete")
     }
 }
 
@@ -893,7 +919,9 @@ struct TransferFileBrowserPane: View {
                         Label(remote.name, systemImage: remote.displayIcon).tag(remote as CloudRemote?)
                     }
                 }.frame(maxWidth: 200)
-                
+                .accessibilityLabel("\(title) Location")
+                .accessibilityHint("Select the \(title.lowercased()) cloud storage")
+
                 Button {
                     showingNewFolderDialog = true
                     newFolderName = ""
@@ -903,6 +931,9 @@ struct TransferFileBrowserPane: View {
                 .buttonStyle(.borderless)
                 .help("Create new folder")
                 .disabled(selectedRemote == nil)
+                .accessibilityLabel("New Folder")
+                .accessibilityHint("Creates a new folder in the current location")
+                .keyboardShortcut("n", modifiers: [.command, .shift])
                 
                 Spacer()
                 
@@ -920,6 +951,9 @@ struct TransferFileBrowserPane: View {
                     .toggleStyle(.switch)
                     .controlSize(.small)
                     .help("Encrypt transfers with E2E encryption")
+                    .accessibilityLabel("Encryption")
+                    .accessibilityValue(encryptTransfers ? "Enabled" : "Disabled")
+                    .accessibilityHint("Toggle to enable or disable end-to-end encryption for transfers")
                     .onChange(of: encryptTransfers) { _, isEnabled in
                         guard let remote = selectedRemote else { return }
                         let remoteName = remote.rcloneName
@@ -948,7 +982,10 @@ struct TransferFileBrowserPane: View {
                     .buttonStyle(.bordered)
                     .background(browser.viewMode == .list ? Color.accentColor.opacity(0.2) : Color.clear)
                     .cornerRadius(6)
-                    
+                    .accessibilityLabel("List View")
+                    .accessibilityHint("Display files as a list")
+                    .accessibilityValue(browser.viewMode == .list ? "Selected" : "")
+
                     Button {
                         browser.viewMode = .grid
                     } label: {
@@ -958,7 +995,12 @@ struct TransferFileBrowserPane: View {
                     .buttonStyle(.bordered)
                     .background(browser.viewMode == .grid ? Color.accentColor.opacity(0.2) : Color.clear)
                     .cornerRadius(6)
+                    .accessibilityLabel("Grid View")
+                    .accessibilityHint("Display files as a grid")
+                    .accessibilityValue(browser.viewMode == .grid ? "Selected" : "")
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("View Mode")
             }
             .padding(8).background(Color(NSColor.controlBackgroundColor))
             
@@ -969,6 +1011,8 @@ struct TransferFileBrowserPane: View {
             HStack {
                 Image(systemName: "magnifyingglass").foregroundColor(.secondary)
                 TextField("Search files...", text: $browser.searchQuery).textFieldStyle(.plain)
+                    .accessibilityLabel("Search Files")
+                    .accessibilityHint("Type to filter files in the current folder")
             }.padding(8).background(Color(NSColor.textBackgroundColor))
             
             Divider()
@@ -1187,6 +1231,8 @@ struct TransferFileBrowserPane: View {
             if !browser.selectedFiles.isEmpty { Text("• \(browser.selectedFiles.count) selected") }
             Spacer()
         }.font(.caption).foregroundColor(.secondary).padding(8).background(Color(NSColor.controlBackgroundColor))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(browser.files.count) items\(browser.selectedFiles.isEmpty ? "" : ", \(browser.selectedFiles.count) selected")")
     }
     
     private func createFolder() {
@@ -1457,6 +1503,10 @@ struct TransferFileRow: View {
             if !browser.selectedFiles.contains(file.id) { browser.selectedFiles = [file.id] }
             return NSItemProvider(object: file.name as NSString)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(file.name), \(file.isDirectory ? "folder" : file.formattedSize)")
+        .accessibilityHint(file.isDirectory ? "Double-tap to open folder" : "Double-tap to select")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -1465,7 +1515,7 @@ struct TransferFileRow: View {
 struct BreadcrumbBar: View {
     let components: [(name: String, path: String)]
     let onNavigate: (String) -> Void
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 4) {
@@ -1474,9 +1524,13 @@ struct BreadcrumbBar: View {
                     Button { onNavigate(component.path) } label: {
                         Text(component.name).font(.caption).foregroundColor(index == components.count - 1 ? .primary : .accentColor)
                     }.buttonStyle(.plain)
+                    .accessibilityLabel(component.name)
+                    .accessibilityHint("Navigate to \(component.name)")
                 }
             }.padding(.horizontal, 8).padding(.vertical, 6)
         }.background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Breadcrumb navigation, current path: \(components.map { $0.name }.joined(separator: ", "))")
     }
 }
 
@@ -1505,7 +1559,7 @@ struct NewFolderDialog: View {
     @Binding var isPresented: Bool
     let onCreate: () -> Void
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -1520,7 +1574,9 @@ struct NewFolderDialog: View {
                         .foregroundColor(.secondary)
                 }
             }
-            
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Create New Folder dialog")
+
             TextField("Folder name", text: $folderName)
                 .textFieldStyle(.roundedBorder)
                 .focused($isFocused)
@@ -1530,21 +1586,27 @@ struct NewFolderDialog: View {
                         isPresented = false
                     }
                 }
-            
+                .accessibilityLabel("Folder name")
+                .accessibilityHint("Enter a name for the new folder")
+
             HStack {
                 Button("Cancel") {
                     isPresented = false
                 }
                 .keyboardShortcut(.cancelAction)
-                
+                .accessibilityLabel("Cancel")
+                .accessibilityHint("Closes the dialog without creating a folder")
+
                 Spacer()
-                
+
                 Button("Create") {
                     onCreate()
                     isPresented = false
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(folderName.isEmpty)
+                .accessibilityLabel("Create Folder")
+                .accessibilityHint("Creates the new folder with the entered name")
             }
         }
         .padding(24)

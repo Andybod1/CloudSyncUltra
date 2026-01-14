@@ -15,6 +15,7 @@ final class TransferOptimizerTests: XCTestCase {
             bufferSize: "32M",
             multiThread: false,
             multiThreadStreams: 0,
+            multiThreadCutoff: "100M",
             fastList: false,
             chunkSize: nil
         )
@@ -24,6 +25,7 @@ final class TransferOptimizerTests: XCTestCase {
         XCTAssertEqual(config.bufferSize, "32M")
         XCTAssertFalse(config.multiThread)
         XCTAssertEqual(config.multiThreadStreams, 0)
+        XCTAssertEqual(config.multiThreadCutoff, "100M")
         XCTAssertFalse(config.fastList)
         XCTAssertNil(config.chunkSize)
     }
@@ -155,7 +157,8 @@ final class TransferOptimizerTests: XCTestCase {
         )
 
         XCTAssertTrue(config.multiThread, "Large single file download should enable multi-threading")
-        XCTAssertEqual(config.multiThreadStreams, 8, "Multi-thread streams should be 8")
+        // Google Drive has .limited capability (max 4 threads), default config is 4 threads
+        XCTAssertEqual(config.multiThreadStreams, 4, "Multi-thread streams should be 4 for Google Drive (limited provider)")
     }
 
     func testMultiThreadingDisabledForUpload() {
@@ -343,6 +346,7 @@ final class TransferOptimizerTests: XCTestCase {
             bufferSize: "64M",
             multiThread: false,
             multiThreadStreams: 0,
+            multiThreadCutoff: "100M",
             fastList: false,
             chunkSize: nil
         )
@@ -364,6 +368,7 @@ final class TransferOptimizerTests: XCTestCase {
             bufferSize: "32M",
             multiThread: true,
             multiThreadStreams: 8,
+            multiThreadCutoff: "100M",
             fastList: false,
             chunkSize: nil
         )
@@ -383,6 +388,7 @@ final class TransferOptimizerTests: XCTestCase {
             bufferSize: "32M",
             multiThread: false,
             multiThreadStreams: 0,
+            multiThreadCutoff: "100M",
             fastList: true,
             chunkSize: nil
         )
@@ -399,6 +405,7 @@ final class TransferOptimizerTests: XCTestCase {
             bufferSize: "32M",
             multiThread: false,
             multiThreadStreams: 0,
+            multiThreadCutoff: "100M",
             fastList: false,
             chunkSize: nil
         )

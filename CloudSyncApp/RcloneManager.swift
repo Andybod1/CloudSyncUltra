@@ -8,10 +8,118 @@
 import Foundation
 import OSLog
 
+// MARK: - Multi-Thread Download Configuration (#72)
+
+/// Configuration for multi-threaded large file downloads
+/// Implements GitHub Issue #72 - Multi-Threaded Large File Downloads
+struct MultiThreadDownloadConfig {
+    /// Whether multi-threaded downloads are enabled (default: true)
+    var enabled: Bool
+    /// Number of concurrent streams per file (default: 4, max: 16)
+    var threadCount: Int
+    /// Minimum file size in bytes to trigger multi-threading (default: 100MB)
+    var sizeThreshold: Int
+
+    /// Default configuration with sensible defaults
+    static let `default` = MultiThreadDownloadConfig(
+        enabled: true,
+        threadCount: 4,
+        sizeThreshold: 100_000_000  // 100MB
+    )
+
+    /// UserDefaults keys for persistence
+    private enum Keys {
+        static let enabled = "multiThreadDownloadEnabled"
+        static let threadCount = "multiThreadDownloadThreads"
+        static let sizeThreshold = "multiThreadDownloadThreshold"
+    }
+
+    /// Load configuration from UserDefaults
+    static func load() -> MultiThreadDownloadConfig {
+        let defaults = UserDefaults.standard
+        return MultiThreadDownloadConfig(
+            enabled: defaults.object(forKey: Keys.enabled) as? Bool ?? true,
+            threadCount: min(16, max(1, defaults.integer(forKey: Keys.threadCount) == 0 ? 4 : defaults.integer(forKey: Keys.threadCount))),
+            sizeThreshold: defaults.integer(forKey: Keys.sizeThreshold) == 0 ? 100_000_000 : defaults.integer(forKey: Keys.sizeThreshold)
+        )
+    }
+
+    /// Save configuration to UserDefaults
+    func save() {
+        let defaults = UserDefaults.standard
+        defaults.set(enabled, forKey: Keys.enabled)
+        defaults.set(threadCount, forKey: Keys.threadCount)
+        defaults.set(sizeThreshold, forKey: Keys.sizeThreshold)
+    }
+
+    /// Validate and clamp thread count within allowed range (1-16)
+    mutating func validateThreadCount() {
+        threadCount = min(16, max(1, threadCount))
+    }
+}
+
+// MARK: - Provider Multi-Thread Capabilities
+
+/// Defines multi-threading capabilities for different cloud providers
+/// Some providers support multi-threaded downloads better than others
+enum ProviderMultiThreadCapability {
+    case full          // Full multi-thread support (e.g., S3, B2, GCS)
+    case limited       // Limited support, reduced thread count recommended
+    case unsupported   // Provider doesn't support multi-threaded downloads
+
+    /// Maximum recommended threads for this capability level
+    var maxRecommendedThreads: Int {
+        switch self {
+        case .full: return 16
+        case .limited: return 4
+        case .unsupported: return 1
+        }
+    }
+
+    /// Get capability for a given provider/remote name
+    /// - Parameter remoteName: The rclone remote name or provider type
+    /// - Returns: The multi-thread capability for this provider
+    static func forProvider(_ remoteName: String) -> ProviderMultiThreadCapability {
+        let remote = remoteName.lowercased()
+
+        // Full multi-thread support - object storage and major cloud providers
+        let fullSupportProviders = [
+            "s3", "b2", "backblaze", "wasabi", "gcs", "google cloud storage",
+            "azureblob", "azure", "r2", "cloudflare", "spaces", "digitalocean",
+            "minio", "storj", "filebase", "scaleway", "oracle"
+        ]
+        if fullSupportProviders.contains(where: { remote.contains($0) }) {
+            return .full
+        }
+
+        // Limited support - consumer cloud storage services
+        let limitedSupportProviders = [
+            "googledrive", "drive", "onedrive", "dropbox", "box", "mega",
+            "pcloud", "jottacloud", "koofr", "yandex"
+        ]
+        if limitedSupportProviders.contains(where: { remote.contains($0) }) {
+            return .limited
+        }
+
+        // Unsupported - protocol-based or specialized providers
+        let unsupportedProviders = [
+            "sftp", "ftp", "webdav", "nextcloud", "owncloud", "seafile",
+            "proton", "protondrive", "local"
+        ]
+        if unsupportedProviders.contains(where: { remote.contains($0) }) {
+            return .unsupported
+        }
+
+        // Default to limited for unknown providers
+        return .limited
+    }
+}
+
 // MARK: - Transfer Optimizer
 
 /// Centralized transfer optimization configuration for dynamic parallelism
 /// Implements universal dynamic parallelism as per performance analysis (#70)
+/// Enhanced with multi-threaded download support (#72)
 class TransferOptimizer {
 
     struct TransferConfig {
@@ -20,24 +128,28 @@ class TransferOptimizer {
         let bufferSize: String
         let multiThread: Bool
         let multiThreadStreams: Int
+        let multiThreadCutoff: String
         let fastList: Bool
         let chunkSize: String?
     }
 
     /// Calculate optimal transfer configuration based on file characteristics
+    /// Enhanced with configurable multi-threading support (#72)
     /// - Parameters:
     ///   - fileCount: Number of files to transfer
     ///   - totalBytes: Total size in bytes
     ///   - remoteName: Name of the remote (for provider-specific optimizations)
     ///   - isDirectory: Whether the transfer involves a directory
     ///   - isDownload: Whether this is a download operation
+    ///   - multiThreadConfig: Optional custom multi-thread configuration
     /// - Returns: Optimized TransferConfig
     static func optimize(
         fileCount: Int,
         totalBytes: Int64,
         remoteName: String,
         isDirectory: Bool,
-        isDownload: Bool
+        isDownload: Bool,
+        multiThreadConfig: MultiThreadDownloadConfig? = nil
     ) -> TransferConfig {
         let avgFileSize = fileCount > 0 ? totalBytes / Int64(fileCount) : totalBytes
 
@@ -73,8 +185,30 @@ class TransferOptimizer {
             bufferSize = "32M"  // Default improvement over 16M
         }
 
-        // Multi-threading for large single files (downloads)
-        let multiThread = isDownload && fileCount == 1 && totalBytes > 100_000_000
+        // Multi-threading configuration (#72)
+        let config = multiThreadConfig ?? MultiThreadDownloadConfig.load()
+        let providerCapability = ProviderMultiThreadCapability.forProvider(remoteName)
+
+        // Determine if multi-threading should be enabled for this transfer
+        // Multi-threading is for single large files; directories use parallel transfers instead
+        let shouldMultiThread = isDownload &&
+            !isDirectory &&
+            fileCount == 1 &&
+            config.enabled &&
+            providerCapability != .unsupported &&
+            totalBytes >= Int64(config.sizeThreshold)
+
+        // Calculate effective thread count based on provider capability
+        let effectiveThreads: Int
+        if shouldMultiThread {
+            effectiveThreads = min(config.threadCount, providerCapability.maxRecommendedThreads)
+        } else {
+            effectiveThreads = 0
+        }
+
+        // Calculate cutoff based on configured threshold
+        let cutoffMB = max(10, config.sizeThreshold / 1_000_000)
+        let multiThreadCutoff = "\(cutoffMB)M"
 
         // Fast list support for providers that support it
         let fastListProviders = ["googledrive", "onedrive", "dropbox", "s3", "b2"]
@@ -87,10 +221,32 @@ class TransferOptimizer {
             transfers: transfers,
             checkers: checkers,
             bufferSize: bufferSize,
-            multiThread: multiThread,
-            multiThreadStreams: multiThread ? 8 : 0,
+            multiThread: shouldMultiThread,
+            multiThreadStreams: effectiveThreads,
+            multiThreadCutoff: multiThreadCutoff,
             fastList: fastList,
             chunkSize: chunkSize
+        )
+    }
+
+    /// Calculate optimal configuration specifically for large file downloads (#72)
+    /// - Parameters:
+    ///   - fileSize: Size of the file in bytes
+    ///   - remoteName: Name of the remote provider
+    ///   - config: Multi-thread download configuration
+    /// - Returns: Optimized TransferConfig for single large file download
+    static func optimizeForLargeFileDownload(
+        fileSize: Int64,
+        remoteName: String,
+        config: MultiThreadDownloadConfig? = nil
+    ) -> TransferConfig {
+        return optimize(
+            fileCount: 1,
+            totalBytes: fileSize,
+            remoteName: remoteName,
+            isDirectory: false,
+            isDownload: true,
+            multiThreadConfig: config
         )
     }
 
@@ -114,9 +270,9 @@ class TransferOptimizer {
         args.append(contentsOf: ["--checkers", "\(config.checkers)"])
         args.append(contentsOf: ["--buffer-size", config.bufferSize])
 
-        if config.multiThread {
+        if config.multiThread && config.multiThreadStreams > 0 {
             args.append(contentsOf: ["--multi-thread-streams", "\(config.multiThreadStreams)"])
-            args.append(contentsOf: ["--multi-thread-cutoff", "100M"])
+            args.append(contentsOf: ["--multi-thread-cutoff", config.multiThreadCutoff])
         }
 
         if config.fastList {
@@ -136,6 +292,41 @@ class TransferOptimizer {
             "--checkers", "16",
             "--buffer-size", "32M"
         ]
+    }
+
+    /// Get multi-thread arguments for large file downloads (#72)
+    /// - Parameters:
+    ///   - fileSize: Size of the file in bytes (optional, for threshold check)
+    ///   - remoteName: Name of the remote provider
+    /// - Returns: Array of rclone arguments including multi-thread flags if applicable
+    static func multiThreadArgs(fileSize: Int64? = nil, remoteName: String) -> [String] {
+        let config = MultiThreadDownloadConfig.load()
+
+        // Check if multi-threading is enabled
+        guard config.enabled else {
+            return defaultArgs()
+        }
+
+        // Check provider capability
+        let capability = ProviderMultiThreadCapability.forProvider(remoteName)
+        guard capability != .unsupported else {
+            return defaultArgs()
+        }
+
+        // If file size provided, check threshold
+        if let size = fileSize, size < Int64(config.sizeThreshold) {
+            return defaultArgs()
+        }
+
+        // Calculate effective thread count
+        let effectiveThreads = min(config.threadCount, capability.maxRecommendedThreads)
+        let cutoffMB = max(10, config.sizeThreshold / 1_000_000)
+
+        var args = defaultArgs()
+        args.append(contentsOf: ["--multi-thread-streams", "\(effectiveThreads)"])
+        args.append(contentsOf: ["--multi-thread-cutoff", "\(cutoffMB)M"])
+
+        return args
     }
 }
 
@@ -1961,7 +2152,13 @@ class RcloneManager {
     }
     
     /// Download a file or folder from a remote to local
-    func download(remoteName: String, remotePath: String, localPath: String) async throws {
+    /// Enhanced with multi-threaded download support for large files (#72)
+    /// - Parameters:
+    ///   - remoteName: Name of the rclone remote
+    ///   - remotePath: Path on the remote
+    ///   - localPath: Local destination path
+    ///   - fileSize: Optional file size for multi-thread optimization (if known)
+    func download(remoteName: String, remotePath: String, localPath: String, fileSize: Int64? = nil) async throws {
         // Validate paths before proceeding (security: prevent command injection)
         let validatedRemotePath = try validateRemotePath(remotePath)
         let validatedLocalPath = try validatePath(localPath)
@@ -1978,18 +2175,32 @@ class RcloneManager {
             "--verbose"
         ]
 
-        // Apply dynamic parallelism optimization (#70)
-        args.append(contentsOf: TransferOptimizer.defaultArgs())
+        // Apply multi-thread optimization for large files (#72)
+        // If file size is known, use optimized config; otherwise use multi-thread args with provider check
+        if let size = fileSize {
+            let config = TransferOptimizer.optimizeForLargeFileDownload(
+                fileSize: size,
+                remoteName: remoteName
+            )
+            args.append(contentsOf: TransferOptimizer.buildArgs(from: config))
+            if config.multiThread {
+                logger.info("Multi-threaded download enabled: \(config.multiThreadStreams) streams for \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)) file")
+            }
+        } else {
+            // Use multi-thread args with provider capability check
+            args.append(contentsOf: TransferOptimizer.multiThreadArgs(fileSize: fileSize, remoteName: remoteName))
+        }
+
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
-        
+
         process.arguments = args
-        
+
         let outputPipe = Pipe()
         let errorPipe = Pipe()
         process.standardOutput = outputPipe
         process.standardError = errorPipe
-        
+
         try process.run()
         process.waitUntilExit()
         let exitCode = process.terminationStatus
@@ -2019,6 +2230,162 @@ class RcloneManager {
            combinedOutput.contains("Unchanged skipping") {
             // This is actually a success - file already exists
             logger.info("File already exists at destination")
+        }
+    }
+
+    /// Download a large file with multi-threaded streams (#72)
+    /// This method is optimized for downloading single large files using multiple
+    /// concurrent HTTP streams for improved throughput on supported providers.
+    /// - Parameters:
+    ///   - remoteName: Name of the rclone remote
+    ///   - remotePath: Path to the file on the remote
+    ///   - localPath: Local destination path
+    ///   - fileSize: Size of the file in bytes (required for optimization)
+    ///   - customThreadCount: Optional custom thread count (overrides default)
+    /// - Returns: Download result with timing and throughput information
+    @discardableResult
+    func downloadLargeFile(
+        remoteName: String,
+        remotePath: String,
+        localPath: String,
+        fileSize: Int64,
+        customThreadCount: Int? = nil
+    ) async throws -> LargeFileDownloadResult {
+        // Validate paths
+        let validatedRemotePath = try validateRemotePath(remotePath)
+        let validatedLocalPath = try validatePath(localPath)
+
+        // Load multi-thread configuration
+        var config = MultiThreadDownloadConfig.load()
+        if let customThreads = customThreadCount {
+            config.threadCount = min(16, max(1, customThreads))
+        }
+
+        // Check provider capability
+        let providerCapability = ProviderMultiThreadCapability.forProvider(remoteName)
+        let effectiveThreads = min(config.threadCount, providerCapability.maxRecommendedThreads)
+
+        // Determine if multi-threading will be used
+        let useMultiThread = config.enabled &&
+            providerCapability != .unsupported &&
+            fileSize >= Int64(config.sizeThreshold)
+
+        logger.info("Large file download initiated: \(ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file))")
+        logger.info("Provider: \(remoteName), Capability: \(String(describing: providerCapability)), Threads: \(useMultiThread ? effectiveThreads : 1)")
+
+        let startTime = Date()
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+
+        var args = [
+            "copy",
+            "\(remoteName):\(validatedRemotePath)",
+            validatedLocalPath,
+            "--config", configPath,
+            "--progress",
+            "--verbose",
+            "--stats", "1s"
+        ]
+
+        // Apply optimized transfer configuration
+        let transferConfig = TransferOptimizer.optimizeForLargeFileDownload(
+            fileSize: fileSize,
+            remoteName: remoteName,
+            config: config
+        )
+        args.append(contentsOf: TransferOptimizer.buildArgs(from: transferConfig))
+
+        // Add bandwidth limits
+        args.append(contentsOf: getBandwidthArgs())
+
+        process.arguments = args
+
+        logger.debug("Download command: rclone \(args.joined(separator: " "))")
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        try process.run()
+        process.waitUntilExit()
+        let exitCode = process.terminationStatus
+
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(startTime)
+
+        // Get output
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorString = String(data: errorData, encoding: .utf8) ?? ""
+
+        // Check for errors
+        if exitCode != 0 {
+            logger.error("Large file download failed with exit code \(exitCode)")
+            logger.error("Error output: \(errorString, privacy: .public)")
+
+            if let error = parseError(from: errorString) {
+                throw error
+            } else {
+                throw TransferError.unknown(message: errorString.isEmpty ? "Download failed" : errorString)
+            }
+        }
+
+        // Calculate throughput
+        let throughputBytesPerSecond = duration > 0 ? Double(fileSize) / duration : 0
+        let throughputMBps = throughputBytesPerSecond / 1_000_000
+
+        logger.info("Large file download completed: \(String(format: "%.1f", duration))s, \(String(format: "%.2f", throughputMBps)) MB/s")
+
+        return LargeFileDownloadResult(
+            success: true,
+            fileSize: fileSize,
+            duration: duration,
+            throughputBytesPerSecond: throughputBytesPerSecond,
+            threadsUsed: useMultiThread ? effectiveThreads : 1,
+            multiThreadEnabled: useMultiThread
+        )
+    }
+
+    /// Get file information from a remote path to determine file size (#72)
+    /// Useful for deciding whether to use multi-threaded downloads
+    /// - Parameters:
+    ///   - remoteName: Name of the rclone remote
+    ///   - remotePath: Path to the file on the remote
+    /// - Returns: RemoteFile information including size
+    func getRemoteFileInfo(remoteName: String, remotePath: String) async throws -> RemoteFile? {
+        let validatedRemotePath = try validateRemotePath(remotePath)
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: rclonePath)
+        process.arguments = [
+            "lsjson",
+            "\(remoteName):\(validatedRemotePath)",
+            "--config", configPath,
+            "--no-mimetype",
+            "--no-modtime"
+        ]
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            return nil
+        }
+
+        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        guard !data.isEmpty else { return nil }
+
+        do {
+            let files = try JSONDecoder().decode([RemoteFile].self, from: data)
+            return files.first
+        } catch {
+            return nil
         }
     }
     
@@ -2727,7 +3094,70 @@ struct RemoteFile: Codable {
     let Path: String
     let Name: String
     let Size: Int64
-    let MimeType: String
-    let ModTime: String
+    let MimeType: String?  // Made optional to support --no-mimetype flag
+    let ModTime: String?   // Made optional to support --no-modtime flag
     let IsDir: Bool
+
+    // Provide default coding keys for backward compatibility
+    enum CodingKeys: String, CodingKey {
+        case Path, Name, Size, MimeType, ModTime, IsDir
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        Path = try container.decode(String.self, forKey: .Path)
+        Name = try container.decode(String.self, forKey: .Name)
+        Size = try container.decode(Int64.self, forKey: .Size)
+        MimeType = try container.decodeIfPresent(String.self, forKey: .MimeType)
+        ModTime = try container.decodeIfPresent(String.self, forKey: .ModTime)
+        IsDir = try container.decode(Bool.self, forKey: .IsDir)
+    }
+}
+
+/// Result of a large file download operation (#72)
+/// Contains performance metrics and threading information
+struct LargeFileDownloadResult {
+    /// Whether the download completed successfully
+    let success: Bool
+    /// Size of the downloaded file in bytes
+    let fileSize: Int64
+    /// Total duration of the download in seconds
+    let duration: TimeInterval
+    /// Download throughput in bytes per second
+    let throughputBytesPerSecond: Double
+    /// Number of concurrent threads used
+    let threadsUsed: Int
+    /// Whether multi-threading was enabled for this download
+    let multiThreadEnabled: Bool
+
+    /// Formatted file size string (e.g., "1.5 GB")
+    var formattedFileSize: String {
+        ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
+    }
+
+    /// Formatted throughput string (e.g., "125.5 MB/s")
+    var formattedThroughput: String {
+        let mbps = throughputBytesPerSecond / 1_000_000
+        return String(format: "%.2f MB/s", mbps)
+    }
+
+    /// Formatted duration string (e.g., "2m 30s")
+    var formattedDuration: String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return String(format: "%.1fs", duration)
+        }
+    }
+
+    /// Summary description of the download result
+    var summary: String {
+        if success {
+            return "Downloaded \(formattedFileSize) in \(formattedDuration) at \(formattedThroughput) using \(threadsUsed) thread\(threadsUsed > 1 ? "s" : "")"
+        } else {
+            return "Download failed"
+        }
+    }
 }

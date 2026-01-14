@@ -1,107 +1,142 @@
-# TASK: RcloneManager Logging Standardization (#20 Part 1)
+# Dev-2 Task: OSLog Implementation
 
-## Worker: Dev-2 (Engine)
-## Model: Opus (M ticket)
-## Issue: #20
-
-**Use `/think` for planning the conversion strategy.**
+**Sprint:** Maximum Productivity
+**Priority:** Medium
+**Worker:** Dev-2 (Engine Layer)
 
 ---
 
 ## Objective
 
-Convert all 82 print() statements in RcloneManager.swift to proper Logger calls.
+Replace all print() statements in RcloneManager.swift with Apple's OSLog unified logging system.
 
----
+## Files to Modify
 
-## Background
+- `CloudSyncApp/RcloneManager.swift`
+- Create `CloudSyncApp/Logger+Extensions.swift` (if not exists)
 
-CloudSync Ultra has Logger infrastructure in `Logger+Extensions.swift`. RcloneManager.swift still uses print() which:
-- Doesn't persist to system logs
-- Can't be exported for debugging
-- Inconsistent with rest of codebase
+## Tasks
 
----
+### 1. Create Logger Extension (if needed)
 
-## Implementation
+```swift
+// Logger+Extensions.swift
+import OSLog
 
-### 1. Review Logger Infrastructure
-```bash
-cat CloudSyncApp/Logger+Extensions.swift
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier ?? "com.cloudsync.ultra"
+
+    /// Logs related to network operations
+    static let network = Logger(subsystem: subsystem, category: "network")
+
+    /// Logs related to sync operations
+    static let sync = Logger(subsystem: subsystem, category: "sync")
+
+    /// Logs related to file operations
+    static let fileOps = Logger(subsystem: subsystem, category: "fileops")
+
+    /// Logs related to rclone execution
+    static let rclone = Logger(subsystem: subsystem, category: "rclone")
+
+    /// Logs related to UI events
+    static let ui = Logger(subsystem: subsystem, category: "ui")
+}
 ```
 
 ### 2. Find All print() Statements
+
 ```bash
 grep -n "print(" CloudSyncApp/RcloneManager.swift | wc -l
-grep -n "print(" CloudSyncApp/RcloneManager.swift | head -20
 ```
 
 ### 3. Convert Each print() to Logger
 
 **Conversion rules:**
-| print() content | Logger level |
-|-----------------|--------------|
-| Error messages | `logger.error()` |
-| Warnings | `logger.warning()` |
-| Debug/verbose | `logger.debug()` |
-| Info/status | `logger.info()` |
-| Sensitive data (tokens, paths) | `logger.debug()` with redaction |
 
-**Example conversions:**
-```swift
-// Before
-print("Error: \(error.localizedDescription)")
+| print() content | Logger method | Category |
+|-----------------|---------------|----------|
+| Error messages | `.error()` | rclone |
+| Warnings | `.warning()` | rclone |
+| Debug/verbose | `.debug()` | rclone |
+| Transfer progress | `.info()` | sync |
+| File operations | `.info()` | fileOps |
+| Network calls | `.debug()` | network |
 
-// After
-logger.error("Transfer failed: \(error.localizedDescription, privacy: .public)")
-```
+**Examples:**
 
 ```swift
 // Before
-print("Starting sync for \(remoteName)")
+print("Error executing rclone: \(error)")
 
 // After
-logger.info("Starting sync for remote", metadata: ["remote": "\(remoteName)"])
+Logger.rclone.error("Execution failed: \(error.localizedDescription, privacy: .public)")
 ```
 
-### 4. Add Logger Property (if not present)
 ```swift
-import OSLog
+// Before
+print("Starting transfer from \(source) to \(dest)")
 
-private let logger = Logger(subsystem: "com.cloudsync.ultra", category: "RcloneManager")
+// After
+Logger.sync.info("Starting transfer from \(source, privacy: .private) to \(dest, privacy: .private)")
 ```
 
----
+```swift
+// Before
+print("Remote created: \(name)")
 
-## Files to Modify
-- `CloudSyncApp/RcloneManager.swift`
+// After
+Logger.rclone.info("Remote created: \(name, privacy: .public)")
+```
 
-## Files to Reference
-- `CloudSyncApp/Logger+Extensions.swift`
+### 4. Privacy Guidelines
 
----
+- **Public:** Error messages, status messages, remote names
+- **Private:** File paths, user data, tokens
+- **Auto:** Let system decide based on context
 
-## Acceptance Criteria
+```swift
+// Sensitive data - use private
+Logger.rclone.debug("Token received: \(token, privacy: .private)")
 
-- [ ] All print() statements converted to Logger
-- [ ] Appropriate log levels used (error/warning/info/debug)
-- [ ] Sensitive data uses privacy: .private or redaction
-- [ ] Logger property added to RcloneManager
-- [ ] Build succeeds
-- [ ] No print() remaining (verify with grep)
+// Non-sensitive - use public
+Logger.rclone.info("Provider: \(providerType, privacy: .public)")
+```
 
----
+### 5. Add Structured Logging Where Helpful
 
-## Output
-
-Write report to: `/Users/antti/Claude/.claude-team/outputs/DEV2_COMPLETE.md`
-
-Update STATUS.md when starting/completing.
-
----
+```swift
+Logger.sync.info("Transfer complete", metadata: [
+    "source": "\(source)",
+    "destination": "\(destination)",
+    "bytes": "\(bytesTransferred)",
+    "duration": "\(duration)"
+])
+```
 
 ## Verification
+
 ```bash
 # Should return 0 after completion
 grep -c "print(" CloudSyncApp/RcloneManager.swift
+
+# Test logs appear in Console.app
+# Filter by: subsystem:com.cloudsync.ultra
 ```
+
+## Output
+
+Write completion report to: `/Users/antti/Claude/.claude-team/outputs/DEV2_COMPLETE.md`
+
+Include:
+- Count of print() statements converted
+- Logger categories used
+- Any complex conversions
+
+## Success Criteria
+
+- [ ] Zero print() statements remaining
+- [ ] Logger+Extensions.swift created
+- [ ] Appropriate log levels used
+- [ ] Privacy annotations on sensitive data
+- [ ] Build succeeds
+- [ ] Logs visible in Console.app

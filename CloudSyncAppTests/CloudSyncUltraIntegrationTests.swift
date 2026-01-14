@@ -265,9 +265,9 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     func testUnsupportedProviders() {
         let allProviders = CloudProviderType.allCases
         let unsupported = allProviders.filter { !$0.isSupported }
-        
-        XCTAssertEqual(unsupported.count, 1, "Should have 1 unsupported provider")
-        XCTAssertTrue(unsupported.contains(.icloud), "iCloud should be unsupported")
+
+        // iCloud is now supported, so 0 unsupported providers
+        XCTAssertEqual(unsupported.count, 0, "Should have 0 unsupported providers")
     }
     
     // MARK: - Growth Metrics Tests
@@ -339,7 +339,7 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         
         // Supported count
         let supported = allProviders.filter { $0.isSupported }
-        XCTAssertEqual(supported.count, 40, "Should have 40 supported providers")
+        XCTAssertEqual(supported.count, 41, "Should have 41 supported providers")
         
         // Experimental count
         let experimental = allProviders.filter { $0.isExperimental }
