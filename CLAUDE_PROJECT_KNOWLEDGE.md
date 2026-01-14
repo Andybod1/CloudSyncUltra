@@ -162,7 +162,9 @@ gh issue view <number>
 
 > **🔒 PROTECTED SECTION** - Do NOT remove or modify this section without written permission from Andy.
 
-**After EVERY sprint, complete ALL steps:**
+**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh 2.0.XX` to execute all 6 steps automatically!
+
+**After EVERY sprint, complete ALL steps (manually or via release.sh):**
 
 #### 1. Verify Build & Tests
 ```bash
