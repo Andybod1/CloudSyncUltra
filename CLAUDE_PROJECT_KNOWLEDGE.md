@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.15 | **Updated:** 2026-01-14
+> **Version:** 2.0.17 | **Updated:** 2026-01-14
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Key | Value |
 |-----|-------|
-| **App** | CloudSync Ultra - macOS cloud sync with 42 providers |
+| **App** | CloudSync Ultra - macOS cloud sync with 41 providers |
 | **Tech** | SwiftUI + rclone |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
@@ -88,7 +88,7 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 ```
 /Users/antti/Claude/
 ├── CloudSyncApp/                 # Source (SwiftUI)
-├── CloudSyncAppTests/            # Tests (616 passing)
+├── CloudSyncAppTests/            # Tests (743 passing)
 ├── docs/                         # User documentation
 ├── .claude-team/
 │   ├── STATUS.md                 # Live worker status
@@ -122,27 +122,33 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.15
-- ✅ **iCloud Phase 1** (#9) - Local folder integration complete
-  - ICloudManager.swift + 35 unit tests
-  - UI option in Add Cloud dialog
-- ✅ **Crash Reporting** (#20) - Infrastructure complete
-  - 82 print() → Logger conversions
-  - CrashReportingManager with handlers
-- ✅ **UX Audit** (#44) - Score 6.4/10, onboarding critical
-- ✅ **Product Strategy** (#45) - Vision, personas, roadmap
+### Just Completed: v2.0.17
+- ✅ **Accessibility** - VoiceOver labels + keyboard shortcuts (5 views)
+- ✅ **OSLog** - Replaced 92 print() with structured logging
+- ✅ **Pagination** - LazyVStack for large file lists
+- ✅ **Test Fixes** - All 743 tests passing (was 11 failures)
+- ✅ **Help System** - HelpManager, HelpCategory, HelpTopic
+- ✅ **Onboarding** - OnboardingManager + WelcomeStepView
 
-### Recent: v2.0.14 (Performance)
-- ✅ 2x transfer speed improvement (#10)
-- ✅ Crash reporting recommendation (#20)
-- ✅ GitHub Actions workflow (#34)
+### Recent: v2.0.15-v2.0.16
+- ✅ iCloud Phase 1 (#9) - Local folder integration
+- ✅ Crash Reporting (#20) - CrashReportingManager
+- ✅ UX Audit (#44) - Score 6.4/10
+- ✅ Product Strategy (#45) - Vision, personas, roadmap
+- ✅ Performance + Security hardening
 
-### Open Issues
-| # | Title | Priority |
-|---|-------|----------|
-| #27 | UI test automation | High |
-| #40 | Performance Settings UI | Medium |
-| #46 | Onboarding flow | Critical (from UX audit) |
+### Next Sprint (9 Workers Ready)
+| # | Title | Worker |
+|---|-------|--------|
+| #72 | Multi-Thread Downloads | Dev-2 |
+| #77 | App Icon Set | Brand Designer |
+| #84 | UI Visual Refresh | UI Designer |
+| #85 | Free tier research | Product Manager |
+| #86 | Marketing Channels | Marketing Strategist |
+| #88 | UI Test Integration | QA Automation |
+| #90 | User Notifications | Dev-3 |
+| #92 | CONTRIBUTING.md | Tech Writer |
+| #94 | Publishing Guide | Tech Writer |
 
 ---
 
