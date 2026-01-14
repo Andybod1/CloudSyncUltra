@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 show:*)",
+      "Bash(pip3 install:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(swift -parse:*)",
+      "Bash(ls:*)",
+      "Bash(/opt/homebrew/bin/rclone copy:*)",
+      "Bash(rclone version:*)",
+      "Bash(rclone config:*)",
+      "Bash(echo:*)",
+      "Bash(xargs:*)",
+      "Bash(swift -syntax-only:*)",
+      "Bash(swift -typecheck:*)",
+      "Bash(find:*)",
+      "Bash(swiftc -parse:*)",
+      "Bash(swiftc:*)",
+      "Bash(gh issue close:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(rclone help:*)",
+      "Bash(wc:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue create:*)",
+      "Bash(swift -frontend -parse:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}

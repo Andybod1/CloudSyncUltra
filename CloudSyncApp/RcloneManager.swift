@@ -1882,7 +1882,7 @@ class RcloneManager {
                                     if !trimmedLine.isEmpty {
                                         // Check for errors
                                         if line.contains("ERROR :") || line.contains("ERROR:") {
-                                            logger.error("Error detected: \(line, privacy: .public)")
+                                            self.logger.error("Error detected: \(line, privacy: .public)")
                                             errorOutput += line + "\n"
 
                                             // Try to extract filename from error
@@ -2124,7 +2124,7 @@ class RcloneManager {
                 process.standardOutput = pipe
                 process.standardError = pipe
 
-                logger.info("Cloud-to-cloud with progress: \(source, privacy: .private) -> \(destination, privacy: .private)")
+                self.logger.info("Cloud-to-cloud with progress: \(source, privacy: .private) -> \(destination, privacy: .private)")
 
                 var errorOutput = ""
                 var currentProgress = SyncProgress()
@@ -2137,7 +2137,7 @@ class RcloneManager {
                             let lines = output.components(separatedBy: .newlines)
                             for line in lines {
                                 if line.contains("ERROR :") || line.contains("ERROR:") {
-                                    logger.error("Error detected: \(line, privacy: .public)")
+                                    self.logger.error("Error detected: \(line, privacy: .public)")
                                     errorOutput += line + "\n"
 
                                     // Try to extract filename from error

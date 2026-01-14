@@ -5,9 +5,23 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.15] - 2026-01-13
+## [2.0.15] - 2026-01-14
 
 ### Added
+- **iCloud Integration Phase 1** (#9) - Local folder support
+  - ICloudManager.swift for iCloud detection and path management
+  - UI option: "Use Local iCloud Folder (Recommended)" in Add Cloud dialog
+  - Local folder detection: `~/Library/Mobile Documents/com~apple~CloudDocs/`
+  - Fixed rclone type: `icloud` → `iclouddrive`
+  - 35 unit tests in ICloudIntegrationTests.swift
+  - Fixed CloudProviderTests.swift iCloud support assertion
+
+- **Crash Reporting Infrastructure** (#20) - Privacy-first crash handling
+  - Dev-2: Converted 82 print() statements to OSLog Logger in RcloneManager.swift
+  - Dev-3: CrashReportingManager with exception and signal handlers
+  - Log export functionality for user-controlled sharing
+  - Crash reports stored locally in Application Support directory
+
 - **Specialized Agents System** (#44, #45) - On-demand expert agents
   - UX-Designer: UI/UX analysis, user flow improvements
   - Product-Manager: Strategy, requirements, roadmap planning
@@ -18,11 +32,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All use **Opus + extended thinking** for thorough analysis
   - Launch: `launch_single_worker.sh ux-designer opus`
 
-- **iCloud Integration Phase 1** (#9) - Local folder support (in progress)
-  - Fixed rclone type: `icloud` → `iclouddrive`
-  - Local folder detection: `~/Library/Mobile Documents/com~apple~CloudDocs/`
-  - New ICloudManager.swift for iCloud-specific logic
-  - UI option: "Use Local iCloud Folder (Recommended)"
+### Analysis & Strategy
+- **UX Audit** (#44) - Comprehensive UX review
+  - Overall UX score: 6.4/10
+  - Critical finding: No onboarding experience (First-Time UX: 4.3/10)
+  - Top 10 prioritized recommendations documented
+  - Strengths: Native design, dark mode, error handling
+  - Full report: `.claude-team/outputs/UX_DESIGNER_COMPLETE.md`
+
+- **Product Strategy** (#45) - Strategic planning complete
+  - Vision statement and strategic positioning defined
+  - 4 user personas: Privacy Pro, Creative, SMB Owner, Power User
+  - MoSCoW feature prioritization
+  - 90-day roadmap with milestones
+  - Competitive analysis vs Dropbox, Google Drive, OneDrive
+  - Full strategy: `.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`
 
 ### Infrastructure
 - Updated `launch_single_worker.sh` to support 11 agent types

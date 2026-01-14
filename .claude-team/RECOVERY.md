@@ -154,10 +154,19 @@ Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFIN
 
 ## Current State (v2.0.15)
 
-### In Progress: iCloud Phase 1 (#9)
-- Dev-3 ✅ Foundation (rclone type fix, local detection)
-- Dev-1 🔄 UI (local folder option)
-- QA ⏳ Testing (waiting)
+### Just Completed: v2.0.15
+- ✅ **iCloud Phase 1** (#9) - Local folder integration
+  - ICloudManager.swift for detection
+  - UI option in Add Cloud dialog
+  - 35 unit tests in ICloudIntegrationTests.swift
+- ✅ **Crash Reporting** (#20) - Infrastructure complete
+  - 82 print() → Logger in RcloneManager.swift
+  - CrashReportingManager with exception/signal handlers
+- ✅ **UX Audit** (#44) - Overall score 6.4/10
+  - Critical gap: No onboarding (4.3/10)
+  - Top 10 recommendations documented
+- ✅ **Product Strategy** (#45) - Complete strategy doc
+  - Vision, personas, MoSCoW, 90-day roadmap
 
 ### Recent Completed
 - v2.0.14: Performance 2x boost, crash reporting research
@@ -167,12 +176,9 @@ Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFIN
 ### Open Issues
 | # | Title | Priority |
 |---|-------|----------|
-| #9 | iCloud integration | High |
-| #10 | Transfer performance | High (done) |
 | #27 | UI test automation | High |
 | #40 | Performance Settings UI | Medium |
-| #44 | UI review | Medium |
-| #45 | Product strategy | Critical |
+| #46 | Onboarding flow | Critical (from UX audit) |
 
 ---
 
@@ -229,5 +235,5 @@ git log --oneline -5
 
 ---
 
-*Last Updated: 2026-01-13*
+*Last Updated: 2026-01-14*
 *CloudSync Ultra v2.0.15*

@@ -42,7 +42,7 @@ final class CloudProviderTests: XCTestCase {
         XCTAssertTrue(CloudProviderType.googleDrive.isSupported)
         XCTAssertTrue(CloudProviderType.dropbox.isSupported)
         XCTAssertTrue(CloudProviderType.local.isSupported)
-        XCTAssertFalse(CloudProviderType.icloud.isSupported)
+        XCTAssertTrue(CloudProviderType.icloud.isSupported)  // Updated: iCloud Phase 1 now supported
     }
     
     func testRequiresOAuth() {

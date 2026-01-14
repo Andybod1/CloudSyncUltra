@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.15 | **Updated:** 2026-01-13
+> **Version:** 2.0.15 | **Updated:** 2026-01-14
 
 ---
 
@@ -122,10 +122,15 @@ gh issue view <number>
 
 ## Current State
 
-### In Progress: iCloud Phase 1 (#9)
-- Dev-3 ✅ Foundation (rclone type fix, local detection)
-- Dev-1 🔄 UI (local folder option)
-- QA ⏳ Testing (waiting)
+### Just Completed: v2.0.15
+- ✅ **iCloud Phase 1** (#9) - Local folder integration complete
+  - ICloudManager.swift + 35 unit tests
+  - UI option in Add Cloud dialog
+- ✅ **Crash Reporting** (#20) - Infrastructure complete
+  - 82 print() → Logger conversions
+  - CrashReportingManager with handlers
+- ✅ **UX Audit** (#44) - Score 6.4/10, onboarding critical
+- ✅ **Product Strategy** (#45) - Vision, personas, roadmap
 
 ### Recent: v2.0.14 (Performance)
 - ✅ 2x transfer speed improvement (#10)
@@ -135,10 +140,9 @@ gh issue view <number>
 ### Open Issues
 | # | Title | Priority |
 |---|-------|----------|
-| #9 | iCloud integration | High |
-| #10 | Transfer performance | High (done) |
 | #27 | UI test automation | High |
 | #40 | Performance Settings UI | Medium |
+| #46 | Onboarding flow | Critical (from UX audit) |
 
 ---
 
