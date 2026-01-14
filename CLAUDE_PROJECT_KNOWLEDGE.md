@@ -227,6 +227,19 @@ git push --tags origin main
 - [ ] Version tagged
 - [ ] Pushed to GitHub
 
+#### 7. Reflect on Operational Excellence
+```bash
+# Review the tracker
+cat ~/.claude-team/OPERATIONAL_EXCELLENCE.md
+```
+- [ ] Update progress percentages if pillars improved
+- [ ] Check if any new gaps emerged
+- [ ] Note any process friction encountered
+- [ ] Update "Current State" section if changed
+- [ ] Identify next operational improvement to tackle
+
+**File:** `.claude-team/OPERATIONAL_EXCELLENCE.md`
+
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
 ---
