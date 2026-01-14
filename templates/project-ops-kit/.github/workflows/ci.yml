@@ -1,0 +1,74 @@
+# CI Pipeline Template
+# Customize for your tech stack
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    # Change runner based on your needs:
+    # - ubuntu-latest (Node, Python, Go, Rust)
+    # - macos-14 (Swift/Xcode)
+    # - windows-latest (Windows apps)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────────────────────
+      # CUSTOMIZE: Add your setup steps here
+      # ─────────────────────────────────────────────────────────────
+      
+      # Node.js example:
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      # - name: Install dependencies
+      #   run: npm ci
+      
+      # Python example:
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      # - name: Install dependencies
+      #   run: pip install -r requirements.txt
+      
+      # Xcode example:
+      # - name: Select Xcode
+      #   run: sudo xcode-select -s /Applications/Xcode_15.0.app
+      
+      # ─────────────────────────────────────────────────────────────
+      # BUILD
+      # ─────────────────────────────────────────────────────────────
+      - name: Build
+        run: |
+          echo "Add your build command here"
+          # npm run build
+          # python -m py_compile src/*.py
+          # cargo build
+          # xcodebuild build
+
+      # ─────────────────────────────────────────────────────────────
+      # TEST
+      # ─────────────────────────────────────────────────────────────
+      - name: Test
+        run: |
+          echo "Add your test command here"
+          # npm test
+          # pytest
+          # cargo test
+          # xcodebuild test
+
+      # ─────────────────────────────────────────────────────────────
+      # VERSION CHECK
+      # ─────────────────────────────────────────────────────────────
+      - name: Version Check
+        run: ./scripts/version-check.sh
