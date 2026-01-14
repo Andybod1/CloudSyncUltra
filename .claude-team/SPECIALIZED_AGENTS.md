@@ -28,6 +28,9 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 | **Security-Auditor** | Security Review | Opus + /think hard | Vulnerability analysis, best practices |
 | **Performance-Engineer** | Optimization | Opus + /think hard | Deep performance analysis |
 | **Tech-Writer** | Documentation | Opus + /think hard | User guides, API docs, README |
+| **Brand-Designer** | Brand & Visual Identity | Opus + /think hard | Brand audit, visual assets, style guides |
+| **QA-Automation** | Test Automation | Opus + /think hard | UI tests, CI/CD, coverage analysis |
+| **Marketing-Strategist** | Growth & Marketing | Opus + /think hard | ASO, campaigns, positioning |
 
 **All specialized agents use Opus with `/think hard` for deep, thorough analysis.**
 
@@ -50,6 +53,9 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 ~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh performance-eng opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh tech-writer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh brand-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa-automation opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-strategist opus
 ```
 
 ---
@@ -82,6 +88,12 @@ Security-Auditor: Read /Users/antti/Claude/.claude-team/templates/SECURITY_AUDIT
 Performance-Engineer: Read /Users/antti/Claude/.claude-team/templates/PERFORMANCE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PERFORMANCE_ENGINEER.md. Update STATUS.md as you work.
 
 Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_TECH_WRITER.md. Update STATUS.md as you work.
+
+Brand-Designer: Read /Users/antti/Claude/.claude-team/templates/BRAND_DESIGNER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_BRAND_DESIGNER.md. Update STATUS.md as you work.
+
+QA-Automation: Read /Users/antti/Claude/.claude-team/templates/QA_AUTOMATION_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA_AUTOMATION.md. Update STATUS.md as you work.
+
+Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_STRATEGIST_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_STRATEGIST.md. Update STATUS.md as you work.
 ```
 
 ---
@@ -96,6 +108,9 @@ Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFIN
 | "Is this secure?" | Security-Auditor |
 | "Why is X slow?" | Performance-Engineer |
 | "Need better docs" | Tech-Writer |
+| "Brand looks inconsistent" or "need visual identity" | Brand-Designer |
+| "Need automated UI tests" or "improve test coverage" | QA-Automation |
+| "How do we grow users?" or "App Store optimization" | Marketing-Strategist |
 
 ---
 

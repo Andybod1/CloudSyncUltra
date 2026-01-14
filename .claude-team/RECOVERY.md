@@ -68,12 +68,15 @@ Strategic Partner (Desktop Claude - Opus 4.5)
 
 ### Specialized Agents (On-Demand)
 ```
-    ├── UX-Designer      → UI/UX analysis, user flows
-    ├── Product-Manager  → Strategy, requirements, roadmap
-    ├── Architect        → System design, refactoring
-    ├── Security-Auditor → Security review, vulnerabilities
-    ├── Performance-Eng  → Deep optimization analysis
-    └── Tech-Writer      → Documentation, guides
+    ├── UX-Designer         → UI/UX analysis, user flows
+    ├── Product-Manager     → Strategy, requirements, roadmap
+    ├── Architect           → System design, refactoring
+    ├── Security-Auditor    → Security review, vulnerabilities
+    ├── Performance-Eng     → Deep optimization analysis
+    ├── Tech-Writer         → Documentation, guides
+    ├── Brand-Designer      → Brand identity, visual assets
+    ├── QA-Automation       → UI tests, CI/CD, coverage
+    └── Marketing-Strategist → Growth, ASO, campaigns
 ```
 
 ### Model Rules
@@ -116,6 +119,9 @@ Full guide: `.claude-team/TRIAGE_GUIDE.md`
 ~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh performance-eng opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh tech-writer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh brand-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa-automation opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-strategist opus
 ```
 
 ---
@@ -148,6 +154,12 @@ Security-Auditor: Read /Users/antti/Claude/.claude-team/templates/SECURITY_AUDIT
 Performance-Engineer: Read /Users/antti/Claude/.claude-team/templates/PERFORMANCE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_PERFORMANCE_ENGINEER.md. Update STATUS.md as you work.
 
 Tech-Writer: Read /Users/antti/Claude/.claude-team/templates/TECH_WRITER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_TECH_WRITER.md. Update STATUS.md as you work.
+
+Brand-Designer: Read /Users/antti/Claude/.claude-team/templates/BRAND_DESIGNER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_BRAND_DESIGNER.md. Update STATUS.md as you work.
+
+QA-Automation: Read /Users/antti/Claude/.claude-team/templates/QA_AUTOMATION_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA_AUTOMATION.md. Update STATUS.md as you work.
+
+Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_STRATEGIST_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_STRATEGIST.md. Update STATUS.md as you work.
 ```
 
 ---
