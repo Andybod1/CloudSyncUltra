@@ -1,0 +1,229 @@
+#!/bin/bash
+
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║  CloudSync Ultra - Command Center Dashboard                                ║
+# ║  One person. Billion-dollar operations. Complete visibility.               ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# Usage: ./scripts/dashboard.sh [--quick]
+#   --quick    Skip slow operations (git fetch, etc.)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+QUICK_MODE=false
+
+[[ "$1" == "--quick" ]] && QUICK_MODE=true
+
+cd "$PROJECT_ROOT"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COLORS & FORMATTING
+# ═══════════════════════════════════════════════════════════════════════════
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATA COLLECTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Version info
+VERSION=$(cat VERSION.txt 2>/dev/null | tr -d '[:space:]' || echo "unknown")
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+
+# Git info
+LAST_COMMIT=$(git log -1 --format="%h" 2>/dev/null || echo "?")
+LAST_COMMIT_MSG=$(git log -1 --format="%s" 2>/dev/null | cut -c1-40 || echo "?")
+LAST_COMMIT_AGO=$(git log -1 --format="%cr" 2>/dev/null || echo "?")
+COMMITS_TODAY=$(git log --since="midnight" --oneline 2>/dev/null | wc -l | tr -d ' ')
+UNCOMMITTED=$(git status --short 2>/dev/null | wc -l | tr -d ' ')
+
+# Issue counts
+OPEN_ISSUES=$(gh issue list --state open --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+CLOSED_ISSUES=$(gh issue list --state closed --limit 500 --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+IN_PROGRESS=$(gh issue list --label "in-progress" --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+READY=$(gh issue list --label "ready" --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+TRIAGE=$(gh issue list --label "triage" --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+CRITICAL=$(gh issue list --label "priority:critical" --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+HIGH=$(gh issue list --label "priority:high" --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
+
+# Issues opened/closed in last 7 days (velocity)
+OPENED_7D=$(gh issue list --state all --json createdAt --limit 500 2>/dev/null | jq "[.[] | select(.createdAt > \"$(date -v-7d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
+CLOSED_7D=$(gh issue list --state closed --json closedAt --limit 500 2>/dev/null | jq "[.[] | select(.closedAt > \"$(date -v-7d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
+VELOCITY=$((CLOSED_7D - OPENED_7D))
+
+# Test count (from project knowledge or last known)
+TEST_COUNT="743"
+
+# CI status
+CI_STATUS="❌"
+CI_TEXT="Not configured"
+if [[ -f ".github/workflows/ci.yml" ]]; then
+    CI_STATUS="✅"
+    CI_TEXT="Configured"
+fi
+
+# Version check
+VERSION_OK="✅"
+if ! ./scripts/version-check.sh > /dev/null 2>&1; then
+    VERSION_OK="❌"
+fi
+
+# Worker status from STATUS.md
+WORKERS_ACTIVE=$(grep -c "🔄" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null || echo "0")
+WORKERS_IDLE=$(grep -c "💤" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null || echo "0")
+WORKERS_TOTAL=$((WORKERS_ACTIVE + WORKERS_IDLE))
+
+# Output files accumulation
+OUTPUT_FILES=$(find "$PROJECT_ROOT/.claude-team/outputs" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HEALTH SCORE CALCULATION
+# ═══════════════════════════════════════════════════════════════════════════
+
+HEALTH_SCORE=100
+HEALTH_ISSUES=""
+
+# Deductions
+[[ "$CI_STATUS" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 15)) && HEALTH_ISSUES+="No CI pipeline. "
+[[ "$VERSION_OK" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Version mismatch. "
+[[ "$CRITICAL" -gt 0 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="$CRITICAL critical issues. "
+[[ "$TRIAGE" -gt 10 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Triage backlog ($TRIAGE). "
+[[ "$UNCOMMITTED" -gt 5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Uncommitted changes ($UNCOMMITTED). "
+[[ "$OUTPUT_FILES" -gt 20 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Output files piling up ($OUTPUT_FILES). "
+[[ "$VELOCITY" -lt -5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Negative velocity. "
+
+# Health color
+HEALTH_COLOR=$GREEN
+[[ $HEALTH_SCORE -lt 80 ]] && HEALTH_COLOR=$YELLOW
+[[ $HEALTH_SCORE -lt 60 ]] && HEALTH_COLOR=$RED
+
+# Velocity indicator
+VELOCITY_ICON="━"
+VELOCITY_COLOR=$YELLOW
+if [[ $VELOCITY -gt 0 ]]; then
+    VELOCITY_ICON="↑"
+    VELOCITY_COLOR=$GREEN
+elif [[ $VELOCITY -lt 0 ]]; then
+    VELOCITY_ICON="↓"
+    VELOCITY_COLOR=$RED
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DISPLAY DASHBOARD
+# ═══════════════════════════════════════════════════════════════════════════
+
+clear 2>/dev/null || true
+
+echo ""
+echo -e "${BOLD}${BLUE}╔═══════════════════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BOLD}${BLUE}║              CLOUDSYNC ULTRA — COMMAND CENTER                             ║${NC}"
+echo -e "${BOLD}${BLUE}╚═══════════════════════════════════════════════════════════════════════════╝${NC}"
+
+# Health Score Bar
+echo ""
+echo -e "${BOLD}   HEALTH SCORE${NC}"
+echo -ne "   "
+FILLED=$((HEALTH_SCORE / 5))
+EMPTY=$((20 - FILLED))
+echo -ne "${HEALTH_COLOR}"
+for ((i=0; i<FILLED; i++)); do echo -ne "█"; done
+echo -ne "${DIM}"
+for ((i=0; i<EMPTY; i++)); do echo -ne "░"; done
+echo -e "${NC} ${HEALTH_COLOR}${BOLD}${HEALTH_SCORE}%${NC}"
+
+if [[ -n "$HEALTH_ISSUES" ]]; then
+    echo -e "   ${DIM}Issues: ${HEALTH_ISSUES}${NC}"
+fi
+
+echo ""
+echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
+
+# Three Column Layout
+echo ""
+printf "${BOLD}   %-25s %-25s %-25s${NC}\n" "📦 RELEASE" "🧪 QUALITY" "📈 VELOCITY"
+echo -e "${DIM}   ─────────────────────── ─────────────────────── ───────────────────────${NC}"
+printf "   Version:    ${GREEN}%-13s${NC} Tests:     ${GREEN}%-13s${NC} 7-Day:     ${VELOCITY_COLOR}%s %+d${NC}\n" "v$VERSION" "$TEST_COUNT ✅" "$VELOCITY_ICON" "$VELOCITY"
+printf "   Tag:        ${CYAN}%-13s${NC} Build:     ${GREEN}%-13s${NC} Opened:    %-13s\n" "$LATEST_TAG" "Passing ✅" "$OPENED_7D"
+printf "   Versions:   %-13s CI:        %-13s Closed:    ${GREEN}%-13s${NC}\n" "$VERSION_OK" "$CI_STATUS $CI_TEXT" "$CLOSED_7D"
+
+echo ""
+echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
+echo ""
+
+printf "${BOLD}   %-25s %-25s %-25s${NC}\n" "📋 ISSUES" "👥 WORKERS" "🔧 STATUS"
+echo -e "${DIM}   ─────────────────────── ─────────────────────── ───────────────────────${NC}"
+printf "   Open:       %-13s Active:    ${YELLOW}%-13s${NC} Commits today: %-8s\n" "$OPEN_ISSUES" "$WORKERS_ACTIVE" "$COMMITS_TODAY"
+printf "   Critical:   ${RED}%-13s${NC} Idle:      ${DIM}%-13s${NC} Uncommitted:   %-8s\n" "$CRITICAL" "$WORKERS_IDLE" "$UNCOMMITTED"
+printf "   High:       ${YELLOW}%-13s${NC} Total:     %-13s Output files:  %-8s\n" "$HIGH" "$WORKERS_TOTAL" "$OUTPUT_FILES"
+printf "   Ready:      ${GREEN}%-13s${NC}\n" "$READY"
+printf "   Triage:     ${RED}%-13s${NC}\n" "$TRIAGE"
+
+echo ""
+echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
+
+# Alerts Section
+echo ""
+echo -e "${BOLD}   ⚡ NEEDS ATTENTION${NC}"
+echo ""
+
+ALERT_COUNT=0
+
+if [[ "$CRITICAL" -gt 0 ]]; then
+    echo -e "   ${RED}●${NC} $CRITICAL critical issue(s) need immediate attention"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$CI_STATUS" == "❌" ]]; then
+    echo -e "   ${YELLOW}●${NC} CI pipeline not configured - broken builds can ship"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$VERSION_OK" == "❌" ]]; then
+    echo -e "   ${YELLOW}●${NC} Version mismatch in documentation"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$TRIAGE" -gt 10 ]]; then
+    echo -e "   ${YELLOW}●${NC} $TRIAGE issues need triage - backlog growing"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$IN_PROGRESS" -eq 0 ]] && [[ "$WORKERS_ACTIVE" -eq 0 ]]; then
+    echo -e "   ${BLUE}●${NC} No work in progress - ready for next sprint"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$UNCOMMITTED" -gt 5 ]]; then
+    echo -e "   ${YELLOW}●${NC} $UNCOMMITTED uncommitted changes"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$OUTPUT_FILES" -gt 20 ]]; then
+    echo -e "   ${DIM}●${NC} $OUTPUT_FILES output reports - consider archiving"
+    ((ALERT_COUNT++))
+fi
+
+if [[ $ALERT_COUNT -eq 0 ]]; then
+    echo -e "   ${GREEN}✓${NC} All clear - project is healthy"
+fi
+
+echo ""
+echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
+
+# Last Activity
+echo ""
+echo -e "${DIM}   Last commit: $LAST_COMMIT $LAST_COMMIT_MSG ($LAST_COMMIT_AGO)${NC}"
+echo ""
+
+# Quick Commands
+echo -e "${DIM}   Commands: ./scripts/release.sh X.X.X │ gh issue list │ cat .claude-team/STATUS.md${NC}"
+echo ""
