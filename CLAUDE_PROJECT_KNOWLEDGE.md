@@ -166,6 +166,14 @@ gh issue view <number>
 
 **After EVERY sprint, complete ALL steps (manually or via release.sh):**
 
+#### 0. Check Project Health FIRST
+```bash
+./scripts/dashboard.sh
+```
+- [ ] Review health score - should be 80%+
+- [ ] Check for any ⚡ NEEDS ATTENTION alerts
+- [ ] Note any issues to address
+
 #### 1. Verify Build & Tests
 ```bash
 # Run all tests
@@ -229,16 +237,19 @@ git push --tags origin main
 
 #### 7. Reflect on Operational Excellence
 ```bash
+# Check final health score
+./scripts/dashboard.sh
+
 # Review the tracker
 cat ~/.claude-team/OPERATIONAL_EXCELLENCE.md
 ```
+- [ ] Health score maintained or improved
 - [ ] Update progress percentages if pillars improved
 - [ ] Check if any new gaps emerged
 - [ ] Note any process friction encountered
-- [ ] Update "Current State" section if changed
 - [ ] Identify next operational improvement to tackle
 
-**File:** `.claude-team/OPERATIONAL_EXCELLENCE.md`
+**Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
