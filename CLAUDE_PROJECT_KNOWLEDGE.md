@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.19 | **Updated:** 2026-01-14
+> **Version:** 2.0.20 | **Updated:** 2026-01-14
 
 ---
 
@@ -131,11 +131,15 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.19
-- ✅ **Build Fix** - cornerRadiusSmall alias added to AppTheme
-- ✅ **All 743 tests passing**
+### Just Completed: v2.0.20 - Sprint "Launch Ready"
+- ✅ **Onboarding Flow** (#80, #81, #82) - 4-step first-time user experience
+- ✅ **Dynamic Parallelism** (#70) - Provider-aware transfer optimization
+- ✅ **Fast-List Support** (#71) - Faster directory listings
+- ✅ **Provider Icons** (#95) - ProviderIconView + brand colors
+- ✅ **Visual Polish** (#84) - Consistent AppTheme styling
+- ✅ **All 762 tests passing**
 
-### v2.0.18 (9-Worker Sprint)
+### v2.0.18-19 (Previous)
 - ✅ **#72 Multi-Thread Downloads** - Already implemented, 30+ tests
 - ✅ **#77 App Icon** - SVG template, generation script ready
 - ✅ **#84 UI Visual Refresh** - AppTheme applied to 5 views

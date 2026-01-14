@@ -5,6 +5,46 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.20] - 2026-01-14
+
+### Added
+- **Onboarding Flow** (#80, #81, #82) - Complete first-time user experience
+  - 4-step wizard: Welcome, Add Provider, First Sync, Completion
+  - OnboardingViewModel with state persistence
+  - Progress tracking with skip option
+  - 35 comprehensive tests
+
+- **Dynamic Parallelism** (#70) - Smart transfer optimization
+  - Provider-specific parallelism (Google Drive: 8, S3: 16, Proton: 2)
+  - File-size aware tuning for better performance
+  - DynamicParallelismConfig struct
+
+- **Fast-List Support** (#71) - Faster directory listings
+  - Enabled for: Google Drive, S3, Dropbox, OneDrive, B2, Box, GCS
+  - Reduces API calls significantly
+
+- **Provider Icons** (#95) - Visual provider identification
+  - ProviderIconView component with SF Symbols
+  - Brand colors for 11 major providers in Asset Catalog
+  - AppTheme+ProviderColors extension
+
+- **Visual Polish** (#84) - Consistent styling throughout
+
+### Changed
+- TransferOptimizer now uses provider-aware optimization
+- Test timing fixes for edge cases
+
+### Infrastructure
+- CloudSyncApp/Components/ProviderIconView.swift
+- CloudSyncApp/Assets.xcassets/ProviderColors/
+- CloudSyncApp/Styles/AppTheme+ProviderColors.swift
+
+### QA Notes
+- UI tests compile but require Xcode GUI to run (Gatekeeper limitation)
+- All 762 tests passing
+
+---
+
 ## [2.0.19] - 2026-01-14
 
 ### Fixed
