@@ -19,11 +19,11 @@ echo -e "${BLUE}║   CloudSync Ultra - Batch Worker Launcher  ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Default models (can be overridden by config file)
+# Default models - ALL USE OPUS
 DEV1_MODEL="opus"
 DEV2_MODEL="opus"
-DEV3_MODEL="sonnet"
-QA_MODEL="sonnet"
+DEV3_MODEL="opus"
+QA_MODEL="opus"
 
 # Read config file if exists
 if [ -f "$CONFIG_FILE" ]; then

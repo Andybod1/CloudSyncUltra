@@ -52,11 +52,16 @@ Strategic Partner (This Claude - Opus 4.5)
 ```
 
 ### Model Rules
-| Agent Type | Model Rule |
-|------------|------------|
-| Dev-1, Dev-2, Dev-3 | Sonnet XS/S, Opus M/L/XL |
-| QA, Dev-Ops | **ALWAYS Opus + /think** |
-| All Specialized | **ALWAYS Opus + /think hard** |
+| Agent Type | Model | /think |
+|------------|-------|--------|
+| Dev-1, Dev-2, Dev-3 | **Opus** | M/L/XL tickets or tricky implementations |
+| QA, Dev-Ops | **Opus** | Always |
+| All Specialized | **Opus** | Always (/think hard) |
+
+**All workers use Opus.** Extended thinking (/think) is used for:
+- M/L/XL sized tickets
+- Tricky or complex implementations
+- QA, Dev-Ops, and Specialized agents (always)
 
 ### Ticket Triage Process
 When evaluating tickets, Strategic Partner decides assignment:
@@ -70,11 +75,14 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 ## Worker Launch
 
 ```bash
-# Core team
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+# Core team (all use Opus)
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-ops opus
 
-# Specialized agents
+# Specialized agents (all use Opus)
 ~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus

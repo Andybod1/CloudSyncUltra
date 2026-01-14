@@ -22,7 +22,7 @@
 | Dev-1 | - | 💤 IDLE | Available |
 | Dev-2 | - | 💤 IDLE | Available |
 | Dev-3 | - | 💤 IDLE | Available |
-| QA | Opus | 🔄 ASSIGNED | Fix 11 failing tests (#87) |
+| QA | Opus | 🔄 TESTING | Fixing 11 failing tests (#87) |
 | Dev-Ops | - | 💤 IDLE | Available |
 
 ---

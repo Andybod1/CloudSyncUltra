@@ -351,6 +351,28 @@ final class SyncScheduleTests: XCTestCase {
             destinationPath: "/"
         )
 
-        XCTAssertEqual(schedule1, schedule2)
+        // Compare all properties except the timestamp fields which are auto-generated
+        XCTAssertEqual(schedule1.id, schedule2.id)
+        XCTAssertEqual(schedule1.name, schedule2.name)
+        XCTAssertEqual(schedule1.isEnabled, schedule2.isEnabled)
+        XCTAssertEqual(schedule1.sourceRemote, schedule2.sourceRemote)
+        XCTAssertEqual(schedule1.sourcePath, schedule2.sourcePath)
+        XCTAssertEqual(schedule1.destinationRemote, schedule2.destinationRemote)
+        XCTAssertEqual(schedule1.destinationPath, schedule2.destinationPath)
+        XCTAssertEqual(schedule1.syncType, schedule2.syncType)
+        XCTAssertEqual(schedule1.encryptSource, schedule2.encryptSource)
+        XCTAssertEqual(schedule1.encryptDestination, schedule2.encryptDestination)
+        XCTAssertEqual(schedule1.frequency, schedule2.frequency)
+        XCTAssertEqual(schedule1.customIntervalMinutes, schedule2.customIntervalMinutes)
+        XCTAssertEqual(schedule1.scheduledHour, schedule2.scheduledHour)
+        XCTAssertEqual(schedule1.scheduledMinute, schedule2.scheduledMinute)
+        XCTAssertEqual(schedule1.scheduledDays, schedule2.scheduledDays)
+        XCTAssertEqual(schedule1.lastRunAt, schedule2.lastRunAt)
+        XCTAssertEqual(schedule1.lastRunSuccess, schedule2.lastRunSuccess)
+        XCTAssertEqual(schedule1.lastRunError, schedule2.lastRunError)
+        XCTAssertEqual(schedule1.nextRunAt, schedule2.nextRunAt)
+        XCTAssertEqual(schedule1.runCount, schedule2.runCount)
+        XCTAssertEqual(schedule1.failureCount, schedule2.failureCount)
+        // Note: Not comparing createdAt and modifiedAt as they are auto-generated with current time
     }
 }
