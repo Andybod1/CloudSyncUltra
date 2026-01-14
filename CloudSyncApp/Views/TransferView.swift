@@ -3,6 +3,7 @@
 //  CloudSyncApp
 //
 //  Dual-pane file transfer interface with drag & drop
+//  Styled to match onboarding experience with AppTheme design tokens
 //
 
 import SwiftUI
@@ -98,7 +99,7 @@ struct TransferView: View {
                 )
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.windowBackground)
         .navigationTitle("Transfer")
         .onChange(of: transferState.sourceRemoteId) { _, newId in
             if let remote = selectedSourceRemote {
@@ -149,7 +150,7 @@ struct TransferView: View {
     }
     
     private var transferToolbar: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: AppTheme.spacing) {
             Picker("Mode", selection: $transferState.transferMode) {
                 ForEach(TaskType.allCases, id: \.self) { mode in
                     Label(mode.rawValue, systemImage: mode.icon).tag(mode)
@@ -160,18 +161,20 @@ struct TransferView: View {
             .disabled(transferProgress.isTransferring)
             .accessibilityLabel("Transfer Mode")
             .accessibilityHint("Select the type of transfer operation")
-            
+
             Spacer()
-            
+
             if !transferProgress.isTransferring {
-                HStack(spacing: 4) {
-                    Image(systemName: "hand.draw").foregroundColor(.secondary)
-                    Text("Drag files between panes to transfer").font(.caption).foregroundColor(.secondary)
+                HStack(spacing: AppTheme.spacingXS) {
+                    Image(systemName: "hand.draw").foregroundColor(AppTheme.textSecondary)
+                    Text("Drag files between panes to transfer")
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
-            
+
             Spacer()
-            
+
             Button { sourceBrowser.refresh(); destBrowser.refresh() } label: {
                 Image(systemName: "arrow.clockwise")
             }
@@ -179,24 +182,25 @@ struct TransferView: View {
             .accessibilityLabel("Refresh")
             .accessibilityHint("Refreshes both source and destination file lists")
             .keyboardShortcut("r", modifiers: .command)
-            
+
             Divider().frame(height: 20)
-            
+
             Text("\(sourceBrowser.selectedFiles.count + destBrowser.selectedFiles.count) selected")
-                .font(.caption).foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
                 .accessibilityLabel("\(sourceBrowser.selectedFiles.count + destBrowser.selectedFiles.count) files selected")
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
     
     private var transferControls: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacing) {
             Spacer()
-            
+
             Button { transferFromLeftToRight() } label: {
                 Image(systemName: "chevron.right.2").font(.title2)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(sourceBrowser.selectedFiles.isEmpty || selectedDestRemote == nil || transferProgress.isTransferring)
             .accessibilityLabel("Transfer to Right")
             .accessibilityHint("Transfers selected files from source to destination")
@@ -209,7 +213,7 @@ struct TransferView: View {
             } label: {
                 Image(systemName: "arrow.left.arrow.right").font(.caption)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(SecondaryButtonStyle())
             .disabled(transferProgress.isTransferring)
             .accessibilityLabel("Swap Panes")
             .accessibilityHint("Swaps source and destination locations")
@@ -217,28 +221,28 @@ struct TransferView: View {
             Button { transferFromRightToLeft() } label: {
                 Image(systemName: "chevron.left.2").font(.title2)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(destBrowser.selectedFiles.isEmpty || selectedSourceRemote == nil || transferProgress.isTransferring)
             .accessibilityLabel("Transfer to Left")
             .accessibilityHint("Transfers selected files from destination to source")
             .keyboardShortcut(.leftArrow, modifiers: [.command, .shift])
-            
+
             Spacer()
-            
+
             if transferProgress.isTransferring {
                 Button { transferProgress.cancel() } label: {
-                    Label("Cancel", systemImage: "xmark.circle").font(.caption)
+                    Label("Cancel", systemImage: "xmark.circle").font(AppTheme.captionFont)
                 }
                 .buttonStyle(.bordered).tint(.red)
                 .accessibilityLabel("Cancel Transfer")
                 .accessibilityHint("Cancels the current transfer operation")
                 .keyboardShortcut(.escape)
             }
-            
+
             Spacer()
         }
         .frame(width: 80)
-        .padding(.vertical)
+        .padding(.vertical, AppTheme.spacing)
     }
     
     private func transferFromLeftToRight() {
@@ -463,7 +467,10 @@ struct TransferView: View {
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
                                 transferProgress.speed = String(format: "%.2f MB/s", progress.speed)
-                                
+
+                                // Update Dock badge with progress percentage
+                                NotificationManager.shared.updateDockProgress(progress.percentage / 100.0)
+
                                 // Update task progress
                                 task.progress = progress.percentage / 100.0
                                 task.speed = String(format: "%.2f MB/s", progress.speed)
@@ -581,27 +588,48 @@ struct TransferView: View {
             await MainActor.run {
                 // Update final task state
                 task.completedAt = Date()
-                
+
                 // For folders, use the actual file count; otherwise use successCount
                 if hasFolder {
                     task.filesTransferred = totalFileCount
                 } else {
                     task.filesTransferred = successCount
                 }
-                
+
                 task.bytesTransferred = totalSize
                 task.progress = 1.0
-                
+
+                // Clear Dock progress badge
+                NotificationManager.shared.clearDockProgress()
+
                 if errorMessages.isEmpty {
                     // Mark task as completed
                     task.state = .completed
                     tasksVM.updateTask(task)
                     tasksVM.moveToHistory(task)
-                    
+
                     if skipCount > 0 {
                         transferProgress.complete(success: true, message: "\(successCount) transferred, \(skipCount) skipped (already exist)")
                     } else {
                         transferProgress.complete(success: true)
+                    }
+
+                    // Send notification for successful transfer
+                    if files.count == 1 {
+                        // Single file transfer
+                        NotificationManager.shared.sendTransferComplete(
+                            fileName: files[0].name,
+                            destination: to.name,
+                            fileSize: files[0].size
+                        )
+                    } else {
+                        // Batch transfer
+                        NotificationManager.shared.sendBatchComplete(
+                            count: successCount,
+                            destination: to.name,
+                            totalSize: totalSize,
+                            failedCount: 0
+                        )
                     }
                 } else {
                     // Mark task as failed
@@ -610,6 +638,24 @@ struct TransferView: View {
                     tasksVM.updateTask(task)
                     tasksVM.moveToHistory(task)
                     transferProgress.complete(success: false, error: errorMessages.first)
+
+                    // Send notification for failed transfer
+                    if files.count == 1 {
+                        // Single file error
+                        NotificationManager.shared.sendTransferError(
+                            fileName: files[0].name,
+                            error: errorMessages.first ?? "Transfer failed",
+                            isRetryable: true
+                        )
+                    } else {
+                        // Batch transfer with errors
+                        NotificationManager.shared.sendBatchComplete(
+                            count: successCount,
+                            destination: to.name,
+                            totalSize: totalSize,
+                            failedCount: errorMessages.count
+                        )
+                    }
                 }
                 srcBrowser.deselectAll()
                 dstBrowser.refresh()
@@ -733,22 +779,31 @@ class TransferProgressModel: ObservableObject {
 struct TransferProgressBar: View {
     @ObservedObject var progress: TransferProgressModel
     var onCancel: (() -> Void)?
-    
+
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacingS) {
+            HStack(spacing: AppTheme.spacing) {
+                // Status icon with circular background (matching onboarding)
                 ZStack {
-                    Circle().fill(statusColor.opacity(0.15)).frame(width: 40, height: 40)
+                    Circle()
+                        .fill(statusColor.opacity(AppTheme.iconBackgroundOpacity))
+                        .frame(width: AppTheme.iconContainerSmall, height: AppTheme.iconContainerSmall)
                     if progress.isCompleted {
-                        Image(systemName: progress.hasError ? "xmark" : "checkmark").foregroundColor(statusColor)
-                    } else { ProgressView().scaleEffect(0.8) }
+                        Image(systemName: progress.hasError ? "xmark" : "checkmark")
+                            .foregroundColor(statusColor)
+                    } else {
+                        ProgressView().scaleEffect(0.8)
+                    }
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                    HStack(spacing: AppTheme.spacingS) {
                         Text(progress.sourceName).fontWeight(.medium)
-                        Image(systemName: "arrow.right").font(.caption).foregroundColor(.secondary)
+                        Image(systemName: "arrow.right")
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.textSecondary)
                         Text(progress.destName).fontWeight(.medium)
-                        
+
                         // Encryption badge
                         if progress.isEncrypted {
                             HStack(spacing: 3) {
@@ -758,25 +813,36 @@ struct TransferProgressBar: View {
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.15))
-                            .cornerRadius(4)
+                            .background(AppTheme.encryptionColor.opacity(0.15))
+                            .cornerRadius(AppTheme.cornerRadiusSmall)
                         }
-                    }.font(.subheadline)
-                    HStack(spacing: 8) {
-                        Text(progress.statusMessage).font(.caption).foregroundColor(.secondary)
+                    }
+                    .font(AppTheme.subheadlineFont)
+
+                    HStack(spacing: AppTheme.spacingS) {
+                        Text(progress.statusMessage)
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.textSecondary)
                         if !progress.speed.isEmpty && progress.isTransferring {
-                            Text("•").foregroundColor(.secondary)
-                            Text(progress.speed).font(.caption).foregroundColor(.secondary)
+                            Text("*")
+                                .foregroundColor(AppTheme.textSecondary)
+                            Text(progress.speed)
+                                .font(AppTheme.captionFont)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     }
                 }
+
                 Spacer()
-                
-                Text("\(Int(progress.percentage))%").font(.title2).fontWeight(.bold).foregroundColor(statusColor)
-                
+
+                Text("\(Int(progress.percentage))%")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(statusColor)
+
                 // Cancel button
                 if progress.isTransferring && !progress.isCompleted {
                     Button {
@@ -784,22 +850,27 @@ struct TransferProgressBar: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.secondary.opacity(0.8))
+                            .foregroundColor(AppTheme.textSecondary.opacity(0.8))
                     }
                     .buttonStyle(.plain)
                     .help("Cancel transfer")
                 }
             }
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4).fill(Color.secondary.opacity(0.2)).frame(height: 8)
-                    RoundedRectangle(cornerRadius: 4).fill(statusColor)
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusSmall)
+                        .fill(AppTheme.textSecondary.opacity(0.2))
+                        .frame(height: 8)
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusSmall)
+                        .fill(statusColor)
                         .frame(width: geo.size.width * CGFloat(progress.percentage / 100), height: 8)
-                        .animation(.easeInOut(duration: 0.3), value: progress.percentage)
+                        .animation(AppTheme.easeInOut, value: progress.percentage)
                 }
-            }.frame(height: 8)
+            }
+            .frame(height: 8)
         }
-        .padding()
+        .padding(AppTheme.spacing)
         .background(statusColor.opacity(0.05))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Transfer Progress: \(Int(progress.percentage)) percent, \(progress.sourceName) to \(progress.destName)")
@@ -807,10 +878,10 @@ struct TransferProgressBar: View {
     }
 
     private var statusColor: Color {
-        if progress.hasError { return .red }
-        if progress.isCancelled { return .orange }
-        if progress.isCompleted { return .green }
-        return .accentColor
+        if progress.hasError { return AppTheme.errorColor }
+        if progress.isCancelled { return AppTheme.warningColor }
+        if progress.isCompleted { return AppTheme.successColor }
+        return AppTheme.accentColor
     }
 }
 
@@ -820,48 +891,52 @@ struct TransferActiveIndicator: View {
     @ObservedObject var progress: TransferProgressModel
     var onCancel: (() -> Void)?
     var onViewTasks: (() -> Void)?
-    
+
     var body: some View {
-        HStack(spacing: 12) {
-            // Spinning indicator
-            ProgressView()
-                .scaleEffect(0.8)
-            
+        HStack(spacing: AppTheme.spacingM) {
+            // Spinning indicator with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerSmall, height: AppTheme.iconContainerSmall)
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+
             // Status text
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(progress.sourceName) → \(progress.destName)")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                Text("\(progress.sourceName) -> \(progress.destName)")
+                    .font(AppTheme.subheadlineFont)
                     .lineLimit(1)
-                
-                HStack(spacing: 6) {
+
+                HStack(spacing: AppTheme.spacingXS) {
                     Text("\(Int(progress.percentage))%")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(AppTheme.accentColor)
                     if !progress.speed.isEmpty {
-                        Text("•")
-                            .foregroundColor(.secondary)
+                        Text("*")
+                            .foregroundColor(AppTheme.textSecondary)
                         Text(progress.speed)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                     if progress.isEncrypted {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                     }
                 }
-                .font(.caption)
+                .font(AppTheme.captionFont)
             }
-            
+
             Spacer()
-            
+
             // View in Tasks button
             Button {
                 onViewTasks?()
             } label: {
                 Text("View in Tasks")
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(SecondaryButtonStyle())
             .accessibilityLabel("View in Tasks")
             .accessibilityHint("Opens the tasks view to see detailed progress")
 
@@ -870,16 +945,16 @@ struct TransferActiveIndicator: View {
                 onCancel?()
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
             .buttonStyle(.plain)
             .help("Cancel transfer")
             .accessibilityLabel("Cancel Transfer")
             .accessibilityHint("Cancels the current transfer operation")
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color.accentColor.opacity(0.08))
+        .padding(.horizontal, AppTheme.spacing)
+        .padding(.vertical, AppTheme.spacingS)
+        .background(AppTheme.accentColor.opacity(0.08))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Transfer in progress: \(Int(progress.percentage)) percent complete")
     }
@@ -1002,18 +1077,21 @@ struct TransferFileBrowserPane: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel("View Mode")
             }
-            .padding(8).background(Color(NSColor.controlBackgroundColor))
+            .padding(AppTheme.spacingS)
+            .background(AppTheme.controlBackground)
             
             Divider()
             BreadcrumbBar(components: browser.pathComponents, onNavigate: { browser.navigateTo($0) })
             Divider()
             
             HStack {
-                Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                Image(systemName: "magnifyingglass").foregroundColor(AppTheme.textSecondary)
                 TextField("Search files...", text: $browser.searchQuery).textFieldStyle(.plain)
                     .accessibilityLabel("Search Files")
                     .accessibilityHint("Type to filter files in the current folder")
-            }.padding(8).background(Color(NSColor.textBackgroundColor))
+            }
+            .padding(AppTheme.spacingS)
+            .background(Color(NSColor.textBackgroundColor))
             
             Divider()
             
@@ -1029,8 +1107,10 @@ struct TransferFileBrowserPane: View {
                 } else { fileListView }
                 
                 if isDropTarget && isDragging && dragSourceIsLeft != isLeftPane {
-                    RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 3)
-                        .background(Color.accentColor.opacity(0.1)).padding(4)
+                    RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
+                        .stroke(AppTheme.accentColor, lineWidth: 3)
+                        .background(AppTheme.accentColor.opacity(0.1))
+                        .padding(AppTheme.spacingXS)
                 }
             }
             .onDrop(of: [UTType.text], isTargeted: $isDropTarget) { _ in
@@ -1217,20 +1297,24 @@ struct TransferFileBrowserPane: View {
             
             // Page info
             Text(browser.pageInfo)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .padding(.horizontal, AppTheme.spacingS)
+        .padding(.vertical, AppTheme.spacingXS)
+        .background(AppTheme.controlBackground.opacity(0.5))
     }
-    
+
     private var statusBar: some View {
         HStack {
             Text("\(browser.files.count) items")
-            if !browser.selectedFiles.isEmpty { Text("• \(browser.selectedFiles.count) selected") }
+            if !browser.selectedFiles.isEmpty { Text("* \(browser.selectedFiles.count) selected") }
             Spacer()
-        }.font(.caption).foregroundColor(.secondary).padding(8).background(Color(NSColor.controlBackgroundColor))
+        }
+        .font(AppTheme.captionFont)
+        .foregroundColor(AppTheme.textSecondary)
+        .padding(AppTheme.spacingS)
+        .background(AppTheme.controlBackground)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(browser.files.count) items\(browser.selectedFiles.isEmpty ? "" : ", \(browser.selectedFiles.count) selected")")
     }
@@ -1518,37 +1602,59 @@ struct BreadcrumbBar: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppTheme.spacingXS) {
                 ForEach(Array(components.enumerated()), id: \.offset) { index, component in
-                    if index > 0 { Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary) }
+                    if index > 0 {
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundColor(AppTheme.textSecondary)
+                    }
                     Button { onNavigate(component.path) } label: {
-                        Text(component.name).font(.caption).foregroundColor(index == components.count - 1 ? .primary : .accentColor)
-                    }.buttonStyle(.plain)
+                        Text(component.name)
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(index == components.count - 1 ? AppTheme.textPrimary : AppTheme.accentColor)
+                    }
+                    .buttonStyle(.plain)
                     .accessibilityLabel(component.name)
                     .accessibilityHint("Navigate to \(component.name)")
                 }
-            }.padding(.horizontal, 8).padding(.vertical, 6)
-        }.background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+            }
+            .padding(.horizontal, AppTheme.spacingS)
+            .padding(.vertical, AppTheme.spacingXS)
+        }
+        .background(AppTheme.controlBackground.opacity(0.5))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Breadcrumb navigation, current path: \(components.map { $0.name }.joined(separator: ", "))")
     }
 }
 
 struct FileRow: View {
-    let file: FileItem; let isSelected: Bool
+    let file: FileItem
+    let isSelected: Bool
+
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: file.icon).foregroundColor(file.isDirectory ? .accentColor : .secondary).frame(width: 20)
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: AppTheme.spacingM) {
+            Image(systemName: file.icon)
+                .foregroundColor(file.isDirectory ? AppTheme.accentColor : AppTheme.textSecondary)
+                .frame(width: 20)
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                 Text(file.name).lineLimit(1)
-                if !file.isDirectory { Text(file.formattedSize).font(.caption).foregroundColor(.secondary) }
+                if !file.isDirectory {
+                    Text(file.formattedSize)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
+                }
             }
             Spacer()
-            Text(file.formattedDate).font(.caption).foregroundColor(.secondary)
+            Text(file.formattedDate)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
         }
-        .padding(.vertical, 4).padding(.horizontal, 8)
-        .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
-        .cornerRadius(4).contentShape(Rectangle())
+        .padding(.vertical, AppTheme.spacingXS)
+        .padding(.horizontal, AppTheme.spacingS)
+        .background(isSelected ? AppTheme.accentColor.opacity(0.2) : Color.clear)
+        .cornerRadius(AppTheme.cornerRadiusSmall)
+        .contentShape(Rectangle())
     }
 }
 
@@ -1561,17 +1667,25 @@ struct NewFolderDialog: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: AppTheme.spacingL) {
             HStack {
-                Image(systemName: "folder.badge.plus")
-                    .font(.largeTitle)
-                    .foregroundColor(.accentColor)
-                VStack(alignment: .leading, spacing: 4) {
+                // Icon with circular background (matching onboarding)
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                        .frame(width: AppTheme.iconContainerLarge, height: AppTheme.iconContainerLarge)
+
+                    Image(systemName: "folder.badge.plus")
+                        .font(.title)
+                        .foregroundColor(AppTheme.accentColor)
+                }
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                     Text("Create New Folder")
-                        .font(.headline)
+                        .font(AppTheme.headlineFont)
                     Text("Enter a name for the new folder")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
             .accessibilityElement(children: .combine)
@@ -1593,6 +1707,7 @@ struct NewFolderDialog: View {
                 Button("Cancel") {
                     isPresented = false
                 }
+                .buttonStyle(SecondaryButtonStyle())
                 .keyboardShortcut(.cancelAction)
                 .accessibilityLabel("Cancel")
                 .accessibilityHint("Closes the dialog without creating a folder")
@@ -1603,13 +1718,14 @@ struct NewFolderDialog: View {
                     onCreate()
                     isPresented = false
                 }
+                .buttonStyle(PrimaryButtonStyle())
                 .keyboardShortcut(.defaultAction)
                 .disabled(folderName.isEmpty)
                 .accessibilityLabel("Create Folder")
                 .accessibilityHint("Creates the new folder with the entered name")
             }
         }
-        .padding(24)
+        .padding(AppTheme.spacingXL)
         .frame(width: 400)
         .onAppear {
             isFocused = true

@@ -84,10 +84,24 @@
 		9B85615EC4EC33CB802ABFA2 /* HelpSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */; };
 		2CBA14FDB5D8407B9937F012 /* MultiThreadDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */; };
 		0A2F78C6C44A00F629D3291A /* TransferOptimizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */; };
+		5757119078672EE10F29AE66 /* CloudSyncAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FCF855FFAADD6680076AD2 /* CloudSyncAppUITests.swift */; };
+		E93555A9C727135EBF3E404A /* DashboardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660A2D60774D78D930803712 /* DashboardUITests.swift */; };
+		E2F08BCC2D001142749CE7AC /* FileBrowserUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 510FB6414EA9DC91737151EE /* FileBrowserUITests.swift */; };
+		2BA33583EAF6D48486872A43 /* TransferViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913A773063349BA1D4C769F8 /* TransferViewUITests.swift */; };
+		05C65938403FAA1C275F694D /* TasksUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676F55F5D2D0390999318696 /* TasksUITests.swift */; };
+		F380524C70F44E5D037321B3 /* WorkflowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A48BBE0B7CF92DB356AB1FB /* WorkflowUITests.swift */; };
+		1B162F32BC976843C403F875 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		3E90BEDC6EE6C3E2904A4FE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 30;
+			remoteInfo = CloudSyncApp;
+		};
+		625766504D8E451C7F798705 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 40 /* Project object */;
 			proxyType = 1;
@@ -180,6 +194,14 @@
 		A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/HelpSystemTests.swift; sourceTree = SOURCE_ROOT; };
 		AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/MultiThreadDownloadTests.swift; sourceTree = SOURCE_ROOT; };
 		C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/TransferOptimizerTests.swift; sourceTree = SOURCE_ROOT; };
+		29FCF855FFAADD6680076AD2 /* CloudSyncAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncAppUITests.swift; sourceTree = "<group>"; };
+		660A2D60774D78D930803712 /* DashboardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardUITests.swift; sourceTree = "<group>"; };
+		510FB6414EA9DC91737151EE /* FileBrowserUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserUITests.swift; sourceTree = "<group>"; };
+		913A773063349BA1D4C769F8 /* TransferViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferViewUITests.swift; sourceTree = "<group>"; };
+		676F55F5D2D0390999318696 /* TasksUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksUITests.swift; sourceTree = "<group>"; };
+		2A48BBE0B7CF92DB356AB1FB /* WorkflowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowUITests.swift; sourceTree = "<group>"; };
+		E891BD41D0F5C60D16DDE132 /* CloudSyncAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +210,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0E94260E87450DA03C71AC99 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77983C6DB0A84EB5DD9D5ABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				15 /* CloudSyncApp.app */,
+				E891BD41D0F5C60D16DDE132 /* CloudSyncAppUITests.xctest */,
 				6739C5807A749256A49248B5 /* CloudSyncAppTests.xctest */,
 				00BB5A4E18C711CB95D5AE9B /* CloudSyncAppTests.xctest */,
 				EF64D6804F2A00547C7B4675 /* CloudSyncAppTests.xctest */,
@@ -296,6 +326,7 @@
 			isa = PBXGroup;
 			children = (
 				21 /* CloudSyncApp */,
+				D491AC57F3D84A9F2401C18A /* CloudSyncAppUITests */,
 				22 /* Products */,
 				17CE977B1A059C572FBF9159 /* Frameworks */,
 				1BFB43019B5CF02DA3491D14 /* CloudSyncAppTests */,
@@ -364,6 +395,21 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		D491AC57F3D84A9F2401C18A /* CloudSyncAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				29FCF855FFAADD6680076AD2 /* CloudSyncAppUITests.swift */,
+				660A2D60774D78D930803712 /* DashboardUITests.swift */,
+				510FB6414EA9DC91737151EE /* FileBrowserUITests.swift */,
+				913A773063349BA1D4C769F8 /* TransferViewUITests.swift */,
+				676F55F5D2D0390999318696 /* TasksUITests.swift */,
+				2A48BBE0B7CF92DB356AB1FB /* WorkflowUITests.swift */,
+				C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */,
+			);
+
+			path = CloudSyncAppUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -401,6 +447,24 @@
 			productReference = CB0886CF56CD5228242B90F9 /* CloudSyncAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		BB68CAB9B0EE2AA176F0020A /* CloudSyncAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 39F9AFC4CED7FC5348D24177 /* Build configuration list for PBXNativeTarget "CloudSyncAppUITests" */;
+			buildPhases = (
+				D3A5C5B5CA502EF5B6588D7C /* Sources */,
+				77983C6DB0A84EB5DD9D5ABA /* Frameworks */,
+				797891FD431141EDB8D36925 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ACE786FD49EEF7515F970741 /* PBXTargetDependency */,
+			);
+			name = CloudSyncAppUITests;
+			productName = CloudSyncAppUITests;
+			productReference = E891BD41D0F5C60D16DDE132 /* CloudSyncAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -426,6 +490,7 @@
 			targets = (
 				30 /* CloudSyncApp */,
 				55F640B72D68E056E66DC19C /* CloudSyncAppTests */,
+				BB68CAB9B0EE2AA176F0020A /* CloudSyncAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -440,6 +505,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9DCE1A563E831DC01221A77B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		797891FD431141EDB8D36925 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -537,6 +609,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3A5C5B5CA502EF5B6588D7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5757119078672EE10F29AE66 /* CloudSyncAppUITests.swift in Sources */,
+				E93555A9C727135EBF3E404A /* DashboardUITests.swift in Sources */,
+				E2F08BCC2D001142749CE7AC /* FileBrowserUITests.swift in Sources */,
+				2BA33583EAF6D48486872A43 /* TransferViewUITests.swift in Sources */,
+				05C65938403FAA1C275F694D /* TasksUITests.swift in Sources */,
+				F380524C70F44E5D037321B3 /* WorkflowUITests.swift in Sources */,
+				1B162F32BC976843C403F875 /* SettingsUITests.swift in Sources */,
+			);
+
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -545,6 +632,11 @@
 			name = CloudSyncApp;
 			target = 30 /* CloudSyncApp */;
 			targetProxy = 3E90BEDC6EE6C3E2904A4FE8 /* PBXContainerItemProxy */;
+		};
+		ACE786FD49EEF7515F970741 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 30 /* CloudSyncApp */;
+			targetProxy = 625766504D8E451C7F798705 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -662,6 +754,51 @@
 			};
 			name = Debug;
 		};
+		9EBAD9FC473F0B54CA7FDE85 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				EXPANDED_CODE_SIGN_IDENTITY = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.CloudSyncAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = CloudSyncApp;
+			};
+			name = Debug;
+		};
+		C0590D45369D30BD1473F251 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.CloudSyncAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = CloudSyncApp;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -688,6 +825,15 @@
 			buildConfigurations = (
 				50 /* Debug */,
 				51 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		39F9AFC4CED7FC5348D24177 /* Build configuration list for PBXNativeTarget "CloudSyncAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EBAD9FC473F0B54CA7FDE85 /* Debug */,
+				C0590D45369D30BD1473F251 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

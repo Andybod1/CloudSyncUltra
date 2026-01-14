@@ -3,6 +3,7 @@
 //  CloudSyncApp
 //
 //  Redesigned settings with modern UI
+//  Styled to match onboarding experience with AppTheme design tokens
 //
 
 import SwiftUI
@@ -40,10 +41,10 @@ struct SettingsView: View {
 
             Text("CloudSync Ultra v2.0")
                 .font(.footnote)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 20)
-                .padding(.bottom, 12)
+                .padding(.top, AppTheme.spacingL)
+                .padding(.bottom, AppTheme.spacingM)
         }
         .frame(width: 600, height: 580)
     }
@@ -54,13 +55,14 @@ struct SettingsView: View {
 struct GeneralSettingsView: View {
     @AppStorage("launchAtLogin") private var launchAtLogin = false
     @AppStorage("showDockIcon") private var showDockIcon = false
-    @AppStorage("showNotifications") private var showNotifications = true
-    @AppStorage("soundEffects") private var soundEffects = true
     @AppStorage("use24HourTime") private var use24HourTime = false
     @AppStorage("bandwidthLimitEnabled") private var bandwidthEnabled = false
     @AppStorage("uploadLimit") private var uploadLimit: Double = 0
     @AppStorage("downloadLimit") private var downloadLimit: Double = 0
-    
+
+    // NotificationManager bindings
+    @ObservedObject private var notificationManager = NotificationManager.shared
+
     var body: some View {
         Form {
             Section {
@@ -72,10 +74,66 @@ struct GeneralSettingsView: View {
             } header: {
                 Label("Startup", systemImage: "power")
             }
-            
+
             Section {
-                Toggle("Show Notifications", isOn: $showNotifications)
-                Toggle("Sound Effects", isOn: $soundEffects)
+                Toggle("Show Notifications", isOn: $notificationManager.notificationsEnabled)
+                    .accessibilityLabel("Show Notifications")
+                    .accessibilityHint("When enabled, shows macOS notifications for transfer completion and errors")
+
+                Toggle("Notification Sounds", isOn: $notificationManager.soundEnabled)
+                    .disabled(!notificationManager.notificationsEnabled)
+                    .accessibilityLabel("Notification Sounds")
+                    .accessibilityHint("When enabled, plays sound effects with notifications")
+
+                Toggle("Dock Badge Progress", isOn: $notificationManager.dockProgressEnabled)
+                    .accessibilityLabel("Dock Badge Progress")
+                    .accessibilityHint("When enabled, shows transfer progress percentage on the Dock icon")
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Test Notification")
+                        Text("Send a test notification to verify settings")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Send Test") {
+                        notificationManager.sendTestNotification()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!notificationManager.notificationsEnabled || !notificationManager.permissionGranted)
+                    .accessibilityLabel("Send Test Notification")
+                    .accessibilityHint("Sends a test notification to verify your notification settings are working")
+                }
+
+                // Permission status indicator
+                if !notificationManager.permissionGranted {
+                    HStack(spacing: AppTheme.spacingS) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(AppTheme.warningColor)
+                        VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                            Text("Notification Permission Required")
+                                .font(AppTheme.captionFont)
+                                .fontWeight(.medium)
+                            Text("Open System Settings to enable notifications for CloudSync Ultra")
+                                .font(.caption2)
+                                .foregroundColor(AppTheme.textSecondary)
+                        }
+                        Spacer()
+                        Button("Open Settings") {
+                            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .controlSize(.small)
+                        .accessibilityLabel("Open Notification Settings")
+                        .accessibilityHint("Opens System Settings to the Notifications panel")
+                    }
+                    .padding(AppTheme.spacingS)
+                    .background(AppTheme.warningColor.opacity(0.1))
+                    .cornerRadius(AppTheme.cornerRadius)
+                }
             } header: {
                 Label("Notifications", systemImage: "bell")
             }
@@ -88,13 +146,13 @@ struct GeneralSettingsView: View {
 
             // Bandwidth Settings Section
             GroupBox {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: AppTheme.spacing) {
                     HStack {
                         Image(systemName: "speedometer")
                             .font(.title2)
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppTheme.infoColor)
                         Text("Bandwidth Limits")
-                            .font(.headline)
+                            .font(AppTheme.headlineFont)
                         Spacer()
                         Toggle("", isOn: $bandwidthEnabled)
                             .toggleStyle(.switch)
@@ -103,63 +161,63 @@ struct GeneralSettingsView: View {
                     if bandwidthEnabled {
                         Divider()
 
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: AppTheme.spacingM) {
                             // Upload limit
                             HStack {
                                 Image(systemName: "arrow.up.circle")
-                                    .foregroundColor(.green)
+                                    .foregroundColor(AppTheme.successColor)
                                 Text("Upload limit:")
                                 Spacer()
                                 TextField("", value: $uploadLimit, format: .number)
                                     .textFieldStyle(.roundedBorder)
                                     .frame(width: 80)
                                 Text("MB/s")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                             }
 
                             // Download limit
                             HStack {
                                 Image(systemName: "arrow.down.circle")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(AppTheme.infoColor)
                                 Text("Download limit:")
                                 Spacer()
                                 TextField("", value: $downloadLimit, format: .number)
                                     .textFieldStyle(.roundedBorder)
                                     .frame(width: 80)
                                 Text("MB/s")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                             }
 
                             // Quick presets
                             HStack {
                                 Text("Presets:")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.textSecondary)
                                 Spacer()
                                 ForEach([1, 5, 10, 50], id: \.self) { speed in
                                     Button("\(speed)") {
                                         uploadLimit = Double(speed)
                                         downloadLimit = Double(speed)
                                     }
-                                    .buttonStyle(.bordered)
+                                    .buttonStyle(SecondaryButtonStyle())
                                     .accessibilityLabel("\(speed) MB per second")
                                     .accessibilityHint("Sets both upload and download limits to \(speed) MB per second")
                                 }
-                                Button("∞") {
+                                Button("inf") {
                                     uploadLimit = 0
                                     downloadLimit = 0
                                 }
-                                .buttonStyle(.bordered)
+                                .buttonStyle(SecondaryButtonStyle())
                                 .accessibilityLabel("Unlimited")
                                 .accessibilityHint("Removes bandwidth limits")
                             }
 
-                            Text("Set to 0 or use ∞ for unlimited speed")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            Text("Set to 0 or use inf for unlimited speed")
+                                .font(AppTheme.captionFont)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     }
                 }
-                .padding()
+                .padding(AppTheme.spacing)
             }
 
             Section {
@@ -498,18 +556,25 @@ struct AccountSettingsView: View {
             if let remote = selectedRemote {
                 RemoteDetailView(remote: remote)
             } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "cloud")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
-                    
+                VStack(spacing: AppTheme.spacing) {
+                    // Icon with circular background (matching onboarding)
+                    ZStack {
+                        Circle()
+                            .fill(AppTheme.textSecondary.opacity(AppTheme.iconBackgroundOpacity))
+                            .frame(width: AppTheme.iconContainerLarge * 1.5, height: AppTheme.iconContainerLarge * 1.5)
+
+                        Image(systemName: "cloud")
+                            .font(.system(size: 48))
+                            .foregroundColor(AppTheme.textSecondary)
+                    }
+
                     Text("Select a cloud service")
-                        .foregroundColor(.secondary)
-                    
+                        .foregroundColor(AppTheme.textSecondary)
+
                     Button("Add Cloud Storage") {
                         showAddSheet = true
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryButtonStyle())
                     .accessibilityLabel("Add Cloud Storage")
                     .accessibilityHint("Opens a sheet to add a new cloud storage provider")
                     .keyboardShortcut("n", modifiers: .command)
@@ -551,42 +616,41 @@ struct RemoteDetailView: View {
     @State private var isConfiguring = false
     @State private var errorMessage: String?
     @State private var showProtonSetup = false
-    
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXL) {
+                // Header with circular icon background (matching onboarding)
+                HStack(spacing: AppTheme.spacing) {
                     ZStack {
                         Circle()
-                            .fill(remote.displayColor.opacity(0.15))
-                            .frame(width: 64, height: 64)
-                        
+                            .fill(remote.displayColor.opacity(AppTheme.iconBackgroundOpacity))
+                            .frame(width: AppTheme.iconContainerLarge, height: AppTheme.iconContainerLarge)
+
                         Image(systemName: remote.displayIcon)
                             .font(.system(size: 28))
                             .foregroundColor(remote.displayColor)
                     }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
+
+                    VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                         Text(remote.name)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        
-                        HStack(spacing: 4) {
+                            .font(AppTheme.title2Font)
+
+                        HStack(spacing: AppTheme.spacingXS) {
                             Circle()
-                                .fill(remote.isConfigured ? Color.green : Color.orange)
+                                .fill(remote.isConfigured ? AppTheme.successColor : AppTheme.warningColor)
                                 .frame(width: 8, height: 8)
-                            
+
                             Text(remote.isConfigured ? "Connected" : "Not configured")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.textSecondary)
                         }
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 Divider()
-                
+
                 // Configuration
                 if remote.isConfigured {
                     connectedView
@@ -594,41 +658,41 @@ struct RemoteDetailView: View {
                     configurationForm
                 }
             }
-            .padding()
+            .padding(AppTheme.spacing)
         }
     }
     
     private var connectedView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: AppTheme.spacing) {
             GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: AppTheme.spacingM) {
                     HStack {
                         Text("Status")
                         Spacer()
                         Text("Connected")
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.successColor)
                     }
-                    
+
                     if remote.isEncrypted {
                         HStack {
                             Text("Encryption")
                             Spacer()
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppTheme.spacingXS) {
                                 Image(systemName: "lock.fill")
                                 Text("Enabled")
                             }
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                         }
                     }
                 }
-                .padding(8)
+                .padding(AppTheme.spacingS)
             }
-            
+
             HStack {
                 Button("Test Connection") {
                     // Test
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .accessibilityLabel("Test Connection")
                 .accessibilityHint("Tests connectivity to the cloud service")
 
@@ -637,7 +701,7 @@ struct RemoteDetailView: View {
                 Button("Disconnect") {
                     disconnect()
                 }
-                .foregroundColor(.red)
+                .foregroundColor(AppTheme.errorColor)
                 .accessibilityLabel("Disconnect")
                 .accessibilityHint("Disconnects from this cloud service")
             }
@@ -1285,56 +1349,49 @@ struct EncryptionSettingsView: View {
 
 struct AboutView: View {
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: AppTheme.spacingXL) {
             Spacer()
-            
-            // Logo
+
+            // Logo with onboarding gradient
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(hex: "6366F1"), Color(hex: "8B5CF6")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(AppTheme.primaryGradient)
                     .frame(width: 100, height: 100)
-                
+
                 Image(systemName: "cloud.fill")
                     .font(.system(size: 44))
                     .foregroundColor(.white)
             }
-            
-            VStack(spacing: 8) {
+
+            VStack(spacing: AppTheme.spacingS) {
                 Text("CloudSync Ultra")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
+                    .font(AppTheme.titleFont)
+
                 Text("Version 2.0.0")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             Text("The ultimate cloud backup and sync solution")
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             // Features
-            HStack(spacing: 32) {
+            HStack(spacing: AppTheme.spacingXL) {
                 featureItem(icon: "arrow.triangle.2.circlepath", title: "Sync")
                 featureItem(icon: "arrow.left.arrow.right", title: "Transfer")
                 featureItem(icon: "lock.shield", title: "Encrypt")
                 featureItem(icon: "externaldrive.fill.badge.timemachine", title: "Backup")
             }
-            
+
             Divider()
                 .frame(width: 200)
-            
-            VStack(spacing: 8) {
+
+            VStack(spacing: AppTheme.spacingS) {
                 Text("Powered by rclone")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                HStack(spacing: 16) {
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
+
+                HStack(spacing: AppTheme.spacing) {
                     Link("Website", destination: URL(string: "https://rclone.org")!)
                         .accessibilityLabel("rclone Website")
                         .accessibilityHint("Opens the rclone website in your browser")
@@ -1342,26 +1399,33 @@ struct AboutView: View {
                         .accessibilityLabel("rclone Documentation")
                         .accessibilityHint("Opens the rclone documentation in your browser")
                 }
-                .font(.caption)
+                .font(AppTheme.captionFont)
             }
-            
+
             Spacer()
-            
-            Text("© 2026 CloudSync Ultra. All rights reserved.")
+
+            Text("(c) 2026 CloudSync Ultra. All rights reserved.")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
-    
+
     private func featureItem(icon: String, title: String) -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.accentColor)
+        VStack(spacing: AppTheme.spacingS) {
+            // Icon with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(AppTheme.accentColor)
+            }
             Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
         }
     }
 }

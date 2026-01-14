@@ -3,6 +3,7 @@
 //  CloudSyncApp
 //
 //  Main dashboard with overview cards and quick actions
+//  Styled to match onboarding experience with AppTheme design tokens
 //
 
 import SwiftUI
@@ -11,14 +12,14 @@ struct DashboardView: View {
     @EnvironmentObject var syncManager: SyncManager
     @EnvironmentObject var remotesVM: RemotesViewModel
     @EnvironmentObject var tasksVM: TasksViewModel
-    
+
     @State private var showAddRemote = false
     @State private var remoteToConnect: CloudRemote?
     @State private var selectedRemoteToOpen: CloudRemote?
-    
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: AppTheme.spacingL) {
                 // Header
                 headerSection
                     .accessibilityElement(children: .combine)
@@ -43,9 +44,9 @@ struct DashboardView: View {
                     .accessibilityElement(children: .contain)
                     .accessibilityLabel("Quick Actions")
             }
-            .padding(24)
+            .padding(AppTheme.spacingL)
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.windowBackground)
         .navigationTitle("Dashboard")
         .sheet(isPresented: $showAddRemote) {
             AddRemoteSheet(onRemoteAdded: { remote in
@@ -58,20 +59,19 @@ struct DashboardView: View {
     }
     
     // MARK: - Header
-    
+
     private var headerSection: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                 Text("Welcome to CloudSync Ultra")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
+                    .font(AppTheme.largeTitleFont)
+
                 Text("Manage your cloud storage and sync files seamlessly")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             Spacer()
-            
+
             // Sync Status Indicator
             SyncStatusBadge(status: syncManager.syncStatus)
         }
@@ -384,54 +384,67 @@ struct StatCard: View {
     let icon: String
     let color: Color
     var action: (() -> Void)?
-    
+
     @State private var isHovered = false
-    
+
     var body: some View {
         Button {
             action?()
         } label: {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingM) {
                 HStack {
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundColor(color)
-                    
+                    // Icon with circular background (matching onboarding FeatureCard)
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(AppTheme.iconBackgroundOpacity))
+                            .frame(width: AppTheme.iconContainerSmall, height: AppTheme.iconContainerSmall)
+
+                        Image(systemName: icon)
+                            .font(.title3)
+                            .foregroundColor(color)
+                    }
+
                     Spacer()
-                    
+
                     if action != nil {
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                             .opacity(isHovered ? 1 : 0.5)
                     }
                 }
-                
-                VStack(alignment: .leading, spacing: 4) {
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                     Text(value)
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(color)
-                    
+
                     Text(subtitle)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
-            .padding()
+            .padding(AppTheme.spacing)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: AppDimensions.cornerRadius)
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
                     .fill(isHovered && action != nil ? color.opacity(0.15) : color.opacity(0.1))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppDimensions.cornerRadius)
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
                     .stroke(isHovered && action != nil ? color.opacity(0.3) : Color.clear, lineWidth: 1)
+            )
+            .shadow(
+                color: isHovered && action != nil ? AppTheme.cardShadowColor : Color.clear,
+                radius: AppTheme.cardShadowRadius / 2,
+                y: AppTheme.cardShadowY / 2
             )
         }
         .buttonStyle(.plain)
         .disabled(action == nil)
+        .scaleEffect(isHovered && action != nil ? AppTheme.hoverScale : 1.0)
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
+            withAnimation(AppTheme.easeInOut) {
                 isHovered = hovering
             }
         }
@@ -580,47 +593,53 @@ struct QuickActionButton: View {
     let subtitle: String
     let color: Color
     let action: () -> Void
-    
+
     @State private var isHovered = false
-    
+
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 12) {
+            VStack(spacing: AppTheme.spacingM) {
+                // Icon with circular background (matching onboarding FeatureCard)
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    
+                        .fill(color.opacity(AppTheme.iconBackgroundOpacity))
+                        .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+
                     Image(systemName: icon)
                         .font(.title2)
                         .foregroundColor(color)
                 }
-                
-                VStack(spacing: 4) {
+
+                VStack(spacing: AppTheme.spacingXS) {
                     Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                    
+                        .font(AppTheme.subheadlineFont)
+                        .foregroundColor(AppTheme.textPrimary)
+
                     Text(subtitle)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding()
+            .padding(AppTheme.spacing)
             .background(
-                RoundedRectangle(cornerRadius: AppDimensions.cornerRadius)
-                    .fill(isHovered ? Color(NSColor.selectedControlColor).opacity(0.3) : Color(NSColor.controlBackgroundColor))
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
+                    .fill(isHovered ? Color(NSColor.selectedControlColor).opacity(0.3) : AppTheme.controlBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppDimensions.cornerRadius)
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
                     .stroke(isHovered ? color.opacity(0.5) : Color.clear, lineWidth: 1)
+            )
+            .shadow(
+                color: isHovered ? AppTheme.cardShadowColor : Color.clear,
+                radius: AppTheme.cardShadowRadius / 2,
+                y: AppTheme.cardShadowY / 2
             )
         }
         .buttonStyle(.plain)
+        .scaleEffect(isHovered ? AppTheme.hoverScale : 1.0)
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
+            withAnimation(AppTheme.easeInOut) {
                 isHovered = hovering
             }
         }

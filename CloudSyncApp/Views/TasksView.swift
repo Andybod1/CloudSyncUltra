@@ -3,6 +3,7 @@
 //  CloudSyncApp
 //
 //  Active and scheduled tasks management
+//  Styled to match onboarding experience with AppTheme design tokens
 //
 
 import SwiftUI
@@ -55,7 +56,7 @@ struct TasksView: View {
                 emptyState
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.windowBackground)
         .navigationTitle("Tasks")
         .sheet(isPresented: $showNewTaskSheet) {
             NewTaskSheet()
@@ -67,58 +68,64 @@ struct TasksView: View {
     
     private var taskHeader: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
                 Text("Tasks")
-                    .font(.headline)
-                
+                    .font(AppTheme.headlineFont)
+
                 let activeCount = tasksVM.tasks.count
                 let runningCount = tasksVM.runningTasksCount
                 let recentCount = recentlyCompleted.count
-                
+
                 if activeCount > 0 || recentCount > 0 {
-                    Text("\(activeCount) active • \(runningCount) running • \(recentCount) recent")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Text("\(activeCount) active * \(runningCount) running * \(recentCount) recent")
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 } else {
                     Text("No active tasks")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
-            
+
             Spacer()
-            
+
             Button {
                 showNewTaskSheet = true
             } label: {
                 Label("New Task", systemImage: "plus")
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PrimaryButtonStyle())
             .accessibilityLabel("New Task")
             .accessibilityHint("Create a new sync, transfer, or backup task")
             .keyboardShortcut("n", modifiers: .command)
         }
-        .padding()
+        .padding(AppTheme.spacing)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Tasks Header")
     }
     
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacing) {
             Spacer()
-            
-            Image(systemName: "list.bullet.clipboard")
-                .font(.system(size: 64))
-                .foregroundColor(.secondary.opacity(0.5))
-            
+
+            // Icon with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.textSecondary.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerLarge * 1.5, height: AppTheme.iconContainerLarge * 1.5)
+
+                Image(systemName: "list.bullet.clipboard")
+                    .font(.system(size: 48))
+                    .foregroundColor(AppTheme.textSecondary.opacity(0.5))
+            }
+
             Text("No Active Tasks")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
+                .font(AppTheme.title2Font)
+
             Text("Create a new sync, transfer, or backup task to get started")
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             Button {
                 showNewTaskSheet = true
             } label: {
@@ -127,28 +134,27 @@ struct TasksView: View {
             .buttonStyle(PrimaryButtonStyle())
             .accessibilityLabel("Create Task")
             .accessibilityHint("Opens a sheet to create a new task")
-            
+
             Spacer()
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
     
     private var taskList: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: AppTheme.spacing) {
                 // Active Tasks Section
                 if !tasksVM.tasks.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: AppTheme.spacingM) {
                         HStack {
                             Image(systemName: "bolt.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(AppTheme.infoColor)
                             Text("Active")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                                .font(AppTheme.subheadlineFont)
                             Spacer()
                         }
-                        .padding(.horizontal)
-                        
+                        .padding(.horizontal, AppTheme.spacing)
+
                         ForEach(tasksVM.tasks) { task in
                             TaskCard(task: task) {
                                 selectedTask = task
@@ -159,41 +165,40 @@ struct TasksView: View {
                             } onCancel: {
                                 tasksVM.cancelTask(task)
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, AppTheme.spacing)
                         }
                     }
                 }
-                
+
                 // Recently Completed Section
                 if !recentlyCompleted.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: AppTheme.spacingM) {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
+                                .foregroundColor(AppTheme.successColor)
                             Text("Recently Completed")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                                .font(AppTheme.subheadlineFont)
                             Spacer()
-                            
+
                             NavigationLink {
                                 HistoryView()
                             } label: {
                                 Text("View All History")
-                                    .font(.caption)
+                                    .font(AppTheme.captionFont)
                             }
                         }
-                        .padding(.horizontal)
-                        
+                        .padding(.horizontal, AppTheme.spacing)
+
                         ForEach(recentlyCompleted) { task in
                             RecentTaskCard(task: task) {
                                 selectedTask = task
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, AppTheme.spacing)
                         }
                     }
                 }
             }
-            .padding(.vertical)
+            .padding(.vertical, AppTheme.spacing)
         }
     }
 }
@@ -222,55 +227,55 @@ struct RecentTaskCard: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppTheme.spacingM) {
             // Enhanced status icon
             statusIcon(for: task)
                 .font(.title3)
-            
+
             // Task info
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                HStack(spacing: AppTheme.spacingXS) {
                     Text(task.name)
                         .fontWeight(.medium)
                         .lineLimit(1)
-                    
+
                     if task.hasEncryption {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                     }
                 }
-                
-                HStack(spacing: 4) {
+
+                HStack(spacing: AppTheme.spacingXS) {
                     Text(task.sourceRemote)
                     Image(systemName: "arrow.right")
                         .font(.caption2)
                     Text(task.destinationRemote)
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             Spacer()
-            
+
             // Stats
-            VStack(alignment: .trailing, spacing: 2) {
+            VStack(alignment: .trailing, spacing: AppTheme.spacingXS) {
                 Text(task.formattedBytesTransferred)
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
                     .fontWeight(.medium)
 
                 if let completed = task.completedAt {
                     Text(formatCompletionTime(completed))
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                 }
             }
         }
-        .padding(12)
+        .padding(AppTheme.spacingM)
         .background(cardBackground)
-        .cornerRadius(8)
+        .cornerRadius(AppTheme.cornerRadius)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadius)
                 .strokeBorder(cardBorder, lineWidth: 1)
         )
         .onTapGesture(perform: onTap)
@@ -287,32 +292,32 @@ struct RecentTaskCard: View {
         switch task.state {
         case .completed:
             Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
+                .foregroundStyle(AppTheme.successColor)
         case .failed:
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(AppTheme.errorColor)
         case .cancelled:
             Image(systemName: "stop.circle.fill")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.textSecondary)
         default:
             Image(systemName: "clock.fill")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.textSecondary)
         }
     }
 
     private var cardBackground: Color {
         switch task.state {
         case .failed:
-            return Color.red.opacity(0.05)
+            return AppTheme.errorColor.opacity(0.05)
         default:
-            return Color(NSColor.controlBackgroundColor).opacity(0.5)
+            return AppTheme.controlBackground.opacity(0.5)
         }
     }
 
     private var cardBorder: Color {
         switch task.state {
         case .failed:
-            return .red.opacity(0.3)
+            return AppTheme.errorColor.opacity(0.3)
         default:
             return Color.gray.opacity(0.2)
         }
@@ -327,20 +332,20 @@ struct TaskCard: View {
     let onStart: () -> Void
     let onPause: () -> Void
     let onCancel: () -> Void
-    
+
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: AppTheme.spacingM) {
             // Header
             HStack {
                 statusIcon(for: task)
                     .font(.title2)
                     .frame(width: 32)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                    HStack(spacing: AppTheme.spacingXS) {
                         Text(task.name)
-                            .font(.headline)
-                        
+                            .font(AppTheme.headlineFont)
+
                         // Encryption badge
                         if task.hasEncryption {
                             HStack(spacing: 2) {
@@ -350,57 +355,57 @@ struct TaskCard: View {
                                     .font(.caption2)
                                     .fontWeight(.semibold)
                             }
-                            .foregroundColor(.green)
-                            .padding(.horizontal, 6)
+                            .foregroundColor(AppTheme.encryptionColor)
+                            .padding(.horizontal, AppTheme.spacingXS)
                             .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.15))
-                            .cornerRadius(4)
+                            .background(AppTheme.encryptionColor.opacity(0.15))
+                            .cornerRadius(AppTheme.cornerRadiusSmall)
                         }
                     }
-                    
-                    HStack(spacing: 4) {
+
+                    HStack(spacing: AppTheme.spacingXS) {
                         // Source with encryption indicator
                         HStack(spacing: 2) {
                             if task.encryptSource {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 8))
-                                    .foregroundColor(.green)
+                                    .foregroundColor(AppTheme.encryptionColor)
                             }
                             Text(task.sourceRemote)
                         }
-                        
+
                         Image(systemName: "arrow.right")
-                            .font(.caption)
-                        
+                            .font(AppTheme.captionFont)
+
                         // Destination with encryption indicator
                         HStack(spacing: 2) {
                             if task.encryptDestination {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 8))
-                                    .foregroundColor(.green)
+                                    .foregroundColor(AppTheme.encryptionColor)
                             }
                             Text(task.destinationRemote)
                         }
                     }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 // Status Badge
                 TaskStatusBadge(state: task.state)
-                
+
                 // Actions
                 taskActions
             }
-            
+
             // Progress
             if task.state == .running {
-                VStack(spacing: 8) {
+                VStack(spacing: AppTheme.spacingS) {
                     ProgressView(value: task.progress)
                         .progressViewStyle(.linear)
-                    
+
                     HStack {
                         Text(task.formattedProgress)
                         Spacer()
@@ -411,15 +416,15 @@ struct TaskCard: View {
                             Text("ETA: \(task.eta)")
                         }
                     }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
                 }
             }
-            
+
             // Details
             if task.state == .running || task.totalFiles > 0 {
                 Divider()
-                
+
                 HStack {
                     Label(task.formattedFilesTransferred, systemImage: "doc.fill")
                     Spacer()
@@ -427,18 +432,18 @@ struct TaskCard: View {
                     Spacer()
                     Label(task.formattedDuration, systemImage: "clock")
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             // Enhanced error display
             if task.state == .failed {
                 errorDisplay(for: task)
             }
         }
-        .padding()
-        .background(Color(NSColor.controlBackgroundColor))
-        .cornerRadius(AppDimensions.cornerRadius)
+        .padding(AppTheme.spacing)
+        .background(AppTheme.controlBackground)
+        .cornerRadius(AppTheme.cornerRadius)
         .onTapGesture(perform: onTap)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Task: \(task.name), \(task.state.rawValue)")
@@ -446,13 +451,13 @@ struct TaskCard: View {
     }
 
     private var taskActions: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: AppTheme.spacingS) {
             switch task.state {
             case .pending:
                 Button(action: onStart) {
                     Image(systemName: "play.fill")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .accessibilityLabel("Start Task")
                 .accessibilityHint("Starts this task")
 
@@ -460,7 +465,7 @@ struct TaskCard: View {
                 Button(action: onPause) {
                     Image(systemName: "pause.fill")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .accessibilityLabel("Pause Task")
                 .accessibilityHint("Pauses this task")
 
@@ -468,17 +473,17 @@ struct TaskCard: View {
                 Button(action: onStart) {
                     Image(systemName: "play.fill")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .accessibilityLabel("Resume Task")
                 .accessibilityHint("Resumes this paused task")
 
             case .failed:
-                // Show retry button for failed tasks (temporary - will be enhanced when Dev-3 completes model)
+                // Show retry button for failed tasks
                 Button(action: { retryTask(task) }) {
                     Label("Retry", systemImage: "arrow.clockwise")
-                        .font(.caption.weight(.medium))
+                        .font(AppTheme.captionFont.weight(.medium))
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .controlSize(.small)
                 .accessibilityLabel("Retry Task")
                 .accessibilityHint("Retries this failed task")
@@ -492,21 +497,21 @@ struct TaskCard: View {
                     Image(systemName: "xmark")
                 }
                 .buttonStyle(.bordered)
-                .foregroundColor(.red)
+                .foregroundColor(AppTheme.errorColor)
                 .accessibilityLabel("Cancel Task")
                 .accessibilityHint("Cancels this task")
             }
         }
     }
-    
+
     private var statusColor: Color {
         switch task.state {
-        case .pending: return .gray
-        case .running: return .blue
-        case .completed: return .green
-        case .failed: return .red
-        case .paused: return .orange
-        case .cancelled: return .gray
+        case .pending: return AppTheme.textSecondary
+        case .running: return AppTheme.infoColor
+        case .completed: return AppTheme.successColor
+        case .failed: return AppTheme.errorColor
+        case .paused: return AppTheme.warningColor
+        case .cancelled: return AppTheme.textSecondary
         }
     }
 
@@ -514,37 +519,37 @@ struct TaskCard: View {
 
     @ViewBuilder
     private func errorDisplay(for task: SyncTask) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: AppTheme.spacingS) {
             // Error message
             if let errorMessage = task.errorMessage {
-                HStack(spacing: 8) {
+                HStack(spacing: AppTheme.spacingS) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.errorColor)
 
                     Text(errorMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
                         .multilineTextAlignment(.leading)
                 }
             }
 
             // Action buttons row
-            HStack(spacing: 12) {
+            HStack(spacing: AppTheme.spacingM) {
                 // Details button
                 Button(action: { showTaskDetails(task) }) {
                     Label("Details", systemImage: "info.circle")
-                        .font(.caption.weight(.medium))
+                        .font(AppTheme.captionFont.weight(.medium))
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .controlSize(.small)
             }
         }
-        .padding(8)
-        .background(Color.red.opacity(0.05))
-        .cornerRadius(6)
+        .padding(AppTheme.spacingS)
+        .background(AppTheme.errorColor.opacity(0.05))
+        .cornerRadius(AppTheme.cornerRadiusSmall)
         .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .strokeBorder(.red.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusSmall)
+                .strokeBorder(AppTheme.errorColor.opacity(0.3), lineWidth: 1)
         )
     }
 
@@ -555,22 +560,22 @@ struct TaskCard: View {
         switch task.state {
         case .completed:
             Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
+                .foregroundStyle(AppTheme.successColor)
         case .failed:
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(AppTheme.errorColor)
         case .running:
             ProgressView()
                 .controlSize(.small)
         case .pending:
             Image(systemName: "clock.fill")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.textSecondary)
         case .paused:
             Image(systemName: "pause.circle.fill")
-                .foregroundStyle(.orange)
+                .foregroundStyle(AppTheme.warningColor)
         case .cancelled:
             Image(systemName: "stop.circle.fill")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.textSecondary)
         }
     }
 
@@ -591,27 +596,27 @@ struct TaskCard: View {
 
 struct TaskStatusBadge: View {
     let state: TaskState
-    
+
     var body: some View {
         Text(state.rawValue)
-            .font(.caption)
+            .font(AppTheme.captionFont)
             .fontWeight(.medium)
             .foregroundColor(color)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.horizontal, AppTheme.spacingS)
+            .padding(.vertical, AppTheme.spacingXS)
             .background(color.opacity(0.15))
-            .cornerRadius(4)
+            .cornerRadius(AppTheme.cornerRadiusSmall)
             .accessibilityLabel("Status: \(state.rawValue)")
     }
 
     private var color: Color {
         switch state {
-        case .pending: return .gray
-        case .running: return .blue
-        case .completed: return .green
-        case .failed: return .red
-        case .paused: return .orange
-        case .cancelled: return .gray
+        case .pending: return AppTheme.textSecondary
+        case .running: return AppTheme.infoColor
+        case .completed: return AppTheme.successColor
+        case .failed: return AppTheme.errorColor
+        case .paused: return AppTheme.warningColor
+        case .cancelled: return AppTheme.textSecondary
         }
     }
 }
@@ -1174,72 +1179,72 @@ struct LogRow: View {
 struct RunningTaskIndicator: View {
     let task: SyncTask
     var onCancel: (() -> Void)?
-    
+
     var body: some View {
-        HStack(spacing: 12) {
-            // Spinning indicator
+        HStack(spacing: AppTheme.spacingM) {
+            // Spinning indicator with circular background (matching onboarding)
             ZStack {
                 Circle()
-                    .fill(Color.accentColor.opacity(0.15))
-                    .frame(width: 40, height: 40)
+                    .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerSmall, height: AppTheme.iconContainerSmall)
                 ProgressView()
                     .scaleEffect(0.8)
             }
-            
+
             // Status text
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                HStack(spacing: AppTheme.spacingS) {
                     Text(task.formattedFilesProgress)
                         .fontWeight(.medium)
                     Image(systemName: "arrow.right")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                     Text(task.destinationRemote)
                         .fontWeight(.medium)
                 }
-                .font(.subheadline)
-                
-                HStack(spacing: 6) {
+                .font(AppTheme.subheadlineFont)
+
+                HStack(spacing: AppTheme.spacingXS) {
                     Text(task.statusMessage)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(AppTheme.textSecondary)
                     if !task.speed.isEmpty {
-                        Text("•")
-                            .foregroundColor(.secondary)
+                        Text("*")
+                            .foregroundColor(AppTheme.textSecondary)
                         Text(task.speed)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                     if task.hasEncryption {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                     }
                 }
-                .font(.caption)
+                .font(AppTheme.captionFont)
             }
-            
+
             Spacer()
-            
+
             // Percentage
             Text("\(Int(task.progress * 100))%")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.accentColor)
-            
+                .foregroundColor(AppTheme.accentColor)
+
             // Cancel button
             Button {
                 onCancel?()
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
-                    .foregroundColor(.secondary.opacity(0.8))
+                    .foregroundColor(AppTheme.textSecondary.opacity(0.8))
             }
             .buttonStyle(.plain)
             .help("Cancel transfer")
             .accessibilityLabel("Cancel Transfer")
             .accessibilityHint("Cancels the current transfer operation")
         }
-        .padding()
-        .background(Color.accentColor.opacity(0.08))
+        .padding(AppTheme.spacing)
+        .background(AppTheme.accentColor.opacity(0.08))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Running task: \(task.name), \(Int(task.progress * 100)) percent complete")
     }

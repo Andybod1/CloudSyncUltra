@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CloudSync Ultra - Master App Icon Template
+  Issue #77: Create App Icon Set (CRITICAL - Blocking Release)
+
+  Design Concept: "Ultra Cloud Mesh"
+  - Central cloud shape representing cloud storage
+  - Connecting sync arrows representing multi-provider synchronization
+  - Brand gradient (Ultra Indigo to Ultra Violet)
+  - macOS squircle canvas with subtle depth
+
+  Color Palette:
+  - Ultra Indigo (Primary): #6366F1
+  - Ultra Violet (Secondary): #8B5CF6
+  - Cloud Cyan (Accent): #0094FF
+  - White highlights for depth
+
+  Export Instructions:
+  1. Open this file in Figma, Sketch, or Affinity Designer
+  2. Export as PNG at 1024x1024 pixels
+  3. Save as "icon_master_1024x1024.png"
+  4. Run ./generate_icons.sh to create all sizes
+
+  Author: Brand Designer Agent
+  Date: January 14, 2026
+  Version: 1.0.0
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1024 1024" width="1024" height="1024">
+
+  <defs>
+    <!-- macOS Squircle Clip Path (superellipse with n=5) -->
+    <!-- This approximates Apple's rounded rectangle shape -->
+    <clipPath id="squircleClip">
+      <path d="M512 0
+               C819 0 1024 205 1024 512
+               C1024 819 819 1024 512 1024
+               C205 1024 0 819 0 512
+               C0 205 205 0 512 0Z"/>
+    </clipPath>
+
+    <!-- Precise macOS icon mask (22.37% corner radius approximation) -->
+    <clipPath id="macOSIconMask">
+      <rect x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+    </clipPath>
+
+    <!-- Primary Brand Gradient: Ultra Indigo to Ultra Violet -->
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Background Gradient: Subtle depth -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F1F5F9;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Cloud Gradient: Depth effect -->
+    <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#818CF8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Sync Arrow Gradient -->
+    <linearGradient id="syncGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0094FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow Effect for Cloud -->
+    <filter id="cloudGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="20" result="blur"/>
+      <feOffset in="blur" dx="0" dy="10" result="offsetBlur"/>
+      <feFlood flood-color="#6366F1" flood-opacity="0.3"/>
+      <feComposite in2="offsetBlur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle Shadow -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.15"/>
+    </filter>
+
+    <!-- Inner Highlight -->
+    <filter id="innerHighlight">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+      <feOffset in="blur" dx="0" dy="-2" result="offsetBlur"/>
+      <feFlood flood-color="#FFFFFF" flood-opacity="0.4"/>
+      <feComposite in2="offsetBlur" operator="in" result="highlight"/>
+      <feMerge>
+        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="highlight"/>
+      </feMerge>
+    </filter>
+
+    <!-- Cloud Shape Definition -->
+    <!-- A stylized cloud with multiple lobes, designed to be recognizable at small sizes -->
+    <path id="cloudShape" d="
+      M 720 580
+      C 720 520 680 470 620 460
+      C 620 380 560 320 480 320
+      C 420 320 370 360 350 420
+      C 290 420 240 470 240 540
+      C 240 610 290 660 360 660
+      L 660 660
+      C 700 660 720 630 720 580
+      Z
+    "/>
+
+    <!-- Sync Arrow (curved, clockwise) -->
+    <path id="syncArrowCW" d="
+      M 580 280
+      C 640 300 680 360 680 420
+      L 720 400
+      L 680 480
+      L 620 420
+      L 660 405
+      C 660 365 635 330 590 315
+      Z
+    "/>
+
+    <!-- Sync Arrow (curved, counter-clockwise) -->
+    <path id="syncArrowCCW" d="
+      M 444 740
+      C 384 720 344 660 344 600
+      L 304 620
+      L 344 540
+      L 404 600
+      L 364 615
+      C 364 655 389 690 434 705
+      Z
+    "/>
+
+  </defs>
+
+  <!-- Canvas with macOS squircle mask -->
+  <g clip-path="url(#macOSIconMask)">
+
+    <!-- Background: Clean white to slate gradient -->
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#backgroundGradient)"/>
+
+    <!-- Subtle background pattern: Very light grid suggesting connection/sync -->
+    <g opacity="0.03">
+      <line x1="256" y1="0" x2="256" y2="1024" stroke="#6366F1" stroke-width="1"/>
+      <line x1="512" y1="0" x2="512" y2="1024" stroke="#6366F1" stroke-width="1"/>
+      <line x1="768" y1="0" x2="768" y2="1024" stroke="#6366F1" stroke-width="1"/>
+      <line x1="0" y1="256" x2="1024" y2="256" stroke="#6366F1" stroke-width="1"/>
+      <line x1="0" y1="512" x2="1024" y2="512" stroke="#6366F1" stroke-width="1"/>
+      <line x1="0" y1="768" x2="1024" y2="768" stroke="#6366F1" stroke-width="1"/>
+    </g>
+
+    <!-- Main Cloud Group -->
+    <g transform="translate(50, 80) scale(1.15)">
+
+      <!-- Cloud Shadow (offset, blurred) -->
+      <use xlink:href="#cloudShape" fill="#0F172A" opacity="0.1" filter="url(#dropShadow)" transform="translate(0, 20)"/>
+
+      <!-- Main Cloud Body -->
+      <use xlink:href="#cloudShape" fill="url(#cloudGradient)" filter="url(#cloudGlow)"/>
+
+      <!-- Cloud Highlight (top edge) -->
+      <path d="
+        M 360 365
+        C 370 340 420 330 480 330
+        C 530 330 580 350 600 380
+        C 560 345 520 335 480 335
+        C 430 335 385 355 360 365
+        Z
+      " fill="#FFFFFF" opacity="0.4"/>
+
+      <!-- Cloud Inner Glow -->
+      <use xlink:href="#cloudShape" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.2"/>
+
+    </g>
+
+    <!-- Sync Arrows -->
+    <g>
+      <!-- Upper-right sync arrow (outgoing) -->
+      <use xlink:href="#syncArrowCW" fill="url(#syncGradient)" transform="translate(80, 60)"/>
+
+      <!-- Lower-left sync arrow (incoming) -->
+      <use xlink:href="#syncArrowCCW" fill="url(#syncGradient)" transform="translate(80, 60)"/>
+    </g>
+
+    <!-- Connection Nodes (small circles representing multiple cloud providers) -->
+    <g>
+      <!-- Top node -->
+      <circle cx="512" cy="180" r="24" fill="#FFFFFF" stroke="url(#brandGradient)" stroke-width="4"/>
+      <circle cx="512" cy="180" r="12" fill="url(#brandGradient)"/>
+
+      <!-- Left node -->
+      <circle cx="200" cy="512" r="20" fill="#FFFFFF" stroke="url(#brandGradient)" stroke-width="3"/>
+      <circle cx="200" cy="512" r="10" fill="url(#brandGradient)"/>
+
+      <!-- Right node -->
+      <circle cx="824" cy="512" r="20" fill="#FFFFFF" stroke="url(#brandGradient)" stroke-width="3"/>
+      <circle cx="824" cy="512" r="10" fill="url(#brandGradient)"/>
+
+      <!-- Bottom node -->
+      <circle cx="512" cy="844" r="20" fill="#FFFFFF" stroke="url(#brandGradient)" stroke-width="3"/>
+      <circle cx="512" cy="844" r="10" fill="url(#brandGradient)"/>
+    </g>
+
+    <!-- Connection Lines (subtle, connecting nodes to cloud) -->
+    <g stroke="url(#brandGradient)" stroke-width="2" fill="none" opacity="0.3">
+      <path d="M 512 204 Q 512 300 512 380"/>
+      <path d="M 220 512 Q 300 512 340 530"/>
+      <path d="M 804 512 Q 724 512 684 530"/>
+      <path d="M 512 820 Q 512 740 512 660"/>
+    </g>
+
+    <!-- Subtle vignette overlay for depth -->
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#backgroundGradient)" opacity="0"/>
+
+  </g>
+
+  <!-- Icon Border (subtle, for definition on light backgrounds) -->
+  <rect x="0" y="0" width="1024" height="1024" rx="229" ry="229"
+        fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.5"/>
+
+</svg>

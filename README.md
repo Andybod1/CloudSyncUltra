@@ -261,9 +261,20 @@ open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Release
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Clone your fork and set up the development environment
+3. Create a feature branch (`feature/your-feature-name`)
+4. Make your changes and add tests
+5. Ensure all 743+ tests pass
+6. Submit a pull request
+
+For detailed instructions on code style, testing, and the PR process, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### GitHub Project Board
 

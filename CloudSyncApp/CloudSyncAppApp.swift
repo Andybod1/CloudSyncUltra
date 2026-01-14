@@ -56,7 +56,7 @@ struct CloudSyncAppApp: App {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusBarController: StatusBarController?
     var mainWindowController: NSWindowController?
-    
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Setup crash reporting
         CrashReportingManager.shared.setup()
@@ -64,7 +64,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar
         statusBarController = StatusBarController()
         statusBarController?.setupMenuBar()
-        
+
+        // Request notification permissions on first launch
+        Task { @MainActor in
+            await NotificationManager.shared.requestPermission()
+        }
+
         // Start monitoring if configured
         if UserDefaults.standard.bool(forKey: "isConfigured") {
             Task { @MainActor in
@@ -81,6 +86,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         SyncManager.shared.stopMonitoring()
         ScheduleManager.shared.stopScheduler()
+        // Clear dock badge on app termination
+        NotificationManager.shared.clearDockProgress()
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

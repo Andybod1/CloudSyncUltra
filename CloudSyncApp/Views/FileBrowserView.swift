@@ -3,6 +3,7 @@
 //  CloudSyncApp
 //
 //  Full-page file browser for a single remote
+//  Styled to match onboarding experience with AppTheme design tokens
 //
 
 import SwiftUI
@@ -53,7 +54,7 @@ struct FileBrowserView: View {
     
     var body: some View {
         mainContent
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(AppTheme.windowBackground)
             .navigationTitle(remote.name)
             .task(id: remote.id) {
                 await initializeEncryptionState()
@@ -163,44 +164,44 @@ struct FileBrowserView: View {
     }
     
     // MARK: - Encryption Banner
-    
+
     private var rawEncryptionBanner: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: AppTheme.spacingS) {
             Image(systemName: "eye.slash")
-                .foregroundColor(.orange)
-            
+                .foregroundColor(AppTheme.warningColor)
+
             Text("Viewing raw encrypted data")
-                .font(.caption)
-                .foregroundColor(.orange)
-            
-            Text("•")
-                .foregroundColor(.secondary)
-            
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.warningColor)
+
+            Text("*")
+                .foregroundColor(AppTheme.textSecondary)
+
             Text("Enable encryption toggle to see decrypted filenames")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
+
             Spacer()
-            
+
             Button("Enable Decryption") {
                 encryptionEnabled = true
             }
-            .font(.caption)
-            .buttonStyle(.bordered)
+            .font(AppTheme.captionFont)
+            .buttonStyle(SecondaryButtonStyle())
             .accessibilityLabel("Enable Decryption")
             .accessibilityHint("Switches to decrypted view to see readable filenames")
         }
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .background(Color.orange.opacity(0.1))
+        .padding(.horizontal, AppTheme.spacing)
+        .padding(.vertical, AppTheme.spacingXS)
+        .background(AppTheme.warningColor.opacity(0.1))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Raw encrypted data warning. Enable decryption to see readable filenames.")
     }
     
     // MARK: - Pagination Bar
-    
+
     private var paginationBar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppTheme.spacingM) {
             // Page size selector
             Menu {
                 ForEach([50, 100, 200, 500], id: \.self) { size in
@@ -215,9 +216,9 @@ struct FileBrowserView: View {
                         }
                     }
                 }
-                
+
                 Divider()
-                
+
                 Button {
                     browser.isPaginationEnabled.toggle()
                 } label: {
@@ -229,18 +230,18 @@ struct FileBrowserView: View {
                     }
                 }
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: AppTheme.spacingXS) {
                     Text("\(browser.pageSize) per page")
                     Image(systemName: "chevron.down")
                 }
-                .font(.caption)
+                .font(AppTheme.captionFont)
             }
             .menuStyle(.borderlessButton)
             .help("Items per page")
-            
+
             Divider()
                 .frame(height: 16)
-            
+
             // First page button
             Button {
                 browser.firstPage()
@@ -263,13 +264,13 @@ struct FileBrowserView: View {
             .keyboardShortcut("[", modifiers: [.command])
             .accessibilityLabel("Previous Page")
             .accessibilityHint("Go to the previous page of files")
-            
+
             // Page indicator with jump capability
-            HStack(spacing: 4) {
+            HStack(spacing: AppTheme.spacingXS) {
                 Text("Page")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
+
                 HStack(spacing: 2) {
                     TextField("", text: $jumpToPageString, prompt: Text("\(browser.currentPage)"))
                         .textFieldStyle(.plain)
@@ -282,23 +283,23 @@ struct FileBrowserView: View {
                             }
                             jumpToPageString = ""
                         }
-                    
+
                     if jumpToPageString.isEmpty {
                         Text("\(browser.currentPage)")
                             .font(.caption.monospacedDigit())
                             .frame(width: 30)
                     }
                 }
-                
+
                 Text("of \(browser.totalPages)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
-            .cornerRadius(4)
-            
+            .padding(.horizontal, AppTheme.spacingS)
+            .padding(.vertical, AppTheme.spacingXS)
+            .background(AppTheme.controlBackground.opacity(0.5))
+            .cornerRadius(AppTheme.cornerRadiusSmall)
+
             // Next page button
             Button {
                 browser.nextPage()
@@ -321,68 +322,67 @@ struct FileBrowserView: View {
             .help("Last page")
             .accessibilityLabel("Last Page")
             .accessibilityHint("Jump to the last page of files")
-            
+
             Divider()
                 .frame(height: 16)
-            
+
             // Page info
             Text(browser.pageInfo)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .padding(.horizontal, AppTheme.spacing)
+        .padding(.vertical, AppTheme.spacingS)
+        .background(AppTheme.controlBackground.opacity(0.5))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Pagination: Page \(browser.currentPage) of \(browser.totalPages)")
     }
 
     // MARK: - Not Connected View
-    
+
     private var notConnectedView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: AppTheme.spacingL) {
             Spacer()
-            
+
+            // Icon with circular background (matching onboarding)
             ZStack {
                 Circle()
-                    .fill(remote.displayColor.opacity(0.15))
-                    .frame(width: 100, height: 100)
-                
+                    .fill(remote.displayColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerLarge * 1.5, height: AppTheme.iconContainerLarge * 1.5)
+
                 Image(systemName: remote.displayIcon)
                     .font(.system(size: 48))
                     .foregroundColor(remote.displayColor)
             }
-            
+
             Text(remote.name)
-                .font(.title2)
-                .fontWeight(.semibold)
-            
+                .font(AppTheme.title2Font)
+
             Text("Not Connected")
-                .font(.headline)
-                .foregroundColor(.orange)
-            
+                .font(AppTheme.headlineFont)
+                .foregroundColor(AppTheme.warningColor)
+
             Text("Connect your \(remote.type.displayName) account to browse files")
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             Button("Connect Now") {
                 showConnectSheet = true
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(PrimaryButtonStyle())
             .accessibilityLabel("Connect Now")
             .accessibilityHint("Opens setup to connect your cloud storage account")
-            
+
             Spacer()
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
     
     // MARK: - Toolbar
-    
+
     private var browserToolbar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 4) {
+        HStack(spacing: AppTheme.spacingM) {
+            HStack(spacing: AppTheme.spacingXS) {
                 Button {
                     browser.navigateUp()
                 } label: {
@@ -402,13 +402,13 @@ struct FileBrowserView: View {
                 .accessibilityHint("Refreshes the current folder contents")
                 .keyboardShortcut("r", modifiers: .command)
             }
-            
+
             Divider()
                 .frame(height: 20)
-            
+
             HStack {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
                 TextField("Search...", text: $browser.searchQuery)
                     .textFieldStyle(.plain)
                     .onChange(of: browser.searchQuery) {
@@ -417,25 +417,25 @@ struct FileBrowserView: View {
                     }
                     .accessibilityLabel("Search Files")
                     .accessibilityHint("Type to filter files in the current folder")
-                
+
                 if !browser.searchQuery.isEmpty {
                     Button {
                         browser.searchQuery = ""
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppTheme.textSecondary)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(6)
-            .background(Color(NSColor.controlBackgroundColor))
-            .cornerRadius(6)
+            .padding(AppTheme.spacingXS)
+            .background(AppTheme.controlBackground)
+            .cornerRadius(AppTheme.cornerRadiusSmall)
             .frame(maxWidth: 300)
             
             Spacer()
-            
-            HStack(spacing: 8) {
+
+            HStack(spacing: AppTheme.spacingS) {
                 Button {
                     showNewFolderSheet = true
                 } label: {
@@ -466,19 +466,19 @@ struct FileBrowserView: View {
                 .accessibilityLabel("Download Selected")
                 .accessibilityHint("Downloads selected files to your computer")
                 .keyboardShortcut("d", modifiers: .command)
-                
+
                 // Only show encryption controls for cloud remotes, not local storage
                 if remote.type != .local {
                     Divider()
                         .frame(height: 20)
-                    
+
                     // Encryption toggle with enhanced visuals
                     encryptionToggle
                 }
-                
+
                 Divider()
                     .frame(height: 20)
-                
+
                 Button {
                     showDeleteConfirm = true
                 } label: {
@@ -490,11 +490,11 @@ struct FileBrowserView: View {
                 .accessibilityHint("Deletes selected files permanently")
                 .keyboardShortcut(.delete, modifiers: .command)
             }
-            
+
             Divider()
                 .frame(height: 20)
-            
-            VStack(spacing: 4) {
+
+            VStack(spacing: AppTheme.spacingXS) {
                 Button {
                     browser.viewMode = .list
                 } label: {
@@ -502,8 +502,8 @@ struct FileBrowserView: View {
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.bordered)
-                .background(browser.viewMode == .list ? Color.accentColor.opacity(0.2) : Color.clear)
-                .cornerRadius(6)
+                .background(browser.viewMode == .list ? AppTheme.accentColor.opacity(0.2) : Color.clear)
+                .cornerRadius(AppTheme.cornerRadiusSmall)
                 .accessibilityLabel("List View")
                 .accessibilityHint("Display files as a list")
                 .accessibilityValue(browser.viewMode == .list ? "Selected" : "")
@@ -515,8 +515,8 @@ struct FileBrowserView: View {
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.bordered)
-                .background(browser.viewMode == .grid ? Color.accentColor.opacity(0.2) : Color.clear)
-                .cornerRadius(6)
+                .background(browser.viewMode == .grid ? AppTheme.accentColor.opacity(0.2) : Color.clear)
+                .cornerRadius(AppTheme.cornerRadiusSmall)
                 .accessibilityLabel("Grid View")
                 .accessibilityHint("Display files as a grid")
                 .accessibilityValue(browser.viewMode == .grid ? "Selected" : "")
@@ -524,90 +524,99 @@ struct FileBrowserView: View {
             .accessibilityElement(children: .contain)
             .accessibilityLabel("View Mode")
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
     
     // MARK: - Encryption Toggle
-    
+
     private var encryptionToggle: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: AppTheme.spacingXS) {
             // Lock icon with color based on state
             Image(systemName: encryptionEnabled ? "lock.fill" : "lock.open")
-                .foregroundColor(encryptionEnabled ? .green : (isViewingRawEncrypted ? .orange : .secondary))
-            
+                .foregroundColor(encryptionEnabled ? AppTheme.encryptionColor : (isViewingRawEncrypted ? AppTheme.warningColor : AppTheme.textSecondary))
+
             Toggle(isOn: $encryptionEnabled) {
                 Text("Encrypt")
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
             }
             .toggleStyle(.switch)
             .controlSize(.small)
             .accessibilityLabel("Encryption")
             .accessibilityValue(encryptionEnabled ? "Enabled" : "Disabled")
             .accessibilityHint("Toggle to enable or disable end-to-end encryption")
-            
+
             // Configuration button (gear icon)
             if EncryptionManager.shared.isEncryptionConfigured(for: remote.rcloneName) {
                 Button {
                     showEncryptionModal = true
                 } label: {
                     Image(systemName: "gearshape")
-                        .font(.caption)
+                        .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .help("Encryption settings")
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, AppTheme.spacingS)
+        .padding(.vertical, AppTheme.spacingXS)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(encryptionEnabled ? Color.green.opacity(0.1) : (isViewingRawEncrypted ? Color.orange.opacity(0.1) : Color.clear))
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusSmall)
+                .fill(encryptionEnabled ? AppTheme.encryptionColor.opacity(0.1) : (isViewingRawEncrypted ? AppTheme.warningColor.opacity(0.1) : Color.clear))
         )
         .help(encryptionEnabled ? "Encryption ON - files encrypted on upload, decrypted on view" : "Encryption OFF - viewing raw encrypted data")
     }
     
     // MARK: - Content Views
-    
+
     private var loadingView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacing) {
             Spacer()
-            
+
             if isUploading {
                 // Enhanced upload progress bar (similar to TransferView)
                 uploadProgressBar
             } else {
-                // Show generic spinner
-                ProgressView()
+                // Show generic spinner with circular background (matching onboarding)
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                        .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+                    ProgressView()
+                }
                 Text(isDownloading ? "Downloading..." : (isDeleting ? "Deleting..." : "Loading..."))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             Spacer()
         }
     }
     
     private var uploadProgressBar: some View {
-        HStack(spacing: 12) {
-            // Spinning indicator
-            ProgressView()
-                .scaleEffect(0.8)
-            
+        HStack(spacing: AppTheme.spacingM) {
+            // Spinning indicator with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.accentColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerSmall, height: AppTheme.iconContainerSmall)
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+
             // Status text
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: AppTheme.spacingXS) {
+                HStack(spacing: AppTheme.spacingXS) {
                     Text("Uploading to \(remote.name)")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
+                        .font(AppTheme.subheadlineFont)
+
                     if encryptionEnabled {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
-                            .foregroundColor(.green)
+                            .foregroundColor(AppTheme.encryptionColor)
                     }
                 }
-                
-                HStack(spacing: 6) {
+
+                HStack(spacing: AppTheme.spacingXS) {
                     if uploadTotalFiles > 1 {
                         Text("\(uploadFileIndex)/\(uploadTotalFiles)")
                     }
@@ -616,44 +625,44 @@ struct FileBrowserView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                     }
-                    Text("•")
+                    Text("*")
                     Text("\(Int(uploadProgress))%")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(AppTheme.accentColor)
                     if !uploadSpeed.isEmpty {
-                        Text("•")
+                        Text("*")
                         Text(uploadSpeed)
                     }
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
             }
-            
+
             Spacer()
-            
+
             // View in Tasks button
             Button {
                 NotificationCenter.default.post(name: .navigateToTasks, object: nil)
             } label: {
                 Text("View in Tasks")
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
             }
-            .buttonStyle(.bordered)
-            
+            .buttonStyle(SecondaryButtonStyle())
+
             // Cancel button
             Button {
                 cancelUpload()
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.textSecondary)
             }
             .buttonStyle(.plain)
             .help("Cancel upload")
         }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(Color.accentColor.opacity(0.08))
-        .cornerRadius(8)
-        .padding(.horizontal)
+        .padding(.horizontal, AppTheme.spacing)
+        .padding(.vertical, AppTheme.spacingM)
+        .background(AppTheme.accentColor.opacity(0.08))
+        .cornerRadius(AppTheme.cornerRadius)
+        .padding(.horizontal, AppTheme.spacing)
     }
     
     private func cancelUpload() {
@@ -684,62 +693,76 @@ struct FileBrowserView: View {
     }
     
     private func errorView(_ error: String) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacing) {
             Spacer()
-            
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundColor(.red)
-            
+
+            // Icon with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.errorColor.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerLarge * 1.5, height: AppTheme.iconContainerLarge * 1.5)
+
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 48))
+                    .foregroundColor(AppTheme.errorColor)
+            }
+
             Text("Error Loading Files")
-                .font(.headline)
-            
+                .font(AppTheme.headlineFont)
+
             Text(error)
-                .foregroundColor(.secondary)
+                .foregroundColor(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             Button("Retry") {
                 browser.refresh()
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PrimaryButtonStyle())
             .accessibilityLabel("Retry")
             .accessibilityHint("Try loading the files again")
-            
+
             Spacer()
         }
-        .padding()
+        .padding(AppTheme.spacing)
     }
-    
+
     private var emptyView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppTheme.spacing) {
             Spacer()
-            
-            Image(systemName: "folder")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
-            
+
+            // Icon with circular background (matching onboarding)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.textSecondary.opacity(AppTheme.iconBackgroundOpacity))
+                    .frame(width: AppTheme.iconContainerLarge * 1.5, height: AppTheme.iconContainerLarge * 1.5)
+
+                Image(systemName: "folder")
+                    .font(.system(size: 48))
+                    .foregroundColor(AppTheme.textSecondary.opacity(0.5))
+            }
+
             Text("Empty Folder")
-                .font(.headline)
-            
+                .font(AppTheme.headlineFont)
+
             Text("This folder doesn't contain any files")
-                .foregroundColor(.secondary)
-            
-            HStack(spacing: 16) {
+                .foregroundColor(AppTheme.textSecondary)
+
+            HStack(spacing: AppTheme.spacing) {
                 Button("New Folder") {
                     showNewFolderSheet = true
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
                 .accessibilityLabel("New Folder")
                 .accessibilityHint("Creates a new folder in the current location")
 
                 Button("Upload Files") {
                     uploadFiles()
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(PrimaryButtonStyle())
                 .accessibilityLabel("Upload Files")
                 .accessibilityHint("Opens a file picker to select files for upload")
             }
-            
+
             Spacer()
         }
     }
@@ -769,13 +792,13 @@ struct FileBrowserView: View {
                     Text("Modified")
                         .fontWeight(.medium)
                         .frame(width: 150, alignment: .trailing)
-                        .padding(.trailing, 8)
+                        .padding(.trailing, AppTheme.spacingS)
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                .font(AppTheme.captionFont)
+                .foregroundColor(AppTheme.textSecondary)
+                .padding(.horizontal, AppTheme.spacingM)
+                .padding(.vertical, AppTheme.spacingXS)
+                .background(AppTheme.controlBackground.opacity(0.5))
 
                 Divider()
 
@@ -830,11 +853,11 @@ struct FileBrowserView: View {
                         ProgressView()
                             .scaleEffect(0.8)
                         Text("Loading more files...")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.textSecondary)
                         Spacer()
                     }
-                    .padding()
+                    .padding(AppTheme.spacing)
                 }
 
                 // Load more button (optional fallback)
@@ -844,16 +867,16 @@ struct FileBrowserView: View {
                         Button {
                             browser.loadMoreFiles()
                         } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppTheme.spacingXS) {
                                 Image(systemName: "arrow.down.circle")
                                 Text("Load More (\(browser.totalFileCount - browser.displayedFileCount) remaining)")
                             }
-                            .font(.caption)
+                            .font(AppTheme.captionFont)
                         }
                         .buttonStyle(.link)
                         Spacer()
                     }
-                    .padding()
+                    .padding(AppTheme.spacing)
                 }
             }
         }
@@ -871,12 +894,12 @@ struct FileBrowserView: View {
             }
         }
     }
-    
+
     private var gridView: some View {
         ScrollView {
             LazyVGrid(columns: [
-                GridItem(.adaptive(minimum: 100, maximum: 120), spacing: 16)
-            ], spacing: 16) {
+                GridItem(.adaptive(minimum: 100, maximum: 120), spacing: AppTheme.spacing)
+            ], spacing: AppTheme.spacing) {
                 ForEach(browser.lazyScrollFiles) { file in
                     FileGridItem(
                         file: file,
@@ -917,7 +940,7 @@ struct FileBrowserView: View {
                     }
                 }
             }
-            .padding()
+            .padding(AppTheme.spacing)
 
             // Loading indicator for infinite scroll
             if browser.isLoadingMore {
@@ -926,11 +949,11 @@ struct FileBrowserView: View {
                     ProgressView()
                         .scaleEffect(0.8)
                     Text("Loading more files...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textSecondary)
                     Spacer()
                 }
-                .padding()
+                .padding(AppTheme.spacing)
             }
 
             // Load more button (optional fallback)
@@ -940,16 +963,16 @@ struct FileBrowserView: View {
                     Button {
                         browser.loadMoreFiles()
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: AppTheme.spacingXS) {
                             Image(systemName: "arrow.down.circle")
                             Text("Load More (\(browser.totalFileCount - browser.displayedFileCount) remaining)")
                         }
-                        .font(.caption)
+                        .font(AppTheme.captionFont)
                     }
                     .buttonStyle(.link)
                     Spacer()
                 }
-                .padding(.bottom)
+                .padding(.bottom, AppTheme.spacing)
             }
         }
         .contextMenu {
@@ -968,79 +991,79 @@ struct FileBrowserView: View {
     }
     
     // MARK: - Status Bar
-    
+
     private var statusBar: some View {
         HStack {
-            HStack(spacing: 4) {
+            HStack(spacing: AppTheme.spacingXS) {
                 Image(systemName: remote.displayIcon)
                     .foregroundColor(remote.displayColor)
                 Text(remote.name)
             }
-            .font(.caption)
-            
+            .font(AppTheme.captionFont)
+
             // Encryption status in status bar (only for cloud remotes, not local storage)
             if remote.type != .local {
                 if encryptionEnabled {
-                    HStack(spacing: 4) {
+                    HStack(spacing: AppTheme.spacingXS) {
                         Image(systemName: "lock.fill")
                         Text("Encrypted")
                     }
-                    .font(.caption)
-                    .foregroundColor(.green)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.encryptionColor)
                 } else if isViewingRawEncrypted {
-                    HStack(spacing: 4) {
+                    HStack(spacing: AppTheme.spacingXS) {
                         Image(systemName: "eye.slash")
                         Text("Raw View")
                     }
-                    .font(.caption)
-                    .foregroundColor(.orange)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.warningColor)
                 }
             }
-            
+
             Divider()
                 .frame(height: 12)
 
             // Show displayed vs total count for lazy loading
             if browser.useLazyLoading && browser.totalFileCount > browser.displayedFileCount {
                 Text("\(browser.displayedFileCount) of \(browser.totalFileCount) items")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
             } else {
                 Text("\(browser.files.count) items")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
             }
 
             if !browser.selectedFiles.isEmpty {
                 Text(" | \(browser.selectedFiles.count) selected")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textSecondary)
             }
 
             Spacer()
-            
+
             // Selection controls for pagination
             if browser.isPaginationEnabled && browser.files.count > browser.pageSize {
-                HStack(spacing: 8) {
+                HStack(spacing: AppTheme.spacingS) {
                     Button("Select Page") {
                         browser.selectAll()
                     }
                     .buttonStyle(.borderless)
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
                     .help("Select all items on current page")
-                    
+
                     Button("Select All (\(browser.files.count))") {
                         browser.selectAllInDirectory()
                     }
                     .buttonStyle(.borderless)
-                    .font(.caption)
+                    .font(AppTheme.captionFont)
                     .help("Select all items in directory")
                 }
-                
+
                 Divider()
                     .frame(height: 12)
             }
-            
+
             Menu {
                 ForEach(FileBrowserViewModel.SortOrder.allCases, id: \.self) { order in
                     Button {
@@ -1056,17 +1079,17 @@ struct FileBrowserView: View {
                     }
                 }
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: AppTheme.spacingXS) {
                     Text("Sort: \(browser.sortOrder.rawValue)")
                     Image(systemName: "chevron.down")
                 }
-                .font(.caption)
+                .font(AppTheme.captionFont)
             }
             .menuStyle(.borderlessButton)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(NSColor.controlBackgroundColor))
+        .padding(.horizontal, AppTheme.spacing)
+        .padding(.vertical, AppTheme.spacingS)
+        .background(AppTheme.controlBackground)
     }
     
     // MARK: - Helper Functions
