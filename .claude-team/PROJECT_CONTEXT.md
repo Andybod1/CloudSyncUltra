@@ -215,19 +215,20 @@ gh issue view <number>
 
 ## Recent History
 
-### v2.0.13 - 2026-01-13 (In Progress)
-- **Test Health Sprint** - Fix 23 pre-existing test failures
-- **Team Restructure** - Added Dev-Ops worker (always Opus)
-- #30 closed (Google Photos not implemented)
+### v2.0.23 - 2026-01-15 (Current)
+- **Launch Ready Sprint** - StoreKit 2 subscriptions, security hardening
+- Legal compliance (Privacy Policy, ToS, GDPR/CCPA)
+- Marketing launch package, App Store assets
+- 841 tests (831 passing, 10 expected failures)
 
-### v2.0.12 - 2026-01-13
-- **Quick Wins Sprint** - Drag & drop reordering, account names, bandwidth throttling
-- Test target configured - 617 tests runnable
-- Shift-left testing workflow
+### v2.0.22 - 2026-01-15
+- Quick Actions Menu (#49) - Cmd+Shift+N
+- Provider-Specific Chunk Sizes (#73)
+- Transfer Preview (#55) - Dry-run support
 
-### v2.0.11 - 2026-01-13
-- **Error Handling Sprint** - Comprehensive error handling system
-- TransferError types, error detection, notification manager
+### v2.0.21 - 2026-01-15
+- Build fixes, onboarding infrastructure
+- 841 tests total (772 unit + 69 UI)
 
 ---
 
@@ -247,5 +248,5 @@ Then tell me what state we're in and what needs to happen next.
 
 ---
 
-*Last Updated: 2026-01-13*
-*CloudSync Ultra v2.0.13*
+*Last Updated: 2026-01-15*
+*CloudSync Ultra v2.0.23*

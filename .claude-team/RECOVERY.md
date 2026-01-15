@@ -164,22 +164,20 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 
 ---
 
-## Current State (v2.0.21)
+## Current State (v2.0.23)
 
-### Just Completed: v2.0.21
-- ✅ **Build Fix** - cornerRadiusSmall alias added to AppTheme
-- ✅ **All 743 tests passing**
+### Just Completed: v2.0.23 "Launch Ready"
+- ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers
+- ✅ **Security Hardening** (#74) - Path sanitization, secure file handling
+- ✅ **Legal Compliance** - Privacy Policy, ToS, GDPR/CCPA docs
+- ✅ **Marketing Package** - Positioning, landing page, press kit
+- ✅ **App Store Assets** (#78) - Description, keywords, metadata
+- ✅ **841 tests** (831 passing, 10 expected failures)
 
-### v2.0.18 Sprint (9 Workers)
-- ✅ Multi-thread downloads (#72) - 30+ tests
-- ✅ App icon design spec (#77)
-- ✅ UI visual refresh (#84) - AppTheme to 5 views
-- ✅ Pricing strategy (#85) - $29 one-time
-- ✅ Marketing channels (#86) - Report + checklist
-- ✅ UI test integration (#88) - 69 XCUITests
-- ✅ Notifications system (#90)
-- ✅ CONTRIBUTING.md (#92)
-- ✅ PUBLISHING_GUIDE.md (#94)
+### v2.0.22 Sprint
+- ✅ Quick Actions Menu (#49) - Cmd+Shift+N shortcut
+- ✅ Provider-Specific Chunk Sizes (#73)
+- ✅ Transfer Preview (#55) - Dry-run support
 
 ### v2.0.17: Accessibility & Infrastructure
 - VoiceOver labels + keyboard shortcuts
@@ -263,4 +261,4 @@ git log --oneline -5
 ---
 
 *Last Updated: 2026-01-14*
-*CloudSync Ultra v2.0.21*
+*CloudSync Ultra v2.0.23*
