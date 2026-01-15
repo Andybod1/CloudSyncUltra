@@ -34,9 +34,9 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 
 ---
 
-## Active Sprint: None
+## Active Sprint: Documentation & Template Update
 
-*Ready to start Sprint v2.0.23*
+*Making docs and template $1B-ready*
 
 | Worker | Status | Task | Notes |
 |--------|--------|------|-------|
@@ -44,7 +44,8 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 | Dev-2 | ⚪ Idle | - | Available |
 | Dev-3 | ⚪ Idle | - | Available |
 | QA | ⚪ Idle | - | Available |
-| Dev-Ops | ⚪ Idle | - | Available |
+| Dev-Ops | 🟢 RUNNING | Project-Ops-Kit $1B Update | L-sized task |
+| Tech-Writer | 🟢 RUNNING | Update User-Facing Docs | M-sized task |
 
 ---
 

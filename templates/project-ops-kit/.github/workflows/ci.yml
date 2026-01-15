@@ -53,13 +53,91 @@ jobs:
           # go build ./...
           # cargo build
 
-      # Run tests
+      # Run tests with code coverage
+      # TODO: Uncomment and customize for your tech stack
+
+      # Node.js with Jest/Vitest:
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     npm test -- --coverage --reporters=default --reporters=jest-junit
+      #     # or: npm run test:coverage
+
+      # Python with pytest:
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     pip install pytest-cov pytest-html
+      #     pytest --cov=./src --cov-report=xml --cov-report=html --cov-report=term
+
+      # Go:
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     go test -race -coverprofile=coverage.out -covermode=atomic ./...
+      #     go tool cover -func=coverage.out
+
+      # Rust:
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     cargo install cargo-tarpaulin
+      #     cargo tarpaulin --out Xml --all-features
+
+      # Java/Kotlin with Gradle:
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     ./gradlew test jacocoTestReport
+
+      # Generic fallback:
       - name: Run Tests
         run: |
-          echo "TODO: Add your test command"
-          # npm test
-          # pytest
-          # go test ./...
+          echo "TODO: Add your test command with coverage"
+          # Examples above for various languages
+
+      # Extract and report code coverage
+      # TODO: Customize based on your coverage tool
+
+      # JavaScript/TypeScript (Jest/Vitest):
+      # - name: Generate Coverage Report
+      #   run: |
+      #     echo "📊 Code Coverage Report"
+      #     echo "========================"
+      #
+      #     # Extract coverage from coverage-summary.json
+      #     if [ -f coverage/coverage-summary.json ]; then
+      #       COVERAGE=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+      #       echo "📈 Overall Coverage: ${COVERAGE}%"
+      #       echo "$COVERAGE" > coverage_percentage.txt
+      #
+      #       # Check threshold
+      #       THRESHOLD=80
+      #       if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+      #         echo "⚠️ Warning: Coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
+      #         # Uncomment to fail CI: exit 1
+      #       fi
+      #     fi
+
+      # Python (pytest-cov):
+      # - name: Generate Coverage Report
+      #   run: |
+      #     echo "📊 Code Coverage Report"
+      #     echo "========================"
+      #
+      #     # Coverage already displayed by pytest
+      #     # Extract from XML for artifact
+      #     if [ -f coverage.xml ]; then
+      #       COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print(float(ET.parse('coverage.xml').getroot().get('line-rate'))*100)")
+      #       echo "$COVERAGE" > coverage_percentage.txt
+      #       echo "📈 Overall Coverage: ${COVERAGE}%"
+      #     fi
+
+      # Go:
+      # - name: Generate Coverage Report
+      #   run: |
+      #     echo "📊 Code Coverage Report"
+      #     echo "========================"
+      #
+      #     # Parse coverage.out for percentage
+      #     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      #     echo "$COVERAGE" > coverage_percentage.txt
+      #     echo "📈 Overall Coverage: ${COVERAGE}%"
 
       # Check version consistency
       - name: Version Check
@@ -67,14 +145,42 @@ jobs:
           chmod +x ./scripts/version-check.sh
           ./scripts/version-check.sh || true
 
-      # Upload test results (if available)
-      - name: Upload Test Results
+      # Upload test results and coverage
+      - name: Upload Test Results & Coverage
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
           path: |
+            # Common coverage output paths
             build/reports/
             coverage/
-          retention-days: 7
+            coverage.*
+            .coverage
+            htmlcov/
+            coverage_report.txt
+            coverage_percentage.txt
+            # Node.js
+            coverage-final.json
+            # Python
+            .pytest_cache/
+            # Go
+            coverage.out
+            # Rust
+            cobertura.xml
+            # Java/Kotlin
+            build/reports/jacoco/
+          retention-days: 14
           if-no-files-found: ignore
+
+      # Post coverage summary to PR (if PR)
+      # TODO: Enable when coverage is configured
+      # - name: Coverage Summary
+      #   if: github.event_name == 'pull_request' && success()
+      #   run: |
+      #     if [ -f coverage_percentage.txt ]; then
+      #       COVERAGE=$(cat coverage_percentage.txt)
+      #       echo "### 📊 Code Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+      #       echo "" >> $GITHUB_STEP_SUMMARY
+      #       echo "See artifacts for detailed coverage report." >> $GITHUB_STEP_SUMMARY
+      #     fi

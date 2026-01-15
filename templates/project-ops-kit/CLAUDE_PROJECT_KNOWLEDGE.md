@@ -122,6 +122,98 @@
 
 ---
 
+### ⚠️ MANDATORY: Post-Sprint Documentation
+
+> **🔒 PROTECTED SECTION** - Do NOT skip these steps when completing any sprint or major milestone
+
+**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh X.X.X` to execute all steps automatically!
+
+**After EVERY sprint, complete ALL steps:**
+
+#### 0. Check Project Health FIRST
+```bash
+# Run project dashboard/health check (customize this)
+./scripts/dashboard.sh  # OR your health check command
+```
+- [ ] Review health score - should be 80%+
+- [ ] Check for any ⚡ NEEDS ATTENTION alerts
+- [ ] Note any issues to address
+
+#### 1. Verify Build & Tests
+```bash
+# Run all tests (customize for your project)
+npm test  # OR: pytest, go test, cargo test, etc.
+
+# Build and verify
+npm run build  # OR: make build, cargo build, etc.
+
+# Launch/smoke test if applicable
+npm start  # OR your launch command
+```
+- [ ] All tests pass
+- [ ] Build completes successfully
+- [ ] Application launches and works
+
+#### 2. Update Version (use scripts!)
+```bash
+# Update all docs to new version automatically:
+./scripts/update-version.sh X.X.X
+
+# Verify all docs match VERSION.txt:
+./scripts/version-check.sh
+```
+- [ ] VERSION.txt updated
+- [ ] All docs updated via script
+- [ ] version-check.sh passes ✅
+
+#### 3. Update Documentation Files
+
+| File | What to Update |
+|------|----------------|
+| `CHANGELOG.md` | New version entry with features/fixes |
+| `STATUS.md` | Version, completed items, test count, worker status |
+| `RECOVERY.md` | Version, current state, test count, open issues |
+| `CLAUDE_PROJECT_KNOWLEDGE.md` | Version, test count, current state |
+
+#### 4. GitHub Housekeeping
+```bash
+# Close completed issues
+gh issue close <number> -c "Completed in vX.X.X"
+
+# Verify issue states
+gh issue list
+```
+- [ ] All completed issues closed
+- [ ] Labels updated (remove `in-progress`, add `done` if applicable)
+
+#### 5. Clean Up Sprint Files
+- [ ] Archive or clear `.claude-team/tasks/TASK_*.md` files
+- [ ] Organize `.claude-team/outputs/*_COMPLETE.md` reports
+- [ ] Update GitHub Project Board (move cards to Done)
+
+#### 6. Commit, Tag & Push
+```bash
+cd {PROJECT_ROOT}
+git add -A
+git commit -m "docs: Update documentation to vX.X.X"
+git tag vX.X.X
+git push --tags origin main
+```
+- [ ] Changes committed
+- [ ] Version tagged
+- [ ] Pushed to GitHub
+
+#### 7. Reflect on Operational Excellence
+```bash
+# Check final health score
+./scripts/dashboard.sh  # OR your health check
+```
+- [ ] Health maintained or improved
+- [ ] Document any lessons learned
+- [ ] Update process improvements
+
+---
+
 ## Other Instructions
 
 <!-- Special instructions for Claude workers -->
