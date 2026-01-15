@@ -6,11 +6,12 @@
 
 ## Sprint Goals
 
-1. **In-App Purchase** - Implement pricing/subscription logic
-2. **App Store Assets** - Screenshots, metadata, description
-3. **Brand Identity** - Marketing assets for launch
+1. **Revenue** - Implement StoreKit 2 subscriptions
+2. **Legal** - Privacy policy, ToS, compliance
+3. **Marketing** - Launch strategy, landing page, press kit
 4. **Security** - Harden before public release
 5. **Provider** - Add Dropbox (popular request)
+6. **Assets** - App Store screenshots & metadata
 
 ---
 
@@ -30,134 +31,153 @@ Time to market is the biggest lever.
 
 ---
 
-## Proposed Tickets
+## Team Assignment
 
-### Dev-1: Pricing & IAP Logic (#46)
+| Worker | Ticket | Task | Size |
+|--------|--------|------|------|
+| **Revenue-Engineer** | #46 | StoreKit 2 Subscriptions | L |
+| **Legal-Advisor** | NEW | Privacy Policy, ToS, Compliance | M |
+| **Marketing-Lead** | NEW | Launch Strategy, Landing Page | M |
+| **Dev-2** | #37 | Dropbox Support | M |
+| **Dev-3** | #74 | Security Hardening | M |
+| **Dev-Ops** | #78 | App Store Screenshots & Metadata | M |
+| **QA** | - | IAP + Security Tests | M |
+
+**7 workers in parallel** → Maximum velocity
+
+---
+
+## Detailed Tasks
+
+### Revenue-Engineer: StoreKit 2 Subscriptions (#46)
 **Size:** L | **Est:** 2-3 hours
 
-Implement StoreKit 2 for subscriptions:
-- Free tier (2 connections, 5GB/mo)
-- Pro tier ($9.99/mo or $99/yr)
-- Subscription management UI
+Implement subscription system:
+- StoreKitManager.swift with StoreKit 2
+- SubscriptionTier model (Free/Pro/Team)
+- PaywallView for upgrade prompts
+- Feature gating based on tier
 - Restore purchases
 - Receipt validation
-
-**Files:** 
-- Managers/StoreKitManager.swift (NEW)
-- Models/SubscriptionTier.swift (NEW)
-- Views/SubscriptionView.swift (NEW)
-- Views/SettingsView.swift (update)
+- Sandbox testing
 
 **Reference:** `.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`
+
+**Files:**
+- `Managers/StoreKitManager.swift` (NEW)
+- `Models/SubscriptionTier.swift` (NEW)
+- `Views/PaywallView.swift` (NEW)
+- `Views/SubscriptionView.swift` (NEW)
+
+---
+
+### Legal-Advisor: Compliance Package
+**Size:** M | **Est:** 1-2 hours
+
+Create legal documents for App Store:
+- Privacy Policy (required)
+- Terms of Service
+- App Privacy labels documentation
+- GDPR/CCPA compliance notes
+- Data handling disclosure
+
+**Output:** `docs/legal/`
+
+---
+
+### Marketing-Lead: Launch Package
+**Size:** M | **Est:** 1-2 hours
+
+Create launch materials:
+- Positioning & messaging
+- Landing page copy
+- App Store description
+- Press kit
+- Product Hunt plan
+- Launch checklist
+
+**Output:** `docs/marketing/`
 
 ---
 
 ### Dev-2: Dropbox Support (#37)
 **Size:** M | **Est:** 1-2 hours
 
-Add Dropbox as supported provider:
-- OAuth flow implementation
+Add Dropbox as provider:
+- OAuth flow
 - Provider configuration
-- Dropbox-specific chunk sizes
+- Chunk size optimization
 - Real account testing
 
-**Files:** Models/CloudProvider.swift, RcloneManager.swift
+**Files:** `CloudProvider.swift`, `RcloneManager.swift`
 
 ---
 
-### Dev-3: Secure File Handling (#74)
+### Dev-3: Security Hardening (#74)
 **Size:** M | **Est:** 1-2 hours
 
-Security hardening before public release:
-- Restrict log file permissions (600)
-- Secure config file permissions
-- Sanitize file paths in logs
-- Secure temp file handling
+Pre-launch security:
+- Log file permissions (600)
+- Config file permissions
+- Path sanitization
+- Secure temp handling
 
-**Files:** Logger+Extensions.swift, RcloneManager.swift
+**Files:** `Logger+Extensions.swift`, `RcloneManager.swift`
+
+---
+
+### Dev-Ops: App Store Assets (#78)
+**Size:** M | **Est:** 1-2 hours
+
+Submission package:
+- Screenshots (all required sizes)
+- Keywords research
+- Categories selection
+- Age rating
+- Support URL setup
+
+**Output:** `docs/APP_STORE_SUBMISSION/`
 
 ---
 
 ### QA: IAP & Security Tests
 **Size:** M | **Est:** 1-2 hours
 
-- StoreKit testing with sandbox
+Testing:
+- StoreKit sandbox testing
 - Subscription state tests
 - Security permission tests
 - Full regression suite
-- TestFlight build validation
-
----
-
-### Dev-Ops: App Store Screenshots & Metadata (#78)
-**Size:** M | **Est:** 1-2 hours
-
-Create App Store submission package:
-- Screenshots for all required sizes
-- App description (short + long)
-- Keywords research
-- Privacy policy URL
-- Support URL
-- Categories selection
-- Age rating questionnaire
-
-**Output:** `docs/APP_STORE_SUBMISSION/`
-
----
-
-### UX-Designer: Brand Identity (#79)
-**Size:** M | **Est:** 1-2 hours
-
-Marketing assets for launch:
-- App icon variations (if needed)
-- Feature graphics
-- Social media assets
-- Press kit basics
-- Landing page mockup
-
-**Output:** `assets/marketing/`
-
----
-
-## Capacity Planning
-
-| Worker | Ticket | Size | Priority |
-|--------|--------|------|----------|
-| Dev-1 | #46 Pricing/IAP | L | 🔴 Critical |
-| Dev-2 | #37 Dropbox | M | 🟡 High |
-| Dev-3 | #74 Security | M | 🔴 Critical |
-| QA | IAP + Security Tests | M | 🔴 Critical |
-| Dev-Ops | #78 App Store Assets | M | 🔴 Critical |
-| UX-Designer | #79 Brand Identity | M | 🟡 High |
-
-**Total:** 1L + 5M = ~8-10 hours parallel work
-**Workers:** 6 (full team + UX-Designer)
+- TestFlight validation
 
 ---
 
 ## Dependencies
 
 ```
-#46 (IAP) ──→ QA Testing ──→ TestFlight
-#74 (Security) ──→ QA Testing ──→ App Store Review
-#78 (Screenshots) ──→ App Store Submission
-#79 (Brand) ──→ Marketing Launch
+Revenue-Engineer ──→ QA (IAP tests) ──→ TestFlight
+Legal-Advisor ──→ App Store Submission
+Marketing-Lead ──→ Launch execution
+Dev-3 ──→ QA (security tests) ──→ App Store Review
+Dev-Ops ──→ App Store Submission
 ```
 
 ---
 
 ## Success Criteria
 
-- [ ] StoreKit 2 subscriptions working
-- [ ] Free/Pro tier enforcement
+- [ ] StoreKit 2 subscriptions working (Free/Pro tiers)
+- [ ] Privacy Policy published
+- [ ] Terms of Service published
+- [ ] Landing page copy ready
+- [ ] Launch strategy documented
 - [ ] Dropbox OAuth functional
 - [ ] Security hardening complete
 - [ ] App Store screenshots ready
-- [ ] Metadata & description written
-- [ ] Brand assets created
+- [ ] All metadata written
 - [ ] TestFlight build uploaded
 - [ ] VERSION → 2.0.23
-- [ ] Ready for App Store submission
+- [ ] **Ready to click "Submit for Review"**
 
 ---
 
@@ -166,10 +186,11 @@ Marketing assets for launch:
 | Requirement | Owner | Status |
 |-------------|-------|--------|
 | App binary (notarized) | Dev-Ops scripts | 🟡 Ready |
-| Screenshots (6.7", 6.5", etc.) | Dev-Ops | 🔴 TODO |
-| App description | Dev-Ops | 🔴 TODO |
-| Privacy policy | Dev-Ops | 🔴 TODO |
-| IAP configured | Dev-1 | 🔴 TODO |
+| Screenshots | Dev-Ops | 🔴 TODO |
+| App description | Marketing-Lead | 🔴 TODO |
+| Privacy policy URL | Legal-Advisor | 🔴 TODO |
+| Terms of Service URL | Legal-Advisor | 🔴 TODO |
+| IAP configured | Revenue-Engineer | 🔴 TODO |
 | Age rating | Dev-Ops | 🔴 TODO |
 | Categories | Dev-Ops | 🔴 TODO |
 | Keywords | Dev-Ops | 🔴 TODO |
@@ -177,13 +198,25 @@ Marketing assets for launch:
 
 ---
 
+## Pricing Tiers (Reference)
+
+| Tier | Price | Features |
+|------|-------|----------|
+| **Free** | $0 | 2 connections, 5GB/mo, manual sync |
+| **Pro** | $9.99/mo or $99/yr | Unlimited, scheduled sync, encryption |
+| **Team** | $19.99/user/mo | + Team management, SSO (future) |
+
+---
+
 ## Post-Sprint: Launch Sequence
 
-1. Submit to App Store Review
-2. Prepare launch announcement
-3. Submit to Product Hunt
-4. Social media posts
-5. Monitor reviews & feedback
+1. ✅ Submit to App Store Review
+2. Publish landing page
+3. Prepare launch announcement
+4. Submit to Product Hunt
+5. Social media posts
+6. Monitor reviews & feedback
+7. Iterate based on feedback
 
 ---
 

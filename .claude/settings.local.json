@@ -48,7 +48,8 @@
       "Bash(pkill:*)",
       "Bash(ruby:*)",
       "Bash(swift test:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(chmod:*)"
     ]
   }
 }

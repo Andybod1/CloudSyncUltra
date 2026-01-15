@@ -23,7 +23,13 @@ if [ -z "$WORKER" ]; then
     echo "  architect          System Design (ALWAYS Opus)"
     echo "  security-auditor   Security Review (ALWAYS Opus)"
     echo "  performance-eng    Performance Analysis (ALWAYS Opus)"
-    echo "  tech-writer        Documentation (Sonnet default)"
+    echo "  tech-writer        Documentation (ALWAYS Opus)"
+    echo "  brand-designer     Brand & Visual Identity (ALWAYS Opus)"
+    echo "  qa-automation      Test Automation (ALWAYS Opus)"
+    echo "  marketing-strategist Growth & Marketing (ALWAYS Opus)"
+    echo "  revenue-engineer   Payments & Subscriptions (ALWAYS Opus)"
+    echo "  legal-advisor      Compliance & Legal (ALWAYS Opus)"
+    echo "  marketing-lead     Launch & GTM (ALWAYS Opus)"
     echo ""
     echo "Models:"
     echo "  sonnet - Fast, for simple tasks"
@@ -100,6 +106,42 @@ case "$WORKER_LOWER" in
         BRIEFING="TECH_WRITER_BRIEFING.md"
         TASK="TASK_TECH_WRITER.md"
         NAME="Tech-Writer"
+        FORCE_OPUS=true
+        ;;
+    brand-designer|brand|branddesigner)
+        BRIEFING="BRAND_DESIGNER_BRIEFING.md"
+        TASK="TASK_BRAND_DESIGNER.md"
+        NAME="Brand-Designer"
+        FORCE_OPUS=true
+        ;;
+    qa-automation|qaauto|qaautomation)
+        BRIEFING="QA_AUTOMATION_BRIEFING.md"
+        TASK="TASK_QA_AUTOMATION.md"
+        NAME="QA-Automation"
+        FORCE_OPUS=true
+        ;;
+    marketing-strategist|marketer|marketingstrategist)
+        BRIEFING="MARKETING_STRATEGIST_BRIEFING.md"
+        TASK="TASK_MARKETING_STRATEGIST.md"
+        NAME="Marketing-Strategist"
+        FORCE_OPUS=true
+        ;;
+    revenue-engineer|revenue|revenueengineer)
+        BRIEFING="REVENUE_ENGINEER_BRIEFING.md"
+        TASK="TASK_REVENUE_ENGINEER.md"
+        NAME="Revenue-Engineer"
+        FORCE_OPUS=true
+        ;;
+    legal-advisor|legal|legaladvisor)
+        BRIEFING="LEGAL_ADVISOR_BRIEFING.md"
+        TASK="TASK_LEGAL_ADVISOR.md"
+        NAME="Legal-Advisor"
+        FORCE_OPUS=true
+        ;;
+    marketing-lead|launch|marketinglead)
+        BRIEFING="MARKETING_LEAD_BRIEFING.md"
+        TASK="TASK_MARKETING_LEAD.md"
+        NAME="Marketing-Lead"
         FORCE_OPUS=true
         ;;
     *)

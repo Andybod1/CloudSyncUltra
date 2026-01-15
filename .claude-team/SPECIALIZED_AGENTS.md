@@ -31,6 +31,9 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 | **Brand-Designer** | Brand & Visual Identity | Opus + /think hard | Brand audit, visual assets, style guides |
 | **QA-Automation** | Test Automation | Opus + /think hard | UI tests, CI/CD, coverage analysis |
 | **Marketing-Strategist** | Growth & Marketing | Opus + /think hard | ASO, campaigns, positioning |
+| **Revenue-Engineer** | Payments & Subscriptions | Opus + /think hard | StoreKit 2, IAP, tier logic, paywalls |
+| **Legal-Advisor** | Compliance & Legal | Opus + /think hard | Privacy policy, ToS, App Store compliance |
+| **Marketing-Lead** | Launch & GTM | Opus + /think hard | Launch strategy, landing page, press kit |
 
 **All specialized agents use Opus with `/think hard` for deep, thorough analysis.**
 
@@ -56,6 +59,9 @@ Beyond the core dev team, CloudSync Ultra can leverage specialized agents for fo
 ~/Claude/.claude-team/scripts/launch_single_worker.sh brand-designer opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh qa-automation opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-strategist opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
 ```
 
 ---
@@ -94,6 +100,12 @@ Brand-Designer: Read /Users/antti/Claude/.claude-team/templates/BRAND_DESIGNER_B
 QA-Automation: Read /Users/antti/Claude/.claude-team/templates/QA_AUTOMATION_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_QA_AUTOMATION.md. Update STATUS.md as you work.
 
 Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_STRATEGIST_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_STRATEGIST.md. Update STATUS.md as you work.
+
+Revenue-Engineer: Read /Users/antti/Claude/.claude-team/templates/REVENUE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_REVENUE_ENGINEER.md. Update STATUS.md as you work.
+
+Legal-Advisor: Read /Users/antti/Claude/.claude-team/templates/LEGAL_ADVISOR_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_LEGAL_ADVISOR.md. Update STATUS.md as you work.
+
+Marketing-Lead: Read /Users/antti/Claude/.claude-team/templates/MARKETING_LEAD_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_LEAD.md. Update STATUS.md as you work.
 ```
 
 ---
@@ -111,6 +123,9 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 | "Brand looks inconsistent" or "need visual identity" | Brand-Designer |
 | "Need automated UI tests" or "improve test coverage" | QA-Automation |
 | "How do we grow users?" or "App Store optimization" | Marketing-Strategist |
+| "Implement subscriptions" or "payment flows" | Revenue-Engineer |
+| "Need privacy policy" or "App Store compliance" | Legal-Advisor |
+| "Plan the launch" or "landing page copy" | Marketing-Lead |
 
 ---
 

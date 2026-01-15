@@ -44,7 +44,7 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 | Dev-2 | ⚪ Idle | - | Available |
 | Dev-3 | ⚪ Idle | - | Available |
 | QA | ⚪ Idle | - | Available |
-| Dev-Ops | 🟢 RUNNING | Ops Excellence Sprint | L-sized task |
+| Dev-Ops | ✅ DONE | Ops Excellence Sprint | Completed (88% achieved) |
 
 **Deliverables:**
 - `scripts/generate-changelog.sh` (Pillar 1 → 100%)
@@ -54,14 +54,24 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 
 ---
 
-## Just Completed: Docs & Template Update ✅
+## Just Completed: Operational Excellence Sprint ✅
 
 | Worker | Task | Commit |
 |--------|------|--------|
+| Dev-Ops | Operational Excellence → 88% | 173350e |
+
+**Previous:**
 | Dev-Ops | Project-Ops-Kit $1B Update | 79745f2 |
 | Tech-Writer | Update User-Facing Docs | bd2c286 |
 
 **Changes:**
+- Operational Excellence improved from 78% → 88%
+- Created automated changelog generation from commits
+- Enhanced dashboard with CI build success tracking
+- Added macOS notarization and App Store submission scripts
+- Pillar 1 (Automation) and Pillar 4 (Metrics) now at 100%
+
+**Previous Sprint Changes:**
 - All user docs updated to v2.0.22 (42+ providers, 841 tests)
 - Project-ops-kit template now $1B-ready with Step 8
 - setup.sh enhanced with project name prompts
