@@ -3,21 +3,21 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** In Progress
-> **Last Updated:** 2026-01-15 (CI coverage added)
+> **Last Updated:** 2026-01-15 (Operational Excellence Sprint → 88%)
 
 ---
 
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [█████████░] 90%
-Pillar 2: Quality Gates          [██████████] 100% ⬆️ (+40%)
-Pillar 3: Single Source of Truth [█████████░] 90%  
-Pillar 4: Metrics & Visibility   [████████░░] 85%  
+Pillar 1: Automation First       [██████████] 100% ⬆️ (+10%)
+Pillar 2: Quality Gates          [██████████] 100%
+Pillar 3: Single Source of Truth [█████████░] 90%
+Pillar 4: Metrics & Visibility   [██████████] 100% ⬆️ (+15%)
 Pillar 5: Knowledge Management   [████████░░] 80%
-Pillar 6: Business Operations    [██░░░░░░░░] 20%
+Pillar 6: Business Operations    [█████░░░░░] 50%  ⬆️ (+30%)
 ─────────────────────────────────────────────────
-Overall Progress                 [████████░░] 78%  ⬆️ (+8%)
+Overall Progress                 [█████████░] 88%  ⬆️ (+10%)
 ```
 
 ---
@@ -34,7 +34,7 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
 | GitHub Actions CI | ✅ Done | `.github/workflows/ci.yml` | Build + test on push |
 | Pre-commit hooks | ✅ Done | `scripts/pre-commit` | Build check, syntax, debug artifacts |
-| Auto-changelog | ❌ TODO | - | From conventional commits |
+| Auto-changelog | ✅ Done | `scripts/generate-changelog.sh` | From conventional commits |
 
 ---
 
@@ -75,7 +75,7 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 | Health dashboard | ✅ Done | `scripts/dashboard.sh` | Health score + alerts |
 | Sprint velocity | ✅ Done | Dashboard | 7-day opened vs closed |
 | Test count trend | ✅ Done | `.claude-team/metrics/` | Historical data |
-| Build success rate | ❌ TODO | GitHub Actions | Historical data |
+| Build success rate | ✅ Done | `scripts/dashboard.sh` | Shows CI pass rate |
 | Issue age tracking | ✅ Done | Dashboard | Oldest + stale count |
 | Code coverage report | ✅ Done | CI workflow | Coverage in artifacts + PR summary |
 
@@ -101,8 +101,8 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 
 | Item | Status | Tool | Notes |
 |------|--------|------|-------|
-| App notarization | ❌ TODO | `scripts/notarize.sh` | Apple requirements |
-| App Store submission | ❌ TODO | `scripts/submit-appstore.sh` | Automated upload |
+| App notarization | ✅ Done | `scripts/notarize.sh` | Apple requirements |
+| App Store submission | ✅ Done | `scripts/submit-appstore.sh` | Automated upload |
 | In-app feedback | ❌ TODO | FeedbackManager.swift | User → GitHub Issue |
 | Crash reporting | ✅ Done | CrashReportingManager | Complete with UI |
 | Analytics integration | ❌ TODO | AnalyticsManager.swift | Usage tracking |
@@ -116,6 +116,7 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 # Statistics & metrics
 ./scripts/generate-stats.sh         # Auto-generate project stats
 ./scripts/record-test-count.sh      # Record test count to CSV
+./scripts/generate-changelog.sh     # Generate changelog from commits
 
 # Session management  
 ./scripts/save-session.sh           # Quick session summary
@@ -128,6 +129,10 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 # Quality & health
 ./scripts/dashboard.sh              # Project health dashboard
 ./scripts/install-hooks.sh          # Install pre-commit hooks
+
+# Business operations
+./scripts/notarize.sh              # macOS app notarization
+./scripts/submit-appstore.sh       # App Store Connect submission
 ```
 
 ---
@@ -139,7 +144,7 @@ Overall Progress                 [████████░░] 78%  ⬆️ (+
 | Health Score | 85% | 90% | 95%+ |
 | Open Issues | 26 | 20 | <15 |
 | Closed (7-day) | 69 | 75 | Growing |
-| Operational Excellence | 42% | 57% | 80%+ |
+| Operational Excellence | 78% | 88% | 95%+ |
 
 ---
 
