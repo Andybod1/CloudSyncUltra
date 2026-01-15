@@ -10,14 +10,15 @@
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [██████████] 100% ⬆️ (+10%)
+Pillar 1: Automation First       [██████████] 100%
 Pillar 2: Quality Gates          [██████████] 100%
 Pillar 3: Single Source of Truth [█████████░] 90%
-Pillar 4: Metrics & Visibility   [██████████] 100% ⬆️ (+15%)
+Pillar 4: Metrics & Visibility   [██████████] 100%
 Pillar 5: Knowledge Management   [████████░░] 80%
-Pillar 6: Business Operations    [█████░░░░░] 50%  ⬆️ (+30%)
+Pillar 6: Business Operations    [█████░░░░░] 50%
+Pillar 7: Worker Quality         [██████████] 100% 🆕
 ─────────────────────────────────────────────────
-Overall Progress                 [█████████░] 88%  ⬆️ (+10%)
+Overall Progress                 [█████████░] 89%  ⬆️ (+1%)
 ```
 
 ---
@@ -110,6 +111,21 @@ Overall Progress                 [█████████░] 88%  ⬆️ (+
 
 ---
 
+## Pillar 7: Worker Quality 👷
+
+**Principle:** Quality gates prevent rework.
+
+| Item | Status | Location | Notes |
+|------|--------|----------|-------|
+| Quality Standards doc | ✅ Done | `templates/WORKER_QUALITY_STANDARDS.md` | Mandatory reading |
+| Briefing template | ✅ Done | `templates/DEV_BRIEFING_TEMPLATE.md` | With quality gates |
+| Type inventory | ✅ Done | `.claude-team/TYPE_INVENTORY.md` | Auto-generated reference |
+| Worker QA script | ✅ Done | `scripts/worker-qa.sh` | Build + project check |
+| Type inventory script | ✅ Done | `scripts/generate-type-inventory.sh` | Refresh before sprint |
+| Launch script updated | ✅ Done | `scripts/launch_single_worker.sh` | Includes quality reminder |
+
+---
+
 ## New Scripts Added
 
 ```bash
@@ -133,6 +149,10 @@ Overall Progress                 [█████████░] 88%  ⬆️ (+
 # Business operations
 ./scripts/notarize.sh              # macOS app notarization
 ./scripts/submit-appstore.sh       # App Store Connect submission
+
+# Worker quality (NEW)
+./scripts/worker-qa.sh             # Pre-completion QA check
+./scripts/generate-type-inventory.sh # Refresh type reference
 ```
 
 ---

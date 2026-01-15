@@ -182,7 +182,7 @@ if [ ! -f "$TEAM_DIR/templates/$BRIEFING" ]; then
     exit 1
 fi
 
-CMD="Read /Users/antti/Claude/.claude-team/templates/$BRIEFING then read and execute /Users/antti/Claude/.claude-team/tasks/$TASK. Update STATUS.md as you work."
+CMD="IMPORTANT: First read /Users/antti/Claude/.claude-team/templates/WORKER_QUALITY_STANDARDS.md for mandatory quality rules. Then read /Users/antti/Claude/.claude-team/templates/$BRIEFING and execute /Users/antti/Claude/.claude-team/tasks/$TASK. Run ./scripts/worker-qa.sh before marking complete."
 
 echo "Launching $NAME with $MODEL_NAME..."
 
