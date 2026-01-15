@@ -34,6 +34,7 @@
 		3C0A61D75E294F51AB336EF6 /* RcloneManagerErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DCDC5D0F7F267A4299B7A34 /* RcloneManagerErrorTests.swift */; };
 		3DE9FA1916F3A51951A5E8DC /* Phase1Week3ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990D0F70CC76B66CE3B45B4E /* Phase1Week3ProvidersTests.swift */; };
 		3EE41743EA0D6C4FFB2B9E83 /* ErrorNotificationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DA7F1856757AB4C4C72C7A /* ErrorNotificationManagerTests.swift */; };
+		3F339F7447DB8BDABE3E1A45 /* ChunkSizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44288236563EB1F0789C060E /* ChunkSizeTests.swift */; };
 		442B3A50FA48541267ABA227 /* BandwidthThrottlingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C885DE1600F31A933247FA5 /* BandwidthThrottlingUITests.swift */; };
 		56128FD100AFC400EF37268D /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4067D568C3D17631CE8DF789 /* QuickActionsView.swift */; };
 		5757119078672EE10F29AE66 /* CloudSyncAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FCF855FFAADD6680076AD2 /* CloudSyncAppUITests.swift */; };
@@ -86,6 +87,7 @@
 		BF07 /* ProtonDriveSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055C30C36D0BCF261C5C27FA /* ProtonDriveSetupView.swift */; };
 		C12F52A4FE77EB07C3F45AFC /* AppTheme+ProviderColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65A10946A6CD735FA94D79 /* AppTheme+ProviderColors.swift */; };
 		C253E3C82C46D2E49FC7BF0A /* BandwidthThrottlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73474A03B74243C017C410E /* BandwidthThrottlingTests.swift */; };
+		C315EB8938B597F31192BB22 /* TransferPreviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF9B64CA91B6A75B7BD1BD /* TransferPreviewTests.swift */; };
 		C83C9D658C9DAD85749F1716 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */; };
 		CMP01 /* CompletionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CMP02 /* CompletionStepView.swift */; };
 		D7114B6E9C6AE93A064FB12B /* Phase1Week1ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4547BACA8D0CFB390C1E064 /* Phase1Week1ProvidersTests.swift */; };
@@ -149,10 +151,12 @@
 		3DA97DEA46D79CCD30FA0278 /* CloudSyncUltraIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/CloudSyncUltraIntegrationTests.swift; sourceTree = SOURCE_ROOT; };
 		3EA943E5A37C52E2869C48D0 /* ProtonDriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProtonDriveManager.swift; path = CloudSyncApp/ProtonDriveManager.swift; sourceTree = SOURCE_ROOT; };
 		4067D568C3D17631CE8DF789 /* QuickActionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
+		44288236563EB1F0789C060E /* ChunkSizeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChunkSizeTests.swift; sourceTree = "<group>"; };
 		458E4CA3A6E61071EE941591 /* ScheduleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = CloudSyncApp/ScheduleManager.swift; sourceTree = SOURCE_ROOT; };
 		49FC495CA79185DB2B79982D /* Logger+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Logger+Extensions.swift"; path = "CloudSyncApp/Logger+Extensions.swift"; sourceTree = SOURCE_ROOT; };
 		4CDAF6B5FA7CE2AED5D0118E /* ScheduleManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ScheduleManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		4DAF33D2D05D2C43F610E397 /* KeychainManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/KeychainManagerTests.swift; sourceTree = SOURCE_ROOT; };
+		4FDF9B64CA91B6A75B7BD1BD /* TransferPreviewTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TransferPreviewTests.swift; sourceTree = "<group>"; };
 		5106C877AA4817D4F7C064FC /* RemoteReorderingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/RemoteReorderingTests.swift; sourceTree = SOURCE_ROOT; };
 		510FB6414EA9DC91737151EE /* FileBrowserUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserUITests.swift; sourceTree = "<group>"; };
 		660A2D60774D78D930803712 /* DashboardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardUITests.swift; sourceTree = "<group>"; };
@@ -308,6 +312,8 @@
 				A4FBA4CD745F10F3CCD929EE /* HelpSystemTests.swift */,
 				AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */,
 				C7640A97C61011358757E1FB /* TransferOptimizerTests.swift */,
+				44288236563EB1F0789C060E /* ChunkSizeTests.swift */,
+				4FDF9B64CA91B6A75B7BD1BD /* TransferPreviewTests.swift */,
 			);
 			path = CloudSyncAppTests;
 			sourceTree = SOURCE_ROOT;
@@ -667,6 +673,8 @@
 				9B85615EC4EC33CB802ABFA2 /* HelpSystemTests.swift in Sources */,
 				2CBA14FDB5D8407B9937F012 /* MultiThreadDownloadTests.swift in Sources */,
 				0A2F78C6C44A00F629D3291A /* TransferOptimizerTests.swift in Sources */,
+				3F339F7447DB8BDABE3E1A45 /* ChunkSizeTests.swift in Sources */,
+				C315EB8938B597F31192BB22 /* TransferPreviewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

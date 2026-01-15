@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a crash report with detailed information
-struct CrashReport: Identifiable, Codable {
+struct CrashReport: Identifiable, Codable, Hashable {
     let id: UUID
     let date: Date
     let type: CrashType
@@ -20,7 +20,7 @@ struct CrashReport: Identifiable, Codable {
         self.appInfo = AppInfo.current
     }
 
-    enum CrashType: String, Codable {
+    enum CrashType: String, Codable, Hashable {
         case exception = "Exception"
         case signal = "Signal"
         case unknown = "Unknown"
@@ -28,7 +28,7 @@ struct CrashReport: Identifiable, Codable {
 }
 
 /// Device information for crash reports
-struct DeviceInfo: Codable {
+struct DeviceInfo: Codable, Hashable {
     let osVersion: String
     let architecture: String
     let memoryTotal: UInt64
@@ -56,7 +56,7 @@ struct DeviceInfo: Codable {
 }
 
 /// Application information for crash reports
-struct AppInfo: Codable {
+struct AppInfo: Codable, Hashable {
     let version: String
     let build: String
     let bundleIdentifier: String
