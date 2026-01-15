@@ -1,5 +1,8 @@
 # TASK: Update Project-Ops-Kit for $1B Solo Founder Operations
 
+> **⚠️ TASK UPDATED:** Step 8 (User-Facing Docs Check) was added AFTER initial launch.
+> **Re-read this task file to see the new requirement.**
+
 ## Ticket
 **Type:** Operations / Template Enhancement  
 **Size:** L (2-3 hours)  
@@ -18,6 +21,7 @@ Make `templates/project-ops-kit/` a complete, battle-tested template that enable
 | Item | Live Project | Template | Status |
 |------|--------------|----------|--------|
 | Post-Sprint Checklist | ✅ In CLAUDE_PROJECT_KNOWLEDGE.md | ❌ Missing | **CRITICAL** |
+| Step 8: User Docs Check | ✅ Just added to live | ❌ Missing | **CRITICAL** |
 | RECOVERY.md | ✅ Comprehensive | ❌ Missing | **CRITICAL** |
 | Billion Dollar Framework | ✅ Created | ❌ Missing | **HIGH** |
 | CI Code Coverage | ✅ Enabled | ❌ Generic | **HIGH** |
@@ -49,6 +53,27 @@ Add the **MANDATORY Post-Sprint Checklist** section (copy pattern from live proj
 #### 5. Clean Up Sprint Files
 #### 6. Commit, Tag & Push
 #### 7. Reflect on Operational Excellence
+#### 8. User-Facing Docs Check (Quarterly or Major Features)
+```
+
+**⚠️ IMPORTANT:** Include Step 8 - User-Facing Docs Check:
+```markdown
+#### 8. User-Facing Docs Check (Quarterly or Major Features)
+
+| File | Check For |
+|------|-----------|
+| `README.md` | Feature list, provider count, build instructions |
+| `GETTING_STARTED.md` | Onboarding flow, prerequisites, first steps |
+| `PROJECT_OVERVIEW.md` | Architecture, feature highlights, provider count |
+| `QUICKSTART.md` | Current workflows, keyboard shortcuts |
+| `DEVELOPMENT.md` | Architecture diagrams, new components, test count |
+
+- [ ] Provider count accurate?
+- [ ] New major features documented?
+- [ ] Screenshots current (if any)?
+- [ ] **If outdated → Create Tech-Writer task**
+
+**Trigger:** Run this check when sprint includes user-facing features or quarterly.
 ```
 
 Make it a template with placeholders but include the FULL checklist structure.
@@ -149,7 +174,8 @@ Update `scripts/setup.sh` to:
 
 ## Success Criteria
 
-- [ ] CLAUDE_PROJECT_KNOWLEDGE.md has full post-sprint checklist
+- [ ] CLAUDE_PROJECT_KNOWLEDGE.md has full post-sprint checklist (Steps 0-8)
+- [ ] Step 8 (User-Facing Docs Check) included in template
 - [ ] RECOVERY.md template created
 - [ ] BILLION_DOLLAR_FRAMEWORK.md template created (generic)
 - [ ] CI template includes coverage examples
