@@ -1,188 +1,170 @@
-# TASK: Operational Excellence Sprint → 88%
+# TASK: App Store Screenshots & Metadata (#78)
 
 ## Ticket
-**Type:** Operations / Automation  
-**Size:** L (2-3 hours)  
-**Priority:** High
+**GitHub:** #78
+**Type:** Operations / App Store Submission
+**Size:** M (1-2 hours)
+**Priority:** High (required for submission)
 
 ---
 
 ## Objective
 
-Improve Operational Excellence from 78% → 88% by completing key automation gaps across Pillars 1, 4, and 6.
-
----
-
-## Current State
-
-```
-Pillar 1: Automation First       [█████████░] 90%  ← +10% possible
-Pillar 2: Quality Gates          [██████████] 100% ✅
-Pillar 3: Single Source of Truth [█████████░] 90%  
-Pillar 4: Metrics & Visibility   [████████░░] 85%  ← +15% possible
-Pillar 5: Knowledge Management   [████████░░] 80%
-Pillar 6: Business Operations    [██░░░░░░░░] 20%  ← +30% possible
-─────────────────────────────────────────────────
-Overall Progress                 [████████░░] 78%
-```
+Prepare all App Store submission assets including screenshots, metadata, keywords, and categories.
 
 ---
 
 ## Deliverables
 
-### 1. Auto-Changelog Script (Pillar 1 → 100%)
+### 1. Screenshots
 
-Create `scripts/generate-changelog.sh`:
+**Required Sizes (macOS):**
+- 1280 x 800 pixels (minimum)
+- 2560 x 1600 pixels (recommended for Retina)
+- Up to 10 screenshots
 
-```bash
-# Generate changelog entry from conventional commits since last tag
-# Usage: ./scripts/generate-changelog.sh [version]
+**Screens to Capture:**
+1. Main window with sidebar and file browser
+2. Transfer in progress with progress bars
+3. Settings view showing providers
+4. Add Remote wizard
+5. Encryption settings
+6. Menu bar integration
+7. Quick Actions menu (Cmd+Shift+N)
 
-# Should:
-# - Parse git log since last tag
-# - Group by type: feat, fix, docs, test, ops, refactor
-# - Format as markdown
-# - Optionally prepend to CHANGELOG.md
+**Screenshot Guidelines:**
+- Use sample/demo data (no personal info)
+- Clean, professional appearance
+- Highlight key features
+- Consider adding callouts/annotations
+
+### 2. App Metadata
+
+| Field | Content |
+|-------|---------|
+| App Name | CloudSync Ultra |
+| Subtitle | Multi-Cloud File Sync |
+| Category | Utilities |
+| Secondary | Productivity |
+
+### 3. Description
+
+Write compelling App Store description:
+- Lead with key benefit
+- List major features
+- Mention 42+ providers
+- Include encryption/security
+- Call to action
+
+**Structure:**
+```
+[Hook - 1 sentence]
+
+[Key benefits - bullet points]
+
+[Feature highlights]
+
+[Trust/security message]
+
+[Call to action]
 ```
 
-**Requirements:**
-- Parse conventional commits (feat:, fix:, docs:, etc.)
-- Group by category
-- Include commit hash links
-- Output markdown format
-- Option to auto-prepend to CHANGELOG.md
+### 4. Keywords
+
+Research and select 100 characters of keywords:
+- cloud sync
+- file backup
+- dropbox
+- google drive
+- s3
+- encryption
+- multi-cloud
+- file transfer
+
+### 5. Support Information
+
+| Field | Value |
+|-------|-------|
+| Support URL | [TBD - needs landing page] |
+| Marketing URL | [TBD] |
+| Privacy Policy URL | [From Legal-Advisor] |
+
+### 6. Age Rating
+
+Complete age rating questionnaire:
+- No objectionable content
+- No user-generated content
+- No location data shared
+- Rating: 4+ (all ages)
 
 ---
 
-### 2. Build Success Rate in Dashboard (Pillar 4 → 100%)
+## Output Directory
 
-Update `scripts/dashboard.sh`:
+Create: `docs/APP_STORE_SUBMISSION/`
 
-- Add GitHub Actions build success rate
-- Show last N builds status
-- Use `gh run list` to fetch data
-
-Example output:
 ```
-CI Status:  ✅ 95% (19/20 passed)
+docs/APP_STORE_SUBMISSION/
+├── screenshots/
+│   ├── 01-main-window.png
+│   ├── 02-transfer-progress.png
+│   ├── 03-settings.png
+│   ├── 04-add-remote.png
+│   ├── 05-encryption.png
+│   ├── 06-menu-bar.png
+│   └── 07-quick-actions.png
+├── DESCRIPTION.md
+├── KEYWORDS.txt
+├── METADATA.md
+└── CHECKLIST.md
 ```
-
-**Requirements:**
-- Fetch last 20 workflow runs
-- Calculate success percentage
-- Show in dashboard
-- Color code (green >90%, yellow >70%, red <70%)
 
 ---
 
-### 3. Notarization Script (Pillar 6 +15%)
+## Screenshot Capture Process
 
-Create `scripts/notarize.sh`:
+1. Build and launch latest app
+2. Configure with demo remotes
+3. Set up sample data
+4. Capture each screen
+5. Resize to required dimensions
+6. Review for quality
 
-```bash
-# Notarize macOS app for distribution
-# Usage: ./scripts/notarize.sh [app_path]
-
-# Steps:
-# 1. Create ZIP of app
-# 2. Submit to Apple notarization service
-# 3. Wait for completion (poll)
-# 4. Staple notarization ticket to app
-```
-
-**Requirements:**
-- Use `xcrun notarytool` (modern API)
-- Support environment variables for credentials:
-  - `APPLE_ID`
-  - `APPLE_TEAM_ID`
-  - `APPLE_APP_PASSWORD` (app-specific password)
-- Show progress with spinner
-- Handle errors gracefully
-- Staple ticket after approval
-
-**Reference:** Apple's notarization docs
+**Tools:**
+- macOS Screenshot (Cmd+Shift+4)
+- Preview for resizing
+- Optional: Add annotations
 
 ---
 
-### 4. App Store Submission Script (Pillar 6 +15%)
+## Acceptance Criteria
 
-Create `scripts/submit-appstore.sh`:
-
-```bash
-# Submit app to App Store Connect
-# Usage: ./scripts/submit-appstore.sh [ipa_or_pkg_path]
-
-# Steps:
-# 1. Validate app package
-# 2. Upload to App Store Connect
-# 3. Report success/failure
-```
-
-**Requirements:**
-- Use `xcrun altool` or Transporter
-- Validate before upload
-- Support environment variables for credentials
-- Show upload progress
-- Return success/failure status
-
----
-
-## Files to Create/Update
-
-| Action | File |
-|--------|------|
-| CREATE | `scripts/generate-changelog.sh` |
-| UPDATE | `scripts/dashboard.sh` |
-| CREATE | `scripts/notarize.sh` |
-| CREATE | `scripts/submit-appstore.sh` |
-| UPDATE | `.claude-team/OPERATIONAL_EXCELLENCE.md` |
-
----
-
-## Success Criteria
-
-- [ ] `generate-changelog.sh` creates proper changelog from commits
-- [ ] `dashboard.sh` shows CI success rate
-- [ ] `notarize.sh` can notarize an app (test with dry-run or docs)
-- [ ] `submit-appstore.sh` structure ready (may need credentials to fully test)
-- [ ] OPERATIONAL_EXCELLENCE.md updated with new percentages
-- [ ] All scripts executable (`chmod +x`)
-- [ ] All scripts have usage help (`-h` flag)
-- [ ] Git committed and pushed
-
----
-
-## Expected Result
-
-```
-Pillar 1: Automation First       [██████████] 100% ⬆️
-Pillar 2: Quality Gates          [██████████] 100%
-Pillar 3: Single Source of Truth [█████████░] 90%  
-Pillar 4: Metrics & Visibility   [██████████] 100% ⬆️
-Pillar 5: Knowledge Management   [████████░░] 80%
-Pillar 6: Business Operations    [█████░░░░░] 50%  ⬆️
-─────────────────────────────────────────────────
-Overall Progress                 [█████████░] 88%  ⬆️
-```
+- [ ] All required screenshots captured
+- [ ] Screenshots at correct resolution
+- [ ] App description written
+- [ ] Keywords selected (100 char max)
+- [ ] Categories chosen
+- [ ] Age rating completed
+- [ ] All files in `docs/APP_STORE_SUBMISSION/`
+- [ ] Checklist document created
 
 ---
 
 ## Reference
 
-- Apple Notarization: https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution
-- xcrun notarytool: Modern replacement for altool
-- GitHub CLI: `gh run list --limit 20`
+- Existing docs: `docs/APP_STORE_CHECKLIST.md`
+- App Store guidelines: https://developer.apple.com/app-store/review/guidelines/
+- Screenshot specs: https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications
 
 ---
 
 ## Notes
 
-- Notarization requires Apple Developer account credentials
-- Scripts should work without credentials (show helpful error)
-- Use /think for script architecture decisions
-- Test scripts before committing
+- Use /think for keyword research
+- Coordinate with Marketing-Lead for messaging consistency
+- Screenshots should match landing page style
 
 ---
 
 *Task created: 2026-01-15*
-*Use /think for thorough analysis*
+*Sprint: v2.0.23 "Launch Ready"*
