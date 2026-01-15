@@ -39,8 +39,11 @@ struct ChunkSizeConfig {
         case .oneDrive, .oneDriveBusiness, .sharepoint:
             return 10 * 1024 * 1024  // 10MB - Microsoft optimal
 
-        // Dropbox & Box - balanced for API limits
-        case .dropbox, .box:
+        // Dropbox - optimal per rclone docs
+        case .dropbox:
+            return 150 * 1024 * 1024  // 150MB - optimal for Dropbox
+        // Box - balanced for API limits
+        case .box:
             return 8 * 1024 * 1024   // 8MB - balanced
 
         // Proton Drive - smaller chunks due to encryption overhead

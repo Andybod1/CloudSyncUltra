@@ -47,12 +47,12 @@ final class ChunkSizeTests: XCTestCase {
     }
 
     func testChunkSizeForDropbox() {
-        // Dropbox uses 8MB chunks for balanced API limits
+        // Dropbox uses 150MB chunks for optimal performance per rclone docs
         let chunkSize = ChunkSizeConfig.chunkSize(for: .dropbox)
-        XCTAssertEqual(chunkSize, 8 * 1024 * 1024, "Dropbox should use 8MB chunks")
+        XCTAssertEqual(chunkSize, 150 * 1024 * 1024, "Dropbox should use 150MB chunks")
 
         let chunkString = ChunkSizeConfig.chunkSizeString(for: .dropbox)
-        XCTAssertEqual(chunkString, "8M", "Dropbox chunk string should be 8M")
+        XCTAssertEqual(chunkString, "150M", "Dropbox chunk string should be 150M")
     }
 
     func testChunkSizeForBackblazeB2() {
@@ -156,7 +156,7 @@ final class ChunkSizeTests: XCTestCase {
     func testChunkSizeFlagForDropbox() {
         let flag = ChunkSizeConfig.chunkSizeFlag(for: .dropbox)
         XCTAssertNotNil(flag)
-        XCTAssertEqual(flag, "--dropbox-chunk-size=8M")
+        XCTAssertEqual(flag, "--dropbox-chunk-size=150M")
     }
 
     func testChunkSizeFlagForBackblazeB2() {
@@ -309,7 +309,7 @@ final class ChunkSizeTests: XCTestCase {
 
     func testGetChunkSizeFlagFromRemoteNameDropbox() {
         let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("dropbox-backup")
-        XCTAssertEqual(flag, "--dropbox-chunk-size=8M", "Should detect Dropbox from remote name")
+        XCTAssertEqual(flag, "--dropbox-chunk-size=150M", "Should detect Dropbox from remote name")
     }
 
     func testGetChunkSizeFlagFromRemoteNameS3() {
