@@ -1,0 +1,79 @@
+# CloudSync Ultra - App Store Keywords
+
+## Selected Keywords (99 characters)
+
+dropbox,gdrive,onedrive,s3,mega,sync,backup,cloud,transfer,storage,file,ftp,sftp,webdav,encryption
+
+## Character Count Breakdown
+
+- dropbox (7)
+- gdrive (6)
+- onedrive (8)
+- s3 (2)
+- mega (4)
+- sync (4)
+- backup (6)
+- cloud (5)
+- transfer (8)
+- storage (7)
+- file (4)
+- ftp (3)
+- sftp (4)
+- webdav (6)
+- encryption (10)
+- Commas: 14
+
+Total: 85 + 14 = 99 characters
+
+## Keyword Strategy Rationale
+
+### Brand Keywords (27 chars)
+- **dropbox, gdrive, onedrive, s3, mega** - Users often search for specific cloud services they want to sync
+
+### Core Function Keywords (29 chars)
+- **sync, backup, cloud, transfer, storage, file** - Generic terms that describe what the app does
+
+### Technical Keywords (13 chars)
+- **ftp, sftp, webdav** - Users looking for specific protocol support
+
+### Feature Keywords (10 chars)
+- **encryption** - Security-conscious users
+
+## Alternative Keywords Considered
+
+These keywords were considered but excluded due to character limit:
+
+- proton, box, pcloud (other providers)
+- mac, macos (platform - less critical as App Store already filters by platform)
+- manager, browser, client (generic app types)
+- multi-cloud, multicloud (too long, covered by other terms)
+- nextcloud, owncloud (self-hosted options)
+- aws, azure (enterprise clouds - s3 covers AWS)
+
+## Optimization Notes
+
+1. **No spaces after commas** - Saves character count
+2. **Abbreviated where possible** - "gdrive" instead of "google drive"
+3. **Prioritized high-search volume** - Dropbox, Google Drive, OneDrive are most searched
+4. **Included differentiators** - FTP/SFTP/WebDAV support sets us apart
+5. **Security angle** - "encryption" targets privacy-conscious users
+
+## A/B Testing Recommendations
+
+Consider testing these alternative keyword sets in future updates:
+
+**Set B - Provider Focus (100 chars):**
+dropbox,google drive,onedrive,box,mega,s3,proton,icloud,sync,backup,transfer,cloud,file,encryption
+
+**Set C - Technical Focus (98 chars):**
+sync,backup,transfer,cloud,storage,ftp,sftp,webdav,s3,encryption,rclone,mac,client,manager,multi
+
+## Competitor Keyword Analysis
+
+Based on similar apps in the Mac App Store:
+
+- **Transmit**: ftp,sftp,s3,webdav,cloud,sync,transfer,client
+- **Cyberduck**: ftp,sftp,s3,azure,dropbox,gdrive,browser,cloud
+- **ForkLift**: ftp,sftp,s3,file,manager,transfer,sync,cloud
+
+Our keyword strategy captures the most important terms while emphasizing our multi-cloud support advantage.
