@@ -17,15 +17,29 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Load project configuration
+# Load project configuration or prompt for project name
 if [[ -f "$PROJECT_ROOT/project.conf" ]]; then
     source "$PROJECT_ROOT/project.conf"
 else
-    echo "Warning: project.conf not found. Using defaults."
-    PROJECT_NAME=$(basename "$PROJECT_ROOT")
+    # Prompt for project name
+    echo "Welcome to Project Ops Kit Setup!"
+    echo ""
+    read -p "Enter your project name: " PROJECT_NAME
+
+    # Use defaults for initial setup
     GITHUB_URL=""
     BUILD_COMMAND="# Configure your build command"
     TEST_COMMAND="# Configure your test command"
+
+    # Create project.conf with the provided name
+    cat > "$PROJECT_ROOT/project.conf" << EOF
+# Project Configuration
+PROJECT_NAME="$PROJECT_NAME"
+GITHUB_URL=""
+BUILD_COMMAND="# Configure your build command"
+TEST_COMMAND="# Configure your test command"
+EOF
+    echo "Created project.conf with project name: $PROJECT_NAME"
 fi
 
 GREEN='\033[0;32m'
@@ -56,18 +70,36 @@ mkdir -p "$PROJECT_ROOT/.github/ISSUE_TEMPLATE"
 echo -e "  ${GREEN}✓${NC} .claude-team/ structure"
 echo -e "  ${GREEN}✓${NC} .github/workflows/"
 
-# Replace {PROJECT_ROOT} placeholders in template files
+# Replace {PROJECT_ROOT} and {PROJECT_NAME} placeholders in all files
 echo -e "${BOLD}Configuring templates...${NC}"
 PLACEHOLDER_COUNT=0
-for file in "$PROJECT_ROOT/.claude-team/templates/"*.md "$PROJECT_ROOT/.claude-team/"*.md; do
+
+# Find all files that might contain placeholders (excluding binaries and .git)
+find "$PROJECT_ROOT" -type f \
+    -not -path "*/.git/*" \
+    -not -path "*/node_modules/*" \
+    -not -path "*/.DS_Store" \
+    -not -name "*.png" \
+    -not -name "*.jpg" \
+    -not -name "*.ico" \
+    -not -name "*.zip" \
+    -not -name "*.tar*" | while read -r file; do
     if [[ -f "$file" ]]; then
-        if grep -q "{PROJECT_ROOT}" "$file" 2>/dev/null; then
-            sed -i '' "s|{PROJECT_ROOT}|$PROJECT_ROOT|g" "$file"
+        # Check if file contains either placeholder
+        if grep -q "{PROJECT_ROOT}\|{PROJECT_NAME}" "$file" 2>/dev/null; then
+            # Replace placeholders
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # macOS sed syntax
+                sed -i '' -e "s|{PROJECT_ROOT}|$PROJECT_ROOT|g" -e "s|{PROJECT_NAME}|$PROJECT_NAME|g" "$file"
+            else
+                # Linux sed syntax
+                sed -i -e "s|{PROJECT_ROOT}|$PROJECT_ROOT|g" -e "s|{PROJECT_NAME}|$PROJECT_NAME|g" "$file"
+            fi
             PLACEHOLDER_COUNT=$((PLACEHOLDER_COUNT + 1))
         fi
     fi
 done
-echo -e "  ${GREEN}✓${NC} Replaced {PROJECT_ROOT} in $PLACEHOLDER_COUNT files"
+echo -e "  ${GREEN}✓${NC} Replaced placeholders in $PLACEHOLDER_COUNT files"
 
 # Create VERSION.txt if missing
 if [[ ! -f "$PROJECT_ROOT/VERSION.txt" ]]; then
@@ -212,6 +244,53 @@ if [[ "$install_hooks" =~ ^[Yy]$ ]]; then
     "$PROJECT_ROOT/scripts/install-hooks.sh"
 fi
 
+# Initialize git if needed
+if [[ ! -d "$PROJECT_ROOT/.git" ]]; then
+    echo ""
+    read -p "Initialize git repository? [Y/n]: " init_git
+    if [[ ! "$init_git" =~ ^[Nn]$ ]]; then
+        git init "$PROJECT_ROOT"
+        echo -e "  ${GREEN}✓${NC} Git repository initialized"
+
+        # Create initial commit
+        read -p "Create initial commit? [Y/n]: " initial_commit
+        if [[ ! "$initial_commit" =~ ^[Nn]$ ]]; then
+            cd "$PROJECT_ROOT"
+            git add -A
+            git commit -m "chore: Initial project setup with ops-kit"
+            echo -e "  ${GREEN}✓${NC} Initial commit created"
+        fi
+    fi
+else
+    echo -e "  ${YELLOW}○${NC} Git repository already exists"
+fi
+
+# Branch protection setup (if GitHub URL is configured)
+if [[ -n "$GITHUB_URL" ]] && [[ "$GITHUB_URL" != "" ]]; then
+    echo ""
+    echo -e "${BOLD}GitHub Integration${NC}"
+    echo "Repository: $GITHUB_URL"
+
+    # Extract owner and repo from URL
+    if [[ "$GITHUB_URL" =~ github\.com[:/]([^/]+)/([^/]+)(\.git)?$ ]]; then
+        OWNER="${BASH_REMATCH[1]}"
+        REPO="${BASH_REMATCH[2]}"
+        REPO="${REPO%.git}" # Remove .git suffix if present
+
+        read -p "Set up branch protection for main branch? [y/N]: " setup_protection
+        if [[ "$setup_protection" =~ ^[Yy]$ ]]; then
+            echo "Running branch protection setup..."
+            gh api "repos/${OWNER}/${REPO}/branches/main/protection" -X PUT \
+                --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
+                --field enforce_admins=false \
+                --field required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+                --field restrictions=null 2>/dev/null && \
+                echo -e "  ${GREEN}✓${NC} Branch protection enabled for main" || \
+                echo -e "  ${YELLOW}!${NC} Failed to enable branch protection. Run manually with: gh api repos/${OWNER}/${REPO}/branches/main/protection"
+        fi
+    fi
+fi
+
 echo ""
 echo -e "${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}${BOLD}  ✓ Setup complete!${NC}"
@@ -221,5 +300,9 @@ echo "Next steps:"
 echo "  1. Edit project.conf with your project settings"
 echo "  2. Run ./scripts/dashboard.sh to verify setup"
 echo "  3. Customize scripts for your tech stack"
-echo "  4. Create CLAUDE_PROJECT_KNOWLEDGE.md for your project"
+echo "  4. Fill in CLAUDE_PROJECT_KNOWLEDGE.md with project context"
+echo "  5. Configure .github/workflows/ci.yml for your language"
+if [[ -z "$GITHUB_URL" ]]; then
+    echo "  6. Add GITHUB_URL to project.conf for GitHub integration"
+fi
 echo ""

@@ -212,6 +212,23 @@ git push --tags origin main
 - [ ] Document any lessons learned
 - [ ] Update process improvements
 
+#### 8. User-Facing Docs Check (Quarterly or Major Features)
+
+| File | Check For |
+|------|-----------|
+| `README.md` | Feature list, provider count, build instructions |
+| `GETTING_STARTED.md` | Onboarding flow, prerequisites, first steps |
+| `PROJECT_OVERVIEW.md` | Architecture, feature highlights, provider count |
+| `QUICKSTART.md` | Current workflows, keyboard shortcuts |
+| `DEVELOPMENT.md` | Architecture diagrams, new components, test count |
+
+- [ ] Provider count accurate?
+- [ ] New major features documented?
+- [ ] Screenshots current (if any)?
+- [ ] **If outdated → Create Tech-Writer task**
+
+**Trigger:** Run this check when sprint includes user-facing features or quarterly.
+
 ---
 
 ## Other Instructions

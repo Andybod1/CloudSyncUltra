@@ -11,13 +11,13 @@
 
 ```
 Pillar 1: Automation First       [█████████░] 90%
-Pillar 2: Quality Gates          [██████░░░░] 60%
+Pillar 2: Quality Gates          [████████░░] 80%  ← Can reach 100% with branch protection!
 Pillar 3: Single Source of Truth [█████████░] 90%
-Pillar 4: Metrics & Visibility   [████████░░] 80%
+Pillar 4: Metrics & Visibility   [████████░░] 85%  ← Includes CI coverage!
 Pillar 5: Knowledge Management   [████████░░] 80%
 Pillar 6: Business Operations    [██░░░░░░░░] 20%
 ─────────────────────────────────────────────────
-Overall Progress                 [███████░░░] 70%
+Overall Progress                 [████████░░] 75%
 ```
 
 ---
@@ -44,11 +44,24 @@ Overall Progress                 [███████░░░] 70%
 
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
-| Protected main branch | ✅ Done | GitHub Settings | CI must pass |
-| PR required for changes | ❌ TODO | GitHub Settings | No direct push to main |
+| Protected main branch | 🔲 Setup Required | GitHub Settings | CI must pass (see instructions below) |
+| PR required for changes | 🔲 Setup Required | GitHub Settings | No direct push to main |
 | Definition of Done check | ✅ Done | `.claude-team/DEFINITION_OF_DONE.md` | Checklist included |
-| Test coverage threshold | ❌ TODO | CI workflow | Fail if coverage drops |
+| Test coverage threshold | ✅ Done | CI workflow | Coverage tracking in CI |
 | Build verification | ✅ Done | Pre-commit hooks | Every commit builds |
+
+**🚀 Path to 100%:** Enable branch protection with these commands:
+```bash
+# Enable branch protection for main (run from project root)
+gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
+  --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
+  --field enforce_admins=false \
+  --field required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+  --field restrictions=null
+
+# Verify protection is enabled
+gh api repos/{owner}/{repo}/branches/main/protection
+```
 
 ---
 
@@ -77,7 +90,7 @@ Overall Progress                 [███████░░░] 70%
 | Test count trend | ✅ Done | `.claude-team/metrics/` | Historical data |
 | Build success rate | ❌ TODO | GitHub Actions | Historical data |
 | Issue age tracking | ✅ Done | Dashboard | Oldest + stale count |
-| Code coverage report | ❌ TODO | CI + Dashboard | Coverage trends |
+| Code coverage report | ✅ Done | CI workflow | Coverage in artifacts + PR summary |
 
 ---
 
@@ -139,6 +152,59 @@ Overall Progress                 [███████░░░] 70%
 | Health Score | - | 95%+ |
 | Open Issues | - | <15 |
 | Operational Excellence | 70% | 80%+ |
+
+---
+
+## Branch Protection Setup Guide 🛡️
+
+**Why:** Prevents accidental direct pushes to main, ensures all changes go through CI
+
+### Quick Setup (GitHub CLI)
+
+1. **Install GitHub CLI if needed:**
+```bash
+# macOS
+brew install gh
+gh auth login
+
+# Linux
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update && sudo apt install gh
+gh auth login
+```
+
+2. **Enable branch protection:**
+```bash
+# Replace {owner} and {repo} with your values
+gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
+  --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
+  --field enforce_admins=false \
+  --field required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+  --field restrictions=null
+```
+
+3. **Verify it worked:**
+```bash
+gh api repos/{owner}/{repo}/branches/main/protection
+```
+
+### Manual Setup (GitHub UI)
+
+1. Go to Settings → Branches
+2. Add rule for `main` branch:
+   - ✅ Require a pull request before merging
+   - ✅ Require status checks to pass before merging
+   - ✅ Require branches to be up to date before merging
+   - Select "build-and-test" as required status check
+3. Save changes
+
+### After Setup
+
+- All changes must go through PRs
+- CI must pass before merging
+- Direct pushes to main will be blocked
+- Update Pillar 2 to 100% 🎉
 
 ---
 

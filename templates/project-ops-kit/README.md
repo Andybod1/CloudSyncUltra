@@ -224,6 +224,89 @@ Track your operational maturity with `OPERATIONAL_EXCELLENCE.md`:
 
 ---
 
+## Branch Protection Setup
+
+Protect your main branch to ensure all changes go through CI:
+
+```bash
+# Using GitHub CLI (recommended)
+gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
+  --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
+  --field enforce_admins=false \
+  --field required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+  --field restrictions=null
+
+# Verify it's enabled
+gh api repos/{owner}/{repo}/branches/main/protection
+```
+
+Or manually in GitHub: Settings → Branches → Add rule for `main` → Enable PR requirements + status checks
+
+---
+
+## CI Code Coverage Setup
+
+The CI template includes code coverage examples for multiple languages:
+
+1. **Enable coverage in your test command** (see `.github/workflows/ci.yml`)
+2. **Set coverage threshold** (optional but recommended)
+3. **View reports in GitHub Actions artifacts**
+4. **Get coverage summary in PR comments**
+
+Example for Node.js:
+```yaml
+- name: Run Tests with Coverage
+  run: npm test -- --coverage --reporters=default --reporters=jest-junit
+```
+
+---
+
+## Post-Sprint Checklist
+
+**⚠️ MANDATORY:** After every sprint, use the automated release process:
+
+```bash
+# Automated (recommended) - handles all 7 steps
+./scripts/release.sh X.X.X
+
+# Manual - see full checklist
+cat CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
+```
+
+The checklist ensures:
+- ✅ Health check passes
+- ✅ All tests pass
+- ✅ Version updated everywhere
+- ✅ Documentation updated
+- ✅ GitHub issues closed
+- ✅ Sprint files archived
+- ✅ Git tagged and pushed
+
+---
+
+## Recovery Process
+
+When recovering from a crash or session loss:
+
+```bash
+# 1. Quick recovery script
+./scripts/restore-context.sh
+
+# 2. Or manual recovery
+cd {PROJECT_ROOT}
+gh issue list -l in-progress    # See what was being worked on
+git status                       # Check for uncommitted changes
+./scripts/dashboard.sh           # Verify project health
+```
+
+For full recovery guide, see `RECOVERY.md` which includes:
+- Worker restart commands
+- State recovery sources
+- Troubleshooting steps
+- Emergency reset procedures
+
+---
+
 ## Ticket CLI
 
 Quick ticket management from the command line:
