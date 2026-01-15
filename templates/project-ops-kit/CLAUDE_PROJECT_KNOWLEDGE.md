@@ -1,129 +1,136 @@
-# PROJECT_NAME - Project Knowledge
+# Project Knowledge Template
 
-> **For Claude Project Context** - Essential info for every conversation
-> **Version:** X.X.X | **Updated:** YYYY-MM-DD
-
----
-
-## Project Identity
-
-| Key | Value |
-|-----|-------|
-| **App** | PROJECT_NAME - DESCRIPTION |
-| **Tech** | FRAMEWORK + BACKEND |
-| **Location** | `/path/to/project/` |
-| **GitHub** | https://github.com/USER/REPO |
-| **Human** | NAME |
+> **Instructions:** Fill in each section with your project's specific details. This file serves as the primary context for Claude workers.
 
 ---
 
-## What It Does
+## Purpose & Context
 
-Brief description of what the project does:
-- Feature 1
-- Feature 2
-- Feature 3
+<!-- Describe your project's mission, main objectives, and the problem it solves -->
 
----
+**Project:** [Your Project Name]
+**Description:** [What does this project do?]
+**Tech Stack:** [Languages, frameworks, tools]
+**Target Audience:** [Who uses this?]
 
-## Team Architecture
-
-### Core Team (5 Workers)
-```
-Strategic Partner (This Claude - Opus 4.5)
-    ├── Dev-1 (UI)       → Views, Components
-    ├── Dev-2 (Engine)   → Core logic
-    ├── Dev-3 (Services) → Models, Services
-    ├── QA (Testing)     → Tests/
-    └── Dev-Ops          → Git, GitHub, Docs
-```
-
-### Specialized Agents (On-Demand)
-```
-    ├── UX-Designer      → UI/UX analysis
-    ├── Product-Manager  → Strategy, requirements
-    ├── Architect        → System design
-    ├── Security-Auditor → Security review
-    ├── Performance-Eng  → Optimization
-    └── Tech-Writer      → Documentation
-```
-
-### Model Rules
-| Agent Type | Model | /think |
-|------------|-------|--------|
-| Dev-1, Dev-2, Dev-3 | **Opus** | M/L/XL tickets |
-| QA, Dev-Ops | **Opus** | Always |
-| Specialized | **Opus** | Always |
-
----
-
-## Worker Launch
-
-```bash
-# Core team
-~/.claude-team/scripts/launch_single_worker.sh dev-1 opus
-~/.claude-team/scripts/launch_single_worker.sh dev-2 opus
-~/.claude-team/scripts/launch_single_worker.sh dev-3 opus
-~/.claude-team/scripts/launch_single_worker.sh qa opus
-~/.claude-team/scripts/launch_single_worker.sh dev-ops opus
-```
-
----
-
-## File Structure
-
-```
-/path/to/project/
-├── src/                     # Source code
-├── tests/                   # Tests
-├── docs/                    # Documentation
-├── .claude-team/
-│   ├── STATUS.md            # Worker status
-│   ├── TRIAGE_GUIDE.md      # Ticket assignment
-│   ├── tasks/TASK_*.md      # Active tasks
-│   ├── outputs/*.md         # Reports
-│   └── templates/*.md       # Briefings
-└── CHANGELOG.md
-```
-
----
-
-## Essential Commands
-
-```bash
-# Build & Test (customize for your stack)
-cd /path/to/project && your-build-command
-your-test-command
-
-# GitHub
-gh issue list
-gh issue view <number>
-
-# Dashboard
-./scripts/dashboard.sh
-```
+### Key Stakeholders
+- Project Lead: [Name/Role]
+- Development Team: [Worker roles and domains]
 
 ---
 
 ## Current State
 
-### Just Completed: vX.X.X
-- ✅ Feature 1
-- ✅ Feature 2
+<!-- Document where the project is right now -->
 
-### In Progress
-- 🔄 Feature 3
-- 🔄 Feature 4
+**Version:** See VERSION.txt
+**Status:** [Development/Beta/Production]
 
----
+### Recent Achievements
+- [List recent milestones]
+- [Important features completed]
 
-## Key Reminders
-
-1. **Triage tickets** → Use TRIAGE_GUIDE.md
-2. **Delegate ALL implementation** to workers
-3. **QA = Opus + /think**
-4. **Ask stakeholder** if requirements unclear
+### Known Issues
+- [Active bugs or limitations]
+- [Technical debt items]
 
 ---
 
-*Update this file after every sprint*
+## On the Horizon
+
+<!-- What's coming next? -->
+
+### Near-term Priorities
+1. [Priority 1]
+2. [Priority 2]
+3. [Priority 3]
+
+### Future Considerations
+- [Long-term goals]
+- [Potential features]
+
+---
+
+## Key Learnings & Principles
+
+<!-- Wisdom gained from building this project -->
+
+### Technical Decisions
+- [Why certain technologies were chosen]
+- [Patterns that work well]
+
+### What We've Learned
+- [Important discoveries]
+- [Lessons from mistakes]
+
+### Principles We Follow
+- [Code quality standards]
+- [Testing requirements]
+- [Documentation practices]
+
+---
+
+## Approach & Patterns
+
+<!-- How we work on this project -->
+
+### Development Workflow
+- **Branching:** [Git strategy]
+- **Testing:** [Required coverage, types]
+- **Code Review:** [Process]
+- **Deployment:** [How releases work]
+
+### Sprint Methodology
+- [Sprint duration]
+- [Planning process]
+- [Definition of Done]
+
+### Communication
+- [How workers coordinate]
+- [Status update frequency]
+- [Documentation requirements]
+
+---
+
+## Tools & Resources
+
+### Development Environment
+- **IDE:** [e.g., VS Code, Xcode]
+- **Build System:** [e.g., npm, cargo, xcodebuild]
+- **Package Manager:** [e.g., npm, pip, homebrew]
+
+### Key Dependencies
+- [Critical libraries]
+- [External services]
+
+### Documentation Locations
+- `README.md` - Project overview
+- `CONTRIBUTING.md` - Contribution guidelines
+- `docs/` - Detailed documentation
+
+### Useful Commands
+```bash
+# Build
+[your build command]
+
+# Test
+[your test command]
+
+# Run
+[your run command]
+```
+
+---
+
+## Other Instructions
+
+<!-- Special instructions for Claude workers -->
+
+- [Specific coding conventions]
+- [Required steps after changes]
+- [Things to always/never do]
+
+---
+
+*Last Updated: [Date]*
+*Maintained by: Strategic Partner*

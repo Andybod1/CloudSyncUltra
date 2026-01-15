@@ -60,6 +60,20 @@ OPENED_7D=$(gh issue list --state all --json createdAt --limit 500 2>/dev/null |
 CLOSED_7D=$(gh issue list --state closed --json closedAt --limit 500 2>/dev/null | jq "[.[] | select(.closedAt > \"$(date -v-7d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
 VELOCITY=$((CLOSED_7D - OPENED_7D))
 
+# Issue age tracking - oldest open issues
+OLDEST_ISSUE=""
+STALE_COUNT=0
+if command -v gh &> /dev/null; then
+    # Get oldest issue age in days
+    OLDEST_DATE=$(gh issue list --state open --json createdAt --limit 1 --jq '.[0].createdAt' 2>/dev/null || echo "")
+    if [[ -n "$OLDEST_DATE" ]]; then
+        OLDEST_DAYS=$(( ($(date +%s) - $(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$OLDEST_DATE" +%s 2>/dev/null || echo $(date +%s))) / 86400 ))
+        OLDEST_ISSUE="$OLDEST_DAYS days"
+    fi
+    # Count stale issues (>30 days old)
+    STALE_COUNT=$(gh issue list --state open --json createdAt 2>/dev/null | jq "[.[] | select(.createdAt < \"$(date -v-30d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
+fi
+
 # Test count (from project knowledge or last known)
 TEST_COUNT="743"
 
@@ -102,6 +116,7 @@ HEALTH_ISSUES=""
 [[ "$UNCOMMITTED" -gt 5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Uncommitted changes ($UNCOMMITTED). "
 [[ "$OUTPUT_FILES" -gt 20 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Output files piling up ($OUTPUT_FILES). "
 [[ "$VELOCITY" -lt -5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Negative velocity. "
+[[ "$STALE_COUNT" -gt 5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="$STALE_COUNT stale issues. "
 
 # Health color
 HEALTH_COLOR=$GREEN
@@ -166,8 +181,8 @@ echo -e "${DIM}   ────────────────────�
 printf "   Open:       %-13s Active:    ${YELLOW}%-13s${NC} Commits today: %-8s\n" "$OPEN_ISSUES" "$WORKERS_ACTIVE" "$COMMITS_TODAY"
 printf "   Critical:   ${RED}%-13s${NC} Idle:      ${DIM}%-13s${NC} Uncommitted:   %-8s\n" "$CRITICAL" "$WORKERS_IDLE" "$UNCOMMITTED"
 printf "   High:       ${YELLOW}%-13s${NC} Total:     %-13s Output files:  %-8s\n" "$HIGH" "$WORKERS_TOTAL" "$OUTPUT_FILES"
-printf "   Ready:      ${GREEN}%-13s${NC}\n" "$READY"
-printf "   Triage:     ${RED}%-13s${NC}\n" "$TRIAGE"
+printf "   Ready:      ${GREEN}%-13s${NC}                           Oldest issue:  %-8s\n" "$READY" "${OLDEST_ISSUE:-N/A}"
+printf "   Triage:     ${RED}%-13s${NC}                           Stale (>30d):  %-8s\n" "$TRIAGE" "$STALE_COUNT"
 
 echo ""
 echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
@@ -211,6 +226,11 @@ fi
 
 if [[ "$OUTPUT_FILES" -gt 20 ]]; then
     echo -e "   ${DIM}●${NC} $OUTPUT_FILES output reports - consider archiving"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$STALE_COUNT" -gt 5 ]]; then
+    echo -e "   ${YELLOW}●${NC} $STALE_COUNT stale issues (>30 days) need attention"
     ((ALERT_COUNT++))
 fi
 

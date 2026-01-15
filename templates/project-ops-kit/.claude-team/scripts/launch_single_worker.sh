@@ -1,18 +1,22 @@
 #!/bin/bash
 
-# Launch a single worker with model selection
+# Project Ops Kit - Single Worker Launcher
 # Usage: ./launch_single_worker.sh [WORKER] [sonnet|opus]
 
 WORKER="$1"
 MODEL="${2:-opus}"  # Default to opus if not specified
-TEAM_DIR="/Users/antti/Claude/.claude-team"
+
+# Auto-detect project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+TEAM_DIR="$REPO_DIR/.claude-team"
 
 if [ -z "$WORKER" ]; then
     echo "Usage: $0 [WORKER] [sonnet|opus]"
     echo ""
     echo "=== CORE TEAM ==="
     echo "  dev-1        UI (Views, ViewModels, Components)"
-    echo "  dev-2        Engine (RcloneManager)"
+    echo "  dev-2        Engine (Core Business Logic)"
     echo "  dev-3        Services (Models, Managers)"
     echo "  qa           Testing (ALWAYS Opus)"
     echo "  devops       Git, GitHub, Docs (ALWAYS Opus)"
@@ -23,11 +27,16 @@ if [ -z "$WORKER" ]; then
     echo "  architect          System Design (ALWAYS Opus)"
     echo "  security-auditor   Security Review (ALWAYS Opus)"
     echo "  performance-eng    Performance Analysis (ALWAYS Opus)"
-    echo "  tech-writer        Documentation (Sonnet default)"
+    echo "  tech-writer        Documentation (ALWAYS Opus)"
+    echo "  brand-designer     Visual Identity (ALWAYS Opus)"
+    echo "  qa-automation      Test Automation (ALWAYS Opus)"
+    echo "  marketing          Growth Strategy (ALWAYS Opus)"
     echo ""
     echo "Models:"
-    echo "  sonnet - Fast, for simple tasks"
-    echo "  opus   - Deep reasoning, for complex tasks"
+    echo "  sonnet - Fast, for simple tasks (XS/S)"
+    echo "  opus   - Deep reasoning, for complex tasks (M/L/XL)"
+    echo ""
+    echo "Project: $REPO_DIR"
     exit 1
 fi
 
@@ -102,6 +111,24 @@ case "$WORKER_LOWER" in
         NAME="Tech-Writer"
         FORCE_OPUS=true
         ;;
+    brand-designer|brand|branddesigner)
+        BRIEFING="BRAND_DESIGNER_BRIEFING.md"
+        TASK="TASK_BRAND_DESIGNER.md"
+        NAME="Brand-Designer"
+        FORCE_OPUS=true
+        ;;
+    qa-automation|qa-auto|qaautomation)
+        BRIEFING="QA_AUTOMATION_BRIEFING.md"
+        TASK="TASK_QA_AUTOMATION.md"
+        NAME="QA-Automation"
+        FORCE_OPUS=true
+        ;;
+    marketing-strategist|marketing|marketingstrategist)
+        BRIEFING="MARKETING_STRATEGIST_BRIEFING.md"
+        TASK="TASK_MARKETING_STRATEGIST.md"
+        NAME="Marketing-Strategist"
+        FORCE_OPUS=true
+        ;;
     *)
         echo "Unknown worker: $WORKER"
         echo "Run without arguments to see available workers"
@@ -140,15 +167,16 @@ if [ ! -f "$TEAM_DIR/templates/$BRIEFING" ]; then
     exit 1
 fi
 
-CMD="Read /Users/antti/Claude/.claude-team/templates/$BRIEFING then read and execute /Users/antti/Claude/.claude-team/tasks/$TASK. Update STATUS.md as you work."
+CMD="Read $TEAM_DIR/templates/$BRIEFING then read and execute $TEAM_DIR/tasks/$TASK. Update STATUS.md as you work."
 
 echo "Launching $NAME with $MODEL_NAME..."
+echo "Project: $REPO_DIR"
 
 # Open new Terminal window, cd, launch claude with model, and send command
 osascript -e "
 tell application \"Terminal\"
     activate
-    do script \"cd /Users/antti/Claude && echo 'Starting $NAME ($MODEL_NAME)...' && claude $MODEL_FLAG\"
+    do script \"cd $REPO_DIR && echo 'Starting $NAME ($MODEL_NAME)...' && claude $MODEL_FLAG\"
 end tell
 " 
 

@@ -2,7 +2,9 @@
 
 > **A complete operational excellence template for Claude-powered parallel development**
 
-This kit provides everything needed to run a professional software project with Claude Code workers handling parallel development tasks.
+This kit provides everything needed to run a professional software project with Claude Code workers handling parallel development tasks. Battle-tested on real production projects.
+
+**Version:** 1.0.0
 
 ---
 
@@ -14,13 +16,14 @@ cp -r templates/project-ops-kit/* /path/to/your/project/
 
 # 2. Run setup
 cd /path/to/your/project
+chmod +x scripts/*.sh .claude-team/scripts/*.sh
 ./scripts/setup.sh
 
 # 3. Customize
 # - Edit project.json with your project details
 # - Edit VERSION.txt with your version
-# - Edit CLAUDE_PROJECT_KNOWLEDGE.md with project context
-# - Update .claude-team/templates/*_BRIEFING.md for your domain
+# - Fill in CLAUDE_PROJECT_KNOWLEDGE.md with project context
+# - Customize .claude-team/templates/*_BRIEFING.md for your domain
 
 # 4. Install git hooks
 ./scripts/install-hooks.sh
@@ -42,11 +45,18 @@ project-ops-kit/
 │   ├── TICKETS.md             # Ticket system guide
 │   ├── TRIAGE_GUIDE.md        # Ticket assignment decisions
 │   ├── SPECIALIZED_AGENTS.md  # On-demand specialist roster
+│   ├── DEFINITION_OF_DONE.md  # Quality checklist
 │   ├── WORKER_MODELS.conf     # Model configuration
 │   ├── metrics/               # Historical data (test counts, etc.)
 │   ├── outputs/               # Worker completion reports
 │   ├── planning/              # Feature plans
+│   ├── retros/                # Sprint retrospectives
 │   ├── scripts/               # Worker launch scripts
+│   │   ├── launch_single_worker.sh
+│   │   ├── launch_workers.sh
+│   │   ├── auto_launch_workers.sh
+│   │   ├── ticket.sh
+│   │   └── launch_all_workers.sh
 │   ├── sessions/              # Session summaries
 │   ├── tasks/                 # Active worker tasks
 │   ├── templates/             # Worker briefing templates
@@ -57,6 +67,7 @@ project-ops-kit/
 ├── scripts/
 │   ├── archive-outputs.sh     # Clean up reports
 │   ├── dashboard.sh           # Project health dashboard
+│   ├── generate-stats.sh      # Statistics generator
 │   ├── install-hooks.sh       # Git hooks installer
 │   ├── pre-commit             # Quality gate hook
 │   ├── record-test-count.sh   # Test trend tracking
@@ -66,6 +77,9 @@ project-ops-kit/
 │   ├── setup.sh               # Initial setup
 │   ├── update-version.sh      # Version updater
 │   └── version-check.sh       # Version validator
+├── docs/
+│   ├── RUNBOOK.md             # Operations runbook
+│   └── decisions/             # Architecture decisions
 ├── CLAUDE_PROJECT_KNOWLEDGE.md # Project context for Claude
 ├── OPERATIONAL_EXCELLENCE.md   # Ops improvement tracker
 ├── README.md                   # This file
@@ -79,7 +93,7 @@ project-ops-kit/
 
 ### 1. Parallel Development with Workers
 
-The kit supports 5 core workers + 6 specialized agents:
+The kit supports 5 core workers + 9 specialized agents:
 
 **Core Team:**
 | Worker | Role | Domain |
@@ -93,6 +107,7 @@ The kit supports 5 core workers + 6 specialized agents:
 **Specialized Agents (on-demand):**
 - UX-Designer, Product-Manager, Architect
 - Security-Auditor, Performance-Engineer, Tech-Writer
+- Brand-Designer, QA-Automation, Marketing-Strategist
 
 ### 2. Ticket Triage System
 
@@ -131,6 +146,16 @@ Pre-commit hooks enforce:
 | `save-session.sh` | Quick session summary |
 | `restore-context.sh` | Recover session context |
 | `archive-outputs.sh` | Clean up old reports |
+| `generate-stats.sh` | Generate project statistics |
+
+### Worker Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `launch_single_worker.sh` | Launch one worker with model |
+| `launch_workers.sh` | Launch 4 empty terminals |
+| `auto_launch_workers.sh` | Auto-launch workers with tasks |
+| `ticket.sh` | Ticket management CLI |
 
 ---
 
@@ -146,7 +171,7 @@ Pre-commit hooks enforce:
 ### For Your Team
 
 1. **Edit `.claude-team/templates/*_BRIEFING.md`** - Customize for your domain
-2. **Edit `CLAUDE_PROJECT_KNOWLEDGE.md`** - Add project-specific context
+2. **Fill in `CLAUDE_PROJECT_KNOWLEDGE.md`** - Add project-specific context
 3. **Edit `project.json`** - Configure paths and commands
 
 ---
@@ -173,7 +198,7 @@ Track your operational maturity with `OPERATIONAL_EXCELLENCE.md`:
 ./scripts/dashboard.sh
 
 # 2. Review tickets
-gh issue list --label "ready"
+./.claude-team/scripts/ticket.sh ready
 
 # 3. Launch workers
 ./.claude-team/scripts/launch_single_worker.sh dev-1 opus
@@ -199,11 +224,37 @@ gh issue list --label "ready"
 
 ---
 
-## Credits
+## Ticket CLI
 
-Developed through iterative improvement on CloudSync Ultra project.
-Battle-tested operational patterns for AI-assisted development.
+Quick ticket management from the command line:
+
+```bash
+# List all open issues
+./.claude-team/scripts/ticket.sh list
+
+# Show issues ready for workers
+./.claude-team/scripts/ticket.sh ready
+
+# Quick issue creation
+./.claude-team/scripts/ticket.sh quick "Add dark mode support"
+
+# Add idea to local inbox
+./.claude-team/scripts/ticket.sh idea "Explore caching options"
+
+# View specific issue
+./.claude-team/scripts/ticket.sh view 42
+
+# Backup GitHub issues locally
+./.claude-team/scripts/ticket.sh backup
+```
 
 ---
 
-*Version: 2.0 | Updated: 2026-01-15*
+## Credits
+
+Developed through iterative improvement on real production projects.
+Battle-tested operational patterns for AI-assisted parallel development.
+
+---
+
+*Version: 1.0.0 | Updated: 2025-01-15*
