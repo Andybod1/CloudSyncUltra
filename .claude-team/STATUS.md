@@ -34,9 +34,9 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 
 ---
 
-## Active Sprint: None
+## Active Sprint: Operational Excellence → 88%
 
-*Ready for next sprint*
+*Improving automation and business ops*
 
 | Worker | Status | Task | Notes |
 |--------|--------|------|-------|
@@ -44,7 +44,13 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 | Dev-2 | ⚪ Idle | - | Available |
 | Dev-3 | ⚪ Idle | - | Available |
 | QA | ⚪ Idle | - | Available |
-| Dev-Ops | ⚪ Idle | - | Available |
+| Dev-Ops | 🟢 RUNNING | Ops Excellence Sprint | L-sized task |
+
+**Deliverables:**
+- `scripts/generate-changelog.sh` (Pillar 1 → 100%)
+- `scripts/dashboard.sh` CI rate (Pillar 4 → 100%)
+- `scripts/notarize.sh` (Pillar 6 +15%)
+- `scripts/submit-appstore.sh` (Pillar 6 +15%)
 
 ---
 

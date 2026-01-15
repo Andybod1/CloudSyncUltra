@@ -77,12 +77,46 @@ fi
 # Test count (from project knowledge or last known)
 TEST_COUNT="743"
 
-# CI status
+# CI status and build success rate
 CI_STATUS="❌"
 CI_TEXT="Not configured"
+CI_SUCCESS_RATE=""
+CI_COLOR=$RED
+
 if [[ -f ".github/workflows/ci.yml" ]]; then
-    CI_STATUS="✅"
-    CI_TEXT="Configured"
+    # Fetch last 20 workflow runs to calculate success rate
+    if command -v gh &> /dev/null && [[ "$QUICK_MODE" != true ]]; then
+        RUNS_JSON=$(gh run list --limit 20 --json status,conclusion 2>/dev/null || echo "[]")
+        if [[ "$RUNS_JSON" != "[]" ]]; then
+            TOTAL_RUNS=$(echo "$RUNS_JSON" | jq 'length' 2>/dev/null || echo 0)
+            if [[ $TOTAL_RUNS -gt 0 ]]; then
+                SUCCESS_RUNS=$(echo "$RUNS_JSON" | jq '[.[] | select(.conclusion == "success")] | length' 2>/dev/null || echo 0)
+                SUCCESS_RATE=$(( (SUCCESS_RUNS * 100) / TOTAL_RUNS ))
+
+                # Set color based on success rate
+                if [[ $SUCCESS_RATE -ge 90 ]]; then
+                    CI_COLOR=$GREEN
+                elif [[ $SUCCESS_RATE -ge 70 ]]; then
+                    CI_COLOR=$YELLOW
+                else
+                    CI_COLOR=$RED
+                fi
+
+                CI_STATUS="✅"
+                CI_TEXT="${SUCCESS_RATE}% ($SUCCESS_RUNS/$TOTAL_RUNS passed)"
+                CI_SUCCESS_RATE=$SUCCESS_RATE
+            else
+                CI_STATUS="✅"
+                CI_TEXT="No recent runs"
+            fi
+        else
+            CI_STATUS="✅"
+            CI_TEXT="Configured"
+        fi
+    else
+        CI_STATUS="✅"
+        CI_TEXT="Configured"
+    fi
 fi
 
 # Version check
@@ -109,7 +143,19 @@ HEALTH_SCORE=100
 HEALTH_ISSUES=""
 
 # Deductions
-[[ "$CI_STATUS" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 15)) && HEALTH_ISSUES+="No CI pipeline. "
+# CI health deductions
+if [[ "$CI_STATUS" == "❌" ]]; then
+    HEALTH_SCORE=$((HEALTH_SCORE - 15))
+    HEALTH_ISSUES+="No CI pipeline. "
+elif [[ -n "$CI_SUCCESS_RATE" ]] && [[ "$CI_SUCCESS_RATE" -lt 90 ]]; then
+    if [[ "$CI_SUCCESS_RATE" -lt 70 ]]; then
+        HEALTH_SCORE=$((HEALTH_SCORE - 10))
+        HEALTH_ISSUES+="CI build rate low (${CI_SUCCESS_RATE}%). "
+    else
+        HEALTH_SCORE=$((HEALTH_SCORE - 5))
+        HEALTH_ISSUES+="CI build rate warning (${CI_SUCCESS_RATE}%). "
+    fi
+fi
 [[ "$VERSION_OK" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Version mismatch. "
 [[ "$CRITICAL" -gt 0 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="$CRITICAL critical issues. "
 [[ "$TRIAGE" -gt 10 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Triage backlog ($TRIAGE). "
@@ -170,7 +216,7 @@ printf "${BOLD}   %-25s %-25s %-25s${NC}\n" "📦 RELEASE" "🧪 QUALITY" "📈 
 echo -e "${DIM}   ─────────────────────── ─────────────────────── ───────────────────────${NC}"
 printf "   Version:    ${GREEN}%-13s${NC} Tests:     ${GREEN}%-13s${NC} 7-Day:     ${VELOCITY_COLOR}%s %+d${NC}\n" "v$VERSION" "$TEST_COUNT ✅" "$VELOCITY_ICON" "$VELOCITY"
 printf "   Tag:        ${CYAN}%-13s${NC} Build:     ${GREEN}%-13s${NC} Opened:    %-13s\n" "$LATEST_TAG" "Passing ✅" "$OPENED_7D"
-printf "   Versions:   %-13s CI:        %-13s Closed:    ${GREEN}%-13s${NC}\n" "$VERSION_OK" "$CI_STATUS $CI_TEXT" "$CLOSED_7D"
+printf "   Versions:   %-13s CI:        ${CI_COLOR}%-20s${NC} Closed:    ${GREEN}%-13s${NC}\n" "$VERSION_OK" "$CI_STATUS $CI_TEXT" "$CLOSED_7D"
 
 echo ""
 echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"

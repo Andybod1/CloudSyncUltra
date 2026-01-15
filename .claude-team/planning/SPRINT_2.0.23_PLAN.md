@@ -1,30 +1,54 @@
 # Sprint v2.0.23 Planning
-> "Security & Polish"
-> Target: After v2.0.22 completion
+> "Launch Ready" 🚀
+> Target: App Store submission
 
 ---
 
 ## Sprint Goals
 
-1. **Security hardening** - Address audit findings
-2. **Performance UI** - User control over sync settings
-3. **Provider expansion** - Dropbox support
-4. **Accessibility** - Keyboard navigation
+1. **In-App Purchase** - Implement pricing/subscription logic
+2. **App Store Assets** - Screenshots, metadata, description
+3. **Brand Identity** - Marketing assets for launch
+4. **Security** - Harden before public release
+5. **Provider** - Add Dropbox (popular request)
+
+---
+
+## Why Launch Now?
+
+```
+✅ 42 providers working
+✅ 841 tests passing  
+✅ 90% health score
+✅ Pricing strategy defined ($9.99/mo Pro)
+✅ Ops excellence ~88%
+❌ $0 revenue while we polish
+
+Every week NOT in App Store = $0 revenue
+Time to market is the biggest lever.
+```
 
 ---
 
 ## Proposed Tickets
 
-### Dev-1: Performance Settings UI (#40)
-**Size:** M | **Est:** 1-2 hours
+### Dev-1: Pricing & IAP Logic (#46)
+**Size:** L | **Est:** 2-3 hours
 
-Create a dedicated Performance Settings panel:
-- Bandwidth limit controls (upload/download)
-- Concurrent transfer slider
-- Chunk size presets
-- Provider-specific overrides toggle
+Implement StoreKit 2 for subscriptions:
+- Free tier (2 connections, 5GB/mo)
+- Pro tier ($9.99/mo or $99/yr)
+- Subscription management UI
+- Restore purchases
+- Receipt validation
 
-**Files:** Views/PerformanceSettingsView.swift, SettingsView.swift
+**Files:** 
+- Managers/StoreKitManager.swift (NEW)
+- Models/SubscriptionTier.swift (NEW)
+- Views/SubscriptionView.swift (NEW)
+- Views/SettingsView.swift (update)
+
+**Reference:** `.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`
 
 ---
 
@@ -33,9 +57,9 @@ Create a dedicated Performance Settings panel:
 
 Add Dropbox as supported provider:
 - OAuth flow implementation
-- Provider configuration in CloudProvider.swift
-- Dropbox-specific settings
-- Test with real Dropbox account
+- Provider configuration
+- Dropbox-specific chunk sizes
+- Real account testing
 
 **Files:** Models/CloudProvider.swift, RcloneManager.swift
 
@@ -44,80 +68,124 @@ Add Dropbox as supported provider:
 ### Dev-3: Secure File Handling (#74)
 **Size:** M | **Est:** 1-2 hours
 
-Security audit findings VULN-007/008:
+Security hardening before public release:
 - Restrict log file permissions (600)
 - Secure config file permissions
 - Sanitize file paths in logs
-- Add secure temp file handling
+- Secure temp file handling
 
 **Files:** Logger+Extensions.swift, RcloneManager.swift
 
 ---
 
-### QA: Security & Integration Tests
+### QA: IAP & Security Tests
 **Size:** M | **Est:** 1-2 hours
 
-- Write security tests for #74 fixes
-- Integration tests for Dropbox
-- Performance settings validation tests
-- Regression test suite run
+- StoreKit testing with sandbox
+- Subscription state tests
+- Security permission tests
+- Full regression suite
+- TestFlight build validation
 
 ---
 
-### Dev-Ops: Keyboard Navigation Audit (#54)
-**Size:** S | **Est:** 30-60 min
+### Dev-Ops: App Store Screenshots & Metadata (#78)
+**Size:** M | **Est:** 1-2 hours
 
-Audit and document keyboard navigation:
-- Tab order through all views
-- Focus indicators
-- Escape key handling
-- Document accessibility shortcuts
+Create App Store submission package:
+- Screenshots for all required sizes
+- App description (short + long)
+- Keywords research
+- Privacy policy URL
+- Support URL
+- Categories selection
+- Age rating questionnaire
+
+**Output:** `docs/APP_STORE_SUBMISSION/`
+
+---
+
+### UX-Designer: Brand Identity (#79)
+**Size:** M | **Est:** 1-2 hours
+
+Marketing assets for launch:
+- App icon variations (if needed)
+- Feature graphics
+- Social media assets
+- Press kit basics
+- Landing page mockup
+
+**Output:** `assets/marketing/`
 
 ---
 
 ## Capacity Planning
 
-| Worker | Ticket | Size | Model |
-|--------|--------|------|-------|
-| Dev-1 | #40 Performance Settings UI | M | Opus |
-| Dev-2 | #37 Dropbox Support | M | Opus |
-| Dev-3 | #74 Secure File Handling | M | Opus |
-| QA | Security & Integration Tests | M | Opus |
-| Dev-Ops | #54 Keyboard Nav Audit | S | Opus |
+| Worker | Ticket | Size | Priority |
+|--------|--------|------|----------|
+| Dev-1 | #46 Pricing/IAP | L | 🔴 Critical |
+| Dev-2 | #37 Dropbox | M | 🟡 High |
+| Dev-3 | #74 Security | M | 🔴 Critical |
+| QA | IAP + Security Tests | M | 🔴 Critical |
+| Dev-Ops | #78 App Store Assets | M | 🔴 Critical |
+| UX-Designer | #79 Brand Identity | M | 🟡 High |
 
-**Total Sprint Size:** 4M + 1S = ~5-7 hours parallel work
+**Total:** 1L + 5M = ~8-10 hours parallel work
+**Workers:** 6 (full team + UX-Designer)
 
 ---
 
 ## Dependencies
 
-- #40 depends on: #73 (chunk sizes) - completing this sprint
-- #37 requires: Test Dropbox account credentials
-- #74 requires: Security audit report reference
+```
+#46 (IAP) ──→ QA Testing ──→ TestFlight
+#74 (Security) ──→ QA Testing ──→ App Store Review
+#78 (Screenshots) ──→ App Store Submission
+#79 (Brand) ──→ Marketing Launch
+```
 
 ---
 
 ## Success Criteria
 
-- [ ] Performance Settings UI functional and tested
-- [ ] Dropbox OAuth flow working end-to-end
-- [ ] Log/config file permissions hardened
-- [ ] All security tests passing
-- [ ] Keyboard navigation documented
+- [ ] StoreKit 2 subscriptions working
+- [ ] Free/Pro tier enforcement
+- [ ] Dropbox OAuth functional
+- [ ] Security hardening complete
+- [ ] App Store screenshots ready
+- [ ] Metadata & description written
+- [ ] Brand assets created
+- [ ] TestFlight build uploaded
 - [ ] VERSION → 2.0.23
-- [ ] All changes committed and pushed
+- [ ] Ready for App Store submission
 
 ---
 
-## Alternatives Considered
+## App Store Checklist
 
-| Option | Pros | Cons | Decision |
-|--------|------|------|----------|
-| #48 Analytics Dashboard | User value | Large (L) | Defer to v2.0.24 |
-| #45 Business Logic | Strategic | Needs Product-Manager | Defer |
-| #75 Input Validation | Security | Can batch with #74 | Consider adding |
+| Requirement | Owner | Status |
+|-------------|-------|--------|
+| App binary (notarized) | Dev-Ops scripts | 🟡 Ready |
+| Screenshots (6.7", 6.5", etc.) | Dev-Ops | 🔴 TODO |
+| App description | Dev-Ops | 🔴 TODO |
+| Privacy policy | Dev-Ops | 🔴 TODO |
+| IAP configured | Dev-1 | 🔴 TODO |
+| Age rating | Dev-Ops | 🔴 TODO |
+| Categories | Dev-Ops | 🔴 TODO |
+| Keywords | Dev-Ops | 🔴 TODO |
+| Support URL | Dev-Ops | 🔴 TODO |
+
+---
+
+## Post-Sprint: Launch Sequence
+
+1. Submit to App Store Review
+2. Prepare launch announcement
+3. Submit to Product Hunt
+4. Social media posts
+5. Monitor reviews & feedback
 
 ---
 
 *Sprint planned by Strategic Partner*
-*Ready to execute after v2.0.22 integration*
+*Goal: Ready for App Store submission*
