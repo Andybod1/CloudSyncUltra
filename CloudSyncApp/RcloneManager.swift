@@ -362,7 +362,7 @@ class TransferOptimizer {
             chunkSizeInMB = 8  // 8MB
             flagPrefix = "--drive-chunk-size"
         } else if remote.contains("dropbox") {
-            chunkSizeInMB = 8  // 8MB
+            chunkSizeInMB = 150  // 150MB - optimal for Dropbox as per rclone docs
             flagPrefix = "--dropbox-chunk-size"
         } else if remote.contains("s3") || remote.contains("wasabi") || remote.contains("digitalocean") {
             chunkSizeInMB = 16  // 16MB for S3-compatible
@@ -903,17 +903,60 @@ class RcloneManager {
         try await createRemoteInteractive(name: remoteName, type: "drive")
     }
     
-    func setupDropbox(remoteName: String) async throws {
+    func setupDropbox(remoteName: String, clientId: String? = nil, clientSecret: String? = nil) async throws {
         logger.info("Setting up Dropbox: \(remoteName, privacy: .public)")
 
         // Dropbox uses OAuth - opens browser for authentication
-        // Uses rclone's built-in Dropbox client ID by default
-        // For custom client ID support, would need to extend createRemoteInteractive
-        try await createRemoteInteractive(name: remoteName, type: "dropbox")
+        var additionalParams: [String: String] = [:]
+
+        // Support custom OAuth app for enterprise users
+        if let clientId = clientId, let clientSecret = clientSecret {
+            additionalParams["client_id"] = clientId
+            additionalParams["client_secret"] = clientSecret
+            logger.info("Using custom OAuth client for Dropbox")
+        } else {
+            logger.info("Using rclone's built-in Dropbox client ID")
+        }
+
+        // Create the remote with OAuth flow
+        try await createRemoteInteractive(name: remoteName, type: "dropbox", additionalParams: additionalParams)
 
         // Verify setup succeeded
         guard isRemoteConfigured(name: remoteName) else {
             throw RcloneError.configurationFailed("Dropbox OAuth did not complete successfully")
+        }
+
+        // Test the connection by listing root directory
+        logger.info("Testing Dropbox connection...")
+        let testProcess = Process()
+        testProcess.executableURL = URL(fileURLWithPath: rclonePath)
+        testProcess.arguments = [
+            "lsd",
+            "\(remoteName):",
+            "--config", configPath,
+            "--max-depth", "1"
+        ]
+
+        let testOutputPipe = Pipe()
+        let testErrorPipe = Pipe()
+        testProcess.standardOutput = testOutputPipe
+        testProcess.standardError = testErrorPipe
+
+        try testProcess.run()
+        testProcess.waitUntilExit()
+
+        if testProcess.terminationStatus != 0 {
+            let testErrorData = testErrorPipe.fileHandleForReading.readDataToEndOfFile()
+            let testError = String(data: testErrorData, encoding: .utf8) ?? "Unknown error"
+
+            // Check for specific Dropbox errors
+            if testError.contains("401") || testError.contains("unauthorized") {
+                throw RcloneError.configurationFailed("Dropbox authentication failed. Please check your credentials.")
+            } else if testError.contains("rate limit") {
+                throw RcloneError.configurationFailed("Dropbox rate limit reached. Please try again later.")
+            } else {
+                throw RcloneError.configurationFailed("Dropbox connection test failed: \(testError)")
+            }
         }
 
         logger.info("Dropbox remote '\(remoteName, privacy: .public)' configured successfully")

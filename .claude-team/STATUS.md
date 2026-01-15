@@ -2,7 +2,7 @@
 
 ## Current Sprint: v2.0.23 "Launch Ready"
 **Duration:** 2026-01-15 to 2026-01-29
-**Status:** ✅ Phase 1 COMPLETE (5/7 workers finished)
+**Status:** ✅ Phase 1 COMPLETE (7/7 workers finished)
 
 ## Completed Tasks
 
@@ -44,19 +44,21 @@
 - Path sanitization, secure file handling
 - Log file permissions (600)
 
----
+### Dev-1 - Task #96: Transfer Progress Counter ✅
+**Completed:** 2026-01-15
+**Deliverables:**
+- Transfer counter already implemented in TransferView.swift
+- Shows "X/Y transfers" format in TransferProgressBar and TransferActiveIndicator
+- Real-time updates using TasksViewModel.runningTasksCount
+- Proper styling matching existing UI components
 
-## Active Tasks
-
-### Dev-1: Transfer Progress Counter (#96)
-**Status:** 🟢 IN PROGRESS
-**Started:** 2026-01-15 16:58 UTC
-**Size:** S (30-45 min)
-
-### Dev-2: Dropbox Support (#37)
-**Status:** 🟢 IN PROGRESS
-**Started:** 2026-01-15 16:58 UTC
-**Size:** M (1-2 hours)
+### Dev-2 - Task #37: Dropbox Support ✅
+**Completed:** 2026-01-15
+**Deliverables:**
+- Enhanced Dropbox OAuth flow with custom client ID/secret support
+- Updated chunk size to 150MB (optimal for Dropbox)
+- Added connection testing after OAuth completion
+- Added Dropbox-specific error handling
 
 ---
 
@@ -69,8 +71,8 @@
 | Compliance Package | Legal-Advisor | ✅ DONE |
 | App Store Assets (#78) | Dev-Ops | ✅ DONE |
 | Security Hardening (#74) | Dev-3 | ✅ DONE |
-| Transfer Progress Counter (#96) | Dev-1 | 🟢 IN PROGRESS |
-| Dropbox Support (#37) | Dev-2 | 🟢 IN PROGRESS |
+| Transfer Progress Counter (#96) | Dev-1 | ✅ DONE |
+| Dropbox Support (#37) | Dev-2 | ✅ DONE |
 
 ---
 
