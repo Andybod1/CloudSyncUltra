@@ -45,7 +45,7 @@ cat ~/Claude/CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
 | Dev-3 | ⚪ Idle | - | Available |
 | QA | ⚪ Idle | - | Available |
 | Dev-Ops | ✅ DONE | Project-Ops-Kit $1B Update | L-sized task - Completed |
-| Tech-Writer | 🟡 FINALIZING | Update User-Facing Docs | M-sized task - 95% complete |
+| Tech-Writer | ✅ DONE | Update User-Facing Docs | M-sized task - Completed |
 
 ---
 
