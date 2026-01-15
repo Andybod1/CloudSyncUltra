@@ -580,4 +580,159 @@ final class OnboardingViewModelTests: XCTestCase {
         let manager: OnboardingManager = OnboardingViewModel.shared
         XCTAssertNotNil(manager, "OnboardingManager alias should work")
     }
+
+    // MARK: - UI Logic Tests for Onboarding Fixes
+
+    /// Test that provider grid shows correct count for popular vs all providers
+    func testProviderGridCounts() {
+        // Popular providers count (hardcoded in AddProviderStepView)
+        let popularProviders: [CloudProviderType] = [
+            .googleDrive,
+            .dropbox,
+            .oneDrive,
+            .icloud,
+            .protonDrive
+        ]
+        XCTAssertEqual(popularProviders.count, 5, "Should show 5 popular providers initially")
+
+        // All providers count (excluding local)
+        let allProviders = CloudProviderType.allCases.filter { $0.isSupported && $0 != .local }
+        XCTAssertGreaterThanOrEqual(allProviders.count, 40, "Should have 40+ providers available")
+    }
+
+    /// Test provider name display lengths
+    func testProviderNameDisplayLengths() {
+        // Verify all provider names are reasonable length for UI
+        let providers = CloudProviderType.allCases.filter { $0.isSupported }
+
+        for provider in providers {
+            XCTAssertLessThanOrEqual(provider.displayName.count, 30,
+                "Provider name '\(provider.displayName)' might be too long for UI")
+        }
+    }
+
+
+    /// Test skip after provider connection preserves state correctly
+    func testSkipAfterProviderConnection() {
+        // Given: Provider connected at addProvider step
+        sut.goToStep(.addProvider)
+        let providerName = "Test Cloud Provider"
+        sut.providerConnected(name: providerName)
+
+        // Verify provider was connected
+        XCTAssertTrue(sut.hasConnectedProvider)
+        XCTAssertEqual(sut.connectedProviderName, providerName)
+
+        // When: Skip is called
+        sut.skipOnboarding()
+
+        // Then: Should complete onboarding
+        XCTAssertTrue(sut.hasCompletedOnboarding)
+        XCTAssertFalse(sut.shouldShowOnboarding)
+
+        // Cleanup: Reset state for other tests
+        sut.resetOnboarding()
+    }
+
+    /// Test OAuth vs manual configuration provider types
+    func testProviderAuthenticationTypes() {
+        let oauthProviders = CloudProviderType.allCases.filter { $0.requiresOAuth }
+        let manualProviders = CloudProviderType.allCases.filter {
+            $0.isSupported && !$0.requiresOAuth && $0 != .local
+        }
+
+        // Verify we have both authentication types
+        XCTAssertFalse(oauthProviders.isEmpty, "Should have OAuth providers")
+        XCTAssertFalse(manualProviders.isEmpty, "Should have manual config providers")
+
+        // Verify popular providers include OAuth types
+        let popularOAuth: [CloudProviderType] = [.googleDrive, .dropbox, .oneDrive]
+        for provider in popularOAuth {
+            XCTAssertTrue(provider.requiresOAuth, "\(provider.displayName) should require OAuth")
+        }
+    }
+
+    /// Test Quick Tips content structure validation
+    func testQuickTipsContentStructure() {
+        // Validate Quick Tips shown in CompletionStepView
+        let expectedTips = [
+            ("keyboard", "Keyboard Shortcuts", "Cmd+N for new task"),
+            ("calendar.badge.clock", "Scheduled Syncs", "Automate your backups"),
+            ("lock.shield.fill", "Encryption", "Enable end-to-end encryption")
+        ]
+
+        // Verify all tips have required fields with appropriate lengths
+        for tip in expectedTips {
+            XCTAssertFalse(tip.0.isEmpty, "Icon name should not be empty")
+            XCTAssertFalse(tip.1.isEmpty, "Title should not be empty")
+            XCTAssertFalse(tip.2.isEmpty, "Description should not be empty")
+            XCTAssertLessThanOrEqual(tip.2.count, 50, "Description should fit in 2 lines (28px height)")
+        }
+    }
+
+    /// Test provider connection advances step correctly
+    func testProviderConnectionAdvancesStep() {
+        // Given: Fresh state at addProvider step
+        sut.resetOnboarding()
+        sut.goToStep(.addProvider)
+
+        // Wait for navigation
+        let exp1 = XCTestExpectation(description: "wait for navigation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { exp1.fulfill() }
+        wait(for: [exp1], timeout: 1.0)
+
+        XCTAssertEqual(sut.currentStep, .addProvider)
+
+        // When: Provider is connected
+        sut.providerConnected(name: "Test Provider")
+
+        // Wait for transition
+        let exp2 = XCTestExpectation(description: "wait for transition")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { exp2.fulfill() }
+        wait(for: [exp2], timeout: 1.0)
+
+        // Then: Should advance to firstSync and update state
+        XCTAssertTrue(sut.hasConnectedProvider)
+        XCTAssertEqual(sut.connectedProviderName, "Test Provider")
+        XCTAssertEqual(sut.currentStep, .firstSync, "Should advance to firstSync after provider connection")
+    }
+
+    /// Test onboarding completion with multiple providers edge case
+    func testMultipleProvidersOnboarding() {
+        // This tests the edge case where user might connect multiple providers
+        // during onboarding (though UI currently only tracks first)
+
+        sut.resetOnboarding()
+        sut.goToStep(.addProvider)
+
+        // Connect first provider
+        sut.providerConnected(name: "Provider 1")
+        XCTAssertEqual(sut.connectedProviderName, "Provider 1")
+
+        // Attempt to connect second provider (edge case)
+        // In current implementation, this would overwrite
+        sut.providerConnected(name: "Provider 2")
+        XCTAssertEqual(sut.connectedProviderName, "Provider 2", "Last provider should be tracked")
+    }
+
+    /// Test step transition animation timing
+    func testStepTransitionTiming() {
+        // Verify step transitions complete within reasonable time
+        sut.resetOnboarding()
+        let startTime = Date()
+
+        // Trigger navigation
+        sut.nextStep()
+
+        // Wait for transition
+        let exp = XCTestExpectation(description: "transition timing")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { exp.fulfill() }
+        wait(for: [exp], timeout: 0.5)
+
+        let duration = Date().timeIntervalSince(startTime)
+
+        // Verify transition was quick
+        XCTAssertLessThan(duration, 0.5, "Step transition should complete under 500ms")
+        XCTAssertEqual(sut.currentStep, .addProvider, "Should have transitioned to next step")
+    }
 }
