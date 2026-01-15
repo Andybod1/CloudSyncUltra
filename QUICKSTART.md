@@ -149,7 +149,7 @@ Automatic per-provider tuning:
 | "Can't see files" | Press Cmd+R to refresh |
 | "Auth expired" | Click provider → Reconnect |
 
-## What's New in v2.0.23
+## What's New in v2.0.24
 
 - **Subscriptions** - Free/Pro/Team tiers with StoreKit 2
 - **Security Hardening** - Path sanitization, secure file handling
@@ -179,7 +179,7 @@ Automatic per-provider tuning:
 
 ---
 
-**Quick Start Version**: 2.0.23
+**Quick Start Version**: 2.0.24
 **Last Updated**: January 2026
 
 Enjoy CloudSync Ultra - The fastest way to manage all your clouds! ☁️⚡

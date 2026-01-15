@@ -1,6 +1,6 @@
 # CloudSync Ultra 2.0 - Development Guide
 
-Technical documentation for developers working on CloudSync Ultra v2.0.23.
+Technical documentation for developers working on CloudSync Ultra v2.0.24.
 
 ## Architecture Overview
 
@@ -601,7 +601,7 @@ CrashReportingManager.shared    // Crash reports
 
 ## Testing Infrastructure
 
-### 743 Automated Tests (v2.0.23)
+### 855 Automated Tests (v2.0.24)
 
 #### Test Categories
 - **Models** (150+ tests)
@@ -993,7 +993,7 @@ xcodebuild -exportArchive \
 
 ---
 
-**Development Guide Version**: 2.0.23
+**Development Guide Version**: 2.0.24
 **Last Updated**: January 2026
 **Architecture**: MVVM + SwiftUI
-**Tests**: 841 automated tests
+**Tests**: 855 automated tests

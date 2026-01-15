@@ -4,7 +4,7 @@
 
 CloudSync Ultra is a professional macOS application for cloud storage synchronization, inspired by industry-leading sync applications. It provides a modern, full-featured interface for managing 42+ cloud providers, transferring files between services, and keeping folders in sync with enterprise-grade features like end-to-end encryption and intelligent transfer optimization.
 
-## Version 2.0.23 Highlights
+## Version 2.0.24 Highlights
 
 ### Evolution from MVP to Enterprise-Ready
 
@@ -370,7 +370,7 @@ CloudSyncApp/
 ---
 
 **Project**: CloudSync Ultra
-**Version**: 2.0.23
+**Version**: 2.0.24
 **Released**: January 15, 2026
 **Architecture**: MVVM + SwiftUI
 **Platform**: macOS 14.0+

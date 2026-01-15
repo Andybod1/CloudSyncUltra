@@ -1,4 +1,4 @@
-# CloudSync Ultra v2.0
+# CloudSync Ultra v2.0.24
 
 A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 
@@ -86,9 +86,9 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 ## 🚀 Getting Started
 
-> **New in v2.0.23:** StoreKit 2 subscriptions, security hardening, marketing launch package, legal compliance, and App Store submission assets. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.24:** StoreKit 2 subscriptions, security hardening, marketing launch package, legal compliance, and App Store submission assets. See [CHANGELOG.md](CHANGELOG.md) for all updates.
 
-> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 841 automated tests.
+> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 855 automated tests.
 
 ### Requirements
 - macOS 14.0 (Sonoma) or later
@@ -273,7 +273,7 @@ We welcome contributions from the community! Please read our [Contributing Guide
 2. Clone your fork and set up the development environment
 3. Create a feature branch (`feature/your-feature-name`)
 4. Make your changes and add tests
-5. Ensure all 841+ tests pass
+5. Ensure all 855+ tests pass
 6. Submit a pull request
 
 For detailed instructions on code style, testing, and the PR process, see [CONTRIBUTING.md](CONTRIBUTING.md).
