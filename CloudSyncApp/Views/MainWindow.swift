@@ -30,6 +30,8 @@ struct MainWindow: View {
     @State private var selectedSection: SidebarSection = .dashboard
     @State private var selectedRemote: CloudRemote?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var showQuickActions = false
+    @State private var showAddRemoteSheet = false
     
     enum SidebarSection: Hashable {
         case dashboard
@@ -98,6 +100,24 @@ struct MainWindow: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenScheduleSettings"))) { _ in
             selectedSection = .schedules
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showQuickActions)) { _ in
+            showQuickActions = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showAddRemote)) { _ in
+            showAddRemoteSheet = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToFileBrowser)) { _ in
+            // Navigate to first configured remote, or stay on dashboard
+            if let firstRemote = remotesVM.remotes.first(where: { $0.isConfigured }) {
+                selectedSection = .remote(firstRemote)
+            }
+        }
+        .sheet(isPresented: $showQuickActions) {
+            QuickActionsView()
+        }
+        .sheet(isPresented: $showAddRemoteSheet) {
+            AddRemoteSheet()
         }
     }
     

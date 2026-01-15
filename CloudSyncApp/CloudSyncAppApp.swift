@@ -40,6 +40,14 @@ struct CloudSyncAppApp: App {
                 }
                 .keyboardShortcut("r", modifiers: .command)
             }
+
+            CommandGroup(after: .newItem) {
+                Divider()
+                Button("Quick Actions...") {
+                    NotificationCenter.default.post(name: .showQuickActions, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            }
         }
         
         // Settings Window
@@ -112,4 +120,5 @@ extension Notification.Name {
     static let showNewTask = Notification.Name("showNewTask")
     static let refreshContent = Notification.Name("refreshContent")
     static let syncStatusChanged = Notification.Name("SyncStatusChanged")
+    static let showQuickActions = Notification.Name("showQuickActions")
 }
