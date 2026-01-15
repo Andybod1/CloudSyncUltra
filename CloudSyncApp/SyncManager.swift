@@ -226,9 +226,221 @@ class SyncManager: ObservableObject {
     
     /// Checks if encryption is properly configured and enabled.
     var isEncryptionActive: Bool {
-        encryption.isEncryptionEnabled && 
-        encryption.isEncryptionConfigured && 
+        encryption.isEncryptionEnabled &&
+        encryption.isEncryptionConfigured &&
         rclone.isEncryptedRemoteConfigured()
+    }
+
+    // MARK: - Transfer Preview (Dry-Run)
+
+    /// Generate a preview of what sync will do without executing (dry-run)
+    /// - Parameter task: The sync task to preview
+    /// - Returns: A TransferPreview showing what operations would be performed
+    func previewSync(task: SyncTask) async throws -> TransferPreview {
+        let rclonePath = findRclonePath()
+        guard FileManager.default.fileExists(atPath: rclonePath) else {
+            throw PreviewError.rcloneNotFound
+        }
+
+        // Build source and destination paths
+        let source = "\(task.effectiveSourceRemote):\(task.sourcePath)"
+        let destination = "\(task.effectiveDestinationRemote):\(task.destinationPath)"
+
+        // Build rclone command with --dry-run
+        var arguments = [
+            task.type == .sync ? "sync" : "copy",
+            source,
+            destination,
+            "--dry-run",
+            "-v",
+            "--config", getConfigPath()
+        ]
+
+        // Add verbose logging for better parsing
+        arguments.append("--log-format")
+        arguments.append("date,time,level,file")
+
+        let output = try await runRcloneDryRun(path: rclonePath, arguments: arguments)
+        return parsePreviewOutput(output)
+    }
+
+    /// Preview sync using source/destination paths directly
+    func previewSync(source: String, destination: String, mode: SyncMode = .oneWay) async throws -> TransferPreview {
+        let rclonePath = findRclonePath()
+        guard FileManager.default.fileExists(atPath: rclonePath) else {
+            throw PreviewError.rcloneNotFound
+        }
+
+        let operation = mode == .biDirectional ? "bisync" : "sync"
+
+        var arguments = [
+            operation,
+            source,
+            destination,
+            "--dry-run",
+            "-v",
+            "--config", getConfigPath()
+        ]
+
+        arguments.append("--log-format")
+        arguments.append("date,time,level,file")
+
+        let output = try await runRcloneDryRun(path: rclonePath, arguments: arguments)
+        return parsePreviewOutput(output)
+    }
+
+    // MARK: - Private Dry-Run Helpers
+
+    /// Find the rclone binary path
+    private func findRclonePath() -> String {
+        // Check for bundled rclone first
+        if let bundledPath = Bundle.main.path(forResource: "rclone", ofType: nil) {
+            return bundledPath
+        }
+        // Fall back to homebrew location
+        return "/opt/homebrew/bin/rclone"
+    }
+
+    /// Get the rclone config path
+    private func getConfigPath() -> String {
+        let appSupport = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        )[0]
+        return appSupport
+            .appendingPathComponent("CloudSyncApp", isDirectory: true)
+            .appendingPathComponent("rclone.conf")
+            .path
+    }
+
+    /// Execute rclone with dry-run and return output
+    private func runRcloneDryRun(path: String, arguments: [String]) async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            let process = Process()
+            let pipe = Pipe()
+            let errorPipe = Pipe()
+
+            process.executableURL = URL(fileURLWithPath: path)
+            process.arguments = arguments
+            process.standardOutput = pipe
+            process.standardError = errorPipe
+
+            do {
+                try process.run()
+                process.waitUntilExit()
+
+                let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+
+                let output = String(data: outputData, encoding: .utf8) ?? ""
+                let errorOutput = String(data: errorData, encoding: .utf8) ?? ""
+
+                // Combine stdout and stderr (rclone logs to stderr)
+                let combinedOutput = output + "\n" + errorOutput
+
+                if process.terminationStatus != 0 && !combinedOutput.contains("NOTICE:") {
+                    continuation.resume(throwing: PreviewError.executionFailed(errorOutput))
+                } else {
+                    continuation.resume(returning: combinedOutput)
+                }
+            } catch {
+                continuation.resume(throwing: PreviewError.executionFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    /// Parse rclone dry-run output into TransferPreview
+    private func parsePreviewOutput(_ output: String) -> TransferPreview {
+        var transfers: [PreviewItem] = []
+        var deletes: [PreviewItem] = []
+        var updates: [PreviewItem] = []
+        var totalSize: Int64 = 0
+
+        let lines = output.components(separatedBy: "\n")
+        for line in lines {
+            let lowercaseLine = line.lowercased()
+
+            // Parse transfer/copy operations
+            if lowercaseLine.contains("copied") || lowercaseLine.contains(": copy ") ||
+               lowercaseLine.contains("would copy") {
+                if let item = parsePreviewLine(line, operation: .transfer) {
+                    transfers.append(item)
+                    totalSize += item.size
+                }
+            }
+            // Parse delete operations
+            else if lowercaseLine.contains("deleted") || lowercaseLine.contains(": delete ") ||
+                    lowercaseLine.contains("would delete") {
+                if let item = parsePreviewLine(line, operation: .delete) {
+                    deletes.append(item)
+                }
+            }
+            // Parse update operations
+            else if lowercaseLine.contains("updated") || lowercaseLine.contains(": update ") ||
+                    lowercaseLine.contains("would update") {
+                if let item = parsePreviewLine(line, operation: .update) {
+                    updates.append(item)
+                    totalSize += item.size
+                }
+            }
+        }
+
+        return TransferPreview(
+            filesToTransfer: transfers,
+            filesToDelete: deletes,
+            filesToUpdate: updates,
+            totalSize: totalSize,
+            estimatedTime: nil
+        )
+    }
+
+    /// Parse a single line from dry-run output into a PreviewItem
+    private func parsePreviewLine(_ line: String, operation: PreviewOperation) -> PreviewItem? {
+        // Try to extract file path from rclone output
+        // Format examples:
+        // "2026/01/15 12:00:00 NOTICE: file.txt: Skipped copy..."
+        // "NOTICE: path/to/file.txt: Not copying..."
+
+        var path = ""
+        var size: Int64 = 0
+
+        // Extract path between NOTICE: and the next colon
+        if let noticeRange = line.range(of: "NOTICE:") {
+            let afterNotice = String(line[noticeRange.upperBound...]).trimmingCharacters(in: .whitespaces)
+            if let colonIndex = afterNotice.firstIndex(of: ":") {
+                path = String(afterNotice[..<colonIndex]).trimmingCharacters(in: .whitespaces)
+            }
+        } else if let infoRange = line.range(of: "INFO:") {
+            let afterInfo = String(line[infoRange.upperBound...]).trimmingCharacters(in: .whitespaces)
+            if let colonIndex = afterInfo.firstIndex(of: ":") {
+                path = String(afterInfo[..<colonIndex]).trimmingCharacters(in: .whitespaces)
+            }
+        }
+
+        // Try to extract size if present (format: "size 1234" or "1234 bytes")
+        let sizePatterns = [
+            #"size[:\s]+(\d+)"#,
+            #"(\d+)\s*bytes"#,
+            #"(\d+)\s*B\b"#
+        ]
+        for pattern in sizePatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               let match = regex.firstMatch(in: line, options: [], range: NSRange(line.startIndex..., in: line)),
+               let sizeRange = Range(match.range(at: 1), in: line) {
+                size = Int64(line[sizeRange]) ?? 0
+                break
+            }
+        }
+
+        // Only return if we found a path
+        guard !path.isEmpty else { return nil }
+
+        return PreviewItem(
+            path: path,
+            size: size,
+            operation: operation,
+            modifiedDate: nil
+        )
     }
 }
 
