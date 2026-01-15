@@ -9,7 +9,7 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 
 ## ✨ Features
 
-### 🌥️ Multi-Cloud Support (40+ Providers)
+### 🌥️ Multi-Cloud Support (42+ Providers)
 
 **Core Providers (13):**  
 Proton Drive, Google Drive, Dropbox, OneDrive, Amazon S3, MEGA, Box, pCloud, WebDAV, SFTP, FTP, iCloud (planned), Local Storage
@@ -50,7 +50,9 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Cancel transfers** - Stop any operation mid-transfer
 - **Transfer history** - View all past transfers with speeds and file counts
 - **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
-- **Optimized performance** - Parallel transfers for faster multi-file operations
+- **Provider-optimized performance** - Smart chunk sizes and parallelism per provider
+- **Transfer Preview (NEW)** - Dry-run to see what will be transferred before starting
+- **Quick Actions Menu (NEW)** - Press Cmd+Shift+N for instant access to common operations
 
 ### 🚨 Error Handling (NEW in v2.0.11)
 - **Clear error messages** - User-friendly explanations instead of technical jargon
@@ -84,9 +86,9 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 ## 🚀 Getting Started
 
-> **New in v2.0.11:** Comprehensive error handling system with clear user messages, smart retry logic, and professional error presentation. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.22:** Quick Actions Menu (Cmd+Shift+N), Transfer Preview with dry-run, and provider-specific optimization for 42+ cloud providers. See [CHANGELOG.md](CHANGELOG.md) for all updates.
 
-> **New in v2.0:** Complete SwiftUI redesign with dual-pane interface, 40+ cloud providers, and 173+ automated tests.
+> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 841 automated tests.
 
 ### Requirements
 - macOS 14.0 (Sonoma) or later
@@ -216,12 +218,12 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
 ```
 
 ### Test Coverage
-- **234+ automated tests** across unit, integration, and UI layers
-- **100+ unit tests** covering models, view models, and managers
-- **61 error handling tests** covering TransferError, SyncTask, and RcloneManager error scenarios
-- **73 UI tests** for end-to-end user workflows (ready for integration)
-- **Real-world scenario coverage** including edge cases and error handling
-- **88%+ coverage** for error handling system
+- **841 automated tests** across unit, integration, and UI layers
+- **150+ model tests** covering CloudProvider, TransferError, ChunkSize configurations
+- **200+ ViewModel tests** for state management and business logic
+- **250+ Manager tests** including RcloneManager, TransferOptimizer, and error handling
+- **69 UI tests** for end-to-end user workflows
+- **75%+ overall coverage** with 99.8% test pass rate
 
 **Test Categories:**
 - Models & Core Logic (FileItem, CloudProvider, SyncTask)
@@ -271,7 +273,7 @@ We welcome contributions from the community! Please read our [Contributing Guide
 2. Clone your fork and set up the development environment
 3. Create a feature branch (`feature/your-feature-name`)
 4. Make your changes and add tests
-5. Ensure all 743+ tests pass
+5. Ensure all 841+ tests pass
 6. Submit a pull request
 
 For detailed instructions on code style, testing, and the PR process, see [CONTRIBUTING.md](CONTRIBUTING.md).
