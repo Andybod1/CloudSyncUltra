@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/andybod1-lang/CloudSyncUltra/blob/main/README.md
+    about: Check the documentation before opening an issue
+  - name: 💬 Discussions
+    url: https://github.com/andybod1-lang/CloudSyncUltra/discussions
+    about: Ask questions or discuss ideas

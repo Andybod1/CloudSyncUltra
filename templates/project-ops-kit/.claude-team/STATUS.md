@@ -1,20 +1,46 @@
-# Team Status
+# Worker Status
 
-## Current Sprint
-None active
+> Last Updated: YYYY-MM-DD
+> Version: vX.X.X
 
-## Workers
+## Current State: Sprint "NAME" 🚀
 
-| Worker | Status | Current Task |
-|--------|--------|--------------|
-| Dev-1 | 💤 Idle | - |
-| Dev-2 | 💤 Idle | - |
-| Dev-3 | 💤 Idle | - |
-| QA | 💤 Idle | - |
-| Dev-Ops | 💤 Idle | - |
+**In Progress:**
+- #XX Title (Worker)
 
-## Recent Completed
-- (none yet)
+| Worker | Model | Status | Current Task |
+|--------|-------|--------|--------------|
+| Dev-1 | Opus | ⏸️ IDLE | - |
+| Dev-2 | Opus | ⏸️ IDLE | - |
+| Dev-3 | Opus | ⏸️ IDLE | - |
+| QA | Opus | ⏸️ IDLE | - |
+| Dev-Ops | Opus | ⏸️ IDLE | - |
 
-## Last Updated
-(auto-updated by workers)
+---
+
+## Sprint Goals
+
+1. Goal 1
+2. Goal 2
+3. Goal 3
+
+---
+
+## Test Status
+
+```
+X tests, 0 failures
+Status: ✅ / ❌
+```
+
+---
+
+## Recent Versions
+
+| Version | Date | Highlights |
+|---------|------|------------|
+| vX.X.X | YYYY-MM-DD | Initial |
+
+---
+
+*Status maintained by Strategic Partner*

@@ -1,0 +1,91 @@
+name: 🔧 Internal Task
+description: Internal development task (Strategic Partner use)
+title: "[Task]: "
+labels: ["task", "internal"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Internal task for parallel worker system.**
+        
+        This template is used by the Strategic Partner to create planned work items.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: Clear statement of what needs to be accomplished
+      placeholder: Implement bandwidth throttling in RcloneManager
+    validations:
+      required: true
+
+  - type: dropdown
+    id: worker
+    attributes:
+      label: Assigned Worker
+      description: Which worker should handle this?
+      options:
+        - Dev-1 (UI Layer)
+        - Dev-2 (Core Engine)
+        - Dev-3 (Services)
+        - QA (Testing)
+        - Multiple Workers
+        - Strategic Partner
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: Specific requirements and acceptance criteria
+      placeholder: |
+        - [ ] Add bandwidth limit properties
+        - [ ] Integrate with rclone --bwlimit flag
+        - [ ] Unit tests for throttling logic
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files to Modify
+      description: List of files that will be changed
+      placeholder: |
+        - CloudSyncApp/RcloneManager.swift
+        - CloudSyncAppTests/BandwidthThrottlingTests.swift
+    validations:
+      required: false
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: T-Shirt Size
+      description: Estimated effort
+      options:
+        - XS (< 30 min)
+        - S (30 min - 1 hour)
+        - M (1-2 hours)
+        - L (2-4 hours)
+        - XL (4+ hours, consider splitting)
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Other issues that must be completed first
+      placeholder: "Depends on #42"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Technical Notes
+      description: Implementation hints, gotchas, references
+    validations:
+      required: false

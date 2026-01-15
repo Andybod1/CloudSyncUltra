@@ -1,6 +1,3 @@
-# CI Pipeline Template
-# Customize for your tech stack
-
 name: CI
 
 on:
@@ -9,66 +6,74 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
 jobs:
   build-and-test:
-    # Change runner based on your needs:
-    # - ubuntu-latest (Node, Python, Go, Rust)
-    # - macos-14 (Swift/Xcode)
-    # - windows-latest (Windows apps)
-    runs-on: ubuntu-latest
+    name: Build & Test
+    runs-on: macos-14
 
     steps:
+      # Checkout code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ─────────────────────────────────────────────────────────────
-      # CUSTOMIZE: Add your setup steps here
-      # ─────────────────────────────────────────────────────────────
-      
-      # Node.js example:
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      # - name: Install dependencies
-      #   run: npm ci
-      
-      # Python example:
-      # - name: Setup Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.12'
-      # - name: Install dependencies
-      #   run: pip install -r requirements.txt
-      
-      # Xcode example:
-      # - name: Select Xcode
-      #   run: sudo xcode-select -s /Applications/Xcode_15.0.app
-      
-      # ─────────────────────────────────────────────────────────────
-      # BUILD
-      # ─────────────────────────────────────────────────────────────
+      # Setup environment
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      # Cache DerivedData for faster builds
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      # Install xcpretty if not available
+      - name: Install xcpretty
+        run: |
+          if ! command -v xcpretty &> /dev/null; then
+            gem install xcpretty
+          fi
+
+      # Build the project
       - name: Build
         run: |
-          echo "Add your build command here"
-          # npm run build
-          # python -m py_compile src/*.py
-          # cargo build
-          # xcodebuild build
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            | xcpretty
 
-      # ─────────────────────────────────────────────────────────────
-      # TEST
-      # ─────────────────────────────────────────────────────────────
-      - name: Test
+      # Run tests
+      - name: Run Tests
         run: |
-          echo "Add your test command here"
-          # npm test
-          # pytest
-          # cargo test
-          # xcodebuild test
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -resultBundlePath TestResults \
+            | xcpretty --report junit --output build/reports/junit.xml
 
-      # ─────────────────────────────────────────────────────────────
-      # VERSION CHECK
-      # ─────────────────────────────────────────────────────────────
+      # Check version consistency
       - name: Version Check
-        run: ./scripts/version-check.sh
+        run: |
+          chmod +x ./scripts/version-check.sh
+          ./scripts/version-check.sh
+
+      # Upload test results
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            build/reports/
+            TestResults/
+          retention-days: 7

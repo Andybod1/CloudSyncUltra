@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║  Archive Output Reports - Move old worker reports to dated folders         ║
+# ║  Archive Output Reports                                                    ║
+# ║  Moves old worker output files to dated archive folders                    ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# Usage: ./scripts/archive-outputs.sh [--dry-run]
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-
 OUTPUTS_DIR="$PROJECT_ROOT/.claude-team/outputs"
 ARCHIVE_DIR="$PROJECT_ROOT/.claude-team/archive"
 TODAY=$(date +%Y-%m-%d)
@@ -16,6 +18,7 @@ DRY_RUN=false
 
 [[ "$1" == "--dry-run" ]] && DRY_RUN=true
 
+# Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
@@ -28,6 +31,7 @@ echo -e "${BLUE}║           Archive Output Reports                          �
 echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# Count files
 FILE_COUNT=$(find "$OUTPUTS_DIR" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 if [[ "$FILE_COUNT" -eq 0 ]]; then
@@ -38,6 +42,7 @@ fi
 echo -e "Found ${YELLOW}$FILE_COUNT${NC} output files to archive"
 echo ""
 
+# Create archive directory
 ARCHIVE_TODAY="$ARCHIVE_DIR/$TODAY"
 
 if [[ "$DRY_RUN" == true ]]; then
@@ -47,6 +52,7 @@ else
     echo -e "Created archive folder: ${DIM}$ARCHIVE_TODAY${NC}"
 fi
 
+# Move files
 MOVED=0
 for file in "$OUTPUTS_DIR"/*.md; do
     [[ -f "$file" ]] || continue
@@ -64,7 +70,7 @@ done
 echo ""
 if [[ "$DRY_RUN" == true ]]; then
     echo -e "${YELLOW}DRY RUN:${NC} Would archive $MOVED files"
-    echo "Run without --dry-run to execute"
+    echo -e "Run without --dry-run to execute"
 else
     echo -e "${GREEN}✓${NC} Archived $MOVED files to $ARCHIVE_TODAY/"
 fi

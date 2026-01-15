@@ -1,0 +1,53 @@
+{
+  "name": "PROJECT_NAME",
+  "description": "PROJECT_DESCRIPTION",
+  "version": "1.0.0",
+  "repository": "https://github.com/USERNAME/REPO",
+  
+  "stats": {
+    "tests": 0,
+    "updated": "YYYY-MM-DD"
+  },
+  
+  "tech": {
+    "platform": "macOS|iOS|Web|etc",
+    "language": "Swift|TypeScript|Python|etc",
+    "framework": "SwiftUI|React|Django|etc"
+  },
+  
+  "team": {
+    "workers": {
+      "dev-1": { "role": "UI", "domain": "Views, Components" },
+      "dev-2": { "role": "Engine", "domain": "Core logic" },
+      "dev-3": { "role": "Services", "domain": "Models, Services" },
+      "qa": { "role": "Testing", "domain": "Tests/" },
+      "dev-ops": { "role": "Operations", "domain": "scripts/, docs/, .github/" }
+    },
+    "model": "opus"
+  },
+  
+  "paths": {
+    "source": "src/",
+    "tests": "tests/",
+    "docs": "docs/",
+    "scripts": "scripts/",
+    "team": ".claude-team/",
+    "tasks": ".claude-team/tasks/",
+    "outputs": ".claude-team/outputs/"
+  },
+  
+  "scripts": {
+    "build": "echo 'Configure build command'",
+    "test": "echo 'Configure test command'",
+    "release": "./scripts/release.sh",
+    "dashboard": "./scripts/dashboard.sh",
+    "versionCheck": "./scripts/version-check.sh"
+  },
+  
+  "quality": {
+    "testCoverage": "target: 80%",
+    "ciPipeline": ".github/workflows/ci.yml",
+    "preCommitHooks": true,
+    "protectedBranch": true
+  }
+}
