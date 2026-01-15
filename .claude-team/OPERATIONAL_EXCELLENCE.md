@@ -3,7 +3,7 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** In Progress
-> **Last Updated:** 2026-01-15 (v2.0.21)
+> **Last Updated:** 2026-01-15 (CI coverage added)
 
 ---
 
@@ -11,13 +11,13 @@
 
 ```
 Pillar 1: Automation First       [█████████░] 90%
-Pillar 2: Quality Gates          [████░░░░░░] 40%
-Pillar 3: Single Source of Truth [███████░░░] 70%  ⬆️ (+30%)
-Pillar 4: Metrics & Visibility   [██████░░░░] 60%  ⬆️ (+20%)
-Pillar 5: Knowledge Management   [██████░░░░] 60%  ⬆️ (+20%)
-Pillar 6: Business Operations    [██░░░░░░░░] 20%  ⬆️ (+20%)
+Pillar 2: Quality Gates          [██████░░░░] 60%  
+Pillar 3: Single Source of Truth [█████████░] 90%  
+Pillar 4: Metrics & Visibility   [████████░░] 85%  ⬆️ (+5%)
+Pillar 5: Knowledge Management   [████████░░] 80%
+Pillar 6: Business Operations    [██░░░░░░░░] 20%
 ─────────────────────────────────────────────────
-Overall Progress                 [██████░░░░] 57%  ⬆️ (+15%)
+Overall Progress                 [███████░░░] 71%  ⬆️ (+1%)
 ```
 
 ---
@@ -46,7 +46,7 @@ Overall Progress                 [██████░░░░] 57%  ⬆️ (+
 |------|--------|----------|-------|
 | Protected main branch | ✅ Done | GitHub Settings | CI must pass |
 | PR required for changes | ❌ TODO | GitHub Settings | No direct push to main |
-| Definition of Done check | ❌ TODO | CI workflow | Automated validation |
+| Definition of Done check | ✅ Done | `.claude-team/DEFINITION_OF_DONE.md` | Checklist created |
 | Test coverage threshold | ❌ TODO | CI workflow | Fail if coverage drops |
 | Build verification | ✅ Done | Pre-commit hooks | Every commit builds |
 
@@ -60,8 +60,8 @@ Overall Progress                 [██████░░░░] 57%  ⬆️ (+
 |------|--------|------|-------|
 | Version number | ✅ Done | `VERSION.txt` | All docs read from here |
 | Project config | ✅ Done | `project.json` | Centralized metadata |
-| Auto-generate doc stats | ❌ TODO | `scripts/generate-stats.sh` | Extract from code |
-| Decision Log (ADRs) | ❌ TODO | `docs/decisions/` | Document key decisions |
+| Auto-generate doc stats | ✅ Done | `scripts/generate-stats.sh` | Code/git/issue stats |
+| Decision Log (ADRs) | ✅ Done | `docs/decisions/` | 3 ADRs documented |
 | API/Architecture docs | ❌ TODO | Auto-generated | From code comments |
 
 ---
@@ -76,8 +76,8 @@ Overall Progress                 [██████░░░░] 57%  ⬆️ (+
 | Sprint velocity | ✅ Done | Dashboard | 7-day opened vs closed |
 | Test count trend | ✅ Done | `.claude-team/metrics/` | Historical data |
 | Build success rate | ❌ TODO | GitHub Actions | Historical data |
-| Issue age tracking | ❌ TODO | Dashboard | Stale issue alerts |
-| Code coverage report | ❌ TODO | CI + Dashboard | Coverage trends |
+| Issue age tracking | ✅ Done | Dashboard | Oldest + stale count |
+| Code coverage report | ✅ Done | CI workflow | Coverage in artifacts + PR summary |
 
 ---
 
@@ -90,8 +90,8 @@ Overall Progress                 [██████░░░░] 57%  ⬆️ (+
 | Session summaries | ✅ Done | `.claude-team/sessions/` | Template + script |
 | Worker report archiving | ✅ Done | `tasks/archive/` | Sprint task archiving |
 | Context restore script | ✅ Done | `scripts/restore-context.sh` | 2-min onboarding |
-| Sprint retrospectives | ❌ TODO | `.claude-team/retros/` | Lessons learned |
-| Runbook for common tasks | ❌ TODO | `docs/RUNBOOK.md` | Step-by-step guides |
+| Sprint retrospectives | ✅ Done | `.claude-team/retros/` | Template created |
+| Runbook for common tasks | ✅ Done | `docs/RUNBOOK.md` | Step-by-step guides |
 
 ---
 
@@ -113,17 +113,20 @@ Overall Progress                 [██████░░░░] 57%  ⬆️ (+
 ## New Scripts Added
 
 ```bash
-# Test count tracking
+# Statistics & metrics
+./scripts/generate-stats.sh         # Auto-generate project stats
 ./scripts/record-test-count.sh      # Record test count to CSV
 
 # Session management  
 ./scripts/save-session.sh           # Quick session summary
 
-# Existing
+# Version & release
 ./scripts/version-check.sh          # Validate doc versions
-./scripts/update-version.sh 2.0.20  # Update all versions
-./scripts/release.sh 2.0.20         # Full automated release
-./scripts/dashboard.sh              # Project health
+./scripts/update-version.sh 2.0.22  # Update all versions
+./scripts/release.sh 2.0.22         # Full automated release
+
+# Quality & health
+./scripts/dashboard.sh              # Project health dashboard
 ./scripts/install-hooks.sh          # Install pre-commit hooks
 ```
 

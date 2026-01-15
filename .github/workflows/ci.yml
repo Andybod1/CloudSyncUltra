@@ -51,15 +51,66 @@ jobs:
             -destination 'platform=macOS' \
             | xcpretty
 
-      # Run tests
-      - name: Run Tests
+      # Run tests with code coverage
+      - name: Run Tests with Coverage
         run: |
           xcodebuild test \
             -project CloudSyncApp.xcodeproj \
             -scheme CloudSyncApp \
             -destination 'platform=macOS' \
+            -enableCodeCoverage YES \
             -resultBundlePath TestResults \
             | xcpretty --report junit --output build/reports/junit.xml
+
+      # Extract and report code coverage
+      - name: Generate Coverage Report
+        run: |
+          # Find the xcresult bundle
+          RESULT_BUNDLE="TestResults.xcresult"
+          
+          if [ -d "$RESULT_BUNDLE" ]; then
+            echo "📊 Code Coverage Report"
+            echo "========================"
+            
+            # Get coverage percentage
+            xcrun xccov view --report --only-targets "$RESULT_BUNDLE" > coverage_report.txt
+            
+            # Display coverage summary
+            cat coverage_report.txt
+            
+            # Extract overall coverage percentage for CloudSyncApp target
+            COVERAGE=$(xcrun xccov view --report --only-targets "$RESULT_BUNDLE" | grep "CloudSyncApp.app" | awk '{print $4}' | tr -d '%')
+            
+            echo ""
+            echo "📈 CloudSyncApp Coverage: ${COVERAGE}%"
+            
+            # Save coverage to file for artifact
+            echo "$COVERAGE" > coverage_percentage.txt
+            
+            # Fail if coverage drops below threshold (optional - start with warning)
+            THRESHOLD=30
+            if [ ! -z "$COVERAGE" ]; then
+              COVERAGE_INT=${COVERAGE%.*}
+              if [ "$COVERAGE_INT" -lt "$THRESHOLD" ]; then
+                echo "⚠️ Warning: Coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
+                # Uncomment next line to fail CI on low coverage:
+                # exit 1
+              else
+                echo "✅ Coverage ($COVERAGE%) meets threshold ($THRESHOLD%)"
+              fi
+            fi
+          else
+            echo "⚠️ No test results found"
+          fi
+
+      # Generate detailed coverage JSON
+      - name: Generate Coverage JSON
+        if: always()
+        run: |
+          RESULT_BUNDLE="TestResults.xcresult"
+          if [ -d "$RESULT_BUNDLE" ]; then
+            xcrun xccov view --report --json "$RESULT_BUNDLE" > coverage.json
+          fi
 
       # Check version consistency
       - name: Version Check
@@ -67,13 +118,27 @@ jobs:
           chmod +x ./scripts/version-check.sh
           ./scripts/version-check.sh
 
-      # Upload test results
-      - name: Upload Test Results
+      # Upload test results and coverage
+      - name: Upload Test Results & Coverage
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
           path: |
             build/reports/
-            TestResults/
-          retention-days: 7
+            TestResults.xcresult/
+            coverage_report.txt
+            coverage_percentage.txt
+            coverage.json
+          retention-days: 14
+
+      # Post coverage summary to PR (if PR)
+      - name: Coverage Summary
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f coverage_percentage.txt ]; then
+            COVERAGE=$(cat coverage_percentage.txt)
+            echo "### 📊 Code Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See artifacts for detailed coverage report." >> $GITHUB_STEP_SUMMARY
+          fi
