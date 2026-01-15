@@ -2,7 +2,7 @@
 
 > Single file containing everything needed to restore full context.
 > Use this after computer crash or starting fresh session.
-> **Version:** 2.0.20 | **Updated:** 2026-01-14
+> **Version:** 2.0.21 | **Updated:** 2026-01-15
 
 ---
 
@@ -13,7 +13,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.20 |
+| **Version** | 2.0.21 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Project Board** | https://github.com/users/andybod1-lang/projects/1 |
