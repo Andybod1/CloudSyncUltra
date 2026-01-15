@@ -1,5 +1,5 @@
 name: 🐛 Bug Report
-description: Report a bug or unexpected behavior in CloudSync Ultra
+description: Report a bug or unexpected behavior
 title: "[Bug]: "
 labels: ["bug", "triage"]
 assignees: []
@@ -79,9 +79,9 @@ body:
       label: Environment
       description: System information
       placeholder: |
-        - macOS version: 
-        - CloudSync Ultra version: 
-        - Cloud provider(s) involved:
+        - OS version:
+        - App version:
+        - Other relevant info:
     validations:
       required: false
 

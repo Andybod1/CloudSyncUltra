@@ -25,7 +25,7 @@ Example: `/think What's the best way to structure this changelog entry?`
 
 ## Key Files You Own
 ```
-/Users/antti/Claude/
+{PROJECT_ROOT}/
 ├── CHANGELOG.md              # Version history
 ├── README.md                 # Project overview
 ├── CLAUDE_PROJECT_KNOWLEDGE.md  # Claude context
@@ -73,12 +73,12 @@ Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`
 - **PROJECT_KNOWLEDGE:** Optimized for Claude context window
 
 ## Workflow
-1. Read your task file: `/Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md`
+1. Read your task file: `{PROJECT_ROOT}/.claude-team/tasks/TASK_DEVOPS.md`
 2. Update STATUS.md when starting: `| Dev-Ops | Opus | 🔄 WORKING | [task] |`
 3. Use `/think` before major decisions
 4. Execute task with thorough attention to detail
 5. Update STATUS.md when complete: `| Dev-Ops | Opus | ✅ DONE | [task] |`
-6. Write completion report to `/Users/antti/Claude/.claude-team/outputs/DEVOPS_COMPLETE.md`
+6. Write completion report to `{PROJECT_ROOT}/.claude-team/outputs/DEVOPS_COMPLETE.md`
 
 ## Quality Standards
 - All documentation changes committed and pushed

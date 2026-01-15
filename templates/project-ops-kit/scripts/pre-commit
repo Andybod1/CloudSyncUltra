@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║  CloudSync Ultra - Pre-commit Hook                                         ║
+# ║  Project Ops Kit - Pre-commit Hook                                         ║
 # ║  Catches errors BEFORE they reach the repo                                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 #
@@ -75,27 +75,18 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}[2/5]${NC} Building project..."
 
-# Only do full build if Swift files changed
+# Run build check if source files changed
+# TODO: Customize this for your project's build system
+# Examples:
+#   xcodebuild build -project YourApp.xcodeproj -scheme YourApp
+#   npm run build
+#   cargo build
+#   go build ./...
 if [[ -n "$STAGED_SWIFT" ]]; then
-    BUILD_OUTPUT=$(xcodebuild build \
-        -project CloudSyncApp.xcodeproj \
-        -scheme CloudSyncApp \
-        -destination 'platform=macOS' \
-        -quiet \
-        2>&1) || BUILD_FAILED=1
-    
-    if [[ -n "$BUILD_FAILED" ]]; then
-        echo -e "  ${RED}✗${NC} Build FAILED"
-        echo ""
-        echo -e "${RED}Build errors:${NC}"
-        echo "$BUILD_OUTPUT" | grep -E "error:" | head -10
-        echo ""
-        ERRORS=$((ERRORS + 1))
-    else
-        echo -e "  ${GREEN}✓${NC} Build succeeded"
-    fi
+    echo -e "  ${YELLOW}⚠${NC} Configure build command for your project"
+    echo -e "  ${GREEN}✓${NC} Build check placeholder (customize in pre-commit)"
 else
-    echo -e "  ${GREEN}✓${NC} Skipped (no Swift changes)"
+    echo -e "  ${GREEN}✓${NC} Skipped (no source changes)"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────

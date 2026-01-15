@@ -81,8 +81,8 @@ update_file \
 # 5. Update RECOVERY.md (footer)
 update_file \
     "$PROJECT_ROOT/.claude-team/RECOVERY.md" \
-    "CloudSync Ultra v$OLD_VERSION" \
-    "CloudSync Ultra v$NEW_VERSION" \
+    "v$OLD_VERSION" \
+    "v$NEW_VERSION" \
     ".claude-team/RECOVERY.md (footer)"
 
 # 6. Update PROJECT_CONTEXT.md if exists

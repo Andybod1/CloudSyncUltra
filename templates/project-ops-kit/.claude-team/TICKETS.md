@@ -1,4 +1,4 @@
-# CloudSync Ultra - Ticket System Guide
+# Ticket System Guide
 
 > **Robust ticket management using GitHub Issues + local git backup**
 
@@ -23,17 +23,17 @@ This system uses GitHub Issues as the primary ticket tracker with local git-back
 # Bug report
 gh issue create --template bug_report.yml
 
-# Feature request  
+# Feature request
 gh issue create --template feature_request.yml
 
 # Quick issue
-gh issue create --title "[Feature]: Bandwidth throttling" --label "enhancement,component:engine"
+gh issue create --title "[Feature]: New feature name" --label "enhancement"
 ```
 
-**Option B: Quick Local (For Andy)**
+**Option B: Quick Local**
 ```bash
 # Just drop a note - Strategic Partner will process
-echo "Add bandwidth throttling settings" >> ~/Claude/.claude-team/tickets/INBOX.md
+echo "Add new feature" >> .claude-team/tickets/INBOX.md
 ```
 
 ### Viewing Tickets
@@ -47,7 +47,7 @@ gh issue list --label "ready"
 gh issue list --label "worker:dev-2"
 
 # Local backup
-cat ~/Claude/.claude-team/tickets/ACTIVE.md
+cat .claude-team/tickets/ACTIVE.md
 ```
 
 ---
@@ -60,7 +60,7 @@ cat ~/Claude/.claude-team/tickets/ACTIVE.md
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │   1. CREATED                                                                │
-│      └─ Andy creates issue on GitHub OR drops note in INBOX.md              │
+│      └─ Team creates issue on GitHub OR drops note in INBOX.md              │
 │         Labels: triage                                                      │
 │                                                                             │
 │   2. PLANNED                                                                │
@@ -99,12 +99,9 @@ cat ~/Claude/.claude-team/tickets/ACTIVE.md
 | Label | Domain |
 |-------|--------|
 | `component:ui` | Views, ViewModels (Dev-1) |
-| `component:engine` | RcloneManager (Dev-2) |
+| `component:engine` | Core logic (Dev-2) |
 | `component:services` | Models, Managers (Dev-3) |
 | `component:tests` | Test files (QA) |
-| `component:encryption` | Encryption features |
-| `component:scheduling` | Scheduled sync |
-| `component:menu-bar` | Menu bar |
 
 ### Worker Labels
 | Label | Assignment |
@@ -150,13 +147,13 @@ gh issue edit 42 --add-label "in-progress" --remove-label "ready"
 
 ### Completing Work
 ```bash
-gh issue close 42 --comment "Implemented in commit abc123. See CHANGELOG v2.0.5"
+gh issue close 42 --comment "Implemented in commit abc123. See CHANGELOG vX.X.X"
 ```
 
 ### Sync to Local Backup
 ```bash
 # Export active issues to local file
-gh issue list --state open --json number,title,labels,body > ~/Claude/.claude-team/tickets/issues_backup.json
+gh issue list --state open --json number,title,labels,body > .claude-team/tickets/issues_backup.json
 ```
 
 ---
@@ -165,7 +162,7 @@ gh issue list --state open --json number,title,labels,body > ~/Claude/.claude-te
 
 ### After Device Crash
 1. Issues are safe on GitHub
-2. Check local backup: `cat ~/Claude/.claude-team/tickets/ACTIVE.md`
+2. Check local backup: `cat .claude-team/tickets/ACTIVE.md`
 3. Restore context: `gh issue list --label "in-progress"`
 
 ### After GitHub Outage
@@ -188,15 +185,15 @@ When creating worker tasks, reference GitHub issues:
 # TASK_DEV2.md
 
 ## Issue Reference
-GitHub Issue: #42 - Bandwidth Throttling
+GitHub Issue: #42 - Feature Name
 
 ## Objective
-Implement bandwidth limiting in RcloneManager...
+Implement feature in core engine...
 ```
 
 Commits should reference issues:
 ```bash
-git commit -m "feat(engine): Add bandwidth throttling
+git commit -m "feat(engine): Add feature name
 
 Implements #42"
 ```
@@ -208,7 +205,7 @@ Implements #42"
 ```
 .claude-team/
 ├── tickets/
-│   ├── INBOX.md           # Quick notes from Andy
+│   ├── INBOX.md           # Quick notes
 │   ├── ACTIVE.md          # Currently active tickets (local backup)
 │   └── issues_backup.json # GitHub issues export
 └── TICKETS.md             # This guide
@@ -216,4 +213,4 @@ Implements #42"
 
 ---
 
-*Last Updated: 2026-01-12*
+*Last Updated: YYYY-MM-DD*

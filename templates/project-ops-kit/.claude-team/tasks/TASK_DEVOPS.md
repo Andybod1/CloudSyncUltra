@@ -1,15 +1,15 @@
-# Dev-Ops Task: Documentation & Release Prep
+# TASK: [Operation Name]
 
-**Sprint:** Launch Ready (v2.0.21)
-**Created:** 2026-01-15
-**Worker:** Dev-Ops
-**Model:** Opus (always use /think)
+## Ticket
+**Type:** Operations / Documentation / Release
+**Size:** XS / S / M / L / XL
+**Priority:** High / Medium / Low
 
 ---
 
 ## Context
 
-Sprint focuses on launch readiness. Dev-Ops supports with documentation updates and release preparation.
+[Provide relevant background information about this operation]
 
 ---
 
@@ -28,38 +28,25 @@ README.md
 
 ## Objectives
 
-### 1. Sprint Support
+### 1. [Primary Objective]
 
-- Monitor CI pipeline for all worker commits
-- Help resolve any build/test failures
-- Update documentation as features complete
+[Describe the main task]
 
-### 2. Documentation Updates
+### 2. [Secondary Objective]
 
-**As sprint progresses, update:**
-- README.md - feature list if new features added
-- docs/ - any new user-facing features
-- CHANGELOG.md - track sprint changes (will finalize at end)
+[Describe supporting tasks]
 
-### 3. Release Preparation
+### 3. [Additional Objective]
 
-**Pre-release checklist:**
-- [ ] All worker commits merged
-- [ ] CI green on main
-- [ ] version-check.sh passes
-- [ ] CHANGELOG.md has v2.0.21 section
-- [ ] Test count updated in docs
-- [ ] No uncommitted changes
+[Describe any other related work]
 
-### 4. GitHub Housekeeping
+---
 
-**During sprint:**
-- Add `in-progress` label to active issues
-- Update issue comments with progress
+## Deliverables
 
-**End of sprint:**
-- Close completed issues
-- Update labels
+- [ ] [Deliverable 1]
+- [ ] [Deliverable 2]
+- [ ] [Deliverable 3]
 
 ---
 
@@ -76,21 +63,18 @@ gh run list --limit 5
 ./scripts/dashboard.sh
 
 # Close issue
-gh issue close <number> -c "Completed in v2.0.21"
+gh issue close <number> -c "Completed in vX.X.X"
 ```
 
 ---
 
-## Sprint Issues to Track
+## Success Criteria
 
-| # | Issue | Worker | Status |
-|---|-------|--------|--------|
-| #77 | App Icon | Dev-1 | 🔄 |
-| #44 | UI Review | Dev-1 | 🔄 |
-| #10 | Transfer Performance | Dev-2 | 🔄 |
-| #20 | Crash Reporting | Dev-3 | 🔄 |
-| #27 | Test Automation | QA | 🔄 |
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+- [ ] [Criterion 3]
 
 ---
 
+*Task created: YYYY-MM-DD*
 *Coordinate with Strategic Partner for release timing*

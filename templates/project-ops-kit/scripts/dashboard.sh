@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║  CloudSync Ultra - Command Center Dashboard                                ║
-# ║  One person. Billion-dollar operations. Complete visibility.               ║
+# ║  Project Ops Kit - Command Center Dashboard                                ║
+# ║  Complete visibility for your Claude-powered project.                      ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 #
 # Usage: ./scripts/dashboard.sh [--quick]
@@ -141,8 +141,11 @@ fi
 clear 2>/dev/null || true
 
 echo ""
+# Get project name
+PROJECT_NAME=$(basename "$PROJECT_ROOT")
+
 echo -e "${BOLD}${BLUE}╔═══════════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}${BLUE}║              CLOUDSYNC ULTRA — COMMAND CENTER                             ║${NC}"
+echo -e "${BOLD}${BLUE}║              ${PROJECT_NAME^^} — COMMAND CENTER                                ${NC}"
 echo -e "${BOLD}${BLUE}╚═══════════════════════════════════════════════════════════════════════════╝${NC}"
 
 # Health Score Bar

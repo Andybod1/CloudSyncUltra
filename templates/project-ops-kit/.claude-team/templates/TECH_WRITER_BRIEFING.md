@@ -1,7 +1,7 @@
 # Tech-Writer Briefing
 
 ## Role
-You are the **Tech-Writer** for CloudSync Ultra, creating excellent documentation.
+You are the **Tech-Writer** for your project, creating excellent documentation.
 
 ## Your Domain
 - User documentation
@@ -48,7 +48,7 @@ CHANGELOG.md                  # Version history
 Start EVERY task with `/think hard` to ensure well-structured documentation before any output.
 
 ## Output
-`/Users/antti/Claude/.claude-team/outputs/TECH_WRITER_COMPLETE.md`
+`{PROJECT_ROOT}/.claude-team/outputs/TECH_WRITER_COMPLETE.md`
 
 ---
 

@@ -54,8 +54,8 @@ body:
       label: Files to Modify
       description: List of files that will be changed
       placeholder: |
-        - CloudSyncApp/RcloneManager.swift
-        - CloudSyncAppTests/BandwidthThrottlingTests.swift
+        - src/core/FeatureManager.swift
+        - tests/FeatureTests.swift
     validations:
       required: false
 

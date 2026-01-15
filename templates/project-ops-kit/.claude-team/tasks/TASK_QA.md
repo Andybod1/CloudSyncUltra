@@ -1,93 +1,92 @@
-# QA Task: Test Automation & Onboarding Validation
+# TASK: [Feature Name] - Testing
 
-**Sprint:** Launch Ready (v2.0.21)
-**Created:** 2026-01-15
-**Worker:** QA
-**Model:** Opus (always use /think)
-**Issues:** #27, Onboarding validation
+## Ticket
+**GitHub Issues:** #XX, #YY
+**Type:** Test Implementation
+**Size:** XS / S / M / L / XL
+**Priority:** High / Medium / Low
+
+---
+
+## Objective
+
+[Describe what needs to be tested]
 
 ---
 
 ## Context
 
-We just fixed several onboarding UX issues (click detection, scrolling, card sizing). These need validation. Additionally, test automation (#27) is HIGH priority for sustainable quality.
+[Reference the Test Plan if available, or describe the features being tested]
 
 ---
 
-## Your Files (Exclusive Ownership)
+## Test Plan
 
-```
-CloudSyncAppTests/
-CloudSyncAppUITests/
-```
+### Priority 1: [Primary Testing Focus]
 
----
-
-## Objectives
-
-### Priority 1: Onboarding Validation (Immediate)
-
-**Test the fixes from yesterday:**
-
-| View | Test Case | Expected |
+| Area | Test Case | Expected |
 |------|-----------|----------|
-| AddProviderStepView | Click provider card | Card highlights, Connect button activates |
-| AddProviderStepView | Click "Show All 40+ Providers" | Grid expands, scrollable |
-| AddProviderStepView | Scroll expanded grid | Navigation buttons stay fixed at bottom |
-| AddProviderStepView | Select provider + Click Connect | Advances to next step |
-| CompletionStepView | Quick Tips cards | All 3 same size |
-| Full Flow | Welcome → Provider → Sync → Complete | No crashes, all transitions work |
+| [Feature A] | [Action] | [Expected result] |
+| [Feature A] | [Action] | [Expected result] |
+| [Feature B] | [Action] | [Expected result] |
 
-**Report any issues found immediately.**
-
-### Priority 2: Issue #27 - Test Automation
-
-**Current State:**
-- 762 unit tests passing
-- 69 UI tests integrated
-- UI tests require Xcode GUI (Gatekeeper limitation)
+### Priority 2: [Secondary Testing Focus]
 
 **Goals:**
-1. Expand unit test coverage for critical paths
-2. Add tests for recently added features:
-   - Onboarding flow
-   - Dynamic parallelism
-   - Provider icons
-3. Document test gaps
-4. Create test plan for #10, #20 (other sprint work)
-
-**Test Coverage Priorities:**
-1. OnboardingViewModel - state transitions, persistence
-2. TransferOptimizer - parallelism calculations
-3. ProviderIconView - all provider types
-4. Error handling paths
+1. [Testing goal 1]
+2. [Testing goal 2]
+3. [Testing goal 3]
 
 ---
 
-## Deliverables
+## Tests to Write
 
-1. [ ] Onboarding validation report
-2. [ ] New tests for onboarding
-3. [ ] Test gap analysis
-4. [ ] Test plans for #10, #20
-5. [ ] Tests pass (target: maintain 762+)
-6. [ ] Commit with descriptive message
+### Unit Tests
+- [ ] `test_[description]` - [what it tests]
+- [ ] `test_[description]` - [what it tests]
+- [ ] `test_[description]` - [what it tests]
+
+### Edge Cases
+- [ ] `test_[edge case]` - [scenario]
+- [ ] `test_[edge case]` - [scenario]
+
+### Error Scenarios
+- [ ] `test_[error scenario]` - [what should happen]
 
 ---
 
-## Commands
+## Files to Create/Modify
+
+```
+[List test files that will be created or modified]
+```
+
+---
+
+## Definition of Done
+
+- [ ] All tests compile
+- [ ] All tests pass
+- [ ] Edge cases covered
+- [ ] STATUS.md updated
+- [ ] QA report written
+
+---
+
+## Useful Commands
 
 ```bash
 # Run all tests
-cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
+[your test command]
 
-# Run specific test file
-xcodebuild test -only-testing:CloudSyncAppTests/OnboardingViewModelTests -destination 'platform=macOS'
+# Run specific test
+[command to run specific test]
 
 # Check test coverage
-find CloudSyncAppTests -name "*.swift" | xargs wc -l
+[test coverage command]
 ```
 
 ---
 
-*Report onboarding validation results first, then proceed with #27*
+*Task created: YYYY-MM-DD*
+*Report results to Strategic Partner when done*

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║  CloudSync Ultra - Install Git Hooks                                       ║
+# ║  Project Ops Kit - Install Git Hooks                                       ║
 # ║  Sets up pre-commit hooks for quality assurance                            ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 #
