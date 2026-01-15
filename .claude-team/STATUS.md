@@ -46,14 +46,16 @@
 
 ---
 
-## Pending Tasks
+## Active Tasks
 
 ### Dev-1: Transfer Progress Counter (#96)
-**Status:** 🔴 NOT STARTED
+**Status:** 🟢 IN PROGRESS
+**Started:** 2026-01-15 16:58 UTC
 **Size:** S (30-45 min)
 
 ### Dev-2: Dropbox Support (#37)
-**Status:** 🔴 NOT STARTED
+**Status:** 🟢 IN PROGRESS
+**Started:** 2026-01-15 16:58 UTC
 **Size:** M (1-2 hours)
 
 ---
@@ -67,8 +69,8 @@
 | Compliance Package | Legal-Advisor | ✅ DONE |
 | App Store Assets (#78) | Dev-Ops | ✅ DONE |
 | Security Hardening (#74) | Dev-3 | ✅ DONE |
-| Transfer Progress Counter (#96) | Dev-1 | 🔴 PENDING |
-| Dropbox Support (#37) | Dev-2 | 🔴 PENDING |
+| Transfer Progress Counter (#96) | Dev-1 | 🟢 IN PROGRESS |
+| Dropbox Support (#37) | Dev-2 | 🟢 IN PROGRESS |
 
 ---
 

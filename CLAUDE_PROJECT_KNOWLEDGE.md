@@ -74,6 +74,8 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 
 ## Worker Launch
 
+> ⚠️ **IMPORTANT:** Always use the launch script - never launch workers manually via `claude` command directly. The script handles Terminal setup, briefing injection, and task assignment automatically.
+
 ```bash
 # Core team (all use Opus)
 ~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 opus
@@ -87,6 +89,9 @@ See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
 ~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
 ```
 
 ---
@@ -156,10 +161,11 @@ gh issue view <number>
 
 ## Key Reminders
 
-1. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
-2. **Delegate ALL implementation** to workers
-3. **QA = Opus + /think | Specialized = Opus + /think hard**
-4. **Ask Andy** if requirements unclear
+1. **Launch workers via script** → `~/Claude/.claude-team/scripts/launch_single_worker.sh <worker> opus` (NEVER manually)
+2. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
+3. **Delegate ALL implementation** to workers
+4. **QA = Opus + /think | Specialized = Opus + /think hard**
+5. **Ask Andy** if requirements unclear
 
 ### ⚠️ MANDATORY: Post-Sprint Documentation
 

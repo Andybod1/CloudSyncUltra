@@ -55,6 +55,8 @@ xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tai
 
 ## 🔄 Resume Workers (If Mid-Sprint)
 
+> ⚠️ **IMPORTANT:** Always use the launch script below - never launch workers manually via `claude` command directly. The script handles Terminal setup, briefing injection, and task assignment automatically.
+
 ### Launch Commands
 ```bash
 # Core Workers
@@ -67,6 +69,11 @@ xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tai
 ~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
 ~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
 ```
 
 ### Startup Prompts
