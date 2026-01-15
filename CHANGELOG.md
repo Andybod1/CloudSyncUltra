@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.21] - 2026-01-15
 
 ### Added
+- **Project-Ops-Kit v1.0.0** - Major template update for reusability
+  - Removed all hardcoded paths - scripts now auto-detect project root
+  - Added missing scripts: ticket.sh, launch_workers.sh, auto_launch_workers.sh
+  - Made template fully generic (no CloudSync-specific references)
+  - Added {PROJECT_ROOT} placeholders for portable deployment
+  - Comprehensive README with full usage documentation
+  - Template ready for any Claude Code parallel development project
+
+
+- **Project-Ops-Kit v1.0.0** - Major template update for reusability
+  - Removed all hardcoded paths - scripts now auto-detect project root
+  - Added missing scripts: ticket.sh, launch_workers.sh, auto_launch_workers.sh
+  - Made template fully generic (no CloudSync-specific references)
+  - Added {PROJECT_ROOT} placeholders for portable deployment
+  - Comprehensive README with full usage documentation
+  - Template ready for any Claude Code parallel development project
+
+
+- **Project-Ops-Kit v1.0.0** - Major template update for reusability
+  - Removed all hardcoded paths - scripts now auto-detect project root
+  - Added missing scripts: ticket.sh, launch_workers.sh, auto_launch_workers.sh
+  - Made template fully generic (no CloudSync-specific references)
+  - Added {PROJECT_ROOT} placeholders for portable deployment
+  - Comprehensive README with full usage documentation
+  - Template ready for any Claude Code parallel development project
+
+
 - **Crash Reporting System** (#20) - Privacy-first crash handling
   - CrashReport model for structured crash data
   - CrashReportViewer for user-accessible crash logs
