@@ -1,0 +1,59 @@
+{
+  "name": "CloudSync Ultra",
+  "description": "Professional macOS cloud synchronization with 41+ providers",
+  "version": "2.0.20",
+  "repository": "https://github.com/Andybod1/CloudSyncUltra",
+  
+  "stats": {
+    "providers": 41,
+    "oauthProviders": 23,
+    "tests": 762,
+    "uiTests": 69,
+    "updated": "2026-01-15"
+  },
+  
+  "tech": {
+    "platform": "macOS",
+    "minVersion": "13.0",
+    "framework": "SwiftUI",
+    "backend": "rclone",
+    "language": "Swift"
+  },
+  
+  "team": {
+    "workers": {
+      "dev-1": { "role": "UI", "domain": "Views, ViewModels, Components" },
+      "dev-2": { "role": "Engine", "domain": "RcloneManager, TransferEngine" },
+      "dev-3": { "role": "Services", "domain": "Models, *Manager.swift" },
+      "qa": { "role": "Testing", "domain": "CloudSyncAppTests/" },
+      "dev-ops": { "role": "Operations", "domain": "scripts/, docs/, .github/" }
+    },
+    "model": "opus"
+  },
+  
+  "paths": {
+    "source": "CloudSyncApp/",
+    "tests": "CloudSyncAppTests/",
+    "uiTests": "CloudSyncAppUITests/",
+    "docs": "docs/",
+    "scripts": "scripts/",
+    "team": ".claude-team/",
+    "tasks": ".claude-team/tasks/",
+    "outputs": ".claude-team/outputs/"
+  },
+  
+  "scripts": {
+    "build": "xcodebuild build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp",
+    "test": "xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'",
+    "release": "./scripts/release.sh",
+    "dashboard": "./scripts/dashboard.sh",
+    "versionCheck": "./scripts/version-check.sh"
+  },
+  
+  "quality": {
+    "testCoverage": "target: 80%",
+    "ciPipeline": ".github/workflows/ci.yml",
+    "preCommitHooks": true,
+    "protectedBranch": true
+  }
+}

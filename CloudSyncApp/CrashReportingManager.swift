@@ -8,25 +8,70 @@ final class CrashReportingManager {
 
     private let logger = Logger(subsystem: "com.cloudsync.ultra", category: "CrashReporting")
     private let logDirectory: URL
+    private let crashReportsDirectory: URL
+
+    // Keys for UserDefaults
+    private let previousCrashKey = "com.cloudsync.previousCrashDetected"
+    private let lastCrashDateKey = "com.cloudsync.lastCrashDate"
 
     private init() {
         // Store logs in Application Support
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         logDirectory = appSupport.appendingPathComponent("CloudSyncUltra/Logs", isDirectory: true)
+        crashReportsDirectory = appSupport.appendingPathComponent("CloudSyncUltra/CrashReports", isDirectory: true)
 
-        // Ensure directory exists with restrictive permissions
+        // Ensure directories exist with restrictive permissions
         try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true)
-        // Set restrictive permissions on the log directory (owner read/write/execute only)
+        try? FileManager.default.createDirectory(at: crashReportsDirectory, withIntermediateDirectories: true)
+
+        // Set restrictive permissions on the directories (owner read/write/execute only)
         try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: logDirectory.path)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: crashReportsDirectory.path)
     }
 
     // MARK: - Setup
 
     /// Call this at app launch to install crash handlers
     func setup() {
+        // Check for previous crashes
+        checkForPreviousCrashes()
+
+        // Install handlers
         installExceptionHandler()
         installSignalHandlers()
         logger.info("Crash reporting initialized")
+    }
+
+    // MARK: - Previous Crash Detection
+
+    /// Checks if there was a crash in the previous session
+    func hasPreviousCrash() -> Bool {
+        return UserDefaults.standard.bool(forKey: previousCrashKey)
+    }
+
+    /// Gets the date of the last crash if available
+    func lastCrashDate() -> Date? {
+        return UserDefaults.standard.object(forKey: lastCrashDateKey) as? Date
+    }
+
+    /// Clears the previous crash flag
+    func clearPreviousCrashFlag() {
+        UserDefaults.standard.removeObject(forKey: previousCrashKey)
+        UserDefaults.standard.removeObject(forKey: lastCrashDateKey)
+    }
+
+    private func checkForPreviousCrashes() {
+        // Check if there are any crash reports
+        let crashReports = getAllCrashReports()
+        if !crashReports.isEmpty {
+            // Find the most recent crash
+            let mostRecent = crashReports.max(by: { $0.date < $1.date })
+            if let crash = mostRecent {
+                UserDefaults.standard.set(true, forKey: previousCrashKey)
+                UserDefaults.standard.set(crash.date, forKey: lastCrashDateKey)
+                logger.warning("Previous crash detected from: \(crash.date)")
+            }
+        }
     }
 
     // MARK: - Exception Handling
@@ -39,36 +84,65 @@ final class CrashReportingManager {
 
     private func installSignalHandlers() {
         // Handle common crash signals
-        signal(SIGABRT) { _ in CrashReportingManager.shared.handleSignal("SIGABRT") }
-        signal(SIGILL) { _ in CrashReportingManager.shared.handleSignal("SIGILL") }
-        signal(SIGSEGV) { _ in CrashReportingManager.shared.handleSignal("SIGSEGV") }
-        signal(SIGBUS) { _ in CrashReportingManager.shared.handleSignal("SIGBUS") }
+        signal(SIGABRT) { sig in CrashReportingManager.shared.handleSignal("SIGABRT", signal: sig) }
+        signal(SIGILL) { sig in CrashReportingManager.shared.handleSignal("SIGILL", signal: sig) }
+        signal(SIGSEGV) { sig in CrashReportingManager.shared.handleSignal("SIGSEGV", signal: sig) }
+        signal(SIGBUS) { sig in CrashReportingManager.shared.handleSignal("SIGBUS", signal: sig) }
+        signal(SIGTRAP) { sig in CrashReportingManager.shared.handleSignal("SIGTRAP", signal: sig) }
     }
 
     private func handleException(_ exception: NSException) {
-        let crashLog = """
-        === CRASH REPORT ===
-        Date: \(Date())
-        Exception: \(exception.name.rawValue)
-        Reason: \(exception.reason ?? "Unknown")
+        let reason = "\(exception.name.rawValue): \(exception.reason ?? "Unknown")"
+        let stackTrace = exception.callStackSymbols
 
-        Call Stack:
-        \(exception.callStackSymbols.joined(separator: "\n"))
-        """
+        let crashReport = CrashReport(
+            type: .exception,
+            reason: reason,
+            stackTrace: stackTrace
+        )
 
-        saveCrashLog(crashLog)
+        saveCrashReport(crashReport)
+
+        // Also save as legacy log format for compatibility
+        saveCrashLog(crashReport.formattedDescription)
     }
 
-    private func handleSignal(_ signal: String) {
-        let crashLog = """
-        === CRASH REPORT ===
-        Date: \(Date())
-        Signal: \(signal)
+    private func handleSignal(_ signalName: String, signal: Int32) {
+        // Get current thread's call stack
+        let stackTrace = Thread.callStackSymbols
 
-        Thread: \(Thread.current)
-        """
+        let crashReport = CrashReport(
+            type: .signal,
+            reason: "Signal \(signalName) (\(signal))",
+            stackTrace: stackTrace
+        )
 
-        saveCrashLog(crashLog)
+        saveCrashReport(crashReport)
+
+        // Also save as legacy log format for compatibility
+        saveCrashLog(crashReport.formattedDescription)
+    }
+
+    // MARK: - Crash Report Storage
+
+    private func saveCrashReport(_ report: CrashReport) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        do {
+            let data = try encoder.encode(report)
+            let filename = "crash_\(ISO8601DateFormatter().string(from: report.date)).json"
+            let fileURL = crashReportsDirectory.appendingPathComponent(filename)
+
+            try data.write(to: fileURL)
+
+            // Set restrictive permissions on crash report files (owner read/write only)
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
+
+            logger.error("Crash report saved: \(filename)")
+        } catch {
+            logger.error("Failed to save crash report: \(error)")
+        }
     }
 
     private func saveCrashLog(_ content: String) {
@@ -78,6 +152,49 @@ final class CrashReportingManager {
         try? content.write(to: fileURL, atomically: true, encoding: .utf8)
         // Set restrictive permissions on crash log files (owner read/write only)
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
+    }
+
+    // MARK: - Crash Report Retrieval
+
+    /// Gets all stored crash reports
+    func getAllCrashReports() -> [CrashReport] {
+        var reports: [CrashReport] = []
+
+        do {
+            let files = try FileManager.default.contentsOfDirectory(
+                at: crashReportsDirectory,
+                includingPropertiesForKeys: nil
+            )
+
+            let decoder = JSONDecoder()
+
+            for file in files where file.pathExtension == "json" {
+                do {
+                    let data = try Data(contentsOf: file)
+                    let report = try decoder.decode(CrashReport.self, from: data)
+                    reports.append(report)
+                } catch {
+                    logger.error("Failed to decode crash report \(file.lastPathComponent): \(error)")
+                }
+            }
+        } catch {
+            logger.error("Failed to read crash reports directory: \(error)")
+        }
+
+        // Sort by date, newest first
+        return reports.sorted { $0.date > $1.date }
+    }
+
+    /// Gets the count of stored crash reports
+    func getCrashReportCount() -> Int {
+        return getAllCrashReports().count
+    }
+
+    /// Deletes a specific crash report
+    func deleteCrashReport(_ report: CrashReport) {
+        let filename = "crash_\(ISO8601DateFormatter().string(from: report.date)).json"
+        let fileURL = crashReportsDirectory.appendingPathComponent(filename)
+        try? FileManager.default.removeItem(at: fileURL)
     }
 
     // MARK: - Log Export
@@ -90,6 +207,9 @@ final class CrashReportingManager {
 
         // Collect crash logs
         let crashLogs = try FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
+
+        // Collect crash reports
+        let crashReportFiles = try FileManager.default.contentsOfDirectory(at: crashReportsDirectory, includingPropertiesForKeys: nil)
 
         // Create export directory securely using unique random identifier
         // This prevents predictable path attacks (TOCTOU vulnerabilities)
@@ -108,9 +228,23 @@ final class CrashReportingManager {
         try systemLogs.write(to: systemLogURL, atomically: true, encoding: .utf8)
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: systemLogURL.path)
 
+        // Create subdirectory for crash logs
+        let crashLogsDir = exportDir.appendingPathComponent("crash_logs")
+        try FileManager.default.createDirectory(at: crashLogsDir, withIntermediateDirectories: true)
+
         for crashLog in crashLogs {
-            let dest = exportDir.appendingPathComponent(crashLog.lastPathComponent)
+            let dest = crashLogsDir.appendingPathComponent(crashLog.lastPathComponent)
             try? FileManager.default.copyItem(at: crashLog, to: dest)
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: dest.path)
+        }
+
+        // Create subdirectory for crash reports
+        let crashReportsDir = exportDir.appendingPathComponent("crash_reports")
+        try FileManager.default.createDirectory(at: crashReportsDir, withIntermediateDirectories: true)
+
+        for crashReport in crashReportFiles {
+            let dest = crashReportsDir.appendingPathComponent(crashReport.lastPathComponent)
+            try? FileManager.default.copyItem(at: crashReport, to: dest)
             try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: dest.path)
         }
 
@@ -139,20 +273,64 @@ final class CrashReportingManager {
         var logs = "=== SYSTEM LOGS ===\n"
         logs += "Date: \(Date())\n"
         logs += "App Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")\n"
+        logs += "Build: \(Bundle.main.infoDictionary?["CFBundleVersion"] ?? "Unknown")\n"
         logs += "macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)\n\n"
 
         // Note: Actual OSLog retrieval requires OSLogStore (macOS 12+)
         // For now, include basic system info
-        logs += "Memory: \(ProcessInfo.processInfo.physicalMemory / 1024 / 1024) MB\n"
+        logs += "Memory: \(ProcessInfo.processInfo.physicalMemory / 1024 / 1024 / 1024) GB\n"
         logs += "Processors: \(ProcessInfo.processInfo.processorCount)\n"
+        logs += "Architecture: "
+        #if arch(x86_64)
+        logs += "x86_64\n"
+        #elseif arch(arm64)
+        logs += "arm64\n"
+        #else
+        logs += "unknown\n"
+        #endif
 
         return logs
     }
 
-    /// Clears all stored crash logs
+    /// Clears all stored crash logs and reports
     func clearLogs() {
-        let files = try? FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
-        files?.forEach { try? FileManager.default.removeItem(at: $0) }
-        logger.info("Crash logs cleared")
+        // Clear crash logs
+        let logFiles = try? FileManager.default.contentsOfDirectory(at: logDirectory, includingPropertiesForKeys: nil)
+        logFiles?.forEach { try? FileManager.default.removeItem(at: $0) }
+
+        // Clear crash reports
+        let reportFiles = try? FileManager.default.contentsOfDirectory(at: crashReportsDirectory, includingPropertiesForKeys: nil)
+        reportFiles?.forEach { try? FileManager.default.removeItem(at: $0) }
+
+        // Clear crash flags
+        clearPreviousCrashFlag()
+
+        logger.info("Crash logs and reports cleared")
     }
 }
+
+// MARK: - Debug Helpers
+
+#if DEBUG
+extension CrashReportingManager {
+    /// Intentionally causes a crash for testing purposes (debug builds only)
+    func testCrash(type: TestCrashType) {
+        switch type {
+        case .exception:
+            NSException(name: .genericException, reason: "Test crash - Exception", userInfo: nil).raise()
+        case .segmentationFault:
+            // Intentional null pointer dereference
+            let nullPointer: UnsafeMutablePointer<Int>? = nil
+            nullPointer?.pointee = 42
+        case .abort:
+            abort()
+        }
+    }
+
+    enum TestCrashType {
+        case exception
+        case segmentationFault
+        case abort
+    }
+}
+#endif
