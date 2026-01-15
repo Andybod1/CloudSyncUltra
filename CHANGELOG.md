@@ -5,6 +5,44 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.21] - 2026-01-15
+
+### Added
+- **Crash Reporting System** (#20) - Privacy-first crash handling
+  - CrashReport model for structured crash data
+  - CrashReportViewer for user-accessible crash logs
+  - Enhanced CrashReportingManager with signal handlers
+  - Local-only storage respecting user privacy
+  - CrashReportingTests.swift with comprehensive coverage
+
+- **Transfer Optimizer** (#10) - Enhanced performance optimization
+  - TransferOptimizer.swift for intelligent transfer tuning
+  - Dynamic buffer sizing based on file sizes
+  - Provider-aware parallel transfer limits
+  - Integrated with existing transfer engine
+
+- **Test Automation Expansion** (#27) - Quality assurance improvements
+  - 770 total tests (up from 743)
+  - +27 new tests covering crash reporting, onboarding validation
+  - Onboarding validation report with real-world testing results
+
+### Changed
+- **App Icon Design** (#77) - Icon generation infrastructure ready
+- **UI Review** (#44) - AppTheme consistency audit completed
+
+### Infrastructure
+- Pre-commit hooks for quality gates (`scripts/pre-commit`)
+- Test count recording (`scripts/record-test-count.sh`)
+- Session templates for development workflow
+- Operational excellence tracker updated (42% → 57%)
+
+### Tests
+- 770 tests total (768 passing, 2 pre-existing timing issues)
+- New: CrashReportingTests.swift
+- Enhanced: OnboardingViewModelTests.swift
+
+---
+
 ## [2.0.20] - 2026-01-14
 
 ### Added

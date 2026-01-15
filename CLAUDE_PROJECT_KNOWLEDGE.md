@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.20 | **Updated:** 2026-01-14
+> **Version:** 2.0.21 | **Updated:** 2026-01-15
 
 ---
 
@@ -131,24 +131,21 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.20 - Sprint "Launch Ready"
+### Just Completed: v2.0.21 - Sprint "Launch Ready"
+- ✅ **Crash Reporting** (#20) - CrashReport model, CrashReportViewer, privacy-first
+- ✅ **Transfer Optimizer** (#10) - Dynamic buffer sizing, provider-aware parallelism
+- ✅ **Test Automation** (#27) - 770 tests total, onboarding validation
+- ✅ **App Icon** (#77) - Icon generation infrastructure ready
+- ✅ **UI Review** (#44) - AppTheme consistency audit
+- ✅ **Pre-commit hooks** - Quality gates for development
+- ✅ **770 tests passing** (768 green, 2 pre-existing timing issues)
+
+### v2.0.20 (Previous)
 - ✅ **Onboarding Flow** (#80, #81, #82) - 4-step first-time user experience
 - ✅ **Dynamic Parallelism** (#70) - Provider-aware transfer optimization
 - ✅ **Fast-List Support** (#71) - Faster directory listings
 - ✅ **Provider Icons** (#95) - ProviderIconView + brand colors
 - ✅ **Visual Polish** (#84) - Consistent AppTheme styling
-- ✅ **All 762 tests passing**
-
-### v2.0.18-19 (Previous)
-- ✅ **#72 Multi-Thread Downloads** - Already implemented, 30+ tests
-- ✅ **#77 App Icon** - SVG template, generation script ready
-- ✅ **#84 UI Visual Refresh** - AppTheme applied to 5 views
-- ✅ **#85 Pricing Strategy** - $29 one-time recommended
-- ✅ **#86 Marketing Channels** - Report + launch checklist
-- ✅ **#88 UI Tests** - 69 XCUITests integrated
-- ✅ **#90 Notifications** - NotificationManager verified
-- ✅ **#92 CONTRIBUTING.md** - 450+ lines
-- ✅ **#94 Publishing Guide** - ~650 lines
 
 ### Key Docs Created
 - `docs/PUBLISHING_GUIDE.md` - Code signing, notarization, App Store

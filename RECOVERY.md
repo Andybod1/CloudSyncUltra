@@ -2,7 +2,7 @@
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
 > This guide helps you restore the development environment after restart.
-> **Version:** 2.0.18 | **Tests:** 870 (801 unit + 69 UI) | **Providers:** 41
+> **Version:** 2.0.21 | **Tests:** 770 (768 passing, 2 timing) | **Providers:** 42
 
 ---
 
@@ -161,5 +161,5 @@ xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 
 ---
 
-*Last Updated: 2026-01-14*
-*CloudSync Ultra v2.0.18*
+*Last Updated: 2026-01-15*
+*CloudSync Ultra v2.0.21*
