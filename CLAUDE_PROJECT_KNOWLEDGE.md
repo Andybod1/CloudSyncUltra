@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.22 | **Updated:** 2026-01-15
+> **Version:** 2.0.23 | **Updated:** 2026-01-15
 
 ---
 
@@ -131,15 +131,13 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.22 - Sprint "Polish & Performance"
-- ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut, keyboard-driven productivity
-- ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig, per-provider optimization
-- ✅ **Transfer Preview** (#55) - Dry-run support, pre-transfer visibility
-- ✅ **Project-Ops-Kit v1.0.0** - Generic template ready for reuse
-- ✅ **Pricing Strategy & GTM** - $0 Free → $9.99/mo Pro → $19.99/user Team
-- ✅ **CI Coverage** - Code coverage reporting added to CI workflow
-- ✅ **Branch Protection** - PR required, CI must pass
-- ✅ **841 tests** (839 passing)
+### Just Completed: v2.0.23 - Sprint "Launch Ready"
+- ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
+- ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
+- ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs
+- ✅ **Marketing Package** - Positioning, landing page, press kit, Product Hunt plan
+- ✅ **App Store Assets** (#78) - Description, keywords, metadata, screenshot guide
+- ✅ **743 tests** passing
 - ✅ **Operational Excellence at 78%** (Pillar 2 at 100%)
 
 ### Strategic: Billion Dollar Framework
@@ -149,10 +147,10 @@ gh issue view <number>
 - Solo founder: AI support, self-serve everything
 - See `.claude-team/planning/BILLION_DOLLAR_FRAMEWORK.md`
 
-### v2.0.21 (Previous)
-- ✅ **Crash Reporting** (#20) - CrashReport model, CrashReportViewer, privacy-first
-- ✅ **Transfer Optimizer** (#10) - Dynamic buffer sizing, provider-aware parallelism
-- ✅ **Test Automation** (#27) - 770 tests total, onboarding validation
+### v2.0.22 (Previous)
+- ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut
+- ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig
+- ✅ **Transfer Preview** (#55) - Dry-run support
 
 ---
 

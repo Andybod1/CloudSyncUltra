@@ -350,22 +350,9 @@ struct TransferView: View {
             }
         }
         
-        let logPath = "/tmp/cloudsync_transfer_debug.log"
-        let log = { (msg: String) in
-            let timestamp = Date().description
-            let line = "\(timestamp): [Transfer] \(msg)\n"
-            if let data = line.data(using: .utf8) {
-                let fileURL = URL(fileURLWithPath: logPath)
-                if FileManager.default.fileExists(atPath: logPath) {
-                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
-                        fileHandle.seekToEndOfFile()
-                        fileHandle.write(data)
-                        fileHandle.closeFile()
-                    }
-                } else {
-                    try? data.write(to: fileURL)
-                }
-            }
+        // Use secure debug logging instead of world-readable /tmp
+        let log = SecurityManager.createSecureDebugLogger(filename: "transfer_debug.log") ?? { msg in
+            print("[Transfer Debug] \(msg)")
         }
         
         log("Starting transfer: \(files.count) files, \(totalSize) bytes")
@@ -378,7 +365,14 @@ struct TransferView: View {
         
         // Check if encryption is enabled on either side
         let isEncrypted = from.isEncrypted || to.isEncrypted
-        transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name, encrypted: isEncrypted)
+
+        // Calculate max parallel transfers based on providers
+        // Use the more conservative limit between source and destination
+        let sourceParallelism = from.type.defaultParallelism.transfers
+        let destParallelism = to.type.defaultParallelism.transfers
+        let maxTransfers = min(sourceParallelism, destParallelism)
+
+        transferProgress.start(itemCount: totalFileCount, totalSize: totalSize, sourceName: from.name, destName: to.name, encrypted: isEncrypted, maxTransfers: maxTransfers)
         
         // Show tip for many small files
         if totalFileCount > 50 {
@@ -736,12 +730,14 @@ class TransferProgressModel: ObservableObject {
     @Published var hasError = false
     @Published var errorMessage: String?
     @Published var isEncrypted = false
+    @Published var maxParallelTransfers = 4
     
-    func start(itemCount: Int, totalSize: Int64, sourceName: String, destName: String, encrypted: Bool = false) {
+    func start(itemCount: Int, totalSize: Int64, sourceName: String, destName: String, encrypted: Bool = false, maxTransfers: Int = 4) {
         isTransferring = true; percentage = 0; speed = ""; self.itemCount = itemCount
         self.totalSize = totalSize; transferredSize = 0; self.sourceName = sourceName
         self.destName = destName; statusMessage = "Transferring..."; isCancelled = false
         isCompleted = false; hasError = false; errorMessage = nil; isEncrypted = encrypted
+        maxParallelTransfers = maxTransfers
     }
     
     func complete(success: Bool, error: String? = nil, message: String? = nil) {
@@ -778,6 +774,7 @@ class TransferProgressModel: ObservableObject {
 
 struct TransferProgressBar: View {
     @ObservedObject var progress: TransferProgressModel
+    @EnvironmentObject var tasksVM: TasksViewModel
     var onCancel: (() -> Void)?
 
     var body: some View {
@@ -803,6 +800,16 @@ struct TransferProgressBar: View {
                             .font(AppTheme.captionFont)
                             .foregroundColor(AppTheme.textSecondary)
                         Text(progress.destName).fontWeight(.medium)
+
+                        // Transfer counter
+                        let activeTransfers = tasksVM.runningTasksCount
+                        let maxTransfers = progress.maxParallelTransfers
+                        Text("•")
+                            .foregroundColor(AppTheme.textSecondary)
+                            .font(AppTheme.captionFont)
+                        Text("\(activeTransfers)/\(maxTransfers) transfers")
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.textSecondary)
 
                         // Encryption badge
                         if progress.isEncrypted {
@@ -889,6 +896,7 @@ struct TransferProgressBar: View {
 
 struct TransferActiveIndicator: View {
     @ObservedObject var progress: TransferProgressModel
+    @EnvironmentObject var tasksVM: TasksViewModel
     var onCancel: (() -> Void)?
     var onViewTasks: (() -> Void)?
 
@@ -918,6 +926,15 @@ struct TransferActiveIndicator: View {
                         Text(progress.speed)
                             .foregroundColor(AppTheme.textSecondary)
                     }
+
+                    // Transfer counter (X/Y transfers)
+                    let activeTransfers = tasksVM.runningTasksCount
+                    let maxTransfers = progress.maxParallelTransfers
+                    Text("*")
+                        .foregroundColor(AppTheme.textSecondary)
+                    Text("\(activeTransfers)/\(maxTransfers) transfers")
+                        .foregroundColor(AppTheme.textSecondary)
+
                     if progress.isEncrypted {
                         Image(systemName: "lock.fill")
                             .font(.caption2)

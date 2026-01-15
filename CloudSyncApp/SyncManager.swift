@@ -16,6 +16,8 @@ class SyncManager: ObservableObject {
     @Published var lastSyncTime: Date?
     @Published var currentProgress: SyncProgress?
     @Published var isMonitoring = false
+    @Published var scheduleSyncDisabledReason: String?
+    @Published var showPaywallForScheduledSync = false
     
     private let rclone = RcloneManager.shared
     private let encryption = EncryptionManager.shared
@@ -50,19 +52,29 @@ class SyncManager: ObservableObject {
     // MARK: - Monitoring
     
     func startMonitoring() async {
-        guard !localPath.isEmpty else { return }
-        
+        guard let validatedLocalPath = SecurityManager.sanitizePath(localPath) else {
+            print("Error: Invalid or unsafe local path for monitoring")
+            return
+        }
+
+        // Check if user can use scheduled sync based on subscription
+        guard StoreKitManager.shared.currentTier.hasScheduledSync else {
+            print("Scheduled sync requires Pro or Team subscription")
+            // Still allow manual sync for free users
+            return
+        }
+
         isMonitoring = true
-        
+
         // Setup file system monitoring
-        fileMonitor = FileMonitor(path: localPath) { [weak self] in
+        fileMonitor = FileMonitor(path: validatedLocalPath) { [weak self] in
             Task { @MainActor in
                 guard let self = self, self.autoSync else { return }
                 // Debounce: wait 3 seconds after changes before syncing
                 self.scheduleSync(delay: 3.0)
             }
         }
-        
+
         // Setup periodic sync
         if autoSync {
             syncTimer = Timer.scheduledTimer(withTimeInterval: syncInterval, repeats: true) { [weak self] _ in
@@ -100,16 +112,23 @@ class SyncManager: ObservableObject {
     
     func performSync(mode: SyncMode = .oneWay) async {
         guard syncStatus != .syncing else { return }
-        
+
+        // Validate paths before syncing
+        guard let validatedLocalPath = SecurityManager.sanitizePath(localPath),
+              !remotePath.isEmpty else {
+            syncStatus = .error("Invalid or unsafe paths specified")
+            return
+        }
+
         let useEncryption = encryption.isEncryptionEnabled && encryption.isEncryptionConfigured
-        
+
         syncStatus = .syncing
         let statusMessage = useEncryption ? "Starting encrypted sync..." : "Starting..."
         currentProgress = SyncProgress(speed: 0, percent: 0)
-        
+
         do {
             let progressStream = try await rclone.sync(
-                localPath: localPath,
+                localPath: validatedLocalPath,
                 remotePath: remotePath,
                 mode: mode,
                 encrypted: useEncryption
@@ -441,6 +460,32 @@ class SyncManager: ObservableObject {
             operation: operation,
             modifiedDate: nil
         )
+    }
+
+    // MARK: - Subscription Feature Gating
+
+    /// Check if user can use scheduled sync based on subscription
+    var canUseScheduledSync: Bool {
+        StoreKitManager.shared.currentTier.hasScheduledSync
+    }
+
+    /// Attempt to enable scheduled sync with feature gating
+    func enableScheduledSync() -> Bool {
+        if !canUseScheduledSync {
+            scheduleSyncDisabledReason = StoreKitManager.shared.currentTier.limitMessage(for: "scheduling")
+            showPaywallForScheduledSync = true
+            return false
+        }
+        return true
+    }
+
+    /// Get a user-friendly message about scheduled sync availability
+    func getScheduledSyncStatus() -> String {
+        if canUseScheduledSync {
+            return isMonitoring ? "Scheduled sync active" : "Scheduled sync available"
+        } else {
+            return "Scheduled sync requires Pro subscription"
+        }
     }
 }
 

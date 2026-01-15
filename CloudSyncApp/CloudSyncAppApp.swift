@@ -14,6 +14,7 @@ struct CloudSyncAppApp: App {
     @StateObject private var remotesVM = RemotesViewModel.shared
     @StateObject private var tasksVM = TasksViewModel.shared
     @StateObject private var errorManager = ErrorNotificationManager()
+    @StateObject private var storeKitManager = StoreKitManager.shared
     
     var body: some Scene {
         // Main Window
@@ -23,6 +24,7 @@ struct CloudSyncAppApp: App {
                 .environmentObject(remotesVM)
                 .environmentObject(tasksVM)
                 .environmentObject(errorManager)
+                .environmentObject(storeKitManager)
         }
         .windowStyle(.automatic)
         .windowToolbarStyle(.unified(showsTitle: true))
@@ -55,6 +57,7 @@ struct CloudSyncAppApp: App {
             SettingsView()
                 .environmentObject(syncManager)
                 .environmentObject(remotesVM)
+                .environmentObject(storeKitManager)
         }
     }
 }

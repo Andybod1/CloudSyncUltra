@@ -904,8 +904,19 @@ class RcloneManager {
     }
     
     func setupDropbox(remoteName: String) async throws {
+        logger.info("Setting up Dropbox: \(remoteName, privacy: .public)")
+
         // Dropbox uses OAuth - opens browser for authentication
+        // Uses rclone's built-in Dropbox client ID by default
+        // For custom client ID support, would need to extend createRemoteInteractive
         try await createRemoteInteractive(name: remoteName, type: "dropbox")
+
+        // Verify setup succeeded
+        guard isRemoteConfigured(name: remoteName) else {
+            throw RcloneError.configurationFailed("Dropbox OAuth did not complete successfully")
+        }
+
+        logger.info("Dropbox remote '\(remoteName, privacy: .public)' configured successfully")
     }
     
     func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal) async throws {
@@ -2631,6 +2642,8 @@ class RcloneManager {
                             }
                         } else {
                             try? data.write(to: fileURL)
+                            // Set secure permissions on the log file (600 - owner read/write only)
+                            try? SecurityManager.setSecurePermissions(logPath)
                         }
                     }
                 }

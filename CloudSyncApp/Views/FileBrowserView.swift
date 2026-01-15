@@ -1220,22 +1220,9 @@ struct FileBrowserView: View {
         panel.message = "Choose files to upload"
         panel.prompt = "Upload"
         
-        let logPath = "/tmp/cloudsync_upload_debug.log"
-        let log = { (msg: String) in
-            let timestamp = Date().description
-            let line = "\(timestamp): \(msg)\n"
-            if let data = line.data(using: .utf8) {
-                let fileURL = URL(fileURLWithPath: logPath)
-                if FileManager.default.fileExists(atPath: logPath) {
-                    if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
-                        fileHandle.seekToEndOfFile()
-                        fileHandle.write(data)
-                        fileHandle.closeFile()
-                    }
-                } else {
-                    try? data.write(to: fileURL)
-                }
-            }
+        // Use secure debug logging instead of world-readable /tmp
+        let log = SecurityManager.createSecureDebugLogger(filename: "upload_debug.log") ?? { msg in
+            print("[Upload Debug] \(msg)")
         }
         
         log("Opening file picker for upload")

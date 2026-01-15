@@ -32,11 +32,17 @@ struct SettingsView: View {
                     }
                     .tag(2)
 
+                SubscriptionSettingsView()
+                    .tabItem {
+                        Label("Subscription", systemImage: "creditcard.fill")
+                    }
+                    .tag(3)
+
                 AboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
-                    .tag(3)
+                    .tag(4)
             }
 
             Text("CloudSync Ultra v2.0")
@@ -1430,10 +1436,155 @@ struct AboutView: View {
     }
 }
 
+// MARK: - Subscription Settings
+
+struct SubscriptionSettingsView: View {
+    @EnvironmentObject private var storeKitManager: StoreKitManager
+    @State private var showPaywall = false
+    @State private var showSubscriptionView = false
+
+    var body: some View {
+        Form {
+            Section {
+                // Current subscription status
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Current Plan")
+                            .font(.headline)
+                        Text("\(storeKitManager.currentTier.displayName) Tier")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    if storeKitManager.currentTier == .free {
+                        Button("Upgrade") {
+                            showPaywall = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.title2)
+                    }
+                }
+                .padding(.vertical, 8)
+            } header: {
+                Label("Subscription Status", systemImage: "creditcard")
+            }
+
+            // Features included
+            Section {
+                ForEach(storeKitManager.currentTier.features, id: \.self) { feature in
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.callout)
+                        Text(feature)
+                            .font(.callout)
+                        Spacer()
+                    }
+                }
+            } header: {
+                Text("Included Features")
+            }
+
+            // Usage limits
+            if storeKitManager.currentTier == .free {
+                Section {
+                    VStack(alignment: .leading, spacing: 12) {
+                        UsageRow(
+                            title: "Cloud Connections",
+                            current: "2", // This should come from actual data
+                            limit: storeKitManager.currentTier.connectionLimit.map { "\($0)" } ?? "Unlimited"
+                        )
+
+                        UsageRow(
+                            title: "Monthly Transfer",
+                            current: "2.3 GB", // This should come from actual data
+                            limit: storeKitManager.currentTier.transferLimitGB.map { "\($0) GB" } ?? "Unlimited"
+                        )
+                    }
+                    .padding(.vertical, 4)
+                } header: {
+                    Text("Usage Limits")
+                }
+            }
+
+            // Management section
+            Section {
+                if storeKitManager.currentTier != .free {
+                    Button("View Subscription Details") {
+                        showSubscriptionView = true
+                    }
+
+                    Button("Manage Subscription") {
+                        storeKitManager.manageSubscription()
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Unlock Advanced Features")
+                            .font(.headline)
+                        Text("Upgrade to Pro for unlimited connections, scheduled sync, and end-to-end encryption.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Button("View Plans") {
+                            showPaywall = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                    }
+                    .padding(.vertical, 8)
+                }
+
+                Button("Restore Purchases") {
+                    Task {
+                        await storeKitManager.restorePurchases()
+                    }
+                }
+                .disabled(storeKitManager.isLoading)
+            } header: {
+                Text("Manage")
+            }
+        }
+        .padding(AppTheme.spacing)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environmentObject(storeKitManager)
+        }
+        .sheet(isPresented: $showSubscriptionView) {
+            SubscriptionView()
+                .environmentObject(storeKitManager)
+        }
+    }
+}
+
+// Helper view for usage rows
+struct UsageRow: View {
+    let title: String
+    let current: String
+    let limit: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.callout)
+            Spacer()
+            Text("\(current) / \(limit)")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
 // Note: EncryptionModal and EncryptionConfig are defined in Views/EncryptionModal.swift
 
 #Preview {
     SettingsView()
         .environmentObject(SyncManager.shared)
         .environmentObject(RemotesViewModel.shared)
+        .environmentObject(StoreKitManager.shared)
 }

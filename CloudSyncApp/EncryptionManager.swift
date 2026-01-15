@@ -22,9 +22,12 @@ struct RemoteEncryptionConfig: Codable {
 
 /// Manages end-to-end encryption for cloud sync using rclone's crypt backend.
 /// Each remote can have its own encryption configuration with independent passwords.
-final class EncryptionManager {
+final class EncryptionManager: ObservableObject {
     static let shared = EncryptionManager()
-    
+
+    @Published var showPaywallForEncryption = false
+    @Published var encryptionDisabledReason: String?
+
     private init() {}
     
     // MARK: - Per-Remote Encryption State
@@ -40,6 +43,14 @@ final class EncryptionManager {
     /// Ignores requests for local storage since encryption doesn't apply
     func setEncryptionEnabled(_ enabled: Bool, for remoteName: String) {
         guard remoteName != "local" else { return }
+
+        // Check if user can use encryption based on subscription
+        if enabled && !StoreKitManager.cachedTier.hasEncryption {
+            encryptionDisabledReason = StoreKitManager.cachedTier.limitMessage(for: "encryption")
+            showPaywallForEncryption = true
+            return
+        }
+
         UserDefaults.standard.set(enabled, forKey: "encryption_enabled_\(remoteName)")
         NotificationCenter.default.post(
             name: .encryptionStateChanged,
@@ -82,6 +93,14 @@ final class EncryptionManager {
             print("[EncryptionManager] Ignoring encryption config save for local storage")
             return
         }
+
+        // Check if user can use encryption based on subscription
+        guard StoreKitManager.cachedTier.hasEncryption else {
+            encryptionDisabledReason = StoreKitManager.cachedTier.limitMessage(for: "encryption")
+            showPaywallForEncryption = true
+            throw EncryptionError.notConfigured
+        }
+
         let encoder = JSONEncoder()
         let data = try encoder.encode(config)
         UserDefaults.standard.set(data, forKey: "encryption_config_\(remoteName)")
@@ -199,10 +218,36 @@ final class EncryptionManager {
     func getEncryptedRemotes() -> [String] {
         let defaults = UserDefaults.standard
         let allKeys = defaults.dictionaryRepresentation().keys
-        
+
         return allKeys
             .filter { $0.hasPrefix("encryption_config_") }
             .map { String($0.dropFirst("encryption_config_".count)) }
+    }
+
+    // MARK: - Subscription Feature Gating
+
+    /// Check if user can use encryption based on subscription
+    var canUseEncryption: Bool {
+        StoreKitManager.cachedTier.hasEncryption
+    }
+
+    /// Attempt to enable encryption with feature gating
+    func checkEncryptionAccess() -> Bool {
+        if !canUseEncryption {
+            encryptionDisabledReason = StoreKitManager.cachedTier.limitMessage(for: "encryption")
+            showPaywallForEncryption = true
+            return false
+        }
+        return true
+    }
+
+    /// Get a user-friendly message about encryption availability
+    func getEncryptionStatus() -> String {
+        if canUseEncryption {
+            return "End-to-end encryption available"
+        } else {
+            return "Encryption requires Pro subscription"
+        }
     }
 }
 

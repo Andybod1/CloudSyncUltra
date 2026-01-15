@@ -16,6 +16,7 @@ class RemotesViewModel: ObservableObject {
     @Published var selectedRemote: CloudRemote?
     @Published var isLoading = false
     @Published var error: String?
+    @Published var showPaywall = false
     
     private let storageKey = "cloudRemotes_v6"  // Increment to force rescan
     
@@ -87,9 +88,20 @@ class RemotesViewModel: ObservableObject {
         }
     }
     
-    func addRemote(_ remote: CloudRemote) {
+    func addRemote(_ remote: CloudRemote) -> Bool {
+        // Check if user can add more remotes based on subscription tier
+        if let limit = StoreKitManager.shared.currentTier.connectionLimit {
+            let currentCount = remotes.count
+            if currentCount >= limit {
+                // User has reached the limit
+                error = StoreKitManager.shared.currentTier.limitMessage(for: "connections")
+                return false
+            }
+        }
+
         remotes.append(remote)
         saveRemotes()
+        return true
     }
     
     func removeRemote(_ remote: CloudRemote) {
@@ -154,5 +166,33 @@ class RemotesViewModel: ObservableObject {
             remotes[index].accountName = accountName
             saveRemotes()
         }
+    }
+
+    // MARK: - Subscription Feature Gating
+
+    /// Check if user can add more remotes based on subscription tier
+    var canAddMoreRemotes: Bool {
+        guard let limit = StoreKitManager.shared.currentTier.connectionLimit else {
+            return true // No limit
+        }
+        return remotes.count < limit
+    }
+
+    /// Get the number of remaining remotes user can add
+    var remainingRemotesCount: Int? {
+        guard let limit = StoreKitManager.shared.currentTier.connectionLimit else {
+            return nil // No limit
+        }
+        return max(0, limit - remotes.count)
+    }
+
+    /// Check if user should be shown the paywall for adding remotes
+    func checkRemoteLimit() -> Bool {
+        if !canAddMoreRemotes {
+            error = StoreKitManager.shared.currentTier.limitMessage(for: "connections")
+            showPaywall = true
+            return false
+        }
+        return true
     }
 }

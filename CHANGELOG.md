@@ -7,11 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.0.23] - 2026-01-15
+
+### Added
+- **StoreKit 2 Subscriptions** (#46) - Complete subscription system
+  - Three tiers: Free ($0), Pro ($9.99/mo), Team ($19.99/mo)
+  - SubscriptionTier model with feature limits
+  - StoreKitManager with modern async/await APIs
+  - PaywallView for upgrade prompts with tier comparison
+  - SubscriptionView for subscription management
+  - Feature gating in RemotesViewModel, SyncManager, EncryptionManager
+  - StoreKit testing configuration
+
+- **Security Hardening** (#74) - Pre-launch security improvements
+  - SecurityManager.swift for secure file operations
+  - Log file permissions (600) for privacy
+  - Path sanitization to prevent directory traversal
+  - Secure temp file handling
+
+- **Legal Compliance Package** - App Store ready
+  - Privacy Policy (GDPR/CCPA compliant)
+  - Terms of Service
+  - App Privacy Labels documentation
+  - GDPR and CCPA compliance documentation
+
+- **Marketing Launch Package** - Go-to-market ready
+  - POSITIONING.md - Target segments, competitive analysis
+  - LANDING_PAGE_COPY.md - Full landing page content
+  - APP_STORE_DESCRIPTION.md - ASO-optimized listing
+  - PRESS_KIT.md - Press release, founder bio
+  - PRODUCT_HUNT_PLAN.md - Launch strategy
+  - LAUNCH_CHECKLIST.md - 100+ item checklist
+  - SOCIAL_TEMPLATES.md - Platform-specific posts
+
+- **App Store Submission Assets** (#78)
+  - App description (4000 chars)
+  - Keywords (99 chars optimized)
+  - Metadata and categories
+  - Screenshot capture guide
+  - Submission checklist
+
 ### Fixed
 - **CI Pipeline** - Fixed coverage report failures blocking builds
   - Made coverage steps non-blocking (continue-on-error)
   - Improved error handling when coverage data unavailable
-  - CI pass rate will now reflect actual test success
+
+### Infrastructure
+- New directories: `docs/legal/`, `docs/marketing/`, `docs/APP_STORE_SUBMISSION/`
+- New specialized agents: Revenue-Engineer, Legal-Advisor, Marketing-Lead
+- 5 workers completed in parallel (Phase 1)
 
 ---
 
