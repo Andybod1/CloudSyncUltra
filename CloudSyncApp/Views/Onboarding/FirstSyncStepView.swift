@@ -272,6 +272,7 @@ private struct SyncConceptCard: View {
                     Circle()
                         .fill(isSelected ? concept.color.opacity(0.3) : Color.white.opacity(0.1))
                         .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+                        .shadow(color: isSelected ? concept.color.opacity(0.4) : AppTheme.primaryPurple.opacity(0.2), radius: 8, y: 4)
 
                     Image(systemName: concept.icon)
                         .font(.title2)

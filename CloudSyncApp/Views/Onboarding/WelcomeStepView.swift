@@ -224,6 +224,7 @@ private struct FeatureCard: View {
                 Circle()
                     .fill(Color.white.opacity(0.1))
                     .frame(width: 56, height: 56)
+                    .shadow(color: Color(hex: "8B5CF6").opacity(0.3), radius: 8, y: 4)
 
                 Image(systemName: feature.icon)
                     .font(.title2)

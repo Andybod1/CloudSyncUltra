@@ -63,13 +63,13 @@ struct AppTheme {
     // MARK: - Card Styling (from Onboarding FeatureCard)
 
     /// Card background for dark mode (glass effect)
-    static let cardBackgroundDark = Color.white.opacity(0.08)
+    static let cardBackgroundDark = Color.white.opacity(0.12)
 
     /// Card background on hover (dark mode)
-    static let cardBackgroundDarkHover = Color.white.opacity(0.12)
+    static let cardBackgroundDarkHover = Color.white.opacity(0.18)
 
     /// Card border (dark mode)
-    static let cardBorderDark = Color.white.opacity(0.1)
+    static let cardBorderDark = Color.white.opacity(0.15)
 
     /// Card background for light mode
     static let cardBackgroundLight = Color(NSColor.controlBackgroundColor)
@@ -112,10 +112,10 @@ struct AppTheme {
     static let textOnDark = Color.white
 
     /// Secondary text on dark background
-    static let textOnDarkSecondary = Color.white.opacity(0.7)
+    static let textOnDarkSecondary = Color.white.opacity(0.8)
 
     /// Tertiary text on dark background
-    static let textOnDarkTertiary = Color.white.opacity(0.6)
+    static let textOnDarkTertiary = Color.white.opacity(0.7)
 
     /// Primary text (standard)
     static let textPrimary = Color.primary

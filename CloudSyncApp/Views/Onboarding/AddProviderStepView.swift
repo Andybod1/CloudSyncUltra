@@ -279,6 +279,7 @@ private struct OnboardingProviderCard: View {
                 Circle()
                     .fill(isSelected ? provider.brandColor.opacity(0.3) : Color.white.opacity(0.1))
                     .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
+                    .shadow(color: isSelected ? provider.brandColor.opacity(0.4) : AppTheme.primaryPurple.opacity(0.2), radius: 8, y: 4)
 
                 Image(systemName: provider.iconName)
                     .font(.title2)
