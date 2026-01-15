@@ -31,6 +31,9 @@ Beyond the core dev team, your project can leverage specialized agents for focus
 | **Brand-Designer** | Brand & Visual Identity | Opus + /think hard | Brand audit, visual assets, style guides |
 | **QA-Automation** | Test Automation | Opus + /think hard | UI tests, CI/CD, coverage analysis |
 | **Marketing-Strategist** | Growth & Marketing | Opus + /think hard | ASO, campaigns, positioning |
+| **Revenue-Engineer** | Payments & Subscriptions | Opus + /think hard | StoreKit, IAP, tier logic, paywalls |
+| **Legal-Advisor** | Compliance & Legal | Opus + /think hard | Privacy policy, ToS, app store compliance |
+| **Marketing-Lead** | Launch & GTM | Opus + /think hard | Launch strategy, landing page, press kit |
 
 **All specialized agents use Opus with `/think hard` for deep, thorough analysis.**
 
@@ -56,6 +59,9 @@ Beyond the core dev team, your project can leverage specialized agents for focus
 ./.claude-team/scripts/launch_single_worker.sh brand-designer opus
 ./.claude-team/scripts/launch_single_worker.sh qa-automation opus
 ./.claude-team/scripts/launch_single_worker.sh marketing-strategist opus
+./.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
+./.claude-team/scripts/launch_single_worker.sh legal-advisor opus
+./.claude-team/scripts/launch_single_worker.sh marketing-lead opus
 ```
 
 ---
@@ -96,6 +102,12 @@ Brand-Designer: Read {PROJECT_ROOT}/.claude-team/templates/BRAND_DESIGNER_BRIEFI
 QA-Automation: Read {PROJECT_ROOT}/.claude-team/templates/QA_AUTOMATION_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_QA_AUTOMATION.md. Update STATUS.md as you work.
 
 Marketing-Strategist: Read {PROJECT_ROOT}/.claude-team/templates/MARKETING_STRATEGIST_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_MARKETING_STRATEGIST.md. Update STATUS.md as you work.
+
+Revenue-Engineer: Read {PROJECT_ROOT}/.claude-team/templates/REVENUE_ENGINEER_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_REVENUE_ENGINEER.md. Update STATUS.md as you work.
+
+Legal-Advisor: Read {PROJECT_ROOT}/.claude-team/templates/LEGAL_ADVISOR_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_LEGAL_ADVISOR.md. Update STATUS.md as you work.
+
+Marketing-Lead: Read {PROJECT_ROOT}/.claude-team/templates/MARKETING_LEAD_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_MARKETING_LEAD.md. Update STATUS.md as you work.
 ```
 
 ---
@@ -113,6 +125,9 @@ Marketing-Strategist: Read {PROJECT_ROOT}/.claude-team/templates/MARKETING_STRAT
 | "Brand looks inconsistent" or "need visual identity" | Brand-Designer |
 | "Need automated UI tests" or "improve test coverage" | QA-Automation |
 | "How do we grow users?" or "App Store optimization" | Marketing-Strategist |
+| "Implement subscriptions" or "payment flows" | Revenue-Engineer |
+| "Need privacy policy" or "App Store compliance" | Legal-Advisor |
+| "Plan the launch" or "landing page copy" | Marketing-Lead |
 
 ---
 
