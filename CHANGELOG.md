@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.0.24] - 2026-01-15
+
 ### Added
 - **Performance Settings UI** (#40) - Transfer optimization profiles
   - Four profiles: Conservative, Balanced, Performance, Custom
