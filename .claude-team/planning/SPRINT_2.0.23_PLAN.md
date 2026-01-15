@@ -1,6 +1,6 @@
 # Sprint v2.0.23 Planning
 > "Launch Ready" 🚀
-> Target: App Store submission
+> Target: App Store submission preparation
 
 ---
 
@@ -12,22 +12,7 @@
 4. **Security** - Harden before public release
 5. **Provider** - Add Dropbox (popular request)
 6. **Assets** - App Store screenshots & metadata
-
----
-
-## Why Launch Now?
-
-```
-✅ 42 providers working
-✅ 841 tests passing  
-✅ 90% health score
-✅ Pricing strategy defined ($9.99/mo Pro)
-✅ Ops excellence ~88%
-❌ $0 revenue while we polish
-
-Every week NOT in App Store = $0 revenue
-Time to market is the biggest lever.
-```
+7. **UI** - Transfer progress counter (#96)
 
 ---
 
@@ -35,71 +20,19 @@ Time to market is the biggest lever.
 
 | Worker | Ticket | Task | Size |
 |--------|--------|------|------|
-| **Revenue-Engineer** | #46 | StoreKit 2 Subscriptions | L |
-| **Legal-Advisor** | NEW | Privacy Policy, ToS, Compliance | M |
-| **Marketing-Lead** | NEW | Launch Strategy, Landing Page | M |
 | **Dev-1** | #96 | Transfer Progress Counter (Quick Win) | S |
 | **Dev-2** | #37 | Dropbox Support | M |
 | **Dev-3** | #74 | Security Hardening | M |
 | **Dev-Ops** | #78 | App Store Screenshots & Metadata | M |
-| **QA** | - | IAP + Security Tests | M |
+| **Revenue-Engineer** | #46 | StoreKit 2 Subscriptions | L |
+| **Legal-Advisor** | NEW | Privacy Policy, ToS, Compliance | M |
+| **Marketing-Lead** | NEW | Launch Strategy, Landing Page | M |
 
-**8 workers in parallel** → Maximum velocity
+**7 workers in parallel** → All independent, no dependencies
 
 ---
 
 ## Detailed Tasks
-
-### Revenue-Engineer: StoreKit 2 Subscriptions (#46)
-**Size:** L | **Est:** 2-3 hours
-
-Implement subscription system:
-- StoreKitManager.swift with StoreKit 2
-- SubscriptionTier model (Free/Pro/Team)
-- PaywallView for upgrade prompts
-- Feature gating based on tier
-- Restore purchases
-- Receipt validation
-- Sandbox testing
-
-**Reference:** `.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`
-
-**Files:**
-- `Managers/StoreKitManager.swift` (NEW)
-- `Models/SubscriptionTier.swift` (NEW)
-- `Views/PaywallView.swift` (NEW)
-- `Views/SubscriptionView.swift` (NEW)
-
----
-
-### Legal-Advisor: Compliance Package
-**Size:** M | **Est:** 1-2 hours
-
-Create legal documents for App Store:
-- Privacy Policy (required)
-- Terms of Service
-- App Privacy labels documentation
-- GDPR/CCPA compliance notes
-- Data handling disclosure
-
-**Output:** `docs/legal/`
-
----
-
-### Marketing-Lead: Launch Package
-**Size:** M | **Est:** 1-2 hours
-
-Create launch materials:
-- Positioning & messaging
-- Landing page copy
-- App Store description
-- Press kit
-- Product Hunt plan
-- Launch checklist
-
-**Output:** `docs/marketing/`
-
----
 
 ### Dev-1: Transfer Progress Counter (#96) ⚡ Quick Win
 **Size:** S | **Est:** 30-45 min
@@ -155,45 +88,69 @@ Submission package:
 
 ---
 
-### QA: IAP & Security Tests
-**Size:** M | **Est:** 1-2 hours
+### Revenue-Engineer: StoreKit 2 Subscriptions (#46)
+**Size:** L | **Est:** 2-3 hours
 
-Testing:
-- StoreKit sandbox testing
-- Subscription state tests
-- Security permission tests
-- Full regression suite
-- TestFlight validation
+Implement subscription system:
+- StoreKitManager.swift with StoreKit 2
+- SubscriptionTier model (Free/Pro/Team)
+- PaywallView for upgrade prompts
+- Feature gating based on tier
+- Restore purchases
+- Receipt validation
+- Sandbox testing
+
+**Reference:** `.claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md`
+
+**Files:**
+- `Managers/StoreKitManager.swift` (NEW)
+- `Models/SubscriptionTier.swift` (NEW)
+- `Views/PaywallView.swift` (NEW)
+- `Views/SubscriptionView.swift` (NEW)
 
 ---
 
-## Dependencies
+### Legal-Advisor: Compliance Package
+**Size:** M | **Est:** 1-2 hours
 
-```
-Revenue-Engineer ──→ QA (IAP tests) ──→ TestFlight
-Legal-Advisor ──→ App Store Submission
-Marketing-Lead ──→ Launch execution
-Dev-3 ──→ QA (security tests) ──→ App Store Review
-Dev-Ops ──→ App Store Submission
-```
+Create legal documents for App Store:
+- Privacy Policy (required)
+- Terms of Service
+- App Privacy labels documentation
+- GDPR/CCPA compliance notes
+- Data handling disclosure
+
+**Output:** `docs/legal/`
+
+---
+
+### Marketing-Lead: Launch Package
+**Size:** M | **Est:** 1-2 hours
+
+Create launch materials:
+- Positioning & messaging
+- Landing page copy
+- App Store description
+- Press kit
+- Product Hunt plan
+- Launch checklist
+
+**Output:** `docs/marketing/`
 
 ---
 
 ## Success Criteria
 
-- [ ] StoreKit 2 subscriptions working (Free/Pro tiers)
-- [ ] Privacy Policy published
-- [ ] Terms of Service published
+- [ ] Transfer progress counter showing X/Y transfers (#96)
+- [ ] Dropbox OAuth functional (#37)
+- [ ] Security hardening complete (#74)
+- [ ] App Store screenshots ready (#78)
+- [ ] All metadata written
+- [ ] StoreKit 2 subscriptions working (Free/Pro tiers) (#46)
+- [ ] Privacy Policy created
+- [ ] Terms of Service created
 - [ ] Landing page copy ready
 - [ ] Launch strategy documented
-- [ ] Transfer progress counter showing X/Y transfers (#96)
-- [ ] Dropbox OAuth functional
-- [ ] Security hardening complete
-- [ ] App Store screenshots ready
-- [ ] All metadata written
-- [ ] TestFlight build uploaded
-- [ ] VERSION → 2.0.23
-- [ ] **Ready to click "Submit for Review"**
 
 ---
 
@@ -224,17 +181,5 @@ Dev-Ops ──→ App Store Submission
 
 ---
 
-## Post-Sprint: Launch Sequence
-
-1. ✅ Submit to App Store Review
-2. Publish landing page
-3. Prepare launch announcement
-4. Submit to Product Hunt
-5. Social media posts
-6. Monitor reviews & feedback
-7. Iterate based on feedback
-
----
-
 *Sprint planned by Strategic Partner*
-*Goal: Ready for App Store submission*
+*Goal: Prepare all materials for App Store submission*
