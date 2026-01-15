@@ -1,41 +1,34 @@
 # Worker Status
 
-> Last Updated: 2026-01-14 UTC
-> Version: v2.0.20
+> Last Updated: 2026-01-15 UTC
+> Version: v2.0.20 → v2.0.21 (in progress)
 
-## Current State: Sprint "Launch Ready" Complete ✅
+## Current State: Sprint "Launch Ready" 🚀
 
 **In Progress:**
-- None
-
-**Just Completed (v2.0.20):**
-- ✅ Onboarding Flow (#80, #81, #82) - 4-step first-time user experience
-- ✅ Dynamic Parallelism (#70) - Provider-aware transfer optimization
-- ✅ Fast-List Support (#71) - Faster directory listings
-- ✅ Provider Icons (#95) - ProviderIconView + brand colors
-- ✅ Visual Polish (#84) - Consistent AppTheme styling
-- ✅ UI Tests (#88) - 69 XCUITests integrated
-- ✅ All 762 tests passing
+- #77 App Icon (Dev-1) - P0 BLOCKER
+- #44 UI Review (Dev-1)
+- #10 Transfer Performance (Dev-2) - HIGH
+- #20 Crash Reporting (Dev-3)
+- #27 Test Automation (QA) - HIGH
 
 | Worker | Model | Status | Current Task |
 |--------|-------|--------|--------------|
-| Dev-1 | Opus | 💤 IDLE | Available |
-| Dev-2 | Opus | 💤 IDLE | Available |
-| Dev-3 | Opus | 💤 IDLE | Available |
-| QA | Opus | 💤 IDLE | Available |
-| Dev-Ops | Opus | 💤 IDLE | Available |
+| Dev-1 | Opus | 🔄 ASSIGNED | #77 App Icon, #44 UI Review |
+| Dev-2 | Opus | 🔄 ASSIGNED | #10 Transfer Performance |
+| Dev-3 | Opus | 🔄 ASSIGNED | #20 Crash Reporting |
+| QA | Opus | 🔄 ASSIGNED | #27 Test Automation + Onboarding Validation |
+| Dev-Ops | Opus | 🔄 ASSIGNED | Documentation & Release Prep |
 
 ---
 
-## Priority Issues (Next Sprint)
+## Sprint Goals
 
-| # | Title | Priority | Size |
-|---|-------|----------|------|
-| #77 | Create App Icon Set | 🔴 High | M |
-| #78 | App Store Screenshots & Content | High | M |
-| #79 | Brand Identity Suite | Medium | L |
-| #73 | Provider-Specific Chunk Sizes | Medium | M |
-| #10 | Transfer Performance | High | L |
+1. **App Store Blocker** - Create app icon set (#77)
+2. **Performance** - Optimize transfer speeds (#10)
+3. **Quality** - Expand test automation (#27)
+4. **Production Ready** - Add crash reporting (#20)
+5. **Polish** - UI review and fixes (#44)
 
 ---
 
@@ -52,11 +45,10 @@ All tests passing ✅
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| v2.0.21 | 2026-01-15 | (In Progress) Launch Ready sprint |
 | v2.0.20 | 2026-01-14 | Onboarding, Dynamic Parallelism, Provider Icons |
 | v2.0.19 | 2026-01-14 | Build fix (cornerRadiusSmall) |
 | v2.0.18 | 2026-01-14 | 9-worker sprint, UI tests, publishing guide |
-| v2.0.17 | 2026-01-14 | Accessibility, OSLog, Help system |
-| v2.0.16 | 2026-01-14 | Performance + Security hardening |
 
 ---
 
