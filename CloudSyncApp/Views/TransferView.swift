@@ -24,6 +24,10 @@ struct TransferView: View {
     @State private var encryptLeftToRight = false
     @State private var encryptRightToLeft = false
 
+    // Performance settings
+    @AppStorage("showQuickToggle") private var showQuickToggle = true
+    @AppStorage("performanceProfile") private var sessionProfile = PerformanceProfile.balanced
+
     // Computed properties for the selected remotes based on transferState
     private var selectedSourceRemote: CloudRemote? {
         guard let id = transferState.sourceRemoteId else { return nil }
@@ -161,6 +165,27 @@ struct TransferView: View {
             .disabled(transferProgress.isTransferring)
             .accessibilityLabel("Transfer Mode")
             .accessibilityHint("Select the type of transfer operation")
+
+            // Performance quick toggle
+            if showQuickToggle {
+                Divider().frame(height: 20)
+
+                HStack(spacing: AppTheme.spacingXS) {
+                    Image(systemName: "speedometer")
+                        .foregroundColor(AppTheme.textSecondary)
+
+                    Picker("Performance", selection: $sessionProfile) {
+                        Text("Conservative").tag(PerformanceProfile.conservative)
+                        Text("Balanced").tag(PerformanceProfile.balanced)
+                        Text("Performance").tag(PerformanceProfile.performance)
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 120)
+                    .disabled(transferProgress.isTransferring)
+                    .accessibilityLabel("Performance Profile")
+                    .accessibilityHint("Session-only performance setting for transfers")
+                }
+            }
 
             Spacer()
 

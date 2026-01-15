@@ -1,87 +1,126 @@
-# TASK: Transfer Progress Counter (#96)
+# Task Assignment: Dev-1 (UI)
 
-## Ticket
-**GitHub:** #96
-**Type:** UI Enhancement
-**Size:** S (30-45 min)
-**Priority:** High (Andy: "Critical")
+## Ticket: #40 — Performance Settings UI
+**Size:** M | **Priority:** High
 
 ---
 
 ## Objective
-
-Display concurrent transfer count in progress UI showing "X/Y transfers" (active transfers / max parallel).
-
----
-
-## Problem
-
-Users cannot see how many transfers are running concurrently out of the maximum possible. This makes it hard to understand transfer progress and system utilization.
+Build Performance Settings UI with profiles (Conservative/Balanced/Performance) and advanced customization options.
 
 ---
 
-## Solution
+## Requirements
 
-Add a transfer counter indicator to the transfer progress UI that shows:
-- Current active transfers
-- Maximum parallel transfers allowed
-- Format: "3/8 transfers" or similar
+### 1. Create PerformanceProfile Model
+
+**File:** `CloudSyncApp/Models/PerformanceProfile.swift`
+
+```swift
+enum PerformanceProfile: String, CaseIterable {
+    case conservative
+    case balanced
+    case performance
+    case custom
+}
+
+struct PerformanceSettings {
+    var parallelTransfers: Int      // 1-16
+    var bandwidthLimit: Int         // MB/s, 0 = unlimited
+    var chunkSizeMB: Int            // 8, 16, 32, 64, 128
+    var cpuPriority: CPUPriority    // low, normal, high
+    var checkFrequency: CheckFrequency // everyFile, sampling, trustRemote
+}
+```
+
+### 2. Profile Defaults
+
+| Setting | Conservative | Balanced | Performance |
+|---------|-------------|----------|-------------|
+| parallelTransfers | 2 | 4 | 16 |
+| bandwidthLimit | 1 | 5 | 0 (unlimited) |
+| chunkSizeMB | 8 | 32 | 64 |
+| cpuPriority | .low | .normal | .high |
+| checkFrequency | .everyFile | .sampling | .trustRemote |
+
+### 3. Settings → Performance Tab
+
+**File:** `CloudSyncApp/Views/PerformanceSettingsView.swift`
+
+- Profile selector (segmented control: Conservative / Balanced / Performance / Custom)
+- Checkbox: "Show quick toggle in Transfer View" (default: ON)
+- Collapsible "Advanced" section:
+  - Parallel transfers slider (1-16)
+  - Bandwidth limit field (MB/s, 0 = unlimited)
+  - Chunk size picker (8 / 16 / 32 / 64 / 128 MB)
+  - CPU priority picker (Low / Normal / High)
+  - Check frequency picker (Every file / Sampling / Trust remote)
+- Auto-switch to "Custom" when advanced values differ from profile presets
+
+### 4. Transfer View Quick Toggle
+
+**File:** Modify `CloudSyncApp/Views/TransferView.swift`
+
+- Add compact profile selector (only if enabled in settings)
+- 3-button segmented control or picker
+- Session-only override (doesn't persist to global settings)
+
+### 5. Integration with SettingsView
+
+**File:** Modify `CloudSyncApp/SettingsView.swift`
+
+- Add "Performance" tab to the existing tab view
+- Use PerformanceSettingsView as content
+
+### 6. Storage
+
+- Store in UserDefaults via `@AppStorage`
+- Keys: `performanceProfile`, `showQuickToggle`, individual setting keys
+- Default profile: `.balanced`
 
 ---
 
-## Implementation
+## Critical Rules
 
-### Data Source
-The data is already available in `TransferEngine`:
-- `parallelismConfig.maxParallel` - maximum concurrent transfers
-- Active transfer count from running tasks
-
-### Files to Modify
-
-1. **TransferViewModel.swift** (if needed)
-   - Expose `activeTransferCount` and `maxParallelTransfers`
-   - May already be available via TransferEngine
-
-2. **TransferProgressView.swift** or **TransferView.swift**
-   - Add UI element showing "X/Y transfers"
-   - Position near existing progress indicators
-
-### UI Considerations
-- Keep it subtle but visible
-- Match existing styling
-- Consider: "3/8 transfers" or "Transfers: 3/8" or icon + "3/8"
+⚠️ **DO NOT override provider-specific chunk sizes**
+- ChunkSizeConfig already handles per-provider optimal chunks
+- Profile chunk size is a MAXIMUM
+- Use: `min(profileChunkSize, providerOptimalChunk)`
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Transfer count visible during active transfers
-- [ ] Shows format like "X/Y transfers" (active/max)
-- [ ] Updates in real-time as transfers start/complete
-- [ ] Hidden or shows "0/Y" when no transfers active
-- [ ] Matches existing UI styling
-- [ ] Tests added for new functionality
+- [ ] PerformanceProfile model with all 5 settings
+- [ ] PerformanceSettingsView with profile selector + advanced section
+- [ ] Performance tab added to SettingsView
+- [ ] Quick toggle in TransferView (optional, controlled by setting)
+- [ ] Settings persist via UserDefaults
+- [ ] Profile auto-switches to "Custom" when values modified
+- [ ] Unit tests for PerformanceProfile model
+- [ ] Build passes, app launches
 
 ---
 
-## Reference Files
+## Deliverables
 
-```
-CloudSyncApp/Views/TransferView.swift
-CloudSyncApp/Views/TransferProgressView.swift
-CloudSyncApp/ViewModels/TransferViewModel.swift
-CloudSyncApp/TransferEngine/TransferEngine.swift
-```
-
----
-
-## Notes
-
-- This is a quick win - keep implementation simple
-- Data should already be available, just needs UI exposure
-- Check how TransferOptimizer.parallelismConfig is accessed
+1. `CloudSyncApp/Models/PerformanceProfile.swift` (new)
+2. `CloudSyncApp/Views/PerformanceSettingsView.swift` (new)
+3. `CloudSyncApp/SettingsView.swift` (modified - add tab)
+4. `CloudSyncApp/Views/TransferView.swift` (modified - add quick toggle)
+5. `CloudSyncAppTests/PerformanceProfileTests.swift` (new)
 
 ---
 
-*Task created: 2026-01-15*
-*Sprint: v2.0.23 "Launch Ready"*
+## When Done
+
+1. Run all tests: `xcodebuild test -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"`
+2. Build and launch app to verify UI
+3. Git commit with message: `feat(ui): Add Performance Settings UI with profiles (#40)`
+4. Update STATUS.md with completion
+5. Report back to Strategic Partner
+
+---
+
+*Assigned: 2026-01-15*
+*Worker: Dev-1 (Opus)*

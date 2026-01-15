@@ -1,10 +1,10 @@
 # CloudSync Ultra 2.0 - Development Guide
 
-Technical documentation for developers working on CloudSync Ultra v2.0.22.
+Technical documentation for developers working on CloudSync Ultra v2.0.23.
 
 ## Architecture Overview
 
-### Component Hierarchy (v2.0.22)
+### Component Hierarchy (v2.0.23)
 
 ```
 CloudSyncAppApp (App Entry)
@@ -58,7 +58,7 @@ CloudSyncAppApp (App Entry)
 User Action → SwiftUI View → ViewModel → Manager → rclone → Cloud Provider
                                          ↓
                                   TransferOptimizer
-                                    (v2.0.22)
+                                    (v2.0.23)
                                          ↓
                               Provider-specific tuning
                                          │
@@ -601,7 +601,7 @@ CrashReportingManager.shared    // Crash reports
 
 ## Testing Infrastructure
 
-### 841 Automated Tests (v2.0.22)
+### 743 Automated Tests (v2.0.23)
 
 #### Test Categories
 - **Models** (150+ tests)
@@ -993,7 +993,7 @@ xcodebuild -exportArchive \
 
 ---
 
-**Development Guide Version**: 2.0.22
+**Development Guide Version**: 2.0.23
 **Last Updated**: January 2026
 **Architecture**: MVVM + SwiftUI
 **Tests**: 841 automated tests

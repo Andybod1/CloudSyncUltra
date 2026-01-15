@@ -375,22 +375,22 @@ When localizing:
 ### Example Entries
 
 ```markdown
-## Version 2.0.21 - January 2026
+## Version 2.0.23 - January 2026
 
 ### Added
-- Onboarding flow with guided setup wizard
-- Visual consistency improvements across all screens
-- Enhanced provider connection status indicators
+- StoreKit 2 subscriptions with Free/Pro/Team tiers
+- Security hardening with path sanitization
+- Legal compliance documentation (GDPR/CCPA)
+- Marketing launch package
 
 ### Changed
-- Improved file browser performance
-- Updated encryption setup interface
-- Refined menu bar popup design
+- Enhanced subscription management interface
+- Improved security for file operations
+- Updated App Store submission assets
 
 ### Fixed
-- Resolved scheduling timezone calculation issues
-- Fixed rare crash during large transfers
-- Corrected provider icon display on Retina screens
+- CI pipeline coverage report failures
+- Documentation version consistency
 ```
 
 ---

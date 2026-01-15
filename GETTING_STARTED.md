@@ -361,7 +361,7 @@ Now that you're up and running:
 
 ---
 
-**Getting Started Guide Version**: 2.0.22
+**Getting Started Guide Version**: 2.0.23
 **Estimated Time**: 10 minutes
 **Last Updated**: January 2026
 

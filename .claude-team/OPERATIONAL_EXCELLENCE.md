@@ -28,7 +28,7 @@ Overall Progress                 [█████████░] 88%  ⬆️ (+
 
 | Item | Status | Script/File | Notes |
 |------|--------|-------------|-------|
-| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.20" |
+| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.23" |
 | Version check script | ✅ Done | `scripts/version-check.sh` | Validates all docs |
 | Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
@@ -123,8 +123,8 @@ Overall Progress                 [█████████░] 88%  ⬆️ (+
 
 # Version & release
 ./scripts/version-check.sh          # Validate doc versions
-./scripts/update-version.sh 2.0.22  # Update all versions
-./scripts/release.sh 2.0.22         # Full automated release
+./scripts/update-version.sh 2.0.23  # Update all versions
+./scripts/release.sh 2.0.23         # Full automated release
 
 # Quality & health
 ./scripts/dashboard.sh              # Project health dashboard

@@ -32,17 +32,23 @@ struct SettingsView: View {
                     }
                     .tag(2)
 
+                PerformanceSettingsView()
+                    .tabItem {
+                        Label("Performance", systemImage: "speedometer")
+                    }
+                    .tag(3)
+
                 SubscriptionSettingsView()
                     .tabItem {
                         Label("Subscription", systemImage: "creditcard.fill")
                     }
-                    .tag(3)
+                    .tag(4)
 
                 AboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
-                    .tag(4)
+                    .tag(5)
             }
 
             Text("CloudSync Ultra v2.0")

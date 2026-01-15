@@ -106,7 +106,7 @@ git diff CloudSyncApp/RcloneManager.swift  # Dev-2
 ### Automated Release
 
 ```bash
-./scripts/release.sh 2.0.22
+./scripts/release.sh 2.0.23
 ```
 
 This script:
@@ -120,20 +120,20 @@ This script:
 
 ```bash
 # 1. Update version
-echo "2.0.22" > VERSION.txt
+echo "2.0.23" > VERSION.txt
 
 # 2. Update docs
-./scripts/update-version.sh 2.0.22
+./scripts/update-version.sh 2.0.23
 
 # 3. Validate
 ./scripts/version-check.sh
 
 # 4. Commit
 git add -A
-git commit -m "v2.0.22: Sprint description"
+git commit -m "v2.0.23: Sprint description"
 
 # 5. Tag
-git tag -a v2.0.22 -m "Version 2.0.22"
+git tag -a v2.0.23 -m "Version 2.0.23"
 
 # 6. Push
 git push origin main --tags

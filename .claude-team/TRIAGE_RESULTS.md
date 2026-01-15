@@ -1,7 +1,7 @@
 # GitHub Issue Triage Report
 > Generated: 2026-01-15
 
-## Current Sprint (v2.0.22) - In Progress
+## Current Sprint (v2.0.24) - In Progress
 
 | Issue | Title | Worker | Status |
 |-------|-------|--------|--------|

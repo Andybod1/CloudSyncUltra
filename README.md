@@ -54,7 +54,7 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Transfer Preview (NEW)** - Dry-run to see what will be transferred before starting
 - **Quick Actions Menu (NEW)** - Press Cmd+Shift+N for instant access to common operations
 
-### 🚨 Error Handling (NEW in v2.0.11)
+### 🚨 Error Handling
 - **Clear error messages** - User-friendly explanations instead of technical jargon
 - **Actionable guidance** - Know exactly what to do when errors occur
 - **Smart retry logic** - Retry button appears only for retryable errors
@@ -86,7 +86,7 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 ## 🚀 Getting Started
 
-> **New in v2.0.22:** Quick Actions Menu (Cmd+Shift+N), Transfer Preview with dry-run, and provider-specific optimization for 42+ cloud providers. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.23:** StoreKit 2 subscriptions, security hardening, marketing launch package, legal compliance, and App Store submission assets. See [CHANGELOG.md](CHANGELOG.md) for all updates.
 
 > **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 841 automated tests.
 

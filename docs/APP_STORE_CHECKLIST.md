@@ -198,7 +198,7 @@ codesign -d --entitlements :- CloudSyncApp.app
 
 ### Version Numbers
 
-- [ ] CFBundleShortVersionString updated (e.g., "2.0.21")
+- [ ] CFBundleShortVersionString updated (e.g., "2.0.23")
 - [ ] CFBundleVersion updated (unique build number)
 - [ ] Version matches CHANGELOG.md
 - [ ] Build number higher than any previous submission
