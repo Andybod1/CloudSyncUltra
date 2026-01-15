@@ -38,12 +38,13 @@ Time to market is the biggest lever.
 | **Revenue-Engineer** | #46 | StoreKit 2 Subscriptions | L |
 | **Legal-Advisor** | NEW | Privacy Policy, ToS, Compliance | M |
 | **Marketing-Lead** | NEW | Launch Strategy, Landing Page | M |
+| **Dev-1** | #96 | Transfer Progress Counter (Quick Win) | S |
 | **Dev-2** | #37 | Dropbox Support | M |
 | **Dev-3** | #74 | Security Hardening | M |
 | **Dev-Ops** | #78 | App Store Screenshots & Metadata | M |
 | **QA** | - | IAP + Security Tests | M |
 
-**7 workers in parallel** → Maximum velocity
+**8 workers in parallel** → Maximum velocity
 
 ---
 
@@ -97,6 +98,20 @@ Create launch materials:
 - Launch checklist
 
 **Output:** `docs/marketing/`
+
+---
+
+### Dev-1: Transfer Progress Counter (#96) ⚡ Quick Win
+**Size:** S | **Est:** 30-45 min
+
+Display concurrent transfer count in progress UI:
+- Show "X/Y transfers" (active/max parallel)
+- Data available in TransferEngine.parallelismConfig
+- Add indicator to TransferProgressView or TransferStatusView
+
+**Files:** 
+- `CloudSyncApp/Views/TransferView.swift` or `TransferProgressView.swift`
+- `CloudSyncApp/ViewModels/TransferViewModel.swift` (if needed)
 
 ---
 
@@ -171,6 +186,7 @@ Dev-Ops ──→ App Store Submission
 - [ ] Terms of Service published
 - [ ] Landing page copy ready
 - [ ] Launch strategy documented
+- [ ] Transfer progress counter showing X/Y transfers (#96)
 - [ ] Dropbox OAuth functional
 - [ ] Security hardening complete
 - [ ] App Store screenshots ready
