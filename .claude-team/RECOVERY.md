@@ -1,8 +1,8 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.21
-> **Last Updated:** 2026-01-14
+> **Current Version:** v2.0.22
+> **Last Updated:** 2026-01-15
 
 ---
 
