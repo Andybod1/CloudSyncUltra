@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Performance Settings UI** (#40) - Transfer optimization profiles
+  - Four profiles: Conservative, Balanced, Performance, Custom
+  - Five configurable settings: parallel transfers, bandwidth limit, chunk size, CPU priority, check frequency
+  - PerformanceSettingsView with profile selector and advanced settings section
+  - Quick toggle in TransferView for session-only profile switching
+  - Auto-switches to Custom when values differ from presets
+  - 14 unit tests for PerformanceProfile model
+
 ---
 
 ## [2.0.23] - 2026-01-15
