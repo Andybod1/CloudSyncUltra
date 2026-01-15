@@ -3,21 +3,21 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** In Progress
-> **Last Updated:** 2026-01-14 (v2.0.20)
+> **Last Updated:** 2026-01-15 (v2.0.21)
 
 ---
 
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [████████░░] 80%
-Pillar 2: Quality Gates          [██░░░░░░░░] 20%
+Pillar 1: Automation First       [█████████░] 90%
+Pillar 2: Quality Gates          [████░░░░░░] 40%
 Pillar 3: Single Source of Truth [████░░░░░░] 40%
 Pillar 4: Metrics & Visibility   [████░░░░░░] 40%
 Pillar 5: Knowledge Management   [████░░░░░░] 40%
 Pillar 6: Business Operations    [░░░░░░░░░░]  0%
 ─────────────────────────────────────────────────
-Overall Progress                 [████░░░░░░] 37%
+Overall Progress                 [████░░░░░░] 42%
 ```
 
 ---
@@ -33,10 +33,10 @@ Overall Progress                 [████░░░░░░] 37%
 | Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
 | GitHub Actions CI | ✅ Done | `.github/workflows/ci.yml` | Build + test on push |
-| Pre-commit hooks | ❌ TODO | `.pre-commit-config.yaml` | Local quality gate |
+| Pre-commit hooks | ✅ Done | `scripts/pre-commit` | Build check, syntax, debug artifacts |
 | Auto-changelog | ❌ TODO | - | From conventional commits |
 
-**Next action:** Pre-commit hooks
+**Next action:** Auto-changelog from conventional commits
 
 ---
 
@@ -52,7 +52,7 @@ Overall Progress                 [████░░░░░░] 37%
 | Test coverage threshold | ❌ TODO | CI workflow | Fail if coverage drops |
 | Build verification | ❌ TODO | CI workflow | Every commit builds |
 
-**Next action:** Pre-commit hooks or test coverage threshold
+**Next action:** Test coverage threshold
 
 ---
 
@@ -130,7 +130,7 @@ Overall Progress                 [████░░░░░░] 37%
 
 ### This Week
 3. ⬜ project.json centralized config
-4. ⬜ Pre-commit hooks
+4. ✅ Pre-commit hooks
 5. ⬜ Session summary automation
 6. ⬜ Worker report archiving
 
@@ -170,9 +170,10 @@ When operational excellence is achieved:
 ./scripts/version-check.sh          # Validate doc versions
 ./scripts/update-version.sh 2.0.20  # Update all versions
 ./scripts/release.sh 2.0.20         # Full automated release
+./scripts/dashboard.sh              # Project health
+./scripts/install-hooks.sh          # Install pre-commit hooks
 
 # Coming soon
-./scripts/dashboard.sh              # Project health
 ./scripts/restore-context.sh        # Session recovery
 ./scripts/archive-outputs.sh        # Clean up reports
 ```
