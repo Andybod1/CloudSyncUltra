@@ -49,7 +49,9 @@
       "Bash(ruby:*)",
       "Bash(swift test:*)",
       "WebSearch",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(gh run:*)",
+      "Bash(~/Claude/scripts/generate-type-inventory.sh:*)"
     ]
   }
 }

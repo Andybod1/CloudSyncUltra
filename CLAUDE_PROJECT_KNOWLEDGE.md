@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.24 | **Updated:** 2026-01-15
+> **Version:** 2.0.25 | **Updated:** 2026-01-15
 
 ---
 

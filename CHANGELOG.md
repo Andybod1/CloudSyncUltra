@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.25] - 2026-01-15
+
+### Added
+- **Keyboard Navigation** (#54) - Complete keyboard-driven workflows
+  - Full navigation support throughout the application
+  - Tab and arrow key support for all UI controls
+  - Accessibility improvements for power users
+
+- **Input Validation & Data Handling** (#75) - Enhanced security
+  - Comprehensive input validation for all user inputs
+  - Secure temporary file handling
+  - Crash log data scrubbing for privacy
+
+- **Brand Identity Documentation** (#79) - Visual identity guidelines
+  - Brand guidelines and specifications
+  - Visual identity documentation
+  - Design system documentation
+
+### Infrastructure
+- **Worker Quality Standards** (Pillar 7) - Operational excellence improvements
+  - Quality metrics and standards documentation
+  - Worker performance tracking
+  - Process improvement documentation
+
+---
+
 ## [2.0.24] - 2026-01-15
 
 ### Added
