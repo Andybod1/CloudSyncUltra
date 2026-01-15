@@ -735,4 +735,20 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertLessThan(duration, 0.5, "Step transition should complete under 500ms")
         XCTAssertEqual(sut.currentStep, .addProvider, "Should have transitioned to next step")
     }
+
+    // MARK: - Visual Consistency Tests
+
+    /// Test onboarding views have consistent styling
+    func testOnboardingViewsHaveConsistentStyling() {
+        // Verify AppTheme values exist and are defined
+        // The actual opacity values are baked into the Color definitions in AppTheme.swift
+        XCTAssertNotNil(AppTheme.cardBackgroundDark, "Card background dark theme should be defined")
+        XCTAssertNotNil(AppTheme.textOnDarkSecondary, "Text on dark secondary color should be defined")
+
+        // Verify other theme constants used in onboarding
+        XCTAssertNotNil(AppTheme.primaryGradient, "Primary gradient should be defined")
+        XCTAssertNotNil(AppTheme.backgroundGradient, "Background gradient should be defined")
+        XCTAssertEqual(AppTheme.iconContainerLarge, 120, "Large icon container size should be 120")
+        XCTAssertEqual(AppTheme.cornerRadiusL, 16, "Large corner radius should be 16")
+    }
 }

@@ -41,7 +41,14 @@
       "Bash(git -C /Users/antti/Claude log --oneline -5)",
       "Bash(git -C /Users/antti/Claude commit -m \"$\\(cat <<''EOF''\nperf\\(engine\\): Add dynamic parallelism and fast-list support\n\n- Dynamic transfer/checker counts based on provider \\(#70\\)\n  - Google Drive: transfers=8, checkers=16\n  - Dropbox: transfers=4, checkers=8\n  - S3/B2: transfers=16, checkers=32\n  - Proton Drive: transfers=2, checkers=4 \\(rate limited\\)\n- File-size aware parallelism tuning\n  - Small files \\(<1MB\\): increase parallelism\n  - Large files \\(>100MB\\): reduce parallelism, enable multi-threading\n- Enable --fast-list for supported providers \\(#71\\)\n  - Google Drive, GCS, S3, Dropbox, Box, OneDrive, B2\n  - S3-compatible: Wasabi, DigitalOcean, Cloudflare R2, etc.\n- Add comprehensive tests for new functionality\n\nImplements #70, #71\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(xattr -cr:*)",
-      "Bash(/think)"
+      "Bash(/think)",
+      "Bash(ruby -e:*)",
+      "Bash(grep:*)",
+      "Bash(ln:*)",
+      "Bash(pkill:*)",
+      "Bash(ruby:*)",
+      "Bash(swift test:*)",
+      "WebSearch"
     ]
   }
 }

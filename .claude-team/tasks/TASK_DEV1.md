@@ -1,158 +1,169 @@
-# TASK_DEV1.md - Onboarding Visual Consistency
+# TASK_DEV1.md - Quick Actions Menu
 
 **Worker:** Dev-1 (UI Layer)
-**Status:** 🟢 COMPLETED
-**Priority:** High
-**Size:** M (Medium - ~1 hour)
-**Issue:** Onboarding visual inconsistency
+**Status:** ✅ COMPLETE
+**Priority:** Medium  
+**Size:** M (Medium - ~1.5 hours)  
+**Issue:** #49
 
 ---
 
 ## Objective
 
-Fix visual inconsistency in onboarding flow where CompletionStepView looks vibrant while WelcomeStepView, AddProviderStepView, and FirstSyncStepView appear darker and less engaging.
+Add a Quick Actions Menu accessible via Cmd+Shift+N that provides fast access to common operations.
 
-## Problem
+## Features
 
-Screenshots show:
-- CompletionStepView: Bright green checkmark, high contrast, confetti - looks great
-- Steps 1-3: Cards barely visible, text low contrast, icons don't stand out
+1. **Keyboard Shortcut:** Cmd+Shift+N opens the menu
+2. **Quick Actions:**
+   - New Sync Task
+   - New Remote
+   - Open File Browser
+   - View Transfers
+   - Open Settings
+3. **Modern Design:** Match app's visual style
 
-Root cause in AppTheme.swift:
-- `cardBackgroundDark = Color.white.opacity(0.08)` — too subtle
-- `textOnDarkSecondary = Color.white.opacity(0.7)` — low contrast
-- `textOnDarkTertiary = Color.white.opacity(0.6)` — low contrast
+## Implementation
 
-## Solution
+### 1. Create QuickActionsView.swift
 
-### 1. Update AppTheme.swift (lines ~67-77)
-
-**Card Styling changes:**
 ```swift
-// CHANGE FROM:
-static let cardBackgroundDark = Color.white.opacity(0.08)
-static let cardBackgroundDarkHover = Color.white.opacity(0.12)
-static let cardBorderDark = Color.white.opacity(0.1)
+// CloudSyncApp/Views/QuickActionsView.swift
+import SwiftUI
 
-// CHANGE TO:
-static let cardBackgroundDark = Color.white.opacity(0.12)
-static let cardBackgroundDarkHover = Color.white.opacity(0.18)
-static let cardBorderDark = Color.white.opacity(0.15)
+struct QuickActionsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+    
+    private let actions: [QuickAction] = [
+        QuickAction(title: "New Sync Task", icon: "plus.circle", shortcut: "N"),
+        QuickAction(title: "Add Remote", icon: "externaldrive.badge.plus", shortcut: "R"),
+        QuickAction(title: "Open File Browser", icon: "folder", shortcut: "F"),
+        QuickAction(title: "View Transfers", icon: "arrow.left.arrow.right", shortcut: "T"),
+        QuickAction(title: "Settings", icon: "gear", shortcut: ","),
+    ]
+    
+    var filteredActions: [QuickAction] {
+        if searchText.isEmpty { return actions }
+        return actions.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Search field
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.secondary)
+                TextField("Search actions...", text: $searchText)
+                    .textFieldStyle(.plain)
+            }
+            .padding()
+            .background(Color(NSColor.controlBackgroundColor))
+            
+            Divider()
+            
+            // Actions list
+            ScrollView {
+                VStack(spacing: 4) {
+                    ForEach(filteredActions) { action in
+                        QuickActionRow(action: action) {
+                            performAction(action)
+                        }
+                    }
+                }
+                .padding(8)
+            }
+        }
+        .frame(width: 320, height: 280)
+        .background(Color(NSColor.windowBackgroundColor))
+        .cornerRadius(12)
+        .shadow(radius: 20)
+    }
+    
+    private func performAction(_ action: QuickAction) {
+        dismiss()
+        // Handle action...
+    }
+}
+
+struct QuickAction: Identifiable {
+    let id = UUID()
+    let title: String
+    let icon: String
+    let shortcut: String
+}
+
+struct QuickActionRow: View {
+    let action: QuickAction
+    let onTap: () -> Void
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack {
+                Image(systemName: action.icon)
+                    .frame(width: 24)
+                Text(action.title)
+                Spacer()
+                Text("⌘\(action.shortcut)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isHovered ? Color.accentColor.opacity(0.1) : Color.clear)
+            .cornerRadius(6)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
+}
 ```
 
-**Text Color changes:**
-```swift
-// CHANGE FROM:
-static let textOnDarkSecondary = Color.white.opacity(0.7)
-static let textOnDarkTertiary = Color.white.opacity(0.6)
+### 2. Add Keyboard Shortcut to MainWindow
 
-// CHANGE TO:
-static let textOnDarkSecondary = Color.white.opacity(0.8)
-static let textOnDarkTertiary = Color.white.opacity(0.7)
+In `MainWindow.swift` or `CloudSyncAppApp.swift`:
+
+```swift
+.keyboardShortcut("n", modifiers: [.command, .shift])
 ```
 
-### 2. Update WelcomeStepView.swift - FeatureCard struct
+### 3. Add Window/Sheet Presentation
 
-In the `FeatureCard` body, add shadow to the icon Circle:
-```swift
-// Icon - ADD shadow
-ZStack {
-    Circle()
-        .fill(Color.white.opacity(0.1))
-        .frame(width: 56, height: 56)
-        .shadow(color: Color(hex: "8B5CF6").opacity(0.3), radius: 8, y: 4) // ADD THIS LINE
-```
+Use a sheet or popover to present the quick actions.
 
-### 3. Update AddProviderStepView.swift - OnboardingProviderCard struct
+## Files to Create
 
-In the card background, add shadow:
-```swift
-// After the icon ZStack, add shadow modifier to the parent ZStack:
-ZStack {
-    Circle()
-        .fill(isSelected ? provider.brandColor.opacity(0.3) : Color.white.opacity(0.1))
-        .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
-        .shadow(color: isSelected ? provider.brandColor.opacity(0.4) : AppTheme.primaryPurple.opacity(0.2), radius: 8, y: 4) // ADD THIS
-```
-
-### 4. Update FirstSyncStepView.swift - SyncConceptCard struct
-
-In the icon Circle:
-```swift
-Circle()
-    .fill(isSelected ? concept.color.opacity(0.3) : Color.white.opacity(0.1))
-    .frame(width: AppTheme.iconContainerMedium, height: AppTheme.iconContainerMedium)
-    .shadow(color: isSelected ? concept.color.opacity(0.4) : AppTheme.primaryPurple.opacity(0.2), radius: 8, y: 4) // ADD THIS
-```
+1. `/Users/antti/Claude/CloudSyncApp/Views/QuickActionsView.swift`
 
 ## Files to Modify
 
-1. `/Users/antti/Claude/CloudSyncApp/Styles/AppTheme.swift`
-2. `/Users/antti/Claude/CloudSyncApp/Views/Onboarding/WelcomeStepView.swift`
-3. `/Users/antti/Claude/CloudSyncApp/Views/Onboarding/AddProviderStepView.swift`
-4. `/Users/antti/Claude/CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift`
+1. `/Users/antti/Claude/CloudSyncApp/MainWindow.swift` or App file - Add shortcut
 
 ## Acceptance Criteria
 
-- [x] All 4 onboarding views have consistent visual vibrancy
-- [x] Cards clearly visible against dark gradient background
-- [x] Text has sufficient contrast for readability
-- [x] Icons have subtle glows matching CompletionStepView style
-- [x] Build succeeds without warnings
-- [x] App launches successfully
-- [x] All onboarding tests pass (2 pre-existing unrelated failures)
+- [x] Cmd+Shift+N opens Quick Actions menu
+- [x] Search filters actions
+- [x] Clicking action performs it
+- [x] ESC closes menu (sheet default behavior)
+- [x] Visual style matches app theme
+- [x] Build succeeds
 
 ## Testing
 
 ```bash
-# Build
 cd /Users/antti/Claude
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -configuration Debug build 2>&1 | head -50
-
-# Run onboarding tests
-xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -only-testing:CloudSyncAppTests/OnboardingViewModelTests 2>&1 | tail -20
-
-# Launch app for visual verification
-open /Users/antti/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+xcodebuild build 2>&1 | tail -10
 ```
 
 ## Completion Protocol
 
-1. Make edits to all 4 files
-2. Build and verify no errors
-3. Run tests
-4. Launch app and verify visually
-5. Commit with message: `fix(ui): Improve onboarding visual consistency`
-6. Report completion in TASK_DEV1.md
+1. Create QuickActionsView.swift
+2. Add keyboard shortcut binding
+3. Build and test
+4. Commit: `feat(ui): Add Quick Actions menu with Cmd+Shift+N (#49)`
 
 ---
 
-## Completion Report
-
-**Completed:** 2026-01-15
-**Worker:** Dev-1
-
-### Changes Made
-
-1. **AppTheme.swift** - Updated card and text opacity values:
-   - `cardBackgroundDark`: 0.08 → 0.12
-   - `cardBackgroundDarkHover`: 0.12 → 0.18
-   - `cardBorderDark`: 0.10 → 0.15
-   - `textOnDarkSecondary`: 0.70 → 0.80
-   - `textOnDarkTertiary`: 0.60 → 0.70
-
-2. **WelcomeStepView.swift** - Added purple glow shadow to FeatureCard icon circles
-
-3. **AddProviderStepView.swift** - Added dynamic glow shadow to OnboardingProviderCard icons (uses provider brand color when selected)
-
-4. **FirstSyncStepView.swift** - Added dynamic glow shadow to SyncConceptCard icons (uses concept color when selected)
-
-### Test Results
-- Build: ✅ SUCCESS
-- Onboarding tests: 41 passed, 2 pre-existing failures (unrelated to visual changes)
-
-### Visual Impact
-- Cards now more visible against dark gradient background
-- Text contrast improved for better readability
-- Icons have subtle glows matching CompletionStepView style
-- All 4 onboarding steps now have consistent visual vibrancy
+**Use /think for implementation planning.**

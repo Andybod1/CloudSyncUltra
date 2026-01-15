@@ -1,100 +1,72 @@
-# Triage Results - 2026-01-14
+# GitHub Issue Triage Report
+> Generated: 2026-01-15
 
-> Strategic Partner triage of 19 unlabeled issues
+## Current Sprint (v2.0.22) - In Progress
 
----
-
-## UX Issues (#51-55) - From UX Audit
-
-All 5 issues are well-documented with clear requirements. Ready for implementation.
-
-| # | Title | Assignment | Size | Priority | Labels to Add |
-|---|-------|------------|------|----------|---------------|
-| **#51** | First-Time User Onboarding Flow | Dev-1 (UI) | L | Critical | `priority:critical`, `component:ui`, `ready`, `size:l` |
-| **#52** | Comprehensive Help System | Dev-1 (UI) | M | High | `priority:high`, `component:ui`, `ready`, `size:m` |
-| **#53** | Multi-Step Setup Wizards | Dev-1 (UI) | M | Medium | `priority:medium`, `component:ui`, `ready`, `size:m` |
-| **#54** | Keyboard Navigation | Dev-1 (UI) | S | Medium | `priority:medium`, `component:ui`, `ready`, `size:s` |
-| **#55** | Transfer Preview & Conflict Resolution | Dev-1 + Dev-2 | L | Medium | `priority:medium`, `component:ui`, `component:engine`, `ready`, `size:l` |
+| Issue | Title | Worker | Status |
+|-------|-------|--------|--------|
+| #49 | Quick Actions Menu | Dev-1 | 🟢 Active |
+| #73 | Provider Chunk Sizes | Dev-2 | 🟢 Active |
+| #55 | Transfer Preview | Dev-3 | 🟢 Active |
 
 ---
 
-## Strategic/Research Issues (#56-69) - Need Specialist Agents
+## Triage Summary
 
-| # | Title | Assignment | Size | Priority | Status |
-|---|-------|------------|------|----------|--------|
-| **#56** | System analysis | Architect | M | Medium | Research task |
-| **#57** | New Github component | Dev-Ops | S | Low | Clarify scope needed |
-| **#58** | Security audit | Security-Auditor | L | High | ✅ DONE - see SECURITY_AUDITOR_COMPLETE.md |
-| **#59** | Performance audit | Performance-Engineer | L | High | ✅ DONE - see PERFORMANCE_ENGINEER_COMPLETE.md |
-| **#60** | Documentation review | Tech-Writer | M | Medium | Research task |
-| **#61** | Monetization plan | Product-Manager | L | High | Strategy task |
-| **#62** | Analyze UI review | UX-Designer | M | Medium | ✅ DONE - see UX_DESIGNER_COMPLETE.md |
-| **#63** | Analyze Product Roadmap | Product-Manager | M | Medium | ✅ DONE - see PRODUCT_MANAGER_COMPLETE.md |
-| **#64** | How to publish to market | Product-Manager | L | High | Research/Guide task |
-| **#65** | Port to Windows | Architect | XL | Low | Major feasibility study |
-| **#66** | Team change | Strategic Partner | XS | Low | Clarify what change |
-| **#67** | New specialist | Strategic Partner | S | Low | Clarify which specialist |
-| **#68** | Visual identity plan | Brand-Designer | M | Medium | ✅ DONE - see BRAND_DESIGNER_COMPLETE.md |
-| **#69** | Pricing review | Product-Manager | M | High | Strategy task |
+**Total Open:** 18 issues
+**Ready for Sprint:** 8 issues
+**Backlog:** 2 issues
+**Security:** 3 issues
+**UX/Design:** 4 issues
+
+---
+
+## Issues by Category
+
+### Ready for Next Sprint ✅
+| # | Title | Size | Component |
+|---|-------|------|-----------|
+| 40 | Performance Settings UI | M | UI |
+| 37 | Dropbox Support | M | Engine |
+| 46 | Pricing | M | Product |
+| 45 | Business Logic Plan | L | Product |
+| 48 | Storage Analytics Dashboard | L | UI |
+| 50 | Team Admin Console | XL | Product |
+
+### Security (Should Prioritize) 🔒
+| # | Title | Priority |
+|---|-------|----------|
+| 74 | Secure File Handling | Medium |
+| 75 | Input Validation | Medium |
+| 76 | Security Hardening | Low |
+
+### UX Improvements 🎨
+| # | Title | Notes |
+|---|-------|-------|
+| 53 | Multi-Step Wizards | Complex flows |
+| 54 | Keyboard Navigation | Accessibility |
+
+### Design/Marketing 📸
+| # | Title | Notes |
+|---|-------|-------|
+| 78 | App Store Screenshots | Docs created, assets needed |
+| 79 | Brand Identity Suite | Visual assets |
+
+### Backlog (Future) 📋
+| # | Title | Notes |
+|---|-------|-------|
+| 83 | Interactive Onboarding | Phase 2 |
+| 65 | Windows Port | Long-term |
 
 ---
 
 ## Recommendations
 
-### Issues to CLOSE (Already Completed)
-These have completed reports in `.claude-team/outputs/`:
-- **#58** Security audit → SECURITY_AUDITOR_COMPLETE.md
-- **#59** Performance audit → PERFORMANCE_ENGINEER_COMPLETE.md
-- **#62** UI review → UX_DESIGNER_COMPLETE.md
-- **#63** Product Roadmap → PRODUCT_MANAGER_COMPLETE.md
-- **#68** Visual identity → BRAND_DESIGNER_COMPLETE.md
-
-### Issues Needing Clarification (Ask Andy)
-- **#66** Team change - What change is needed?
-- **#67** New specialist - Which type of specialist?
-- **#57** New Github component - What component?
-
-### High Priority Work Queue
-1. **#51** Onboarding Flow (Critical - UX audit #1 finding)
-2. **#64** Publishing guide (Needed for launch)
-3. **#61** Monetization plan (Business critical)
-4. **#69** Pricing review (Business critical)
-
-### Performance Work (Ready)
-Already labeled and ready for Dev-2:
-- **#70** Universal Dynamic Parallelism (high)
-- **#71** Fast-List for Providers (medium)
-- **#72** Multi-Threaded Downloads (high)
-- **#73** Provider-Specific Chunk Sizes (medium)
+1. **Close after sprint:** #49, #73, #55 (when workers complete)
+2. **Add label:** #54 needs "ready" label
+3. **Priority bump:** Security issues #74, #75 should be next sprint
+4. **Design sprint:** #78, #79 need Brand-Designer agent
 
 ---
 
-## Suggested Label Updates
-
-```bash
-# UX Issues - Add labels
-gh issue edit 51 --add-label "priority:critical,component:ui,ready,size:l"
-gh issue edit 52 --add-label "priority:high,component:ui,ready,size:m"
-gh issue edit 53 --add-label "priority:medium,component:ui,ready,size:m"
-gh issue edit 54 --add-label "priority:medium,component:ui,ready,size:s"
-gh issue edit 55 --add-label "priority:medium,component:ui,component:engine,ready,size:l"
-
-# Close completed issues
-gh issue close 58 --comment "Completed. See .claude-team/outputs/SECURITY_AUDITOR_COMPLETE.md"
-gh issue close 59 --comment "Completed. See .claude-team/outputs/PERFORMANCE_ENGINEER_COMPLETE.md"
-gh issue close 62 --comment "Completed. See .claude-team/outputs/UX_DESIGNER_COMPLETE.md"
-gh issue close 63 --comment "Completed. See .claude-team/outputs/PRODUCT_MANAGER_COMPLETE.md"
-gh issue close 68 --comment "Completed. See .claude-team/outputs/BRAND_DESIGNER_COMPLETE.md"
-
-# Remove triage label from remaining
-gh issue edit 56 --add-label "ready,size:m" --remove-label "triage"
-gh issue edit 60 --add-label "ready,size:m" --remove-label "triage"
-gh issue edit 61 --add-label "priority:high,ready,size:l" --remove-label "triage"
-gh issue edit 64 --add-label "priority:high,ready,size:l" --remove-label "triage"
-gh issue edit 65 --add-label "priority:low,size:xl" --remove-label "triage"
-gh issue edit 69 --add-label "priority:high,ready,size:m" --remove-label "triage"
-```
-
----
-
-*Triaged by Strategic Partner on 2026-01-14*
+*Triage by Strategic Partner*

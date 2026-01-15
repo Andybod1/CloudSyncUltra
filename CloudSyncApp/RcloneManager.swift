@@ -327,20 +327,118 @@ class TransferOptimizer {
         )
     }
 
-    /// Get provider-specific optimal chunk size
+    /// Get provider-specific optimal chunk size using ChunkSizeConfig (#73)
+    /// - Parameter provider: The cloud provider type
+    /// - Returns: Chunk size string (e.g., "16M")
+    private static func getProviderChunkSize(_ provider: CloudProviderType) -> String {
+        return ChunkSizeConfig.chunkSizeString(for: provider)
+    }
+
+    /// Get provider-specific rclone chunk size flag (#73)
+    /// - Parameter provider: The cloud provider type
+    /// - Returns: The rclone flag string, or nil if provider uses default
+    static func getProviderChunkSizeFlag(_ provider: CloudProviderType) -> String? {
+        return ChunkSizeConfig.chunkSizeFlag(for: provider)
+    }
+
+    /// Get provider-specific chunk size flag from remote name (#73)
+    /// - Parameter remoteName: The name of the remote
+    /// - Returns: The rclone chunk size flag string, or nil if provider uses default
+    static func getChunkSizeFlagFromRemoteName(_ remoteName: String) -> String? {
+        let remote = remoteName.lowercased()
+
+        // Determine chunk size based on provider type detected from name
+        var chunkSizeInMB: Int? = nil
+        var flagPrefix: String? = nil
+
+        if remote == "local" {
+            chunkSizeInMB = 64  // 64MB for local
+            return nil  // Local doesn't need chunk size flag
+        } else if remote.contains("onedrive") {
+            // Check onedrive BEFORE drive since "onedrive" contains "drive"
+            chunkSizeInMB = 10  // 10MB
+            flagPrefix = "--onedrive-chunk-size"
+        } else if remote.contains("googledrive") || remote.contains("drive") {
+            chunkSizeInMB = 8  // 8MB
+            flagPrefix = "--drive-chunk-size"
+        } else if remote.contains("dropbox") {
+            chunkSizeInMB = 8  // 8MB
+            flagPrefix = "--dropbox-chunk-size"
+        } else if remote.contains("s3") || remote.contains("wasabi") || remote.contains("digitalocean") {
+            chunkSizeInMB = 16  // 16MB for S3-compatible
+            flagPrefix = "--s3-chunk-size"
+        } else if remote.contains("b2") || remote.contains("backblaze") {
+            chunkSizeInMB = 16  // 16MB
+            flagPrefix = "--b2-chunk-size"
+        } else if remote.contains("gcs") || remote.contains("google-cloud-storage") {
+            chunkSizeInMB = 16  // 16MB
+            flagPrefix = "--gcs-chunk-size"
+        } else if remote.contains("azure") {
+            chunkSizeInMB = 16  // 16MB
+            flagPrefix = "--azureblob-chunk-size"
+        } else if remote.contains("box") {
+            chunkSizeInMB = 8  // 8MB
+            flagPrefix = "--box-chunk-size"
+        } else if remote.contains("mega") {
+            chunkSizeInMB = 20  // 20MB
+            flagPrefix = "--mega-chunk-size"
+        } else if remote.contains("pcloud") {
+            chunkSizeInMB = 5  // 5MB
+            flagPrefix = "--pcloud-chunk-size"
+        } else if remote.contains("jottacloud") {
+            chunkSizeInMB = 8  // 8MB
+            flagPrefix = "--jottacloud-chunk-size"
+        } else if remote.contains("putio") {
+            chunkSizeInMB = 8  // 8MB
+            flagPrefix = "--putio-chunk-size"
+        } else if remote.contains("proton") {
+            chunkSizeInMB = 4  // 4MB for encryption overhead
+            return nil  // Proton Drive doesn't have specific chunk flag
+        } else if remote.contains("sftp") || remote.contains("ftp") || remote.contains("webdav") {
+            chunkSizeInMB = 32  // 32MB for network filesystems
+            return nil  // These don't have specific chunk flags
+        }
+
+        // Return the formatted flag if we have both components
+        if let size = chunkSizeInMB, let prefix = flagPrefix {
+            return "\(prefix)=\(size)M"
+        }
+
+        return nil
+    }
+
+
+    /// Legacy method for backward compatibility - uses string-based provider detection
     private static func getProviderChunkSize(_ remoteName: String) -> String? {
         let remote = remoteName.lowercased()
-        if remote.contains("googledrive") || remote.contains("drive") { return "64M" }
-        if remote.contains("onedrive") { return "10M" }
-        if remote.contains("dropbox") { return "48M" }
-        if remote.contains("s3") || remote.contains("b2") || remote.contains("wasabi") { return "64M" }
+        // Map string-based remote name to CloudProviderType and use ChunkSizeConfig
+        if remote.contains("googledrive") || remote.contains("drive") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.googleDrive)
+        }
+        if remote.contains("onedrive") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.oneDrive)
+        }
+        if remote.contains("dropbox") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.dropbox)
+        }
+        if remote.contains("s3") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.s3)
+        }
+        if remote.contains("b2") || remote.contains("backblaze") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.backblazeB2)
+        }
+        if remote.contains("wasabi") {
+            return ChunkSizeConfig.chunkSizeString(for: CloudProviderType.wasabi)
+        }
         return nil
     }
 
     /// Build rclone arguments from transfer configuration
-    /// - Parameter config: TransferConfig to convert to arguments
+    /// - Parameters:
+    ///   - config: TransferConfig to convert to arguments
+    ///   - provider: Optional provider type for provider-specific chunk size flags (#73)
     /// - Returns: Array of rclone command-line arguments
-    static func buildArgs(from config: TransferConfig) -> [String] {
+    static func buildArgs(from config: TransferConfig, provider: CloudProviderType? = nil) -> [String] {
         var args: [String] = []
 
         args.append(contentsOf: ["--transfers", "\(config.transfers)"])
@@ -356,50 +454,63 @@ class TransferOptimizer {
             args.append("--fast-list")
         }
 
-        // Note: Chunk size flags are provider-specific, applied separately if needed
+        // Add provider-specific chunk size flag (#73)
+        if let provider = provider, let chunkFlag = getProviderChunkSizeFlag(provider) {
+            args.append(chunkFlag)
+        }
 
         return args
     }
 
     /// Get default optimized arguments for simple transfers (no file analysis available)
     /// Uses increased defaults: 16 checkers, 32M buffer
-    static func defaultArgs() -> [String] {
-        return [
+    /// - Parameter provider: Optional provider type for provider-specific chunk size flags (#73)
+    /// - Returns: Array of rclone command-line arguments
+    static func defaultArgs(provider: CloudProviderType? = nil) -> [String] {
+        var args = [
             "--transfers", "4",
             "--checkers", "16",
             "--buffer-size", "32M"
         ]
+
+        // Add provider-specific chunk size flag (#73)
+        if let provider = provider, let chunkFlag = getProviderChunkSizeFlag(provider) {
+            args.append(chunkFlag)
+        }
+
+        return args
     }
 
     /// Get multi-thread arguments for large file downloads (#72)
     /// - Parameters:
     ///   - fileSize: Size of the file in bytes (optional, for threshold check)
     ///   - remoteName: Name of the remote provider
+    ///   - provider: Optional provider type for provider-specific chunk size flags (#73)
     /// - Returns: Array of rclone arguments including multi-thread flags if applicable
-    static func multiThreadArgs(fileSize: Int64? = nil, remoteName: String) -> [String] {
+    static func multiThreadArgs(fileSize: Int64? = nil, remoteName: String, provider: CloudProviderType? = nil) -> [String] {
         let config = MultiThreadDownloadConfig.load()
 
         // Check if multi-threading is enabled
         guard config.enabled else {
-            return defaultArgs()
+            return defaultArgs(provider: provider)
         }
 
         // Check provider capability
         let capability = ProviderMultiThreadCapability.forProvider(remoteName)
         guard capability != .unsupported else {
-            return defaultArgs()
+            return defaultArgs(provider: provider)
         }
 
         // If file size provided, check threshold
         if let size = fileSize, size < Int64(config.sizeThreshold) {
-            return defaultArgs()
+            return defaultArgs(provider: provider)
         }
 
         // Calculate effective thread count
         let effectiveThreads = min(config.threadCount, capability.maxRecommendedThreads)
         let cutoffMB = max(10, config.sizeThreshold / 1_000_000)
 
-        var args = defaultArgs()
+        var args = defaultArgs(provider: provider)
         args.append(contentsOf: ["--multi-thread-streams", "\(effectiveThreads)"])
         args.append(contentsOf: ["--multi-thread-cutoff", "\(cutoffMB)M"])
 
@@ -1646,6 +1757,10 @@ class RcloneManager {
                     ]
                     // Apply dynamic parallelism optimization (#70)
                     args.append(contentsOf: TransferOptimizer.defaultArgs())
+                    // Apply provider-specific chunk sizes (#73)
+                    if let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(remoteName) {
+                        args.append(chunkFlag)
+                    }
                     // Add bandwidth limits
                     args.append(contentsOf: self.getBandwidthArgs())
                 case .biDirectional:
@@ -1734,6 +1849,13 @@ class RcloneManager {
                     ]
                     // Apply dynamic parallelism optimization (#70)
                     args.append(contentsOf: TransferOptimizer.defaultArgs())
+                    // Apply provider-specific chunk sizes (#73)
+                    if let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(sourceRemote) {
+                        args.append(chunkFlag)
+                    }
+                    if sourceRemote != destRemote, let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(destRemote) {
+                        args.append(chunkFlag)
+                    }
                 case .biDirectional:
                     args = [
                         "bisync",
@@ -1818,6 +1940,13 @@ class RcloneManager {
 
                 // Apply dynamic parallelism optimization (#70)
                 args.append(contentsOf: TransferOptimizer.defaultArgs())
+                // Apply provider-specific chunk sizes (#73)
+                if let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(sourceRemote) {
+                    args.append(chunkFlag)
+                }
+                if sourceRemote != destRemote, let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(destRemote) {
+                    args.append(chunkFlag)
+                }
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
                 
@@ -2268,6 +2397,11 @@ class RcloneManager {
             args.append(contentsOf: TransferOptimizer.multiThreadArgs(fileSize: fileSize, remoteName: remoteName))
         }
 
+        // Apply provider-specific chunk sizes (#73)
+        if let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(remoteName) {
+            args.append(chunkFlag)
+        }
+
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
 
@@ -2372,6 +2506,11 @@ class RcloneManager {
             config: config
         )
         args.append(contentsOf: TransferOptimizer.buildArgs(from: transferConfig))
+
+        // Apply provider-specific chunk sizes (#73)
+        if let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(remoteName) {
+            args.append(chunkFlag)
+        }
 
         // Add bandwidth limits
         args.append(contentsOf: getBandwidthArgs())
@@ -2817,6 +2956,17 @@ class RcloneManager {
 
                 // Apply dynamic parallelism optimization (#70)
                 args.append(contentsOf: TransferOptimizer.defaultArgs())
+                // Apply provider-specific chunk sizes (#73)
+                // Extract remote names from source and destination
+                let sourceRemoteName = source.split(separator: ":").first.map(String.init) ?? ""
+                let destRemoteName = destination.split(separator: ":").first.map(String.init) ?? ""
+                if !sourceRemoteName.isEmpty, let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(sourceRemoteName) {
+                    args.append(chunkFlag)
+                }
+                if !destRemoteName.isEmpty && sourceRemoteName != destRemoteName,
+                   let chunkFlag = TransferOptimizer.getChunkSizeFlagFromRemoteName(destRemoteName) {
+                    args.append(chunkFlag)
+                }
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
 

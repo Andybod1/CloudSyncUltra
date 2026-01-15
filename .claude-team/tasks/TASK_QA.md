@@ -1,93 +1,158 @@
-# QA Task: Test Automation & Onboarding Validation
+# TASK_QA.md - Test Plan for v2.0.22
 
-**Sprint:** Launch Ready (v2.0.21)
-**Created:** 2026-01-15
-**Worker:** QA
-**Model:** Opus (always use /think)
-**Issues:** #27, Onboarding validation
-
----
-
-## Context
-
-We just fixed several onboarding UX issues (click detection, scrolling, card sizing). These need validation. Additionally, test automation (#27) is HIGH priority for sustainable quality.
+**Worker:** QA  
+**Status:** ⏸️ READY  
+**Priority:** Medium  
+**Size:** M (Medium - ~1 hour)
 
 ---
 
-## Your Files (Exclusive Ownership)
+## Objective
 
-```
-CloudSyncAppTests/
-CloudSyncAppUITests/
-```
+Create comprehensive test plans for new features in v2.0.22 sprint and review test coverage gaps.
 
----
+## Tasks
 
-## Objectives
+### 1. Test Plan: Onboarding Visual Consistency
 
-### Priority 1: Onboarding Validation (Immediate)
+Verify the visual fixes work correctly:
 
-**Test the fixes from yesterday:**
-
-| View | Test Case | Expected |
-|------|-----------|----------|
-| AddProviderStepView | Click provider card | Card highlights, Connect button activates |
-| AddProviderStepView | Click "Show All 40+ Providers" | Grid expands, scrollable |
-| AddProviderStepView | Scroll expanded grid | Navigation buttons stay fixed at bottom |
-| AddProviderStepView | Select provider + Click Connect | Advances to next step |
-| CompletionStepView | Quick Tips cards | All 3 same size |
-| Full Flow | Welcome → Provider → Sync → Complete | No crashes, all transitions work |
-
-**Report any issues found immediately.**
-
-### Priority 2: Issue #27 - Test Automation
-
-**Current State:**
-- 762 unit tests passing
-- 69 UI tests integrated
-- UI tests require Xcode GUI (Gatekeeper limitation)
-
-**Goals:**
-1. Expand unit test coverage for critical paths
-2. Add tests for recently added features:
-   - Onboarding flow
-   - Dynamic parallelism
-   - Provider icons
-3. Document test gaps
-4. Create test plan for #10, #20 (other sprint work)
-
-**Test Coverage Priorities:**
-1. OnboardingViewModel - state transitions, persistence
-2. TransferOptimizer - parallelism calculations
-3. ProviderIconView - all provider types
-4. Error handling paths
-
----
-
-## Deliverables
-
-1. [ ] Onboarding validation report
-2. [ ] New tests for onboarding
-3. [ ] Test gap analysis
-4. [ ] Test plans for #10, #20
-5. [ ] Tests pass (target: maintain 762+)
-6. [ ] Commit with descriptive message
-
----
-
-## Commands
-
-```bash
-# Run all tests
-cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
-
-# Run specific test file
-xcodebuild test -only-testing:CloudSyncAppTests/OnboardingViewModelTests -destination 'platform=macOS'
-
-# Check test coverage
-find CloudSyncAppTests -name "*.swift" | xargs wc -l
+```swift
+// Add to OnboardingViewModelTests.swift
+func testOnboardingViewsHaveConsistentStyling() {
+    // Verify AppTheme values are correct
+    XCTAssertEqual(AppTheme.cardBackgroundDark.opacity, 0.12, accuracy: 0.01)
+    XCTAssertEqual(AppTheme.textOnDarkSecondary.opacity, 0.8, accuracy: 0.01)
+}
 ```
 
+**Manual Test Cases:**
+- [ ] Welcome view cards clearly visible
+- [ ] Provider selection cards have good contrast
+- [ ] First Sync view icons have glows
+- [ ] Completion view matches style of other views
+- [ ] Text readable on all views
+- [ ] Hover states visible
+
+### 2. Test Plan: Provider-Specific Chunk Sizes
+
+```swift
+// Create ChunkSizeTests.swift
+import XCTest
+@testable import CloudSyncApp
+
+final class ChunkSizeTests: XCTestCase {
+    
+    func testChunkSizeForGoogleDrive() {
+        let size = ChunkSizeConfig.chunkSize(for: .googleDrive)
+        XCTAssertEqual(size, 8 * 1024 * 1024)  // 8MB
+    }
+    
+    func testChunkSizeForS3() {
+        let size = ChunkSizeConfig.chunkSize(for: .s3)
+        XCTAssertEqual(size, 16 * 1024 * 1024)  // 16MB
+    }
+    
+    func testChunkSizeForLocal() {
+        let size = ChunkSizeConfig.chunkSize(for: .local)
+        XCTAssertEqual(size, 64 * 1024 * 1024)  // 64MB
+    }
+    
+    func testChunkSizeForProton() {
+        let size = ChunkSizeConfig.chunkSize(for: .protonDrive)
+        XCTAssertEqual(size, 4 * 1024 * 1024)  // 4MB
+    }
+    
+    func testChunkSizeFlagGeneration() {
+        let flag = ChunkSizeConfig.chunkSizeFlag(for: .googleDrive)
+        XCTAssertEqual(flag, "--drive-chunk-size=8M")
+    }
+    
+    func testAllProvidersHaveChunkSize() {
+        for provider in CloudProviderType.allCases {
+            let size = ChunkSizeConfig.chunkSize(for: provider)
+            XCTAssertGreaterThan(size, 0)
+        }
+    }
+}
+```
+
+### 3. Test Plan: Transfer Preview
+
+```swift
+// Create TransferPreviewTests.swift
+import XCTest
+@testable import CloudSyncApp
+
+final class TransferPreviewTests: XCTestCase {
+    
+    func testPreviewItemCreation() {
+        let item = PreviewItem(
+            path: "/test/file.txt",
+            size: 1024,
+            operation: .transfer,
+            modifiedDate: Date()
+        )
+        XCTAssertEqual(item.path, "/test/file.txt")
+        XCTAssertEqual(item.operation, .transfer)
+    }
+    
+    func testEmptyPreview() {
+        let preview = TransferPreview(
+            filesToTransfer: [],
+            filesToDelete: [],
+            filesToUpdate: [],
+            totalSize: 0,
+            estimatedTime: nil
+        )
+        XCTAssertTrue(preview.isEmpty)
+        XCTAssertEqual(preview.totalItems, 0)
+    }
+    
+    func testPreviewTotalCount() {
+        let preview = TransferPreview(
+            filesToTransfer: [PreviewItem(path: "a", size: 100, operation: .transfer, modifiedDate: nil)],
+            filesToDelete: [PreviewItem(path: "b", size: 50, operation: .delete, modifiedDate: nil)],
+            filesToUpdate: [],
+            totalSize: 150,
+            estimatedTime: nil
+        )
+        XCTAssertEqual(preview.totalItems, 2)
+        XCTAssertFalse(preview.isEmpty)
+    }
+    
+    func testPreviewOperationIcons() {
+        XCTAssertEqual(PreviewOperation.transfer.iconName, "arrow.right.circle")
+        XCTAssertEqual(PreviewOperation.delete.iconName, "trash")
+    }
+}
+```
+
+### 4. Coverage Gap Analysis
+
+Review current test coverage and identify gaps:
+
+**Areas to Check:**
+- [ ] Error handling paths in RcloneManager
+- [ ] Edge cases in TransferOptimizer
+- [ ] Encryption error scenarios
+- [ ] Schedule trigger edge cases
+- [ ] Menu bar state management
+
+## Files to Create
+
+1. `/Users/antti/Claude/CloudSyncAppTests/ChunkSizeTests.swift`
+2. `/Users/antti/Claude/CloudSyncAppTests/TransferPreviewTests.swift`
+
+## Completion Protocol
+
+1. Write test cases for chunk sizes
+2. Write test cases for transfer preview
+3. Run all tests to verify
+4. Document any coverage gaps found
+5. Commit: `test: Add tests for chunk sizes and transfer preview`
+6. Report completion with test count
+
 ---
 
-*Report onboarding validation results first, then proceed with #27*
+**Use /think for thorough analysis.**

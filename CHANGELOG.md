@@ -5,6 +5,36 @@ All notable changes to CloudSync Ultra will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.22] - 2026-01-15
+
+### Added
+- **Quick Actions Menu** (#49) - Keyboard-driven productivity
+  - New QuickActionsView with Cmd+Shift+N shortcut
+  - Fast access to common operations
+  - Integrated into MainWindow
+
+- **Provider-Specific Chunk Sizes** (#73) - Optimized transfers
+  - ChunkSizeConfig for per-provider optimal chunk sizes
+  - Integrated with TransferOptimizer
+  - Proper rclone flags for Google Drive, OneDrive, Dropbox, S3, B2
+
+- **Transfer Preview with Dry-Run** (#55) - Pre-transfer visibility
+  - TransferPreview model for operation summaries
+  - Dry-run support to see what will be transferred
+  - File counts, sizes, and operation breakdowns
+
+### Changed
+- RcloneManager now uses ChunkSizeConfig for provider-aware chunk sizes
+- TransferOptimizer.buildArgs() accepts optional provider parameter
+- Moved CrashReportingManager to dedicated file (code cleanup)
+
+### Tests
+- 841 tests total (839 passing)
+- New: ChunkSizeTests.swift (25 tests)
+- New: TransferPreviewTests.swift (25 tests)
+
+---
+
 ## [2.0.21] - 2026-01-15
 
 ### Added
@@ -15,25 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added {PROJECT_ROOT} placeholders for portable deployment
   - Comprehensive README with full usage documentation
   - Template ready for any Claude Code parallel development project
-
-
-- **Project-Ops-Kit v1.0.0** - Major template update for reusability
-  - Removed all hardcoded paths - scripts now auto-detect project root
-  - Added missing scripts: ticket.sh, launch_workers.sh, auto_launch_workers.sh
-  - Made template fully generic (no CloudSync-specific references)
-  - Added {PROJECT_ROOT} placeholders for portable deployment
-  - Comprehensive README with full usage documentation
-  - Template ready for any Claude Code parallel development project
-
-
-- **Project-Ops-Kit v1.0.0** - Major template update for reusability
-  - Removed all hardcoded paths - scripts now auto-detect project root
-  - Added missing scripts: ticket.sh, launch_workers.sh, auto_launch_workers.sh
-  - Made template fully generic (no CloudSync-specific references)
-  - Added {PROJECT_ROOT} placeholders for portable deployment
-  - Comprehensive README with full usage documentation
-  - Template ready for any Claude Code parallel development project
-
 
 - **Crash Reporting System** (#20) - Privacy-first crash handling
   - CrashReport model for structured crash data

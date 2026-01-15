@@ -1,96 +1,137 @@
-# Dev-Ops Task: Documentation & Release Prep
+# TASK: Update Project-Ops-Kit Template
 
-**Sprint:** Launch Ready (v2.0.21)
-**Created:** 2026-01-15
-**Worker:** Dev-Ops
-**Model:** Opus (always use /think)
-
----
-
-## Context
-
-Sprint focuses on launch readiness. Dev-Ops supports with documentation updates and release preparation.
+## Ticket
+**Type:** Operations / Template Update  
+**Size:** M (1-2 hours)  
+**Priority:** High
 
 ---
 
-## Your Files (Exclusive Ownership)
+## Objective
 
-```
-.github/
-scripts/
-docs/
-CHANGELOG.md
-CONTRIBUTING.md
-README.md
-```
+Update `templates/project-ops-kit/` to be a proper reusable template for Claude-powered parallel development projects. Currently at v0.1.0, needs to become v1.0.0.
 
 ---
 
-## Objectives
+## Problems to Fix
 
-### 1. Sprint Support
+1. **Missing Scripts** - `.claude-team/scripts/` is missing:
+   - `auto_launch_workers.sh`
+   - `launch_workers.sh`
+   - `ticket.sh`
 
-- Monitor CI pipeline for all worker commits
-- Help resolve any build/test failures
-- Update documentation as features complete
+2. **Hardcoded Paths** - SPECIALIZED_AGENTS.md has `/Users/antti/Claude/` hardcoded
+   - Replace with `{PROJECT_ROOT}` placeholder throughout
 
-### 2. Documentation Updates
+3. **CloudSync References** - Remove project-specific references:
+   - SPECIALIZED_AGENTS.md mentions "CloudSync Ultra"
+   - Make all references generic (e.g., "your project")
 
-**As sprint progresses, update:**
-- README.md - feature list if new features added
-- docs/ - any new user-facing features
-- CHANGELOG.md - track sprint changes (will finalize at end)
+4. **Version Mismatch** - VERSION.txt shows 0.1.0 but README says "Version: 2.0"
+   - Update to 1.0.0 as first proper release
 
-### 3. Release Preparation
-
-**Pre-release checklist:**
-- [ ] All worker commits merged
-- [ ] CI green on main
-- [ ] version-check.sh passes
-- [ ] CHANGELOG.md has v2.0.21 section
-- [ ] Test count updated in docs
-- [ ] No uncommitted changes
-
-### 4. GitHub Housekeeping
-
-**During sprint:**
-- Add `in-progress` label to active issues
-- Update issue comments with progress
-
-**End of sprint:**
-- Close completed issues
-- Update labels
+5. **CLAUDE_PROJECT_KNOWLEDGE.md** - Needs to be a proper template
+   - Should have placeholder sections, not CloudSync content
 
 ---
 
-## Commands
+## Deliverables
 
+### 1. Copy Missing Scripts
 ```bash
-# Check CI status
-gh run list --limit 5
+# Copy from live to template
+cp /Users/antti/Claude/.claude-team/scripts/auto_launch_workers.sh \
+   /Users/antti/Claude/templates/project-ops-kit/.claude-team/scripts/
 
-# Version check
-./scripts/version-check.sh
+cp /Users/antti/Claude/.claude-team/scripts/launch_workers.sh \
+   /Users/antti/Claude/templates/project-ops-kit/.claude-team/scripts/
 
-# Dashboard
-./scripts/dashboard.sh
+cp /Users/antti/Claude/.claude-team/scripts/ticket.sh \
+   /Users/antti/Claude/templates/project-ops-kit/.claude-team/scripts/
+```
 
-# Close issue
-gh issue close <number> -c "Completed in v2.0.21"
+### 2. Make Paths Generic
+In all files under `templates/project-ops-kit/`:
+- Replace `/Users/antti/Claude/` with `{PROJECT_ROOT}/`
+- Replace `~/Claude/` with `{PROJECT_ROOT}/`
+
+### 3. Remove CloudSync References
+- Change "CloudSync Ultra" to "your project" or similar
+- Make briefings generic (they should already be mostly generic)
+
+### 4. Update Versions
+- `VERSION.txt` → `1.0.0`
+- `README.md` → Update version reference to 1.0.0
+- Update any date references to current date
+
+### 5. Create Template CLAUDE_PROJECT_KNOWLEDGE.md
+Replace with a proper template structure:
+```markdown
+# {PROJECT_NAME} - Project Knowledge
+
+## Purpose & Context
+{Describe what your project does and why}
+
+## Current State
+{Current version, deployment status, active features}
+
+## On the Horizon
+{Upcoming priorities and future plans}
+
+## Key Learnings & Principles
+{Important lessons learned, core principles}
+
+## Approach & Patterns
+{Development methodology, workflows}
+
+## Tools & Resources
+{Tech stack, key dependencies, useful commands}
+
+## Other Instructions
+{Project-specific rules for Claude}
+```
+
+### 6. Update setup.sh
+Ensure `scripts/setup.sh` properly:
+- Replaces `{PROJECT_ROOT}` placeholders with actual paths
+- Replaces `{PROJECT_NAME}` with user input
+- Creates necessary directories
+
+### 7. Git Commit
+```bash
+cd /Users/antti/Claude
+git add templates/project-ops-kit/
+git commit -m "chore(ops-kit): Update to v1.0.0
+
+- Add missing scripts (auto_launch, launch_workers, ticket.sh)
+- Make all paths generic with {PROJECT_ROOT} placeholder
+- Remove CloudSync-specific references
+- Create proper template CLAUDE_PROJECT_KNOWLEDGE.md
+- Update setup.sh for proper initialization
+- First proper release as reusable template"
+git push
 ```
 
 ---
 
-## Sprint Issues to Track
+## Success Criteria
 
-| # | Issue | Worker | Status |
-|---|-------|--------|--------|
-| #77 | App Icon | Dev-1 | 🔄 |
-| #44 | UI Review | Dev-1 | 🔄 |
-| #10 | Transfer Performance | Dev-2 | 🔄 |
-| #20 | Crash Reporting | Dev-3 | 🔄 |
-| #27 | Test Automation | QA | 🔄 |
+- [ ] All scripts from live `.claude-team/scripts/` present in template
+- [ ] No hardcoded paths (grep for `/Users/antti` returns nothing)
+- [ ] No CloudSync references (grep for `CloudSync` returns nothing)
+- [ ] VERSION.txt = 1.0.0
+- [ ] CLAUDE_PROJECT_KNOWLEDGE.md is a proper template with placeholders
+- [ ] setup.sh handles placeholder replacement
+- [ ] Changes committed and pushed to git
 
 ---
 
-*Coordinate with Strategic Partner for release timing*
+## Notes
+
+- This is the operational template we've battle-tested on CloudSync Ultra
+- Goal is to make it reusable for any Claude-powered project
+- Keep the quality high - this could help many other developers
+
+---
+
+*Task created: 2025-01-15*

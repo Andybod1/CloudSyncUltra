@@ -291,4 +291,77 @@ final class ChunkSizeTests: XCTestCase {
         XCTAssertNotNil(flag)
         XCTAssertEqual(flag, "--onedrive-chunk-size=10M")
     }
+
+    // MARK: - RcloneManager getChunkSizeFlagFromRemoteName Tests
+
+    func testGetChunkSizeFlagFromRemoteNameGoogleDrive() {
+        let flag1 = TransferOptimizer.getChunkSizeFlagFromRemoteName("MyGoogleDrive")
+        XCTAssertEqual(flag1, "--drive-chunk-size=8M", "Should detect Google Drive from remote name")
+
+        let flag2 = TransferOptimizer.getChunkSizeFlagFromRemoteName("drive-backup")
+        XCTAssertEqual(flag2, "--drive-chunk-size=8M", "Should detect drive in remote name")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameOneDrive() {
+        let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("onedrive-personal")
+        XCTAssertEqual(flag, "--onedrive-chunk-size=10M", "Should detect OneDrive from remote name")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameDropbox() {
+        let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("dropbox-backup")
+        XCTAssertEqual(flag, "--dropbox-chunk-size=8M", "Should detect Dropbox from remote name")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameS3() {
+        let flag1 = TransferOptimizer.getChunkSizeFlagFromRemoteName("s3-storage")
+        XCTAssertEqual(flag1, "--s3-chunk-size=16M", "Should detect S3 from remote name")
+
+        let flag2 = TransferOptimizer.getChunkSizeFlagFromRemoteName("wasabi-backup")
+        XCTAssertEqual(flag2, "--s3-chunk-size=16M", "Should detect Wasabi as S3-compatible")
+
+        let flag3 = TransferOptimizer.getChunkSizeFlagFromRemoteName("digitalocean-spaces")
+        XCTAssertEqual(flag3, "--s3-chunk-size=16M", "Should detect DigitalOcean Spaces as S3-compatible")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameBackblazeB2() {
+        let flag1 = TransferOptimizer.getChunkSizeFlagFromRemoteName("b2-storage")
+        XCTAssertEqual(flag1, "--b2-chunk-size=16M", "Should detect B2 from remote name")
+
+        let flag2 = TransferOptimizer.getChunkSizeFlagFromRemoteName("backblaze-archive")
+        XCTAssertEqual(flag2, "--b2-chunk-size=16M", "Should detect Backblaze from remote name")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameLocal() {
+        let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("local")
+        XCTAssertNil(flag, "Local should not return a chunk flag")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameProton() {
+        let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("proton-secure")
+        XCTAssertNil(flag, "Proton Drive should not return a chunk flag")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameNetworkFilesystems() {
+        let flag1 = TransferOptimizer.getChunkSizeFlagFromRemoteName("sftp-server")
+        XCTAssertNil(flag1, "SFTP should not return a chunk flag")
+
+        let flag2 = TransferOptimizer.getChunkSizeFlagFromRemoteName("ftp-backup")
+        XCTAssertNil(flag2, "FTP should not return a chunk flag")
+
+        let flag3 = TransferOptimizer.getChunkSizeFlagFromRemoteName("webdav-cloud")
+        XCTAssertNil(flag3, "WebDAV should not return a chunk flag")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameUnknown() {
+        let flag = TransferOptimizer.getChunkSizeFlagFromRemoteName("unknown-remote")
+        XCTAssertNil(flag, "Unknown remote should not return a chunk flag")
+    }
+
+    func testGetChunkSizeFlagFromRemoteNameCaseInsensitive() {
+        let flag1 = TransferOptimizer.getChunkSizeFlagFromRemoteName("GOOGLEDRIVE")
+        XCTAssertEqual(flag1, "--drive-chunk-size=8M", "Should handle uppercase")
+
+        let flag2 = TransferOptimizer.getChunkSizeFlagFromRemoteName("OneDrive")
+        XCTAssertEqual(flag2, "--onedrive-chunk-size=10M", "Should handle mixed case")
+    }
 }

@@ -2,7 +2,7 @@
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
 > This guide helps you restore the development environment after restart.
-> **Version:** 2.0.21 | **Tests:** 770 (768 passing, 2 timing) | **Providers:** 42
+> **Version:** 2.0.22 | **Tests:** 841 (839 passing, 2 timing) | **Providers:** 42
 
 ---
 

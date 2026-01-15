@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.21 | **Updated:** 2026-01-15
+> **Version:** 2.0.22 | **Updated:** 2026-01-15
 
 ---
 
@@ -131,32 +131,28 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.21 - Sprint "Launch Ready"
+### Just Completed: v2.0.22 - Sprint "Polish & Performance"
+- ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut, keyboard-driven productivity
+- ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig, per-provider optimization
+- ✅ **Transfer Preview** (#55) - Dry-run support, pre-transfer visibility
+- ✅ **Project-Ops-Kit v1.0.0** - Generic template ready for reuse
+- ✅ **Pricing Strategy & GTM** - $0 Free → $9.99/mo Pro → $19.99/user Team
+- ✅ **CI Coverage** - Code coverage reporting added to CI workflow
+- ✅ **Branch Protection** - PR required, CI must pass
+- ✅ **841 tests** (839 passing)
+- ✅ **Operational Excellence at 78%** (Pillar 2 at 100%)
+
+### Strategic: Billion Dollar Framework
+- Revenue target: $50M ARR within 3 years
+- Pricing: Freemium → $9.99/mo Pro → $19.99/user Team
+- Growth: PLG + SEO content + viral features
+- Solo founder: AI support, self-serve everything
+- See `.claude-team/planning/BILLION_DOLLAR_FRAMEWORK.md`
+
+### v2.0.21 (Previous)
 - ✅ **Crash Reporting** (#20) - CrashReport model, CrashReportViewer, privacy-first
 - ✅ **Transfer Optimizer** (#10) - Dynamic buffer sizing, provider-aware parallelism
 - ✅ **Test Automation** (#27) - 770 tests total, onboarding validation
-- ✅ **App Icon** (#77) - Icon generation infrastructure ready
-- ✅ **UI Review** (#44) - AppTheme consistency audit
-- ✅ **Pre-commit hooks** - Quality gates for development
-- ✅ **770 tests passing** (768 green, 2 pre-existing timing issues)
-
-### v2.0.20 (Previous)
-- ✅ **Onboarding Flow** (#80, #81, #82) - 4-step first-time user experience
-- ✅ **Dynamic Parallelism** (#70) - Provider-aware transfer optimization
-- ✅ **Fast-List Support** (#71) - Faster directory listings
-- ✅ **Provider Icons** (#95) - ProviderIconView + brand colors
-- ✅ **Visual Polish** (#84) - Consistent AppTheme styling
-
-### Key Docs Created
-- `docs/PUBLISHING_GUIDE.md` - Code signing, notarization, App Store
-- `docs/pdfs/` - 5 professional PDFs for stakeholders
-- `CONTRIBUTING.md` - Contributor guidelines
-- `.claude-team/outputs/PRICING_STRATEGY.md` - Full market analysis
-
-### Recent: v2.0.15-v2.0.17
-- v2.0.17: Accessibility (VoiceOver + keyboard), OSLog, Help system
-- v2.0.16: TransferOptimizer, App Sandbox, Security hardening
-- v2.0.15: iCloud Phase 1, Crash reporting infrastructure
 
 ---
 
