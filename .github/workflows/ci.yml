@@ -114,11 +114,12 @@ jobs:
                 # Save coverage to file for artifact
                 echo "$COVERAGE" > coverage_percentage.txt
                 
-                # Check threshold (warning only)
-                THRESHOLD=30
+                # Check threshold
+                THRESHOLD=50
                 COVERAGE_INT=${COVERAGE%.*}
                 if [ "$COVERAGE_INT" -lt "$THRESHOLD" ]; then
-                  echo "⚠️ Warning: Coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
+                  echo "❌ Coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
+                  exit 1
                 else
                   echo "✅ Coverage ($COVERAGE%) meets threshold ($THRESHOLD%)"
                 fi
