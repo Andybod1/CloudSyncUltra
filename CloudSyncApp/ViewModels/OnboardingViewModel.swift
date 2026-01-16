@@ -61,11 +61,14 @@ class OnboardingViewModel: ObservableObject {
     /// Animation state for transitions between steps
     @Published var isTransitioning: Bool = false
 
-    /// Whether a provider has been successfully connected during onboarding
-    @Published var hasConnectedProvider: Bool = false
+    /// Whether a provider has been successfully connected during onboarding (persisted)
+    @AppStorage("onboarding_hasConnectedProvider") var hasConnectedProvider: Bool = false
 
     /// The connected provider name (for display in later steps)
     @Published var connectedProviderName: String?
+
+    /// Whether the user has completed their first sync during onboarding (persisted)
+    @AppStorage("onboarding_hasCompletedFirstSync") var hasCompletedFirstSync: Bool = false
 
     /// Whether the user can skip the current step
     var canSkip: Bool {
@@ -170,6 +173,11 @@ class OnboardingViewModel: ObservableObject {
         nextStep()
     }
 
+    /// Called when the first sync is successfully completed
+    func firstSyncCompleted() {
+        hasCompletedFirstSync = true
+    }
+
     /// Completes the onboarding flow and marks it as finished
     func completeOnboarding() {
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -200,6 +208,7 @@ class OnboardingViewModel: ObservableObject {
         shouldShowOnboarding = true
         hasConnectedProvider = false
         connectedProviderName = nil
+        hasCompletedFirstSync = false
 
         // Post notification for any listeners
         NotificationCenter.default.post(name: .onboardingReset, object: nil)

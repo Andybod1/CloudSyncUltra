@@ -11,10 +11,14 @@ import SwiftUI
 /// First sync walkthrough step shown during onboarding
 struct FirstSyncStepView: View {
     @ObservedObject private var onboardingVM = OnboardingViewModel.shared
+    @ObservedObject private var remotesVM = RemotesViewModel.shared
+    @ObservedObject private var tasksVM = TasksViewModel.shared
+    @StateObject private var transferState = TransferViewState()
 
     @State private var animateContent = false
     @State private var selectedConcept: SyncConcept? = nil
     @State private var showDualPane = false
+    @State private var showTransferWizard = false
 
     var body: some View {
         VStack(spacing: AppTheme.spacingL) {
@@ -31,6 +35,11 @@ struct FirstSyncStepView: View {
                 dualPanePreview
             }
 
+            // Try Sync Now button
+            if showDualPane {
+                trySyncNowButton
+            }
+
             Spacer()
 
             // Navigation buttons
@@ -38,6 +47,12 @@ struct FirstSyncStepView: View {
         }
         .onAppear {
             startAnimations()
+        }
+        .sheet(isPresented: $showTransferWizard, onDismiss: handleTransferWizardDismiss) {
+            TransferWizardView(onComplete: handleTransferComplete)
+                .environmentObject(remotesVM)
+                .environmentObject(tasksVM)
+                .environmentObject(transferState)
         }
     }
 
@@ -149,6 +164,89 @@ struct FirstSyncStepView: View {
         }
         .padding(.horizontal, AppTheme.contentPaddingH)
         .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+
+    // MARK: - Try Sync Now Button
+
+    private var trySyncNowButton: some View {
+        VStack(spacing: AppTheme.spacingS) {
+            // Try Sync Now button
+            Button {
+                showTransferWizard = true
+            } label: {
+                HStack(spacing: AppTheme.spacingS) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.headline)
+
+                    Text("Try a Sync Now")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, AppTheme.spacingXL)
+                .padding(.vertical, AppTheme.spacing)
+                .background(
+                    Capsule()
+                        .fill(AppTheme.success)
+                )
+                .shadow(color: AppTheme.success.opacity(0.4), radius: 10, y: 5)
+            }
+            .buttonStyle(.plain)
+            .disabled(!hasConfiguredRemotes)
+            .opacity(hasConfiguredRemotes ? 1.0 : 0.5)
+
+            // Help text or success indicator
+            if onboardingVM.hasCompletedFirstSync {
+                HStack(spacing: AppTheme.spacingXS) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(AppTheme.success)
+
+                    Text("First sync completed!")
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.success)
+                }
+            } else if !hasConfiguredRemotes {
+                HStack(spacing: AppTheme.spacingXS) {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(AppTheme.textOnDarkTertiary)
+
+                    Text("Connect a provider first to try syncing")
+                        .font(AppTheme.captionFont)
+                        .foregroundColor(AppTheme.textOnDarkTertiary)
+                }
+            } else {
+                Text("Start a transfer between your connected providers")
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textOnDarkSecondary)
+            }
+        }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+
+    /// Check if there are configured remotes available for syncing
+    private var hasConfiguredRemotes: Bool {
+        remotesVM.remotes.contains { $0.isConfigured }
+    }
+
+    // MARK: - Transfer Wizard Handlers
+
+    private func handleTransferComplete(
+        source: CloudRemote,
+        sourcePath: String,
+        destination: CloudRemote,
+        destinationPath: String,
+        transferMode: TaskType
+    ) {
+        // Mark first sync as completed
+        onboardingVM.firstSyncCompleted()
+    }
+
+    private func handleTransferWizardDismiss() {
+        // Check if the user completed a transfer (by checking if tasks were created)
+        // The transfer wizard creates a task when completed
+        if tasksVM.tasks.count > 0 && !onboardingVM.hasCompletedFirstSync {
+            onboardingVM.firstSyncCompleted()
+        }
     }
 
     // MARK: - Navigation Buttons

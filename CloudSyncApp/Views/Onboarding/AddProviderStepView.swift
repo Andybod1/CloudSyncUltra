@@ -18,6 +18,7 @@ struct AddProviderStepView: View {
     @State private var isConnecting = false
     @State private var connectionError: String?
     @State private var animateContent = false
+    @State private var showConnectionWizard = false
 
     /// Popular providers shown by default
     private let popularProviders: [CloudProviderType] = [
@@ -53,6 +54,9 @@ struct AddProviderStepView: View {
                     // Show All / Show Less toggle
                     showAllToggle
 
+                    // Connect Now button - launches full wizard
+                    connectNowButton
+
                     // Error message
                     if let error = connectionError {
                         errorView(error)
@@ -61,6 +65,10 @@ struct AddProviderStepView: View {
                 .padding(.bottom, AppTheme.spacingL)
             }
             .scrollIndicators(.automatic)
+            .sheet(isPresented: $showConnectionWizard, onDismiss: handleWizardDismiss) {
+                ProviderConnectionWizardView()
+                    .environmentObject(remotesVM)
+            }
 
             // Navigation buttons (fixed at bottom)
             navigationButtons
@@ -149,6 +157,88 @@ struct AddProviderStepView: View {
             }
         }
         .opacity(animateContent ? 1 : 0)
+    }
+
+    // MARK: - Connect Now Button
+
+    private var connectNowButton: some View {
+        VStack(spacing: AppTheme.spacingS) {
+            // Divider with "or" text
+            HStack {
+                Rectangle()
+                    .fill(AppTheme.cardBorderDark)
+                    .frame(height: 1)
+
+                Text("or use our guided wizard")
+                    .font(AppTheme.captionFont)
+                    .foregroundColor(AppTheme.textOnDarkTertiary)
+                    .padding(.horizontal, AppTheme.spacingM)
+
+                Rectangle()
+                    .fill(AppTheme.cardBorderDark)
+                    .frame(height: 1)
+            }
+            .padding(.horizontal, AppTheme.spacingXL)
+
+            // Connect Now button
+            Button {
+                showConnectionWizard = true
+            } label: {
+                HStack(spacing: AppTheme.spacingS) {
+                    Image(systemName: "wand.and.stars")
+                        .font(.headline)
+
+                    Text("Connect a Provider Now")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, AppTheme.spacingXL)
+                .padding(.vertical, AppTheme.spacing)
+                .background(
+                    Capsule()
+                        .fill(AppTheme.success)
+                )
+                .shadow(color: AppTheme.success.opacity(0.4), radius: 10, y: 5)
+            }
+            .buttonStyle(.plain)
+
+            // Success indicator if already connected
+            if onboardingVM.hasConnectedProvider {
+                HStack(spacing: AppTheme.spacingXS) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(AppTheme.success)
+
+                    if let providerName = onboardingVM.connectedProviderName {
+                        Text("\(providerName) connected!")
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.success)
+                    } else {
+                        Text("Provider connected!")
+                            .font(AppTheme.captionFont)
+                            .foregroundColor(AppTheme.success)
+                    }
+                }
+                .padding(.top, AppTheme.spacingXS)
+            }
+        }
+        .opacity(animateContent ? 1 : 0)
+        .animation(.easeInOut(duration: 0.3).delay(0.4), value: animateContent)
+    }
+
+    // MARK: - Wizard Dismiss Handler
+
+    private func handleWizardDismiss() {
+        // Check if a new remote was added during the wizard
+        // The wizard adds remotes when completing, so check if we have any configured remotes
+        let configuredRemotes = remotesVM.remotes.filter { $0.isConfigured && $0.type != .local }
+        if !configuredRemotes.isEmpty && !onboardingVM.hasConnectedProvider {
+            // A provider was connected via the wizard
+            if let latestRemote = configuredRemotes.last {
+                onboardingVM.hasConnectedProvider = true
+                onboardingVM.connectedProviderName = latestRemote.name
+            }
+        }
     }
 
     // MARK: - Error View
