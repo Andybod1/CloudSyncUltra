@@ -314,6 +314,7 @@ Quick reflection on the sprint to capture learnings:
 | `README.md` | Feature list, badges, quick start |
 | `RECOVERY.md` | Current state, open issues, recovery steps |
 | `SETUP.md` | Installation, configuration, dependencies |
+| `STATUS.md` | Current work state, what's in progress, blockers |
 
 **Daily Checklist:**
 - [ ] Review what changed today
