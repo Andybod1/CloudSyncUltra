@@ -1,25 +1,25 @@
 {
   "name": "CloudSync Ultra",
-  "description": "Professional macOS cloud synchronization with 41+ providers",
-  "version": "2.0.20",
+  "description": "Professional macOS cloud synchronization with 42+ providers",
+  "version": "2.0.32",
   "repository": "https://github.com/Andybod1/CloudSyncUltra",
-  
+
   "stats": {
-    "providers": 41,
+    "providers": 42,
     "oauthProviders": 23,
-    "tests": 762,
+    "tests": 855,
     "uiTests": 69,
-    "updated": "2026-01-15"
+    "updated": "2026-01-16"
   },
-  
+
   "tech": {
     "platform": "macOS",
-    "minVersion": "13.0",
+    "minVersion": "14.0",
     "framework": "SwiftUI",
     "backend": "rclone",
     "language": "Swift"
   },
-  
+
   "team": {
     "workers": {
       "dev-1": { "role": "UI", "domain": "Views, ViewModels, Components" },
@@ -28,9 +28,15 @@
       "qa": { "role": "Testing", "domain": "CloudSyncAppTests/" },
       "dev-ops": { "role": "Operations", "domain": "scripts/, docs/, .github/" }
     },
+    "specialists": {
+      "architect": { "role": "System Design", "domain": "Architecture decisions" },
+      "ux-designer": { "role": "UX Analysis", "domain": "User flows, design review" },
+      "security-auditor": { "role": "Security", "domain": "Vulnerability analysis" },
+      "tech-writer": { "role": "Documentation", "domain": "User guides, API docs" }
+    },
     "model": "opus"
   },
-  
+
   "paths": {
     "source": "CloudSyncApp/",
     "tests": "CloudSyncAppTests/",
@@ -39,21 +45,31 @@
     "scripts": "scripts/",
     "team": ".claude-team/",
     "tasks": ".claude-team/tasks/",
-    "outputs": ".claude-team/outputs/"
+    "outputs": ".claude-team/outputs/",
+    "archive": ".claude-team/archive/"
   },
-  
+
   "scripts": {
     "build": "xcodebuild build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp",
     "test": "xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'",
     "release": "./scripts/release.sh",
     "dashboard": "./scripts/dashboard.sh",
-    "versionCheck": "./scripts/version-check.sh"
+    "versionCheck": "./scripts/version-check.sh",
+    "updateVersion": "./scripts/update-version.sh"
   },
-  
+
   "quality": {
     "testCoverage": "target: 80%",
     "ciPipeline": ".github/workflows/ci.yml",
     "preCommitHooks": true,
-    "protectedBranch": true
+    "protectedBranch": true,
+    "healthScore": 90
+  },
+
+  "features": {
+    "wizards": ["ProviderConnection", "Schedule", "Transfer"],
+    "encryption": "E2E available to all users",
+    "onboarding": "Interactive with wizard integration",
+    "feedback": "In-app via GitHub issues"
   }
 }
