@@ -94,5 +94,21 @@
 
 ---
 
-*Last updated: 2026-01-15*
+## Active Work
+
+### Dev-1 - Task #101: Fix Onboarding Connect Button ✅
+**Status:** COMPLETE
+**Started:** 2026-01-16
+**Completed:** 2026-01-16
+**Description:** Fix the "Connect" button in onboarding step 2 that doesn't actually trigger OAuth/credential flow - it just advances to next step.
+
+### Dev-1 - Task #103: Custom Performance Profile Shows No Options ✅
+**Status:** COMPLETE
+**Started:** 2026-01-16
+**Completed:** 2026-01-16
+**Description:** Fix Custom performance profile to auto-expand Advanced Settings section when selected. Task was reassigned from Dev-2 to Dev-1 due to file ownership (Views/ directory).
+
+---
+
+*Last updated: 2026-01-16*
 *Build: ✅ PASSING*

@@ -1,71 +1,47 @@
 # Dev-1 Completion Report
 
-**Feature:** Keyboard Navigation Throughout App (Issue #54)
-**Status:** COMPLETE
+**Task:** Custom Performance Profile Shows No Options (#103)
+**Status:** ✅ COMPLETE
+
+## Pre-Flight Verification
+- [x] Read full task briefing
+- [x] Verified target files exist
+- [x] Confirmed types exist
+- [x] No file conflicts (task reassigned to Dev-1 due to file ownership)
 
 ## Files Created
-- `CloudSyncApp/Managers/KeyboardShortcutManager.swift` - Central keyboard shortcut management
-- `CloudSyncApp/Modifiers/ShortcutHintModifier.swift` - View modifiers for displaying keyboard shortcut hints
-- `CloudSyncAppTests/KeyboardNavigationTests.swift` - Unit and UI tests for keyboard navigation
+| File | Added to Xcode | Build Verified |
+|------|----------------|----------------|
+| None | N/A | N/A |
 
 ## Files Modified
-- `CloudSyncApp/Views/FileBrowserView.swift` - Added keyboard navigation support for file browser
-- `CloudSyncApp/CloudSyncAppApp.swift` - Added global keyboard shortcuts to command menu
-- `CloudSyncApp/Views/MainWindow.swift` - Added keyboard shortcuts help panel integration
+| File | Changes |
+|------|---------|
+| `CloudSyncApp/Views/PerformanceSettingsView.swift` | Added auto-expand logic for Custom profile, updated profile description |
+
+## Build Verification
+```
+** BUILD SUCCEEDED **
+```
+
+## Definition of Done
+- [x] Acceptance criteria met
+- [x] Build succeeds
+- [x] Files in Xcode project (modified existing file)
+- [x] No new warnings (1 pre-existing warning remains)
+- [x] Tests pass (no tests modified)
 
 ## Summary
-Successfully implemented comprehensive keyboard navigation throughout CloudSync Ultra:
+Fixed the Custom Performance Profile issue where users couldn't see the configuration options. Implemented two key changes:
 
-1. **File Browser Navigation**:
-   - Arrow keys for navigating files up/down
-   - Enter key to open folders or begin rename
-   - Space key for Quick Look preview
-   - Tab key for focus navigation
-   - Cmd+A for select all, Shift+Cmd+D for deselect all
+1. **Auto-expand Advanced Settings**: When user selects "Custom" profile, the Advanced Settings disclosure group now automatically expands with animation, making the configuration sliders visible immediately.
 
-2. **Global Shortcuts**:
-   - Cmd+N: New transfer
-   - Shift+Cmd+N: New schedule
-   - Cmd+1,2,3: Switch sidebar sections
-   - Cmd+F: Focus search field
-   - Cmd+T: Show transfers
-   - Cmd+R: Refresh
+2. **Improved description**: Updated the Custom profile description from "Manually configured settings." to "Configure settings below. Expand Advanced Settings to customize." to better guide users.
 
-3. **Visual Indicators**:
-   - Created ShortcutHintModifier for showing shortcuts in tooltips
-   - Added keyboard shortcuts help panel (Cmd+Shift+?)
-   - Focus ring support for keyboard navigation
+The solution maintains existing functionality while providing a much better user experience for custom performance configuration.
 
-4. **Focus Management**:
-   - Proper tab order through controls
-   - Focus states for file navigation
-   - Modal dismissal with Escape key
-
-5. **KeyboardShortcutManager**:
-   - Centralized shortcut definitions
-   - Categories: Navigation, File Browser, Transfer, Selection, General
-   - Display string generation for all shortcuts
-   - Help panel integration with search functionality
-
-## Testing
-- Created 8 unit tests for KeyboardShortcutManager
-- Created 5 UI test stubs for keyboard navigation
-- All tests pass successfully
-
-## Build Status
-BUILD SUCCEEDED
-
-## Definition of Done Checklist
-✅ All file browser operations accessible via keyboard
-✅ Global shortcuts work from any view
-✅ Focus visible on all interactive elements
-✅ Help → Keyboard Shortcuts panel available (Cmd+Shift+?)
-✅ 13+ new tests added
-✅ Build succeeds
-✅ No regressions
-
-## Notes
-- Followed Apple HIG for standard macOS shortcuts
-- Used SwiftUI native focus system (@FocusState) throughout
-- Maintained accessibility support with proper labels and hints
-- All shortcuts are documented in the KeyboardShortcutsHelpView
+## Technical Implementation
+- Modified the `onChange` handler for `selectedProfile` to detect when Custom is selected
+- Added `withAnimation` block to smoothly expand the `showAdvanced` state
+- Updated the `profileDescriptionView` to provide clearer guidance for Custom profile users
+- All existing types and patterns maintained per quality standards

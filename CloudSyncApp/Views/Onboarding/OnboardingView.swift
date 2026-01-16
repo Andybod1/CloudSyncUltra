@@ -125,7 +125,7 @@ struct OnboardingView: View {
             .frame(height: 4)
             .padding(.horizontal, AppTheme.spacingXL)
 
-            // Step dots with labels
+            // Step dots with labels (clickable)
             HStack(spacing: 0) {
                 ForEach(OnboardingStep.allCases) { step in
                     VStack(spacing: AppTheme.spacingXS) {
@@ -153,6 +153,12 @@ struct OnboardingView: View {
                                              : AppTheme.textOnDarkTertiary)
                     }
                     .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onboardingVM.goToStep(step)
+                    }
+                    .accessibilityLabel("Go to \(step.title)")
+                    .accessibilityHint("Step \(step.rawValue + 1) of \(OnboardingStep.allCases.count)")
                 }
             }
 

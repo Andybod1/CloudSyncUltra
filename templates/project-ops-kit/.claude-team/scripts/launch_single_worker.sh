@@ -1,22 +1,18 @@
 #!/bin/bash
 
-# Project Ops Kit - Single Worker Launcher
+# Launch a single worker with model selection
 # Usage: ./launch_single_worker.sh [WORKER] [sonnet|opus]
 
 WORKER="$1"
 MODEL="${2:-opus}"  # Default to opus if not specified
-
-# Auto-detect project root
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-TEAM_DIR="$REPO_DIR/.claude-team"
+TEAM_DIR="/Users/antti/Claude/.claude-team"
 
 if [ -z "$WORKER" ]; then
     echo "Usage: $0 [WORKER] [sonnet|opus]"
     echo ""
     echo "=== CORE TEAM ==="
     echo "  dev-1        UI (Views, ViewModels, Components)"
-    echo "  dev-2        Engine (Core Business Logic)"
+    echo "  dev-2        Engine (RcloneManager)"
     echo "  dev-3        Services (Models, Managers)"
     echo "  qa           Testing (ALWAYS Opus)"
     echo "  devops       Git, GitHub, Docs (ALWAYS Opus)"
@@ -28,15 +24,16 @@ if [ -z "$WORKER" ]; then
     echo "  security-auditor   Security Review (ALWAYS Opus)"
     echo "  performance-eng    Performance Analysis (ALWAYS Opus)"
     echo "  tech-writer        Documentation (ALWAYS Opus)"
-    echo "  brand-designer     Visual Identity (ALWAYS Opus)"
+    echo "  brand-designer     Brand & Visual Identity (ALWAYS Opus)"
     echo "  qa-automation      Test Automation (ALWAYS Opus)"
-    echo "  marketing          Growth Strategy (ALWAYS Opus)"
+    echo "  marketing-strategist Growth & Marketing (ALWAYS Opus)"
+    echo "  revenue-engineer   Payments & Subscriptions (ALWAYS Opus)"
+    echo "  legal-advisor      Compliance & Legal (ALWAYS Opus)"
+    echo "  marketing-lead     Launch & GTM (ALWAYS Opus)"
     echo ""
     echo "Models:"
-    echo "  sonnet - Fast, for simple tasks (XS/S)"
-    echo "  opus   - Deep reasoning, for complex tasks (M/L/XL)"
-    echo ""
-    echo "Project: $REPO_DIR"
+    echo "  sonnet - Fast, for simple tasks"
+    echo "  opus   - Deep reasoning, for complex tasks"
     exit 1
 fi
 
@@ -117,16 +114,34 @@ case "$WORKER_LOWER" in
         NAME="Brand-Designer"
         FORCE_OPUS=true
         ;;
-    qa-automation|qa-auto|qaautomation)
+    qa-automation|qaauto|qaautomation)
         BRIEFING="QA_AUTOMATION_BRIEFING.md"
         TASK="TASK_QA_AUTOMATION.md"
         NAME="QA-Automation"
         FORCE_OPUS=true
         ;;
-    marketing-strategist|marketing|marketingstrategist)
+    marketing-strategist|marketer|marketingstrategist)
         BRIEFING="MARKETING_STRATEGIST_BRIEFING.md"
         TASK="TASK_MARKETING_STRATEGIST.md"
         NAME="Marketing-Strategist"
+        FORCE_OPUS=true
+        ;;
+    revenue-engineer|revenue|revenueengineer)
+        BRIEFING="REVENUE_ENGINEER_BRIEFING.md"
+        TASK="TASK_REVENUE_ENGINEER.md"
+        NAME="Revenue-Engineer"
+        FORCE_OPUS=true
+        ;;
+    legal-advisor|legal|legaladvisor)
+        BRIEFING="LEGAL_ADVISOR_BRIEFING.md"
+        TASK="TASK_LEGAL_ADVISOR.md"
+        NAME="Legal-Advisor"
+        FORCE_OPUS=true
+        ;;
+    marketing-lead|launch|marketinglead)
+        BRIEFING="MARKETING_LEAD_BRIEFING.md"
+        TASK="TASK_MARKETING_LEAD.md"
+        NAME="Marketing-Lead"
         FORCE_OPUS=true
         ;;
     *)
@@ -167,16 +182,15 @@ if [ ! -f "$TEAM_DIR/templates/$BRIEFING" ]; then
     exit 1
 fi
 
-CMD="Read $TEAM_DIR/templates/$BRIEFING then read and execute $TEAM_DIR/tasks/$TASK. Update STATUS.md as you work."
+CMD="IMPORTANT: First read /Users/antti/Claude/.claude-team/templates/WORKER_QUALITY_STANDARDS.md for mandatory quality rules. Then read /Users/antti/Claude/.claude-team/templates/$BRIEFING and execute /Users/antti/Claude/.claude-team/tasks/$TASK. Run ./scripts/worker-qa.sh before marking complete."
 
 echo "Launching $NAME with $MODEL_NAME..."
-echo "Project: $REPO_DIR"
 
 # Open new Terminal window, cd, launch claude with model, and send command
 osascript -e "
 tell application \"Terminal\"
     activate
-    do script \"cd $REPO_DIR && echo 'Starting $NAME ($MODEL_NAME)...' && claude $MODEL_FLAG\"
+    do script \"cd /Users/antti/Claude && echo 'Starting $NAME ($MODEL_NAME)...' && claude $MODEL_FLAG\"
 end tell
 " 
 

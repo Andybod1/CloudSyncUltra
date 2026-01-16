@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.26] - 2026-01-16
+
+### Fixed
+- **Onboarding Connect Button** (#101) - Real OAuth flow for provider connection
+  - Connect button now initiates actual OAuth authentication
+  - Seamless provider setup during onboarding
+
+- **Custom Performance Profile** (#103) - Auto-expand advanced settings
+  - Selecting "Custom" now auto-expands Advanced Settings section
+  - Updated description to guide users to the settings
+
+- **Encryption Terminology** (#109, #112) - Corrected button labels
+  - Fixed "Enable Decryption" → "Enable Encryption" in FileBrowserView
+  - Updated accessibility labels and hints
+  - Fixed Settings encryption toggle description
+
+- **Remote Name Auto-Update** (#110) - Provider selection sync
+  - Remote Name now updates when selecting a different provider
+  - No longer keeps stale name from previous selection
+
+- **Duplicate Progress Bars** (#104) - Tasks view cleanup
+  - Running tasks no longer appear twice in Tasks view
+  - RunningTaskIndicator shows compact view, Active section filters running tasks
+
+### Infrastructure
+- **Worker Quality Standards v2** - Enhanced operational excellence
+  - Added FILE_OWNERSHIP.md for domain boundaries
+  - Added ALERTS.md for worker notifications
+  - Added check-ownership.sh script for validation
+  - Updated project-ops-kit templates
+
+---
+
 ## [2.0.25] - 2026-01-15
 
 ### Added

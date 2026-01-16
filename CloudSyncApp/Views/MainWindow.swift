@@ -414,9 +414,7 @@ struct AddRemoteSheet: View {
                             isSelected: selectedProvider == provider
                         ) {
                             selectedProvider = provider
-                            if remoteName.isEmpty {
-                                remoteName = provider.displayName
-                            }
+                            remoteName = provider.displayName
                         }
                     }
                 }

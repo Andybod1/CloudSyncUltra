@@ -1,126 +1,108 @@
-# Task Assignment: Dev-1 (UI)
+# Task: Phase 2 UI Fixes (#109, #112, #110, #104)
 
-## Ticket: #40 — Performance Settings UI
-**Size:** M | **Priority:** High
-
----
-
-## Objective
-Build Performance Settings UI with profiles (Conservative/Balanced/Performance) and advanced customization options.
+## Worker: Dev-1 (UI)
+## Priority: MEDIUM
+## Size: M (1-2 hrs total)
 
 ---
 
-## Requirements
+## Overview
 
-### 1. Create PerformanceProfile Model
+All Phase 2 tasks involve Views/ files which are Dev-1's domain.
 
-**File:** `CloudSyncApp/Models/PerformanceProfile.swift`
+Complete these in order:
+
+1. ✅ #101 - Onboarding Connect (COMPLETED)
+2. ✅ #103 - Custom Performance Profile (COMPLETED)
+3. 🎯 #109 + #112 - Encryption Terminology
+4. ⚪ #110 - Remote Name Auto-Update
+5. ⚪ #104 - Duplicate Progress Bars
+
+---
+
+## Task 1: Fix Encryption Terminology (#109 + #112)
+
+### Files to Modify
+
+1. **CloudSyncApp/Views/FileBrowserView.swift**
+   - Line ~186: `"Enable Decryption"` → `"Enable Encryption"`
+   - Line ~191: accessibilityLabel `"Enable Decryption"` → `"Enable Encryption"`
+   - Line ~192: accessibilityHint - update to match
+
+2. **CloudSyncApp/SettingsView.swift**
+   - Line ~1125: Update encryption toggle description
+
+### Specific Changes
 
 ```swift
-enum PerformanceProfile: String, CaseIterable {
-    case conservative
-    case balanced
-    case performance
-    case custom
-}
+// FileBrowserView.swift line ~186
+// BEFORE: Button("Enable Decryption")
+// AFTER:  Button("Enable Encryption")
 
-struct PerformanceSettings {
-    var parallelTransfers: Int      // 1-16
-    var bandwidthLimit: Int         // MB/s, 0 = unlimited
-    var chunkSizeMB: Int            // 8, 16, 32, 64, 128
-    var cpuPriority: CPUPriority    // low, normal, high
-    var checkFrequency: CheckFrequency // everyFile, sampling, trustRemote
+// FileBrowserView.swift line ~191-192
+// BEFORE: .accessibilityLabel("Enable Decryption")
+// AFTER:  .accessibilityLabel("Enable Encryption")
+// BEFORE: .accessibilityHint("Switches to decrypted view...")
+// AFTER:  .accessibilityHint("Enables encryption to protect your files")
+
+// SettingsView.swift line ~1125
+// BEFORE: Label("Toggle ON to see decrypted, OFF to see raw", systemImage: "eye")
+// AFTER:  Label("Toggle ON to encrypt files, OFF to view raw", systemImage: "eye")
+```
+
+---
+
+## Task 2: Remote Name Auto-Update (#110)
+
+### Issue
+When selecting a cloud provider, the "Remote Name" field doesn't update.
+
+### File to Modify
+Find the Add Cloud dialog in Views/ (likely AddCloudView.swift or AddRemoteSheet.swift)
+
+### Solution
+```swift
+.onChange(of: selectedProvider) { _, newProvider in
+    if let provider = newProvider {
+        remoteName = provider.displayName
+    }
 }
 ```
 
-### 2. Profile Defaults
+---
 
-| Setting | Conservative | Balanced | Performance |
-|---------|-------------|----------|-------------|
-| parallelTransfers | 2 | 4 | 16 |
-| bandwidthLimit | 1 | 5 | 0 (unlimited) |
-| chunkSizeMB | 8 | 32 | 64 |
-| cpuPriority | .low | .normal | .high |
-| checkFrequency | .everyFile | .sampling | .trustRemote |
+## Task 3: Remove Duplicate Progress Bars (#104)
 
-### 3. Settings → Performance Tab
+### Issue
+Tasks view shows running task twice - in RunningTaskIndicator AND in Active section.
 
-**File:** `CloudSyncApp/Views/PerformanceSettingsView.swift`
+### File to Modify
+**CloudSyncApp/Views/TasksView.swift** line ~158
 
-- Profile selector (segmented control: Conservative / Balanced / Performance / Custom)
-- Checkbox: "Show quick toggle in Transfer View" (default: ON)
-- Collapsible "Advanced" section:
-  - Parallel transfers slider (1-16)
-  - Bandwidth limit field (MB/s, 0 = unlimited)
-  - Chunk size picker (8 / 16 / 32 / 64 / 128 MB)
-  - CPU priority picker (Low / Normal / High)
-  - Check frequency picker (Every file / Sampling / Trust remote)
-- Auto-switch to "Custom" when advanced values differ from profile presets
+### Solution
+```swift
+// BEFORE:
+ForEach(tasksVM.tasks) { task in
 
-### 4. Transfer View Quick Toggle
-
-**File:** Modify `CloudSyncApp/Views/TransferView.swift`
-
-- Add compact profile selector (only if enabled in settings)
-- 3-button segmented control or picker
-- Session-only override (doesn't persist to global settings)
-
-### 5. Integration with SettingsView
-
-**File:** Modify `CloudSyncApp/SettingsView.swift`
-
-- Add "Performance" tab to the existing tab view
-- Use PerformanceSettingsView as content
-
-### 6. Storage
-
-- Store in UserDefaults via `@AppStorage`
-- Keys: `performanceProfile`, `showQuickToggle`, individual setting keys
-- Default profile: `.balanced`
+// AFTER:
+ForEach(tasksVM.tasks.filter { $0.state != .running }) { task in
+```
 
 ---
 
-## Critical Rules
+## Quality Requirements
 
-⚠️ **DO NOT override provider-specific chunk sizes**
-- ChunkSizeConfig already handles per-provider optimal chunks
-- Profile chunk size is a MAXIMUM
-- Use: `min(profileChunkSize, providerOptimalChunk)`
+Before marking each task complete:
+1. Run `./scripts/worker-qa.sh`
+2. Build must SUCCEED
+3. Test the specific fix manually if possible
 
----
+## Constraints
 
-## Acceptance Criteria
-
-- [ ] PerformanceProfile model with all 5 settings
-- [ ] PerformanceSettingsView with profile selector + advanced section
-- [ ] Performance tab added to SettingsView
-- [ ] Quick toggle in TransferView (optional, controlled by setting)
-- [ ] Settings persist via UserDefaults
-- [ ] Profile auto-switches to "Custom" when values modified
-- [ ] Unit tests for PerformanceProfile model
-- [ ] Build passes, app launches
+- Only modify files in YOUR domain (Views/, ViewModels/, Components/)
+- DO NOT create new types - use existing ones from TYPE_INVENTORY.md
+- DO NOT refactor beyond the specific fixes
 
 ---
 
-## Deliverables
-
-1. `CloudSyncApp/Models/PerformanceProfile.swift` (new)
-2. `CloudSyncApp/Views/PerformanceSettingsView.swift` (new)
-3. `CloudSyncApp/SettingsView.swift` (modified - add tab)
-4. `CloudSyncApp/Views/TransferView.swift` (modified - add quick toggle)
-5. `CloudSyncAppTests/PerformanceProfileTests.swift` (new)
-
----
-
-## When Done
-
-1. Run all tests: `xcodebuild test -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"`
-2. Build and launch app to verify UI
-3. Git commit with message: `feat(ui): Add Performance Settings UI with profiles (#40)`
-4. Update STATUS.md with completion
-5. Report back to Strategic Partner
-
----
-
-*Assigned: 2026-01-15*
-*Worker: Dev-1 (Opus)*
+*Last Updated: 2026-01-16*

@@ -243,21 +243,53 @@ struct AddProviderStepView: View {
         isConnecting = true
         connectionError = nil
 
-        // Create a new remote for this provider
-        let remote = CloudRemote(
-            name: provider.displayName,
-            type: provider,
-            isConfigured: false,
-            path: ""
-        )
+        Task {
+            do {
+                // Use the provider's display name as the rclone remote name
+                let remoteName = provider.displayName.replacingOccurrences(of: " ", with: "")
 
-        remotesVM.addRemote(remote)
+                // Call the appropriate setup method based on provider type
+                switch provider {
+                case .googleDrive:
+                    try await RcloneManager.shared.setupGoogleDrive(remoteName: remoteName)
+                case .dropbox:
+                    try await RcloneManager.shared.setupDropbox(remoteName: remoteName)
+                case .oneDrive:
+                    try await RcloneManager.shared.setupOneDrive(remoteName: remoteName)
+                case .box:
+                    try await RcloneManager.shared.setupBox(remoteName: remoteName)
+                case .pcloud:
+                    try await RcloneManager.shared.setupPCloud(remoteName: remoteName)
+                default:
+                    // For non-OAuth providers or unsupported ones, fall back to the old behavior
+                    await MainActor.run {
+                        connectionError = "\(provider.displayName) setup is not yet implemented in onboarding. Please use the main app to add this provider."
+                        isConnecting = false
+                    }
+                    return
+                }
 
-        // Simulate connection process (in real app, this would trigger OAuth or config)
-        // For onboarding, we mark it as pending configuration and move forward
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            isConnecting = false
-            onboardingVM.providerConnected(name: provider.displayName)
+                // If setup succeeded, create and add the configured remote
+                let remote = CloudRemote(
+                    name: provider.displayName,
+                    type: provider,
+                    isConfigured: true,
+                    path: "",
+                    customRcloneName: remoteName
+                )
+
+                await MainActor.run {
+                    _ = remotesVM.addRemote(remote)
+                    isConnecting = false
+                    onboardingVM.providerConnected(name: provider.displayName)
+                }
+
+            } catch {
+                await MainActor.run {
+                    isConnecting = false
+                    connectionError = "Failed to connect \(provider.displayName): \(error.localizedDescription)"
+                }
+            }
         }
     }
 }

@@ -155,7 +155,7 @@ struct TasksView: View {
                         }
                         .padding(.horizontal, AppTheme.spacing)
 
-                        ForEach(tasksVM.tasks) { task in
+                        ForEach(tasksVM.tasks.filter { $0.state != .running }) { task in
                             TaskCard(task: task) {
                                 selectedTask = task
                             } onStart: {

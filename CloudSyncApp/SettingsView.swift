@@ -1122,7 +1122,7 @@ struct EncryptionSettingsView: View {
                             Label("Zero-knowledge encryption - only you can decrypt", systemImage: "shield.checkered")
                             Label("AES-256 encryption standard", systemImage: "key.fill")
                             Label("Each cloud has independent password", systemImage: "lock.rotation")
-                            Label("Toggle ON to see decrypted, OFF to see raw", systemImage: "eye")
+                            Label("Toggle ON to encrypt files, OFF to view raw", systemImage: "eye")
                             Label("No password recovery possible - save passwords!", systemImage: "exclamationmark.triangle")
                         }
                         .font(.caption)

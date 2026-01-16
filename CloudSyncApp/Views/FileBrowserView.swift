@@ -183,13 +183,13 @@ struct FileBrowserView: View {
 
             Spacer()
 
-            Button("Enable Decryption") {
+            Button("Enable Encryption") {
                 encryptionEnabled = true
             }
             .font(AppTheme.captionFont)
             .buttonStyle(SecondaryButtonStyle())
-            .accessibilityLabel("Enable Decryption")
-            .accessibilityHint("Switches to decrypted view to see readable filenames")
+            .accessibilityLabel("Enable Encryption")
+            .accessibilityHint("Enables encryption to protect your files")
         }
         .padding(.horizontal, AppTheme.spacing)
         .padding(.vertical, AppTheme.spacingXS)

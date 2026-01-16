@@ -51,7 +51,15 @@
       "WebSearch",
       "Bash(chmod:*)",
       "Bash(gh run:*)",
-      "Bash(~/Claude/scripts/generate-type-inventory.sh:*)"
+      "Bash(~/Claude/scripts/generate-type-inventory.sh:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(.claude-team/scripts/launch_single_worker.sh:*)",
+      "Bash(./scripts/worker-qa.sh:*)",
+      "Bash(./scripts/dashboard.sh:*)",
+      "Bash(./scripts/generate-type-inventory.sh:*)",
+      "Bash(./scripts/record-test-count.sh:*)",
+      "Bash(./scripts/version-check.sh:*)",
+      "Bash(./scripts/check-ownership.sh:*)"
     ]
   }
 }

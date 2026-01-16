@@ -41,6 +41,12 @@ struct PerformanceSettingsView: View {
                         if newProfile != .custom {
                             applyProfile(newProfile)
                         }
+                        // Auto-expand advanced settings when Custom is selected
+                        if newProfile == .custom {
+                            withAnimation {
+                                showAdvanced = true
+                            }
+                        }
                     }
 
                     // Profile description
@@ -225,7 +231,7 @@ struct PerformanceSettingsView: View {
             case .performance:
                 return "Maximum speed, higher resource usage. Best for large transfers."
             case .custom:
-                return "Manually configured settings."
+                return "Configure settings below. Expand Advanced Settings to customize."
             }
         }()
 
