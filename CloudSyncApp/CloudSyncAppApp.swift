@@ -68,6 +68,22 @@ struct CloudSyncAppApp: App {
                 }
                 .keyboardShortcut("3", modifiers: .command)
             }
+
+            // Help menu - Send Feedback (Issue #97)
+            CommandGroup(replacing: .help) {
+                Button("Send Feedback...") {
+                    NotificationCenter.default.post(name: .showFeedback, object: nil)
+                }
+                .keyboardShortcut("?", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("CloudSync Ultra Help") {
+                    if let url = URL(string: "https://github.com/Andybod1/CloudSyncUltra/wiki") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            }
         }
         
         // Settings Window
@@ -142,4 +158,5 @@ extension Notification.Name {
     static let refreshContent = Notification.Name("refreshContent")
     static let syncStatusChanged = Notification.Name("SyncStatusChanged")
     static let showQuickActions = Notification.Name("showQuickActions")
+    static let showFeedback = Notification.Name("showFeedback")
 }
