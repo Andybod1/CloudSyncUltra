@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.31] - 2026-01-16
+
+### Added
+- **Wizard Infrastructure** - Reusable multi-step wizard components
+  - WizardView, WizardProgressView for consistent wizard UX
+- **Provider Connection Wizard** (#113) - Guided cloud provider setup
+  - Provider selection, credential configuration, connection testing
+- **Schedule Creation Wizard** (#114) - Guided schedule setup
+  - Remote selection, timing configuration, review step
+- **Transfer Setup Wizard** (#115) - Guided transfer setup
+  - Source/destination selection, options, review step
+- **In-App Feedback Manager** (#97) - Submit feedback via GitHub issues
+  - Category selection, system info attachment, gh CLI integration
+- **Security Enhancements** (#116-120)
+  - AuthRateLimiter with exponential backoff (#118)
+  - SecureString wrapper with memory clearing (#119)
+  - Secure rclone path detection (#117)
+  - Privacy-conscious account name handling (#120)
+
+### Fixed
+- **Encryption for All Users** (#121) - Removed subscription paywall
+- **Encryption Import Detection** - Auto-enable encryption when importing rclone.conf with crypt remotes
+- **Multi-Select Delete** - Context menu now shows correct item count
+
+---
+
 ## [2.0.29] - 2026-01-16
 
 ### Removed
