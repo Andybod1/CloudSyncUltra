@@ -62,7 +62,9 @@
       "Bash(./scripts/check-ownership.sh:*)",
       "Bash(git tag:*)",
       "Bash(./scripts/update-version.sh:*)",
-      "Bash(./scripts/archive-outputs.sh:*)"
+      "Bash(./scripts/archive-outputs.sh:*)",
+      "Bash(while read ts file)",
+      "Bash(done)"
     ]
   }
 }

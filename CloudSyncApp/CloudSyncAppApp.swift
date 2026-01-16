@@ -50,6 +50,24 @@ struct CloudSyncAppApp: App {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             }
+
+            CommandGroup(after: .sidebar) {
+                Divider()
+                Button("Dashboard") {
+                    NotificationCenter.default.post(name: NSNotification.Name("OpenDashboard"), object: nil)
+                }
+                .keyboardShortcut("1", modifiers: .command)
+
+                Button("Transfer") {
+                    NotificationCenter.default.post(name: NSNotification.Name("navigateToTransfer"), object: nil)
+                }
+                .keyboardShortcut("2", modifiers: .command)
+
+                Button("Schedules") {
+                    NotificationCenter.default.post(name: NSNotification.Name("OpenScheduleSettings"), object: nil)
+                }
+                .keyboardShortcut("3", modifiers: .command)
+            }
         }
         
         // Settings Window

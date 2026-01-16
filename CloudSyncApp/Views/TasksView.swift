@@ -94,7 +94,7 @@ struct TasksView: View {
             } label: {
                 Label("New Task", systemImage: "plus")
             }
-            .buttonStyle(PrimaryButtonStyle())
+            .buttonStyle(.borderedProminent)
             .accessibilityLabel("New Task")
             .accessibilityHint("Create a new sync, transfer, or backup task")
             .keyboardShortcut("n", modifiers: .command)

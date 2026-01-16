@@ -190,11 +190,14 @@ struct TransferView: View {
             Spacer()
 
             if !transferProgress.isTransferring {
-                HStack(spacing: AppTheme.spacingXS) {
-                    Image(systemName: "hand.draw").foregroundColor(AppTheme.textSecondary)
-                    Text("Drag files between panes to transfer")
-                        .font(AppTheme.captionFont)
+                HStack(spacing: AppTheme.spacingS) {
+                    Image(systemName: "hand.draw")
+                        .font(AppTheme.subheadlineFont)
                         .foregroundColor(AppTheme.textSecondary)
+                    Text("Drag files between panes to transfer")
+                        .font(AppTheme.bodyFont)
+                        .foregroundColor(AppTheme.textSecondary)
+                        .multilineTextAlignment(.center)
                 }
             }
 
@@ -1653,7 +1656,7 @@ struct BreadcrumbBar: View {
                     }
                     Button { onNavigate(component.path) } label: {
                         Text(component.name)
-                            .font(AppTheme.captionFont)
+                            .font(AppTheme.bodyFont)
                             .foregroundColor(index == components.count - 1 ? AppTheme.textPrimary : AppTheme.accentColor)
                     }
                     .buttonStyle(.plain)

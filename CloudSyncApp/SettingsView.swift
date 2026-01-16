@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     @State private var selectedTab = 0
@@ -133,8 +134,15 @@ struct GeneralSettingsView: View {
                         }
                         Spacer()
                         Button("Open Settings") {
-                            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
-                                NSWorkspace.shared.open(url)
+                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                                DispatchQueue.main.async {
+                                    if !granted {
+                                        // Open System Settings as fallback
+                                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+                                            NSWorkspace.shared.open(url)
+                                        }
+                                    }
+                                }
                             }
                         }
                         .buttonStyle(SecondaryButtonStyle())

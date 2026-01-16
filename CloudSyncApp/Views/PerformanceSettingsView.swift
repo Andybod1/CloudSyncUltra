@@ -57,20 +57,6 @@ struct PerformanceSettingsView: View {
                 Label("Profile", systemImage: "speedometer")
             }
 
-            // Quick Toggle
-            Section {
-                Toggle(isOn: $showQuickToggle) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Show quick toggle in Transfer View")
-                        Text("Allows temporary profile switching during transfers")
-                            .font(.caption)
-                            .foregroundColor(AppTheme.textSecondary)
-                    }
-                }
-            } header: {
-                Label("Quick Access", systemImage: "bolt")
-            }
-
             // Advanced Settings
             Section {
                 DisclosureGroup("Advanced Settings", isExpanded: $showAdvanced) {
@@ -211,6 +197,20 @@ struct PerformanceSettingsView: View {
                     }
                 }
                 .padding(.vertical, AppTheme.spacingXS)
+            }
+
+            // Quick Access (moved to bottom for less prominence)
+            Section {
+                Toggle(isOn: $showQuickToggle) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Show quick toggle in Transfer View")
+                        Text("Allows temporary profile switching during transfers")
+                            .font(.caption)
+                            .foregroundColor(AppTheme.textSecondary)
+                    }
+                }
+            } header: {
+                Label("Quick Access", systemImage: "bolt")
             }
         }
         .formStyle(.grouped)

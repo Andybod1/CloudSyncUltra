@@ -411,6 +411,7 @@ struct FileBrowserView: View {
                     .foregroundColor(AppTheme.textSecondary)
                 TextField("Search...", text: $browser.searchQuery)
                     .textFieldStyle(.plain)
+                    .font(AppTheme.bodyFont)
                     .onChange(of: browser.searchQuery) {
                         // Reset pagination and lazy loading when searching
                         browser.onSearchQueryChanged()

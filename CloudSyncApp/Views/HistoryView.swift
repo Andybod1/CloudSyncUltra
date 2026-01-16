@@ -65,6 +65,7 @@ struct HistoryView: View {
             } label: {
                 Label("Clear History", systemImage: "trash")
             }
+            .buttonStyle(.borderedProminent)
             .disabled(tasksVM.taskHistory.isEmpty)
         }
         .padding()
