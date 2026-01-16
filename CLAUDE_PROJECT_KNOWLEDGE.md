@@ -315,6 +315,7 @@ Quick reflection on the sprint to capture learnings:
 | `RECOVERY.md` | Current state, open issues, recovery steps |
 | `SETUP.md` | Installation, configuration, dependencies |
 | `STATUS.md` | Current work state, what's in progress, blockers |
+| `templates/project-ops-kit/` | Sync operational docs to template |
 
 **Daily Checklist:**
 - [ ] Review what changed today
