@@ -1,10 +1,10 @@
-# Worker Quality Standards v2.0
+# Worker Quality Standards v2.1
 
 > **MANDATORY FOR ALL WORKERS** - Read this before starting any task.
 > These standards exist because quality issues cost more to fix than to prevent.
 >
-> **Version:** 2.0 (2026-01-16)
-> **Changes from v1:** Added ownership validation, QA output requirement, alerts system
+> **Version:** 2.1 (2026-01-16)
+> **Changes from v2.0:** Added pre-flight script, time-boxing, dependency checks, progress heartbeat, handoff protocol
 
 ---
 
@@ -12,10 +12,16 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  BEFORE CODING                                                  │
-│  □ Verify file ownership      ./scripts/check-ownership.sh     │
-│  □ Check types exist          cat .claude-team/TYPE_INVENTORY  │
+│  BEFORE CODING (Pre-Flight)                                     │
+│  □ Run ownership check        ./scripts/check-ownership.sh     │
+│  □ Check ALL files in task    Must ALL be in YOUR domain        │
+│  □ Verify types exist         grep TYPE .claude-team/TYPE_INV   │
+│  □ Check dependencies         Is blocking task complete?        │
 │  □ Read task briefing fully                                     │
+├─────────────────────────────────────────────────────────────────┤
+│  DURING CODING                                                  │
+│  □ Update progress            Every 30 min in task file         │
+│  □ If stuck >15 min           STOP → Write ALERTS.md → Wait     │
 ├─────────────────────────────────────────────────────────────────┤
 │  AFTER CODING                                                   │
 │  □ Run QA script              ./scripts/worker-qa.sh            │
@@ -23,9 +29,15 @@
 │  □ Write completion report    Using template below              │
 ├─────────────────────────────────────────────────────────────────┤
 │  IF BLOCKED                                                     │
-│  □ Do NOT modify wrong files  Stay in your lane                 │
+│  □ STOP immediately           Do NOT modify wrong files         │
 │  □ Write blocking report      WORKER_BLOCKED.md                 │
-│  □ Alert Strategic Partner    Echo to ALERTS.md                 │
+│  □ Alert Strategic Partner    echo "⚠️..." >> ALERTS.md         │
+│  □ Wait for guidance          Do NOT try workarounds            │
+├─────────────────────────────────────────────────────────────────┤
+│  IF HANDING OFF                                                 │
+│  □ Document what's done       Use handoff template              │
+│  □ Commit partial work        git commit -m "WIP: ..."          │
+│  □ Alert with handoff         echo "🔄..." >> ALERTS.md         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -84,6 +96,137 @@ cat .claude-team/FILE_OWNERSHIP.md | grep -A5 "Dev-1"  # Replace with your worke
 ❌ NEVER add "nice to have" features not in the spec
 ✅ ALWAYS implement the minimum that works
 ✅ ALWAYS prefer 10 simple lines over 1 clever line
+```
+
+### 6. TIME-BOX YOUR WORK (NEW)
+```
+❌ NEVER spend >15 minutes stuck without escalating
+❌ NEVER keep struggling hoping it will work
+✅ ALWAYS write to ALERTS.md after 15 min stuck
+✅ ALWAYS stop and wait for Strategic Partner guidance
+```
+
+### 7. REPORT PROGRESS (NEW)
+```
+❌ NEVER go dark for extended periods
+✅ ALWAYS update task file every 30 minutes with status
+✅ ALWAYS note: what's done, what's next, any blockers
+```
+
+---
+
+## Pre-Flight Script (REQUIRED - Run First!)
+
+**Before writing ANY code, run this:**
+```bash
+# Check ALL files you plan to modify
+./scripts/check-ownership.sh CloudSyncApp/Views/SomeView.swift dev-1
+
+# Expected output for authorized:
+# ✅ AUTHORIZED - dev-1 owns this file
+
+# If you see this, STOP IMMEDIATELY:
+# ❌ NOT AUTHORIZED - File belongs to dev-1, not dev-2
+```
+
+**Pre-Flight Sequence:**
+```bash
+# 1. Check ownership for EVERY file in your task
+./scripts/check-ownership.sh <file1> <your-worker-id>
+./scripts/check-ownership.sh <file2> <your-worker-id>
+
+# 2. Verify types exist
+grep "TypeName" .claude-team/TYPE_INVENTORY.md
+
+# 3. Check for dependencies on other workers
+cat .claude-team/SPRINT_STATUS.md | grep -A2 "your-task-number"
+```
+
+**If ANY check fails → STOP → Write ALERTS.md → Wait for SP**
+
+---
+
+## Dependency Check (NEW)
+
+Before starting, verify your task has no blockers:
+
+```bash
+# Check if your task depends on another worker's output
+cat .claude-team/SPRINT_STATUS.md
+
+# Look for:
+# - Tasks that must complete before yours
+# - Files another worker is currently modifying
+# - Types another worker is creating
+```
+
+**If dependency exists:**
+1. Check if dependent task is complete
+2. If not complete → Wait or ask SP for guidance
+3. If complete → Verify the output exists before starting
+
+---
+
+## Progress Heartbeat (NEW)
+
+**Every 30 minutes, update your task file:**
+
+```markdown
+## Progress Update - [TIME]
+**Status:** 🟡 In Progress
+**Completed:** [What you've done]
+**Next:** [What you're working on]
+**Blockers:** [None / Description]
+**ETA:** [Estimated time to completion]
+```
+
+**Why this matters:**
+- Strategic Partner can see you're alive
+- Blockers get caught early
+- Parallel workers stay coordinated
+
+---
+
+## Handoff Protocol (NEW)
+
+When handing off work to another worker:
+
+### 1. Document What's Done
+```markdown
+## Handoff from [Worker] to [Worker]
+**Date:** YYYY-MM-DD
+**Reason:** [Why handoff needed]
+
+### Completed Work
+- [x] Item 1
+- [x] Item 2
+
+### Remaining Work
+- [ ] Item 3 (needs X)
+- [ ] Item 4 (depends on Y)
+
+### Files Modified
+| File | Status | Notes |
+|------|--------|-------|
+| X.swift | ✅ Complete | Ready for review |
+| Y.swift | 🟡 Partial | Lines 50-100 need work |
+
+### Build Status
+✅ Build passes with current changes
+
+### Context for Next Worker
+[Important decisions made, gotchas, etc.]
+```
+
+### 2. Commit Partial Work
+```bash
+git add -A
+git commit -m "WIP: [Task] - Handoff to [Worker]"
+```
+
+### 3. Update ALERTS.md
+```bash
+echo "🔄 $(date) | [FROM] | HANDOFF | Handing #XX to [TO] - [reason]" >> .claude-team/ALERTS.md
 ```
 
 ---
@@ -349,8 +492,9 @@ echo "⚠️ 2026-01-16 08:14 | Dev-2 | BLOCKED | #103 requires Dev-1 files" >> 
 |---------|------|---------|
 | 1.0 | 2026-01-15 | Initial release |
 | 2.0 | 2026-01-16 | Added: ownership validation, QA output requirement, alerts system, ownership matrix |
+| 2.1 | 2026-01-16 | Added: pre-flight script, time-boxing (15 min), dependency checks, progress heartbeat (30 min), handoff protocol |
 
 ---
 
 *Quality is not negotiable. These standards protect everyone's time.*
-*Version 2.0 - Based on sprint v2.0.25 learnings*
+*Version 2.1 - Based on sprint v2.0.26 learnings*
