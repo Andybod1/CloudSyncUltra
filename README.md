@@ -11,19 +11,19 @@ A powerful, native macOS cloud synchronization app built with SwiftUI. Manage al
 
 ### 🌥️ Multi-Cloud Support (42+ Providers)
 
-**Core Providers (13):**  
+**Core Providers (13):**
 Proton Drive, Google Drive, Dropbox, OneDrive, Amazon S3, MEGA, Box, pCloud, WebDAV, SFTP, FTP, iCloud (planned), Local Storage
 
-**Enterprise Services (6):**  
+**Enterprise Services (6):**
 Google Cloud Storage, Azure Blob, Azure Files, OneDrive Business, SharePoint, Alibaba Cloud OSS
 
-**Object Storage (8):**  
+**Object Storage (8):**
 Backblaze B2, Wasabi, DigitalOcean Spaces, Cloudflare R2, Scaleway, Oracle Cloud, Storj, Filebase
 
-**Self-Hosted & International (6):**  
+**Self-Hosted & International (6):**
 Nextcloud, ownCloud, Seafile, Koofr, Yandex Disk, Mail.ru Cloud
 
-**Additional Services (9):**  
+**Additional Services (9):**
 Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, Quatrix, File Fabric
 
 *See `CloudProvider.swift` for complete implementation details of all 42 providers*
@@ -38,6 +38,7 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Delete files/folders** - Clean up with confirmation dialogs
 - **Rename files** - Rename any file or folder
 - **Search** - Find files quickly across any cloud
+- **Multi-select delete** - Select and delete multiple files at once
 
 ### 🔄 Sync & Transfer
 - **Real-time progress tracking** - Shows percentage, speed (MB/s), and file count
@@ -51,8 +52,20 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Transfer history** - View all past transfers with speeds and file counts
 - **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
 - **Provider-optimized performance** - Smart chunk sizes and parallelism per provider
-- **Transfer Preview (NEW)** - Dry-run to see what will be transferred before starting
-- **Quick Actions Menu (NEW)** - Press Cmd+Shift+N for instant access to common operations
+- **Transfer Preview** - Dry-run to see what will be transferred before starting
+- **Quick Actions Menu** - Press Cmd+Shift+N for instant access to common operations
+
+### 🧙 Wizards (NEW)
+- **Provider Connection Wizard** - Guided setup for any of the 42+ cloud providers
+- **Schedule Wizard** - Easy configuration of automatic sync schedules
+- **Transfer Wizard** - Step-by-step file transfer with preview option
+- **Interactive Onboarding** - First-launch wizard guides you through setup
+
+### ⌨️ Keyboard Navigation
+- **Full keyboard support** - Navigate the entire app without a mouse
+- **Global shortcuts** - Cmd+N (new provider), Cmd+Shift+N (quick actions), Cmd+, (settings)
+- **File browser shortcuts** - Arrow keys, Enter, Space for Quick Look, Cmd+A select all
+- **Transfer shortcuts** - Tab between panes, arrow keys for transfer direction
 
 ### 🚨 Error Handling
 - **Clear error messages** - User-friendly explanations instead of technical jargon
@@ -66,9 +79,11 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Partial failure tracking** - "15 of 20 files uploaded" with clear error indication
 
 ### 🔐 Security
-- **End-to-end encryption** - Optional client-side encryption
-- **Export/Import config** - Backup your rclone configuration
-- **Zero-knowledge encryption** - AES-256 standard
+- **End-to-end encryption** - Client-side encryption available to all users (Free, Pro, Team)
+- **Zero-knowledge encryption** - AES-256 standard with optional filename encryption
+- **Security hardening** - Path sanitization, secure file handling, log permissions
+- **Export/Import config** - Backup your rclone configuration with encryption detection
+- **Crash reporting** - Secure crash reports with data scrubbing
 
 ### 🎨 Modern UI
 - **Native macOS design** - Feels right at home on your Mac
@@ -78,17 +93,31 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 - **Sidebar navigation** - Easy access to all cloud services
 - **Vertical view switchers** - Compact, space-efficient UI controls
 - **Right-click context menus** - Full macOS-style context menus throughout
+- **12/24 hour time format** - Choose your preferred time display
 
 ### 📋 Task Management
-- **Scheduled syncs** - Set up recurring backup tasks
+- **Scheduled syncs** - Set up recurring backup tasks via Schedule Wizard
 - **Task history** - View past operations
 - **Status tracking** - Monitor active, pending, and completed tasks
+- **Transfer counter** - Shows X/Y transfers in progress
+
+### 💳 Subscription Tiers
+
+| Feature | Free | Pro ($9.99/mo) | Team ($19.99/user) |
+|---------|------|----------------|-------------------|
+| Cloud providers | 42+ | 42+ | 42+ |
+| E2E Encryption | ✅ | ✅ | ✅ |
+| Scheduled sync | 1 task | Unlimited | Unlimited |
+| Connected remotes | 3 | Unlimited | Unlimited |
+| Bandwidth throttling | ✅ | ✅ | ✅ |
+| Priority support | - | ✅ | ✅ |
+| Team management | - | - | ✅ |
 
 ## 🚀 Getting Started
 
-> **New in v2.0.32:** Keyboard navigation, input validation, brand identity docs, and worker quality standards. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.32:** StoreKit 2 subscriptions, security hardening, legal compliance (Privacy Policy, ToS), marketing package, and App Store assets. See [CHANGELOG.md](CHANGELOG.md) for all updates.
 
-> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 855 automated tests.
+> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, interactive wizards, and 855 automated tests.
 
 ### Requirements
 - macOS 14.0 (Sonoma) or later
@@ -116,12 +145,19 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 4. **Build and run** (⌘R)
 
-### First Launch
+### First Launch (Interactive Onboarding)
 
-1. Launch CloudSync Ultra
-2. Click on any cloud service in the sidebar
-3. Click **"Connect Now"** to authenticate
-4. Start browsing and transferring files!
+On first launch, the **Interactive Onboarding Wizard** guides you through setup:
+
+1. **Welcome** - Overview of CloudSync Ultra features
+2. **Add Provider** - Click "Connect a Provider Now" to launch the Provider Wizard
+3. **First Sync** - Click "Try a Sync Now" to test your first transfer
+4. **Complete** - Start using the full app!
+
+After onboarding:
+- Click on any cloud service in the sidebar
+- Use the **Provider Connection Wizard** to add more services
+- Set up scheduled syncs via the **Schedule Wizard**
 
 ## 📸 Screenshots
 
@@ -143,10 +179,12 @@ CloudSyncUltra/
 │   ├── Models/
 │   │   ├── CloudProvider.swift  # Cloud service definitions
 │   │   ├── SyncTask.swift       # Task management
+│   │   ├── SubscriptionTier.swift # Free/Pro/Team tiers
 │   │   └── AppTheme.swift       # Theme settings
 │   ├── ViewModels/
 │   │   ├── RemotesViewModel.swift    # Cloud connections
 │   │   ├── TasksViewModel.swift      # Task management
+│   │   ├── OnboardingViewModel.swift # Onboarding state
 │   │   └── FileBrowserViewModel.swift # File browsing
 │   ├── Views/
 │   │   ├── MainWindow.swift     # Main app window
@@ -154,18 +192,21 @@ CloudSyncUltra/
 │   │   ├── TransferView.swift   # Dual-pane transfer
 │   │   ├── FileBrowserView.swift # Single-pane browser
 │   │   ├── TasksView.swift      # Task management
-│   │   └── SettingsView.swift   # App settings
-│   ├── RcloneManager.swift      # rclone integration
-│   ├── SyncManager.swift        # Sync orchestration
+│   │   ├── SettingsView.swift   # App settings
+│   │   ├── PaywallView.swift    # Subscription UI
+│   │   └── Wizards/             # Provider, Schedule, Transfer wizards
+│   │       ├── ProviderConnectionWizardView.swift
+│   │       ├── ScheduleWizardView.swift
+│   │       └── TransferWizardView.swift
+│   ├── Managers/
+│   │   ├── RcloneManager.swift      # rclone integration
+│   │   ├── SyncManager.swift        # Sync orchestration
+│   │   ├── StoreKitManager.swift    # Subscriptions
+│   │   ├── SecurityManager.swift    # Security hardening
+│   │   └── CrashReportingManager.swift # Crash reports
 │   └── StatusBarController.swift # Menu bar
-├── CloudSyncAppTests/           # Unit tests
-│   ├── FileItemTests.swift
-│   ├── CloudProviderTests.swift
-│   ├── SyncTaskTests.swift
-│   ├── FileBrowserViewModelTests.swift
-│   ├── TasksViewModelTests.swift
-│   └── RemotesViewModelTests.swift
-└── README.md
+├── CloudSyncAppTests/           # Unit tests (855 tests)
+└── CloudSyncAppUITests/         # UI tests (69 tests)
 ```
 
 ## 🔧 Configuration
@@ -175,9 +216,9 @@ CloudSync Ultra stores its configuration in:
 
 ### Backup & Restore Config
 
-1. Go to **Settings → Security**
+1. Go to **Settings → Accounts**
 2. Use **Export** to save your configuration
-3. Use **Import** to restore from a backup
+3. Use **Import** to restore from a backup (encryption settings auto-detected)
 
 ### Supported Cloud Providers
 
@@ -214,11 +255,11 @@ The project includes comprehensive automated testing:
 ⌘U
 
 # Or via command line
-xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'
 ```
 
 ### Test Coverage
-- **841 automated tests** across unit, integration, and UI layers
+- **855 automated tests** across unit, integration, and UI layers
 - **150+ model tests** covering CloudProvider, TransferError, ChunkSize configurations
 - **200+ ViewModel tests** for state management and business logic
 - **250+ Manager tests** including RcloneManager, TransferOptimizer, and error handling
@@ -233,6 +274,7 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp
 - SyncManager & Orchestration
 - Encryption & Security
 - Bandwidth Throttling
+- StoreKit & Subscriptions
 - End-to-End Workflows
 
 See `TEST_COVERAGE.md` for complete test inventory and coverage details.
@@ -258,6 +300,7 @@ open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Release
 - **Combine** - Reactive data flow
 - **rclone** - Cloud storage backend
 - **async/await** - Modern concurrency
+- **StoreKit 2** - In-app subscriptions
 
 ## 📝 License
 

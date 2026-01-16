@@ -1,343 +1,334 @@
-# Project Ops Kit 🛠️
+# CloudSync Ultra v2.0.32
 
-> **A complete operational excellence template for Claude-powered parallel development**
+A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 
-This kit provides everything needed to run a professional software project with Claude Code workers handling parallel development tasks. Battle-tested on real production projects.
+![CI](https://github.com/andybod1-lang/CloudSyncUltra/actions/workflows/ci.yml/badge.svg)
+![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
+![Swift](https://img.shields.io/badge/Swift-5.9-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-**Version:** 1.0.0
+## ✨ Features
 
----
+### 🌥️ Multi-Cloud Support (42+ Providers)
 
-## Quick Start
+**Core Providers (13):**
+Proton Drive, Google Drive, Dropbox, OneDrive, Amazon S3, MEGA, Box, pCloud, WebDAV, SFTP, FTP, iCloud (planned), Local Storage
+
+**Enterprise Services (6):**
+Google Cloud Storage, Azure Blob, Azure Files, OneDrive Business, SharePoint, Alibaba Cloud OSS
+
+**Object Storage (8):**
+Backblaze B2, Wasabi, DigitalOcean Spaces, Cloudflare R2, Scaleway, Oracle Cloud, Storj, Filebase
+
+**Self-Hosted & International (6):**
+Nextcloud, ownCloud, Seafile, Koofr, Yandex Disk, Mail.ru Cloud
+
+**Additional Services (9):**
+Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, Quatrix, File Fabric
+
+*See `CloudProvider.swift` for complete implementation details of all 42 providers*
+
+### 📁 File Management
+- **Dual-pane file browser** - Source and destination side-by-side
+- **Drag & drop transfers** - Simply drag files between cloud services
+- **Context menus** - Right-click for New Folder, Rename, Download, Delete
+- **List and Grid views** - Choose your preferred file display
+- **Download/Upload** - Transfer files to/from local storage
+- **Create folders** - Organize your cloud storage with quick-access buttons
+- **Delete files/folders** - Clean up with confirmation dialogs
+- **Rename files** - Rename any file or folder
+- **Search** - Find files quickly across any cloud
+- **Multi-select delete** - Select and delete multiple files at once
+
+### 🔄 Sync & Transfer
+- **Real-time progress tracking** - Shows percentage, speed (MB/s), and file count
+- **Accurate file counters** - See exact progress (e.g., 100/100 files)
+- **Transfer modes** - Sync, Transfer, or Backup
+- **Cloud-to-cloud transfers** - Direct transfers between any cloud providers
+- **Local-to-cloud and cloud-to-local** - Full bidirectional support
+- **Professional error handling** - Clear error messages with retry options
+- **Partial success tracking** - See which files succeeded when some fail
+- **Cancel transfers** - Stop any operation mid-transfer
+- **Transfer history** - View all past transfers with speeds and file counts
+- **Bandwidth throttling** - Control upload/download speeds to avoid saturating your connection
+- **Provider-optimized performance** - Smart chunk sizes and parallelism per provider
+- **Transfer Preview** - Dry-run to see what will be transferred before starting
+- **Quick Actions Menu** - Press Cmd+Shift+N for instant access to common operations
+
+### 🧙 Wizards (NEW)
+- **Provider Connection Wizard** - Guided setup for any of the 42+ cloud providers
+- **Schedule Wizard** - Easy configuration of automatic sync schedules
+- **Transfer Wizard** - Step-by-step file transfer with preview option
+- **Interactive Onboarding** - First-launch wizard guides you through setup
+
+### ⌨️ Keyboard Navigation
+- **Full keyboard support** - Navigate the entire app without a mouse
+- **Global shortcuts** - Cmd+N (new provider), Cmd+Shift+N (quick actions), Cmd+, (settings)
+- **File browser shortcuts** - Arrow keys, Enter, Space for Quick Look, Cmd+A select all
+- **Transfer shortcuts** - Tab between panes, arrow keys for transfer direction
+
+### 🚨 Error Handling
+- **Clear error messages** - User-friendly explanations instead of technical jargon
+- **Actionable guidance** - Know exactly what to do when errors occur
+- **Smart retry logic** - Retry button appears only for retryable errors
+- **Severity levels** - Visual distinction between critical and recoverable errors
+- **Error details** - Full context available for troubleshooting
+- **Auto-dismiss** - Non-critical notifications disappear after 10 seconds
+- **Multi-error support** - Handle multiple errors gracefully
+- **Provider-specific patterns** - Recognizes Google Drive, Dropbox, OneDrive, S3 error types
+- **Partial failure tracking** - "15 of 20 files uploaded" with clear error indication
+
+### 🔐 Security
+- **End-to-end encryption** - Client-side encryption available to all users (Free, Pro, Team)
+- **Zero-knowledge encryption** - AES-256 standard with optional filename encryption
+- **Security hardening** - Path sanitization, secure file handling, log permissions
+- **Export/Import config** - Backup your rclone configuration with encryption detection
+- **Crash reporting** - Secure crash reports with data scrubbing
+
+### 🎨 Modern UI
+- **Native macOS design** - Feels right at home on your Mac
+- **Dark mode support** - Beautiful in any lighting
+- **Menu bar icon** - Quick access from anywhere
+- **Dashboard** - Quick overview with stats and activity
+- **Sidebar navigation** - Easy access to all cloud services
+- **Vertical view switchers** - Compact, space-efficient UI controls
+- **Right-click context menus** - Full macOS-style context menus throughout
+- **12/24 hour time format** - Choose your preferred time display
+
+### 📋 Task Management
+- **Scheduled syncs** - Set up recurring backup tasks via Schedule Wizard
+- **Task history** - View past operations
+- **Status tracking** - Monitor active, pending, and completed tasks
+- **Transfer counter** - Shows X/Y transfers in progress
+
+### 💳 Subscription Tiers
+
+| Feature | Free | Pro ($9.99/mo) | Team ($19.99/user) |
+|---------|------|----------------|-------------------|
+| Cloud providers | 42+ | 42+ | 42+ |
+| E2E Encryption | ✅ | ✅ | ✅ |
+| Scheduled sync | 1 task | Unlimited | Unlimited |
+| Connected remotes | 3 | Unlimited | Unlimited |
+| Bandwidth throttling | ✅ | ✅ | ✅ |
+| Priority support | - | ✅ | ✅ |
+| Team management | - | - | ✅ |
+
+## 🚀 Getting Started
+
+> **New in v2.0.32:** StoreKit 2 subscriptions, security hardening, legal compliance (Privacy Policy, ToS), marketing package, and App Store assets. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+
+> **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, interactive wizards, and 855 automated tests.
+
+### Requirements
+- macOS 14.0 (Sonoma) or later
+- Xcode 15.0 or later (for building from source)
+- [rclone](https://rclone.org/) installed via Homebrew
+- Git (for cloning the repository)
+
+### Installation
+
+1. **Install rclone:**
+   ```bash
+   brew install rclone
+   ```
+
+2. **Clone the repository:**
+   ```bash
+   git clone https://github.com/andybod1-lang/CloudSyncUltra.git
+   cd CloudSyncUltra
+   ```
+
+3. **Open in Xcode:**
+   ```bash
+   open CloudSyncApp.xcodeproj
+   ```
+
+4. **Build and run** (⌘R)
+
+### First Launch (Interactive Onboarding)
+
+On first launch, the **Interactive Onboarding Wizard** guides you through setup:
+
+1. **Welcome** - Overview of CloudSync Ultra features
+2. **Add Provider** - Click "Connect a Provider Now" to launch the Provider Wizard
+3. **First Sync** - Click "Try a Sync Now" to test your first transfer
+4. **Complete** - Start using the full app!
+
+After onboarding:
+- Click on any cloud service in the sidebar
+- Use the **Provider Connection Wizard** to add more services
+- Set up scheduled syncs via the **Schedule Wizard**
+
+## 📸 Screenshots
+
+### Dashboard
+The main dashboard shows connected services, recent activity, and quick stats.
+
+### Transfer View
+Dual-pane interface for easy drag-and-drop transfers between any cloud services.
+
+### File Browser
+Full-featured file browser with list/grid views, search, and context menus.
+
+## 🏗️ Architecture
+
+```
+CloudSyncUltra/
+├── CloudSyncApp/
+│   ├── CloudSyncAppApp.swift    # App entry point
+│   ├── Models/
+│   │   ├── CloudProvider.swift  # Cloud service definitions
+│   │   ├── SyncTask.swift       # Task management
+│   │   ├── SubscriptionTier.swift # Free/Pro/Team tiers
+│   │   └── AppTheme.swift       # Theme settings
+│   ├── ViewModels/
+│   │   ├── RemotesViewModel.swift    # Cloud connections
+│   │   ├── TasksViewModel.swift      # Task management
+│   │   ├── OnboardingViewModel.swift # Onboarding state
+│   │   └── FileBrowserViewModel.swift # File browsing
+│   ├── Views/
+│   │   ├── MainWindow.swift     # Main app window
+│   │   ├── DashboardView.swift  # Dashboard
+│   │   ├── TransferView.swift   # Dual-pane transfer
+│   │   ├── FileBrowserView.swift # Single-pane browser
+│   │   ├── TasksView.swift      # Task management
+│   │   ├── SettingsView.swift   # App settings
+│   │   ├── PaywallView.swift    # Subscription UI
+│   │   └── Wizards/             # Provider, Schedule, Transfer wizards
+│   │       ├── ProviderConnectionWizardView.swift
+│   │       ├── ScheduleWizardView.swift
+│   │       └── TransferWizardView.swift
+│   ├── Managers/
+│   │   ├── RcloneManager.swift      # rclone integration
+│   │   ├── SyncManager.swift        # Sync orchestration
+│   │   ├── StoreKitManager.swift    # Subscriptions
+│   │   ├── SecurityManager.swift    # Security hardening
+│   │   └── CrashReportingManager.swift # Crash reports
+│   └── StatusBarController.swift # Menu bar
+├── CloudSyncAppTests/           # Unit tests (855 tests)
+└── CloudSyncAppUITests/         # UI tests (69 tests)
+```
+
+## 🔧 Configuration
+
+CloudSync Ultra stores its configuration in:
+- `~/Library/Application Support/CloudSyncApp/rclone.conf`
+
+### Backup & Restore Config
+
+1. Go to **Settings → Accounts**
+2. Use **Export** to save your configuration
+3. Use **Import** to restore from a backup (encryption settings auto-detected)
+
+### Supported Cloud Providers
+
+**Top Providers:**
+
+| Provider | Auth Type | Status |
+|----------|-----------|--------|
+| Proton Drive | Username/Password + 2FA | ✅ Full Support |
+| Google Drive | OAuth | ✅ Full Support |
+| Dropbox | OAuth | ✅ Full Support |
+| OneDrive | OAuth | ✅ Full Support |
+| Amazon S3 | Access Keys | ✅ Full Support |
+| MEGA | Username/Password | ✅ Full Support |
+| Box | OAuth | ✅ Full Support |
+| pCloud | OAuth | ✅ Full Support |
+| Google Cloud Storage | OAuth/Service Account | ✅ Full Support |
+| Azure Blob Storage | Account Key/SAS | ✅ Full Support |
+| Backblaze B2 | Account ID/Key | ✅ Full Support |
+| Nextcloud | WebDAV | ✅ Full Support |
+| OneDrive Business | OAuth | ✅ Full Support |
+| SharePoint | OAuth | ✅ Full Support |
+| Jottacloud | Personal Token | ⚠️ Experimental |
+
+**Plus 27 more providers** including WebDAV, SFTP, FTP, Wasabi, Cloudflare R2, DigitalOcean Spaces, Oracle Cloud, Storj, Seafile, Koofr, Yandex Disk, Mail.ru Cloud, Google Photos, Flickr, and more.
+
+See `CloudProvider.swift` for the complete list of all 42 supported providers with implementation details.
+
+## 🧪 Testing
+
+The project includes comprehensive automated testing:
 
 ```bash
-# 1. Copy the kit to your project
-cp -r templates/project-ops-kit/* /path/to/your/project/
+# Run tests via Xcode
+⌘U
 
-# 2. Run setup
-cd /path/to/your/project
-chmod +x scripts/*.sh .claude-team/scripts/*.sh
-./scripts/setup.sh
-
-# 3. Customize
-# - Edit project.json with your project details
-# - Edit VERSION.txt with your version
-# - Fill in CLAUDE_PROJECT_KNOWLEDGE.md with project context
-# - Customize .claude-team/templates/*_BRIEFING.md for your domain
-
-# 4. Install git hooks
-./scripts/install-hooks.sh
-
-# 5. Launch workers
-./.claude-team/scripts/launch_single_worker.sh dev-1 opus
+# Or via command line
+xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'
 ```
 
----
+### Test Coverage
+- **855 automated tests** across unit, integration, and UI layers
+- **150+ model tests** covering CloudProvider, TransferError, ChunkSize configurations
+- **200+ ViewModel tests** for state management and business logic
+- **250+ Manager tests** including RcloneManager, TransferOptimizer, and error handling
+- **69 UI tests** for end-to-end user workflows
+- **75%+ overall coverage** with 99.8% test pass rate
 
-## What's Included
+**Test Categories:**
+- Models & Core Logic (FileItem, CloudProvider, SyncTask)
+- Error Handling (TransferError, error detection, error display, retry logic)
+- ViewModels & State Management (FileBrowserViewModel, TasksViewModel, RemotesViewModel)
+- RcloneManager & Provider Integration (OAuth, Phase 1-3 providers)
+- SyncManager & Orchestration
+- Encryption & Security
+- Bandwidth Throttling
+- StoreKit & Subscriptions
+- End-to-End Workflows
 
-### 📁 Directory Structure
+See `TEST_COVERAGE.md` for complete test inventory and coverage details.
 
-```
-project-ops-kit/
-├── .claude-team/
-│   ├── STATUS.md              # Worker status tracking
-│   ├── TICKETS.md             # Ticket system guide
-│   ├── TRIAGE_GUIDE.md        # Ticket assignment decisions
-│   ├── SPECIALIZED_AGENTS.md  # On-demand specialist roster
-│   ├── DEFINITION_OF_DONE.md  # Quality checklist
-│   ├── WORKER_MODELS.conf     # Model configuration
-│   ├── metrics/               # Historical data (test counts, etc.)
-│   ├── outputs/               # Worker completion reports
-│   ├── planning/              # Feature plans
-│   ├── retros/                # Sprint retrospectives
-│   ├── scripts/               # Worker launch scripts
-│   │   ├── launch_single_worker.sh
-│   │   ├── launch_workers.sh
-│   │   ├── auto_launch_workers.sh
-│   │   ├── ticket.sh
-│   │   └── launch_all_workers.sh
-│   ├── sessions/              # Session summaries
-│   ├── tasks/                 # Active worker tasks
-│   ├── templates/             # Worker briefing templates
-│   └── tickets/               # Ticket inbox/backup
-├── .github/
-│   ├── ISSUE_TEMPLATE/        # Bug, feature, task templates
-│   └── workflows/ci.yml       # GitHub Actions CI
-├── scripts/
-│   ├── archive-outputs.sh     # Clean up reports
-│   ├── dashboard.sh           # Project health dashboard
-│   ├── generate-stats.sh      # Statistics generator
-│   ├── install-hooks.sh       # Git hooks installer
-│   ├── pre-commit             # Quality gate hook
-│   ├── record-test-count.sh   # Test trend tracking
-│   ├── release.sh             # Automated release
-│   ├── restore-context.sh     # Session recovery
-│   ├── save-session.sh        # Quick session summary
-│   ├── setup.sh               # Initial setup
-│   ├── update-version.sh      # Version updater
-│   └── version-check.sh       # Version validator
-├── docs/
-│   ├── RUNBOOK.md             # Operations runbook
-│   └── decisions/             # Architecture decisions
-├── CLAUDE_PROJECT_KNOWLEDGE.md # Project context for Claude
-├── OPERATIONAL_EXCELLENCE.md   # Ops improvement tracker
-├── README.md                   # This file
-├── VERSION.txt                 # Single source of version
-└── project.json                # Centralized project config
-```
+## 🛠️ Development
 
----
-
-## Core Concepts
-
-### 1. Parallel Development with Workers
-
-The kit supports 5 core workers + 9 specialized agents:
-
-**Core Team:**
-| Worker | Role | Domain |
-|--------|------|--------|
-| Dev-1 | UI | Views, Components, ViewModels |
-| Dev-2 | Engine | Core business logic |
-| Dev-3 | Services | Models, Managers, Services |
-| QA | Testing | All test files |
-| Dev-Ops | Operations | Scripts, docs, CI/CD |
-
-**Specialized Agents (on-demand):**
-- UX-Designer, Product-Manager, Architect
-- Security-Auditor, Performance-Engineer, Tech-Writer
-- Brand-Designer, QA-Automation, Marketing-Strategist
-
-### 2. Ticket Triage System
-
-Use `TRIAGE_GUIDE.md` to decide who handles each ticket:
-- Implementation → Core workers
-- Analysis/Strategy → Specialized agents
-- Operations → Dev-Ops
-
-### 3. Quality Gates
-
-Pre-commit hooks enforce:
-- Syntax validation
-- Build verification
-- Version consistency
-- No debug artifacts
-- No large files
-
-### 4. Single Source of Truth
-
-- Version: `VERSION.txt`
-- Config: `project.json`
-- Test metrics: `.claude-team/metrics/`
-
----
-
-## Scripts Reference
-
-| Script | Purpose |
-|--------|---------|
-| `dashboard.sh` | Show project health score |
-| `release.sh X.X.X` | Full automated release |
-| `version-check.sh` | Validate version alignment |
-| `update-version.sh X.X.X` | Update all version refs |
-| `install-hooks.sh` | Install pre-commit hooks |
-| `record-test-count.sh` | Track test count trend |
-| `save-session.sh` | Quick session summary |
-| `restore-context.sh` | Recover session context |
-| `archive-outputs.sh` | Clean up old reports |
-| `generate-stats.sh` | Generate project statistics |
-
-### Worker Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `launch_single_worker.sh` | Launch one worker with model |
-| `launch_workers.sh` | Launch 4 empty terminals |
-| `auto_launch_workers.sh` | Auto-launch workers with tasks |
-| `ticket.sh` | Ticket management CLI |
-
----
-
-## Customization
-
-### For Your Stack
-
-1. **Edit `scripts/dashboard.sh`** - Update build/test commands
-2. **Edit `scripts/release.sh`** - Add your release steps
-3. **Edit `scripts/pre-commit`** - Customize quality checks
-4. **Edit `.github/workflows/ci.yml`** - Configure CI for your stack
-
-### For Your Team
-
-1. **Edit `.claude-team/templates/*_BRIEFING.md`** - Customize for your domain
-2. **Fill in `CLAUDE_PROJECT_KNOWLEDGE.md`** - Add project-specific context
-3. **Edit `project.json`** - Configure paths and commands
-
----
-
-## Operational Excellence
-
-Track your operational maturity with `OPERATIONAL_EXCELLENCE.md`:
-
-**Six Pillars:**
-1. Automation First (scripts, CI)
-2. Quality Gates (hooks, PR rules)
-3. Single Source of Truth (configs)
-4. Metrics & Visibility (dashboard)
-5. Knowledge Management (docs)
-6. Business Operations (release, support)
-
----
-
-## Best Practices
-
-### Starting a Sprint
-```bash
-# 1. Check health
-./scripts/dashboard.sh
-
-# 2. Review tickets
-./.claude-team/scripts/ticket.sh ready
-
-# 3. Launch workers
-./.claude-team/scripts/launch_single_worker.sh dev-1 opus
-```
-
-### Ending a Sprint
-```bash
-# 1. Run release script
-./scripts/release.sh X.X.X
-
-# 2. Save session
-./scripts/save-session.sh
-
-# 3. Archive outputs
-./scripts/archive-outputs.sh
-```
-
-### Recovery After Crash
-```bash
-# Quick context restore
-./scripts/restore-context.sh
-```
-
----
-
-## Branch Protection Setup
-
-Protect your main branch to ensure all changes go through CI:
+### Building from Source
 
 ```bash
-# Using GitHub CLI (recommended)
-gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
-  --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
-  --field enforce_admins=false \
-  --field required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
-  --field restrictions=null
+# Clone
+git clone https://github.com/andybod1-lang/CloudSyncUltra.git
+cd CloudSyncUltra
 
-# Verify it's enabled
-gh api repos/{owner}/{repo}/branches/main/protection
+# Build
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -configuration Release build
+
+# Run
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Release/CloudSyncApp.app
 ```
 
-Or manually in GitHub: Settings → Branches → Add rule for `main` → Enable PR requirements + status checks
+### Tech Stack
+- **SwiftUI** - Modern declarative UI
+- **Combine** - Reactive data flow
+- **rclone** - Cloud storage backend
+- **async/await** - Modern concurrency
+- **StoreKit 2** - In-app subscriptions
+
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Contributing
+
+We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Clone your fork and set up the development environment
+3. Create a feature branch (`feature/your-feature-name`)
+4. Make your changes and add tests
+5. Ensure all 855+ tests pass
+6. Submit a pull request
+
+For detailed instructions on code style, testing, and the PR process, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### GitHub Project Board
+
+All new issues are automatically added to the [CloudSync Ultra project board](https://github.com/users/andybod1-lang/projects/1) via GitHub Actions. This helps track and prioritize feature requests and bug reports.
+
+## 📧 Contact
+
+Created by [@andybod1-lang](https://github.com/andybod1-lang)
 
 ---
 
-## CI Code Coverage Setup
-
-The CI template includes code coverage examples for multiple languages:
-
-1. **Enable coverage in your test command** (see `.github/workflows/ci.yml`)
-2. **Set coverage threshold** (optional but recommended)
-3. **View reports in GitHub Actions artifacts**
-4. **Get coverage summary in PR comments**
-
-Example for Node.js:
-```yaml
-- name: Run Tests with Coverage
-  run: npm test -- --coverage --reporters=default --reporters=jest-junit
-```
-
----
-
-## Post-Sprint Checklist
-
-**⚠️ MANDATORY:** After every sprint, use the automated release process:
-
-```bash
-# Automated (recommended) - handles all 7 steps
-./scripts/release.sh X.X.X
-
-# Manual - see full checklist
-cat CLAUDE_PROJECT_KNOWLEDGE.md | grep -A 80 "MANDATORY: Post-Sprint"
-```
-
-The checklist ensures:
-- ✅ Health check passes
-- ✅ All tests pass
-- ✅ Version updated everywhere
-- ✅ Documentation updated
-- ✅ GitHub issues closed
-- ✅ Sprint files archived
-- ✅ Git tagged and pushed
-
----
-
-## Recovery Process
-
-When recovering from a crash or session loss:
-
-```bash
-# 1. Quick recovery script
-./scripts/restore-context.sh
-
-# 2. Or manual recovery
-cd {PROJECT_ROOT}
-gh issue list -l in-progress    # See what was being worked on
-git status                       # Check for uncommitted changes
-./scripts/dashboard.sh           # Verify project health
-```
-
-For full recovery guide, see `RECOVERY.md` which includes:
-- Worker restart commands
-- State recovery sources
-- Troubleshooting steps
-- Emergency reset procedures
-
----
-
-## Ticket CLI
-
-Quick ticket management from the command line:
-
-```bash
-# List all open issues
-./.claude-team/scripts/ticket.sh list
-
-# Show issues ready for workers
-./.claude-team/scripts/ticket.sh ready
-
-# Quick issue creation
-./.claude-team/scripts/ticket.sh quick "Add dark mode support"
-
-# Add idea to local inbox
-./.claude-team/scripts/ticket.sh idea "Explore caching options"
-
-# View specific issue
-./.claude-team/scripts/ticket.sh view 42
-
-# Backup GitHub issues locally
-./.claude-team/scripts/ticket.sh backup
-```
-
----
-
-## Credits
-
-Developed through iterative improvement on real production projects.
-Battle-tested operational patterns for AI-assisted parallel development.
-
----
-
-*Version: 1.0.0 | Updated: 2025-01-15*
+**CloudSync Ultra** - One app. All your clouds. ☁️
