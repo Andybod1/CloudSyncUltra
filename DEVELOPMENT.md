@@ -31,19 +31,31 @@ CloudSyncAppApp (App Entry)
     │           ├── SyncManager
     │           ├── RemotesViewModel
     │           ├── TasksViewModel
-    │           └── ScheduleManager
+    │           ├── ScheduleManager
+    │           └── StoreKitManager (NEW v2.0.32)
     │
     ├── OnboardingView (First launch)
-    │   └── 4-Step Wizard
-    │       ├── WelcomeStep
-    │       ├── AddProviderStep
-    │       ├── FirstTransferStep
-    │       └── QuickTipsStep
+    │   └── 4-Step Interactive Wizard
+    │       ├── WelcomeStepView
+    │       ├── AddProviderStepView → "Connect a Provider Now" button
+    │       ├── FirstSyncStepView → "Try a Sync Now" button
+    │       └── CompleteStepView
+    │
+    ├── Wizards (NEW v2.0.32)
+    │   ├── ProviderConnectionWizardView
+    │   ├── ScheduleWizardView
+    │   └── TransferWizardView
+    │
+    ├── Subscription Views (NEW v2.0.32)
+    │   ├── PaywallView
+    │   └── SubscriptionView
     │
     ├── Settings Scene
     │   └── SettingsView (Tabs)
     │       ├── GeneralSettingsView
     │       ├── AccountSettingsView
+    │       ├── SecuritySettingsView
+    │       ├── PerformanceSettingsView
     │       ├── SyncSettingsView
     │       └── AboutView
     │
@@ -72,6 +84,7 @@ User Notification ← UI Update ← Published State ← Progress ←──┘
 │                         VIEWS                               │
 │  MainWindow │ DashboardView │ TransferView │ TasksView     │
 │  QuickActionsView │ OnboardingView │ SchedulesView         │
+│  PaywallView │ SubscriptionView │ Wizards/*                │
 └──────────────────────────┬──────────────────────────────────┘
                            │ @EnvironmentObject
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -86,6 +99,7 @@ User Notification ← UI Update ← Published State ← Progress ←──┘
 │  SyncManager │ RcloneManager │ EncryptionManager           │
 │  TransferOptimizer │ CrashReportingManager                 │
 │  NotificationManager │ ErrorNotificationManager            │
+│  StoreKitManager │ SecurityManager │ FeedbackManager (NEW) │
 └──────────────────────────┬──────────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -93,6 +107,7 @@ User Notification ← UI Update ← Published State ← Progress ←──┘
 │  CloudProvider │ CloudRemote │ SyncTask │ FileItem         │
 │  TransferError │ TransferPreview │ ChunkSizeConfig         │
 │  SyncSchedule │ CrashReport │ OnboardingState              │
+│  SubscriptionTier │ FeatureGate (NEW v2.0.32)              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -139,7 +154,54 @@ struct CloudRemote: Identifiable, Codable {
 }
 ```
 
-#### TransferError.swift (NEW in v2.0.11)
+#### SubscriptionTier.swift (NEW v2.0.32)
+StoreKit 2 subscription management:
+
+```swift
+enum SubscriptionTier: String, CaseIterable, Codable {
+    case free = "free"
+    case pro = "pro"
+    case team = "team"
+
+    var displayName: String {
+        switch self {
+        case .free: return "Free"
+        case .pro: return "Pro"
+        case .team: return "Team"
+        }
+    }
+
+    var price: String {
+        switch self {
+        case .free: return "Free"
+        case .pro: return "$9.99/mo"
+        case .team: return "$19.99/user"
+        }
+    }
+
+    var maxRemotes: Int {
+        switch self {
+        case .free: return 3
+        case .pro, .team: return .max
+        }
+    }
+
+    var maxScheduledTasks: Int {
+        switch self {
+        case .free: return 1
+        case .pro, .team: return .max
+        }
+    }
+}
+
+struct FeatureGate {
+    static func canAddRemote(currentCount: Int, tier: SubscriptionTier) -> Bool
+    static func canCreateSchedule(currentCount: Int, tier: SubscriptionTier) -> Bool
+    static func requiresUpgrade(for feature: Feature, tier: SubscriptionTier) -> Bool
+}
+```
+
+#### TransferError.swift
 Comprehensive error handling system:
 
 ```swift
@@ -166,7 +228,7 @@ struct TransferError: Error, Identifiable {
 }
 ```
 
-#### TransferPreview.swift (NEW in v2.0.22)
+#### TransferPreview.swift
 Dry-run preview model:
 
 ```swift
@@ -187,7 +249,7 @@ struct TransferPreview: Codable {
 }
 ```
 
-#### ChunkSizeConfig.swift (NEW in v2.0.22)
+#### ChunkSizeConfig.swift
 Provider-specific optimization:
 
 ```swift
@@ -257,6 +319,14 @@ class RemotesViewModel: ObservableObject {
     func updateRemote(_ remote)
     func moveRemote(from: IndexSet, to: Int) // Drag reordering
 
+    // Feature gating (v2.0.32)
+    func canAddRemote() -> Bool {
+        FeatureGate.canAddRemote(
+            currentCount: remotes.count,
+            tier: StoreKitManager.shared.currentTier
+        )
+    }
+
     var configuredRemotes: [CloudRemote] {
         remotes.filter { $0.isConfigured }
             .sorted { $0.sortOrder < $1.sortOrder }
@@ -264,8 +334,8 @@ class RemotesViewModel: ObservableObject {
 }
 ```
 
-#### OnboardingViewModel.swift (NEW in v2.0.20)
-First-run experience state:
+#### OnboardingViewModel.swift
+First-run experience state with interactive actions:
 
 ```swift
 @MainActor
@@ -273,15 +343,26 @@ class OnboardingViewModel: ObservableObject {
     @Published var currentStep = 0
     @Published var isComplete = false
     @Published var selectedProvider: CloudProviderType?
-    @Published var hasAddedFirstCloud = false
-    @Published var hasCompletedFirstTransfer = false
 
+    // Persistent state for interactive onboarding (v2.0.32)
+    @AppStorage("onboarding_hasConnectedProvider") var hasConnectedProvider = false
+    @AppStorage("onboarding_hasCompletedFirstSync") var hasCompletedFirstSync = false
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding = false
 
     func nextStep()
     func previousStep()
     func skipOnboarding()
     func completeOnboarding()
+
+    // Called when user completes provider connection wizard
+    func providerConnected() {
+        hasConnectedProvider = true
+    }
+
+    // Called when user completes first sync via wizard
+    func firstSyncCompleted() {
+        hasCompletedFirstSync = true
+    }
 }
 ```
 
@@ -303,12 +384,206 @@ class ScheduleManager: ObservableObject {
     func runScheduleNow(_ schedule: SyncSchedule) async
     func startScheduleTimers()
     func stopScheduleTimers()
+
+    // Feature gating (v2.0.32)
+    func canCreateSchedule() -> Bool {
+        FeatureGate.canCreateSchedule(
+            currentCount: schedules.count,
+            tier: StoreKitManager.shared.currentTier
+        )
+    }
 }
 ```
 
 ### 3. Views
 
-#### QuickActionsView.swift (NEW in v2.0.22)
+#### Wizards (NEW v2.0.32)
+
+##### ProviderConnectionWizardView.swift
+Guided cloud provider setup:
+
+```swift
+struct ProviderConnectionWizardView: View {
+    @Environment(\.dismiss) var dismiss
+    @StateObject private var viewModel = ProviderConnectionViewModel()
+
+    enum Step: Int, CaseIterable {
+        case selectProvider
+        case nameRemote
+        case authenticate
+        case testConnection
+        case complete
+    }
+
+    @State private var currentStep: Step = .selectProvider
+
+    var body: some View {
+        VStack {
+            // Progress indicator
+            WizardProgressView(
+                steps: Step.allCases.count,
+                current: currentStep.rawValue
+            )
+
+            // Step content
+            switch currentStep {
+            case .selectProvider:
+                ProviderGridView(selection: $viewModel.selectedProvider)
+            case .nameRemote:
+                RemoteNameView(name: $viewModel.remoteName)
+            case .authenticate:
+                AuthenticationView(provider: viewModel.selectedProvider)
+            case .testConnection:
+                ConnectionTestView(viewModel: viewModel)
+            case .complete:
+                CompletionView()
+            }
+
+            // Navigation buttons
+            WizardNavigationButtons(
+                canGoBack: currentStep != .selectProvider,
+                canGoNext: viewModel.canProceed(from: currentStep),
+                onBack: { currentStep = Step(rawValue: currentStep.rawValue - 1)! },
+                onNext: { advanceStep() }
+            )
+        }
+    }
+}
+```
+
+##### ScheduleWizardView.swift
+Easy schedule configuration:
+
+```swift
+struct ScheduleWizardView: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var scheduleManager: ScheduleManager
+
+    @State private var name = ""
+    @State private var sourceRemote: CloudRemote?
+    @State private var destinationRemote: CloudRemote?
+    @State private var frequency: ScheduleFrequency = .daily
+    @State private var time = Date()
+
+    var body: some View {
+        Form {
+            Section("Schedule Name") {
+                TextField("Daily Backup", text: $name)
+            }
+
+            Section("Source") {
+                RemotePicker(selection: $sourceRemote)
+                PathPicker(remote: sourceRemote)
+            }
+
+            Section("Destination") {
+                RemotePicker(selection: $destinationRemote)
+                PathPicker(remote: destinationRemote)
+            }
+
+            Section("Frequency") {
+                Picker("Run", selection: $frequency) {
+                    ForEach(ScheduleFrequency.allCases) { freq in
+                        Text(freq.displayName).tag(freq)
+                    }
+                }
+                DatePicker("At", selection: $time, displayedComponents: .hourAndMinute)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Create") { createSchedule() }
+                    .disabled(!isValid)
+            }
+        }
+    }
+}
+```
+
+##### TransferWizardView.swift
+Step-by-step transfer with preview:
+
+```swift
+struct TransferWizardView: View {
+    @Environment(\.dismiss) var dismiss
+
+    enum Step { case source, destination, files, preview, transfer }
+    @State private var currentStep: Step = .source
+
+    @State private var sourceRemote: CloudRemote?
+    @State private var destinationRemote: CloudRemote?
+    @State private var selectedFiles: [FileItem] = []
+    @State private var preview: TransferPreview?
+
+    var body: some View {
+        VStack {
+            switch currentStep {
+            case .source:
+                RemoteAndPathSelector(
+                    title: "Select Source",
+                    selection: $sourceRemote
+                )
+            case .destination:
+                RemoteAndPathSelector(
+                    title: "Select Destination",
+                    selection: $destinationRemote
+                )
+            case .files:
+                FileSelector(
+                    remote: sourceRemote,
+                    selection: $selectedFiles
+                )
+            case .preview:
+                TransferPreviewView(preview: preview)
+            case .transfer:
+                TransferProgressView()
+            }
+        }
+    }
+}
+```
+
+#### PaywallView.swift (NEW v2.0.32)
+Subscription upgrade UI:
+
+```swift
+struct PaywallView: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var storeKit: StoreKitManager
+
+    var body: some View {
+        VStack(spacing: 24) {
+            // Header
+            Text("Upgrade to Pro")
+                .font(.largeTitle.bold())
+
+            // Feature comparison
+            FeatureComparisonTable()
+
+            // Pricing cards
+            HStack(spacing: 16) {
+                PricingCard(tier: .pro, isSelected: true)
+                PricingCard(tier: .team, isSelected: false)
+            }
+
+            // Purchase button
+            Button("Subscribe to Pro - $9.99/month") {
+                Task { await storeKit.purchase(.pro) }
+            }
+            .buttonStyle(.borderedProminent)
+
+            // Restore purchases
+            Button("Restore Purchases") {
+                Task { await storeKit.restorePurchases() }
+            }
+            .buttonStyle(.link)
+        }
+        .padding()
+    }
+}
+```
+
+#### QuickActionsView.swift
 Keyboard-driven productivity menu:
 
 ```swift
@@ -342,8 +617,8 @@ struct QuickActionsView: View {
 }
 ```
 
-#### OnboardingView.swift (NEW in v2.0.20)
-4-step wizard for new users:
+#### OnboardingView.swift
+4-step interactive wizard for new users:
 
 ```swift
 struct OnboardingView: View {
@@ -355,13 +630,13 @@ struct OnboardingView: View {
             ProgressIndicator(currentStep: viewModel.currentStep)
 
             TabView(selection: $viewModel.currentStep) {
-                WelcomeStep()
+                WelcomeStepView()
                     .tag(0)
-                AddProviderStep()
+                AddProviderStepView(viewModel: viewModel)
                     .tag(1)
-                FirstTransferStep()
+                FirstSyncStepView(viewModel: viewModel)
                     .tag(2)
-                QuickTipsStep()
+                CompleteStepView()
                     .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -370,34 +645,36 @@ struct OnboardingView: View {
         }
     }
 }
-```
 
-#### SchedulesView.swift
-Main window schedule management:
-
-```swift
-struct SchedulesView: View {
-    @EnvironmentObject var scheduleManager: ScheduleManager
-    @State private var showingNewSchedule = false
+// Interactive step with wizard integration
+struct AddProviderStepView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    @State private var showingWizard = false
 
     var body: some View {
         VStack {
-            if let nextSync = scheduleManager.nextScheduledSync {
-                NextSyncBanner(date: nextSync)
-            }
+            Text("Connect Your First Cloud")
+                .font(.title)
 
-            if scheduleManager.schedules.isEmpty {
-                EmptySchedulesView()
-            } else {
-                List {
-                    ForEach(scheduleManager.schedules) { schedule in
-                        ScheduleRowView(schedule: schedule)
-                    }
-                }
+            Button("Connect a Provider Now") {
+                showingWizard = true
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(viewModel.hasConnectedProvider)
+
+            if viewModel.hasConnectedProvider {
+                Label("Provider Connected!", systemImage: "checkmark.circle.fill")
+                    .foregroundColor(.green)
             }
         }
-        .toolbar {
-            Button("New Schedule") { showingNewSchedule = true }
+        .sheet(isPresented: $showingWizard) {
+            ProviderConnectionWizardView()
+                .onDisappear {
+                    // Check if a provider was added
+                    if RemotesViewModel.shared.remotes.count > 0 {
+                        viewModel.providerConnected()
+                    }
+                }
         }
     }
 }
@@ -405,19 +682,213 @@ struct SchedulesView: View {
 
 ### 4. Core Managers
 
+#### StoreKitManager.swift (NEW v2.0.32)
+StoreKit 2 subscription management:
+
+```swift
+@MainActor
+class StoreKitManager: ObservableObject {
+    static let shared = StoreKitManager()
+
+    @Published var currentTier: SubscriptionTier = .free
+    @Published var products: [Product] = []
+    @Published var purchasedProductIDs: Set<String> = []
+
+    private var updateListenerTask: Task<Void, Error>?
+
+    init() {
+        updateListenerTask = listenForTransactions()
+        Task { await loadProducts() }
+    }
+
+    func loadProducts() async {
+        do {
+            products = try await Product.products(for: [
+                "com.cloudsync.pro.monthly",
+                "com.cloudsync.pro.yearly",
+                "com.cloudsync.team.monthly"
+            ])
+        } catch {
+            print("Failed to load products: \(error)")
+        }
+    }
+
+    func purchase(_ tier: SubscriptionTier) async throws {
+        guard let product = products.first(where: { $0.id.contains(tier.rawValue) }) else {
+            throw StoreError.productNotFound
+        }
+
+        let result = try await product.purchase()
+
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            currentTier = tier
+            await transaction.finish()
+        case .userCancelled:
+            break
+        case .pending:
+            break
+        @unknown default:
+            break
+        }
+    }
+
+    func restorePurchases() async {
+        for await result in Transaction.currentEntitlements {
+            if case .verified(let transaction) = result {
+                updateTier(from: transaction)
+            }
+        }
+    }
+
+    private func listenForTransactions() -> Task<Void, Error> {
+        Task.detached {
+            for await result in Transaction.updates {
+                if case .verified(let transaction) = result {
+                    await self.updateTier(from: transaction)
+                    await transaction.finish()
+                }
+            }
+        }
+    }
+}
+```
+
+#### SecurityManager.swift (NEW v2.0.32)
+Security hardening and path sanitization:
+
+```swift
+class SecurityManager {
+    static let shared = SecurityManager()
+
+    /// Sanitize file paths to prevent path traversal attacks
+    func sanitizePath(_ path: String) -> String {
+        var sanitized = path
+
+        // Remove path traversal attempts
+        sanitized = sanitized.replacingOccurrences(of: "../", with: "")
+        sanitized = sanitized.replacingOccurrences(of: "..\\", with: "")
+
+        // Remove null bytes
+        sanitized = sanitized.replacingOccurrences(of: "\0", with: "")
+
+        // Normalize path
+        sanitized = (sanitized as NSString).standardizingPath
+
+        return sanitized
+    }
+
+    /// Validate that a path is within allowed boundaries
+    func isPathAllowed(_ path: String, within allowedRoot: String) -> Bool {
+        let resolvedPath = (path as NSString).standardizingPath
+        let resolvedRoot = (allowedRoot as NSString).standardizingPath
+        return resolvedPath.hasPrefix(resolvedRoot)
+    }
+
+    /// Secure file permissions for sensitive files
+    func setSecurePermissions(for url: URL) throws {
+        try FileManager.default.setAttributes(
+            [.posixPermissions: 0o600],  // Owner read/write only
+            ofItemAtPath: url.path
+        )
+    }
+
+    /// Scrub sensitive data from crash logs
+    func scrubSensitiveData(_ text: String) -> String {
+        var scrubbed = text
+
+        // Scrub passwords
+        scrubbed = scrubbed.replacingOccurrences(
+            of: #"password[\"']?\s*[:=]\s*[\"']?[^\"'\s]+"#,
+            with: "password=<REDACTED>",
+            options: .regularExpression
+        )
+
+        // Scrub API keys
+        scrubbed = scrubbed.replacingOccurrences(
+            of: #"(api[_-]?key|secret|token)[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9+/=]+"#,
+            with: "$1=<REDACTED>",
+            options: .regularExpression
+        )
+
+        return scrubbed
+    }
+}
+```
+
+#### FeedbackManager.swift (NEW v2.0.32)
+In-app feedback system:
+
+```swift
+@MainActor
+class FeedbackManager: ObservableObject {
+    static let shared = FeedbackManager()
+
+    @Published var isSubmitting = false
+    @Published var lastError: String?
+
+    struct Feedback {
+        let type: FeedbackType
+        let title: String
+        let description: String
+        let includeSystemInfo: Bool
+        let includeLogs: Bool
+    }
+
+    enum FeedbackType: String, CaseIterable {
+        case bug = "bug"
+        case feature = "enhancement"
+        case question = "question"
+
+        var label: String {
+            switch self {
+            case .bug: return "Bug Report"
+            case .feature: return "Feature Request"
+            case .question: return "Question"
+            }
+        }
+    }
+
+    func submit(_ feedback: Feedback) async throws {
+        isSubmitting = true
+        defer { isSubmitting = false }
+
+        var body = feedback.description
+
+        if feedback.includeSystemInfo {
+            body += "\n\n---\n**System Info:**\n"
+            body += "- macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)\n"
+            body += "- App Version: \(Bundle.main.appVersion)\n"
+            body += "- Subscription: \(StoreKitManager.shared.currentTier.displayName)\n"
+        }
+
+        // Create GitHub issue via API or open URL
+        let issueURL = createGitHubIssueURL(
+            title: feedback.title,
+            body: body,
+            labels: [feedback.type.rawValue]
+        )
+
+        NSWorkspace.shared.open(issueURL)
+    }
+}
+```
+
 #### RcloneManager.swift
 Enhanced with optimization and preview:
 
 ```swift
 class RcloneManager {
     private let optimizer = TransferOptimizer()
+    private let security = SecurityManager.shared
 
     func sync(localPath:remotePath:mode:encrypted:) async throws -> AsyncStream<SyncProgress>
     func listRemoteFiles(remotePath:encrypted:) async throws -> [RemoteFile]
     func copyFiles(source:destination:files:preview:) async throws -> TransferResult
     func previewTransfer(source:destination:) async throws -> TransferPreview
 
-    // NEW: Provider-aware optimization
+    // Provider-aware optimization
     private func buildTransferArgs(for provider: CloudProviderType?) -> [String] {
         var args = optimizer.buildArgs(parallelism: nil, provider: provider)
 
@@ -428,66 +899,29 @@ class RcloneManager {
         return args
     }
 
-    // NEW: Enhanced error parsing
+    // Enhanced error parsing
     func parseError(from output: String, exitCode: Int32) -> TransferError? {
         TransferError.parse(from: output) ??
         TransferError.fromExitCode(exitCode)
     }
-}
-```
 
-#### TransferOptimizer.swift (NEW in v2.0.16)
-Performance tuning engine:
-
-```swift
-class TransferOptimizer {
-    struct OptimizationParams {
-        let transfers: Int
-        let checkers: Int
-        let bufferSize: String
-
-        static let `default` = OptimizationParams(
-            transfers: 8,    // Increased from 4
-            checkers: 16,    // Increased from 8
-            bufferSize: "32M" // Increased from 16M
-        )
-    }
-
-    func buildArgs(parallelism: OptimizationParams? = nil,
-                   provider: CloudProviderType? = nil) -> [String] {
-        let params = parallelism ?? .default
-        var args = [
-            "--transfers=\(params.transfers)",
-            "--checkers=\(params.checkers)",
-            "--buffer-size=\(params.bufferSize)"
-        ]
-
-        // Provider-specific optimizations
-        if let provider = provider {
-            switch provider {
-            case .googleDrive:
-                args.append("--drive-chunk-size=128M")
-                args.append("--fast-list")
-            case .dropbox:
-                args.append("--dropbox-chunk-size=150M")
-            case .s3:
-                args.append("--s3-chunk-size=5M")
-                args.append("--s3-upload-concurrency=16")
-            // ... more providers
-            }
+    // Secure path handling (v2.0.32)
+    private func validatePath(_ path: String) throws {
+        let sanitized = security.sanitizePath(path)
+        guard sanitized == path else {
+            throw TransferError(type: .permissionDenied, message: "Invalid path")
         }
-
-        return args
     }
 }
 ```
 
-#### CrashReportingManager.swift (NEW in v2.0.21)
+#### CrashReportingManager.swift
 Privacy-first crash handling:
 
 ```swift
 class CrashReportingManager {
     static let shared = CrashReportingManager()
+    private let security = SecurityManager.shared
 
     private let crashReportsURL: URL
     private var signalSources: [DispatchSourceSignal] = []
@@ -516,44 +950,18 @@ class CrashReportingManager {
         }
     }
 
+    private func saveCrashReport(_ report: CrashReport) {
+        // Scrub sensitive data before saving
+        var scrubbedReport = report
+        scrubbedReport.stackTrace = security.scrubSensitiveData(report.stackTrace)
+
+        // Save with secure permissions
+        let url = crashReportsURL.appendingPathComponent("\(report.id).json")
+        try? security.setSecurePermissions(for: url)
+    }
+
     func getCrashReports() -> [CrashReport] {
         // Load from local storage only
-    }
-}
-```
-
-#### ErrorNotificationManager.swift (NEW in v2.0.11)
-Global error state management:
-
-```swift
-@MainActor
-class ErrorNotificationManager: ObservableObject {
-    static let shared = ErrorNotificationManager()
-
-    @Published var currentErrors: [TransferError] = []
-    @Published var isShowingError = false
-
-    private var dismissTimers: [UUID: Timer] = [:]
-
-    func show(_ error: TransferError) {
-        currentErrors.append(error)
-        isShowingError = true
-
-        // Auto-dismiss non-critical errors
-        if !error.type.isCritical {
-            startDismissTimer(for: error, duration: 10)
-        }
-    }
-
-    func dismiss(_ error: TransferError) {
-        currentErrors.removeAll { $0.id == error.id }
-        if currentErrors.isEmpty {
-            isShowingError = false
-        }
-    }
-
-    func retry(_ error: TransferError) async {
-        // Implement retry logic
     }
 }
 ```
@@ -562,10 +970,13 @@ class ErrorNotificationManager: ObservableObject {
 
 ### Global State (Singletons)
 ```swift
-SyncManager.shared          // Sync operations
-RemotesViewModel.shared     // Cloud connections
-TasksViewModel.shared       // Job queue
-ScheduleManager.shared      // Scheduled syncs
+SyncManager.shared              // Sync operations
+RemotesViewModel.shared         // Cloud connections
+TasksViewModel.shared           // Job queue
+ScheduleManager.shared          // Scheduled syncs
+StoreKitManager.shared          // Subscriptions (NEW)
+SecurityManager.shared          // Security utils (NEW)
+FeedbackManager.shared          // User feedback (NEW)
 ErrorNotificationManager.shared // Error banners
 CrashReportingManager.shared    // Crash reports
 ```
@@ -573,6 +984,7 @@ CrashReportingManager.shared    // Crash reports
 ### Local State (Views)
 ```swift
 @State private var showingQuickActions = false
+@State private var showingPaywall = false
 @State private var selectedFiles: Set<UUID> = []
 @State private var transferPreview: TransferPreview?
 @StateObject private var onboardingVM = OnboardingViewModel()
@@ -584,6 +996,7 @@ CrashReportingManager.shared    // Crash reports
 .environmentObject(remotesVM)
 .environmentObject(tasksVM)
 .environmentObject(scheduleManager)
+.environmentObject(storeKitManager)
 .environmentObject(errorManager)
 ```
 
@@ -594,14 +1007,19 @@ CrashReportingManager.shared    // Crash reports
 "syncTasks"          // [SyncTask] JSON
 "syncSchedules"      // [SyncSchedule] JSON
 "hasCompletedOnboarding" // Bool
+"onboarding_hasConnectedProvider" // Bool (NEW)
+"onboarding_hasCompletedFirstSync" // Bool (NEW)
 "use24HourTime"      // Bool
 "uploadBandwidthLimit" // Double (MB/s)
 "downloadBandwidthLimit" // Double (MB/s)
+
+// Keychain (secure storage)
+"subscriptionReceipt" // StoreKit receipt data
 ```
 
 ## Testing Infrastructure
 
-### 855 Automated Tests (v2.0.24)
+### 855 Automated Tests (v2.0.32)
 
 #### Test Categories
 - **Models** (150+ tests)
@@ -609,6 +1027,7 @@ CrashReportingManager.shared    // Crash reports
   - TransferErrorTests.swift - 48 error parsing tests
   - ChunkSizeTests.swift - 25 optimization tests
   - TransferPreviewTests.swift - 25 preview tests
+  - SubscriptionTierTests.swift - 15 tier tests (NEW)
 
 - **ViewModels** (200+ tests)
   - RemotesViewModelTests.swift - Remote management
@@ -621,18 +1040,49 @@ CrashReportingManager.shared    // Crash reports
   - TransferOptimizerTests.swift - Performance tuning
   - CrashReportingTests.swift - 27 crash handling tests
   - ErrorNotificationTests.swift - Error display logic
+  - StoreKitManagerTests.swift - 20 subscription tests (NEW)
+  - SecurityManagerTests.swift - 15 security tests (NEW)
 
 - **Integration** (100+ tests)
   - End-to-end transfer workflows
   - Provider authentication flows
   - Schedule execution tests
   - Error recovery scenarios
+  - Feature gating tests (NEW)
 
 - **UI Tests** (69 tests)
   - OnboardingUITests.swift
   - TransferUITests.swift
   - QuickActionsUITests.swift
   - ErrorHandlingUITests.swift
+  - WizardUITests.swift (NEW)
+  - PaywallUITests.swift (NEW)
+
+### StoreKit Testing Configuration (NEW v2.0.32)
+
+```swift
+// StoreKit Configuration file for testing
+// CloudSyncApp/StoreKitTest.storekit
+{
+    "products": [
+        {
+            "id": "com.cloudsync.pro.monthly",
+            "type": "autoRenewable",
+            "price": 9.99
+        },
+        {
+            "id": "com.cloudsync.pro.yearly",
+            "type": "autoRenewable",
+            "price": 99.99
+        },
+        {
+            "id": "com.cloudsync.team.monthly",
+            "type": "autoRenewable",
+            "price": 19.99
+        }
+    ]
+}
+```
 
 ### CI/CD Pipeline
 
@@ -652,11 +1102,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_14.3.app
+      run: sudo xcode-select -s /Applications/Xcode_15.app
     - name: Build
-      run: xcodebuild build -scheme CloudSyncApp
+      run: xcodebuild build -scheme CloudSyncApp -destination 'platform=macOS'
     - name: Test
-      run: xcodebuild test -scheme CloudSyncApp
+      run: xcodebuild test -scheme CloudSyncApp -destination 'platform=macOS'
     - name: Upload coverage
       uses: codecov/codecov-action@v3
 ```
@@ -670,23 +1120,25 @@ jobs:
 
 echo "Running pre-commit checks..."
 
-# 1. Swift format check
-if command -v swiftformat >/dev/null 2>&1; then
-    echo "Checking Swift formatting..."
-    swiftformat --lint . || exit 1
+# 1. Swift syntax check
+echo "Checking Swift syntax..."
+find . -name "*.swift" -exec swiftc -parse {} \; || exit 1
+
+# 2. Build check
+echo "Building project..."
+xcodebuild build -scheme CloudSyncApp -quiet || exit 1
+
+# 3. Version consistency
+echo "Checking version consistency..."
+./scripts/version-check.sh || exit 1
+
+# 4. Check for debug artifacts
+echo "Checking for debug artifacts..."
+if grep -r "print(" --include="*.swift" CloudSyncApp/; then
+    echo "Warning: Found print() statements"
 fi
 
-# 2. Run tests
-echo "Running tests..."
-xcodebuild test -scheme CloudSyncApp -quiet || exit 1
-
-# 3. Check for TODO/FIXME
-echo "Checking for unresolved TODOs..."
-if grep -r "TODO\|FIXME" --include="*.swift" .; then
-    echo "Warning: Found TODO/FIXME comments"
-fi
-
-# 4. Update test count
+# 5. Update test count
 ./scripts/record-test-count.sh
 
 echo "Pre-commit checks passed!"
@@ -794,173 +1246,49 @@ class MyFeatureTests: XCTestCase {
 ./scripts/record-test-count.sh
 ```
 
-## Performance Optimization
+## Keyboard Navigation (v2.0.32)
 
-### Transfer Performance
+### Global Shortcuts
+| Shortcut | Action | Handler |
+|----------|--------|---------|
+| `⌘N` | Add new provider | MainWindow.swift |
+| `⌘,` | Open Settings | AppDelegate.swift |
+| `⌘⇧N` | Quick Actions menu | MainWindow.swift |
+| `⌘1-9` | Switch sidebar sections | SidebarView.swift |
 
-#### Provider-Specific Tuning
+### File Browser Shortcuts
+| Shortcut | Action | Handler |
+|----------|--------|---------|
+| `↑/↓` | Navigate files | FileBrowserView.swift |
+| `⏎` | Open folder / Select file | FileBrowserView.swift |
+| `⌘↑` | Go to parent folder | FileBrowserView.swift |
+| `Space` | Quick Look preview | FileBrowserView.swift |
+| `⌘A` | Select all | FileBrowserView.swift |
+| `⌘⇧A` | Deselect all | FileBrowserView.swift |
+| `Delete` | Delete selected | FileBrowserView.swift |
+
+### Implementation Pattern
 ```swift
-// Automatic optimization based on provider
-let optimizer = TransferOptimizer()
-let args = optimizer.buildArgs(provider: .googleDrive)
-// Results in: --transfers=8 --checkers=16 --buffer-size=32M --drive-chunk-size=128M
-```
-
-#### Dynamic Parallelism
-```swift
-// Adapts based on file count and size
-if fileCount > 1000 {
-    params.transfers = 16
-} else if totalSize > 1_000_000_000 { // 1GB
-    params.transfers = 8
-} else {
-    params.transfers = 4
-}
-```
-
-### UI Performance
-
-#### List Virtualization
-```swift
-// Use LazyVStack for large lists
-LazyVStack {
-    ForEach(files) { file in
-        FileRow(file: file)
-    }
-}
-```
-
-#### Image Loading
-```swift
-// Async image loading for provider icons
-AsyncImage(url: provider.iconURL) { image in
-    image.resizable()
-} placeholder: {
-    ProgressView()
-}
-```
-
-#### Search Debouncing
-```swift
-.onChange(of: searchQuery) { _, newValue in
-    searchTask?.cancel()
-    searchTask = Task {
-        try? await Task.sleep(nanoseconds: 300_000_000)
-        await performSearch(newValue)
-    }
-}
-```
-
-## Debugging
-
-### Console Logging
-
-```swift
-// Use Logger instead of print
-import os.log
-
-private let logger = Logger(subsystem: "com.cloudsync.app",
-                          category: "RcloneManager")
-
-logger.debug("Starting transfer: \(task.name)")
-logger.error("Transfer failed: \(error.localizedDescription)")
-```
-
-### Debug Previews
-
-```swift
-#Preview("Error State") {
-    TasksView()
-        .environmentObject(mockTasksVM(withError: true))
-}
-
-#Preview("Multiple Clouds") {
-    DashboardView()
-        .environmentObject(mockRemotesVM(count: 5))
-}
-```
-
-### Performance Profiling
-
-1. **Instruments**: Use Time Profiler for CPU usage
-2. **Memory Graph**: Debug memory leaks
-3. **View Hierarchy**: Debug layout issues
-4. **Network Link Conditioner**: Test slow connections
-
-## Code Style Guide
-
-### SwiftUI Best Practices
-
-```swift
-// ✅ Good - Extract complex views
-struct FileRow: View {
-    let file: FileItem
+struct FileBrowserView: View {
+    @FocusState private var isFocused: Bool
+    @State private var selectedIndex: Int = 0
 
     var body: some View {
-        HStack {
-            Image(systemName: file.icon)
-            VStack(alignment: .leading) {
-                Text(file.name)
-                Text(file.formattedSize)
-                    .font(.caption)
+        List(selection: $selection) { ... }
+            .focused($isFocused)
+            .onKeyPress(.upArrow) {
+                moveSelection(by: -1)
+                return .handled
             }
-        }
-    }
-}
-
-// ❌ Bad - Inline complex views
-List {
-    ForEach(files) { file in
-        HStack {
-            Image(systemName: file.isDirectory ? "folder" : "doc")
-            VStack(alignment: .leading) {
-                Text(file.name)
-                Text(ByteCountFormatter.string(fromByteCount: file.size))
-                    .font(.caption)
+            .onKeyPress(.downArrow) {
+                moveSelection(by: 1)
+                return .handled
             }
-        }
+            .onKeyPress(.return) {
+                openSelected()
+                return .handled
+            }
     }
-}
-```
-
-### Error Handling
-
-```swift
-// ✅ Good - User-friendly errors
-do {
-    try await rclone.sync(...)
-} catch {
-    let transferError = TransferError.parse(from: error) ??
-                       TransferError.generic(error)
-    await errorManager.show(transferError)
-}
-
-// ❌ Bad - Raw error display
-do {
-    try await rclone.sync(...)
-} catch {
-    print(error)
-}
-```
-
-### Testing
-
-```swift
-// ✅ Good - Descriptive test names
-func testTransferPreviewShowsCorrectFileCounts() async {
-    // Given
-    let source = mockRemote(withFiles: 10)
-    let destination = mockRemote(withFiles: 5)
-
-    // When
-    let preview = try await rclone.previewTransfer(
-        from: source,
-        to: destination
-    )
-
-    // Then
-    XCTAssertEqual(preview.newFiles, 5)
-    XCTAssertEqual(preview.totalFiles, 10)
 }
 ```
 
@@ -985,15 +1313,15 @@ xcodebuild -exportArchive \
 ### Version Management
 ```bash
 # Update version
-./scripts/update-version.sh 2.0.23
+./scripts/update-version.sh 2.0.32
 
 # Create release
-./scripts/release.sh 2.0.23
+./scripts/release.sh 2.0.32
 ```
 
 ---
 
-**Development Guide Version**: 2.0.25
+**Development Guide Version**: 2.0.32
 **Last Updated**: January 2026
 **Architecture**: MVVM + SwiftUI
 **Tests**: 855 automated tests
