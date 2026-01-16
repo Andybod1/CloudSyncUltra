@@ -451,12 +451,120 @@ struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
     var isViewingEncrypted: Bool {
         isEncrypted && hasEncryptionConfigured
     }
-    
+
+    // MARK: - Privacy Masking (#120)
+
+    /// Get account name with privacy masking applied if enabled
+    /// - Parameter masked: Whether to apply masking (respects user preference if not specified)
+    /// - Returns: Masked or full account name
+    func displayAccountName(masked: Bool? = nil) -> String? {
+        guard let account = accountName, !account.isEmpty else { return nil }
+
+        let shouldMask = masked ?? AccountPrivacySettings.shared.maskAccountNames
+
+        if shouldMask {
+            return AccountPrivacySettings.maskAccountName(account)
+        }
+
+        return account
+    }
+
+    /// Get a privacy-safe identifier for logging and analytics
+    /// Returns a truncated hash rather than the full account name
+    var privacySafeIdentifier: String {
+        guard let account = accountName, !account.isEmpty else {
+            return "unknown"
+        }
+
+        // Create a SHA256 hash and take first 8 characters
+        let data = Data(account.utf8)
+        var hash = [UInt8](repeating: 0, count: 32)
+        data.withUnsafeBytes { bytes in
+            _ = CC_SHA256(bytes.baseAddress, CC_LONG(data.count), &hash)
+        }
+        return hash.prefix(4).map { String(format: "%02x", $0) }.joined()
+    }
+
     // Hashable conformance - hash by id only
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 }
+
+// MARK: - Account Privacy Settings (#120)
+
+/// Manages privacy settings for account name display
+class AccountPrivacySettings {
+
+    static let shared = AccountPrivacySettings()
+
+    private let defaults = UserDefaults.standard
+
+    private enum Keys {
+        static let maskAccountNames = "privacyMaskAccountNames"
+        static let showAccountInMenuBar = "privacyShowAccountInMenuBar"
+    }
+
+    /// Whether to mask account names in the UI (e.g., "j***@gmail.com")
+    var maskAccountNames: Bool {
+        get { defaults.bool(forKey: Keys.maskAccountNames) }
+        set { defaults.set(newValue, forKey: Keys.maskAccountNames) }
+    }
+
+    /// Whether to show account names in the menu bar
+    var showAccountInMenuBar: Bool {
+        get { defaults.object(forKey: Keys.showAccountInMenuBar) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Keys.showAccountInMenuBar) }
+    }
+
+    private init() {}
+
+    /// Mask an email address for privacy display
+    /// Example: "john.doe@example.com" -> "j***@example.com"
+    /// Example: "username" -> "u***"
+    static func maskAccountName(_ name: String) -> String {
+        // Check if it's an email address
+        if name.contains("@") {
+            return maskEmail(name)
+        }
+
+        // For non-email usernames
+        return maskUsername(name)
+    }
+
+    /// Mask an email address
+    /// Shows first character of local part, masks the rest, preserves domain
+    private static func maskEmail(_ email: String) -> String {
+        let parts = email.split(separator: "@", maxSplits: 1)
+        guard parts.count == 2 else {
+            return maskUsername(email)
+        }
+
+        let localPart = String(parts[0])
+        let domain = String(parts[1])
+
+        let maskedLocal: String
+        if localPart.count <= 1 {
+            maskedLocal = "***"
+        } else {
+            maskedLocal = String(localPart.prefix(1)) + "***"
+        }
+
+        return "\(maskedLocal)@\(domain)"
+    }
+
+    /// Mask a username
+    /// Shows first character, masks the rest
+    private static func maskUsername(_ username: String) -> String {
+        if username.count <= 1 {
+            return "***"
+        }
+        return String(username.prefix(1)) + "***"
+    }
+}
+
+// Required for SHA256 hashing
+import CommonCrypto
 
 struct FileItem: Identifiable, Equatable, Hashable {
     let id: UUID

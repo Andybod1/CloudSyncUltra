@@ -30,26 +30,45 @@ class RemotesViewModel: ObservableObject {
     }
     
     func loadRemotes() {
-        // Start fresh with local storage
-        remotes = [
+        // Start with local storage
+        var loadedRemotes: [CloudRemote] = [
             CloudRemote(name: "Local Storage", type: .local, isConfigured: true, path: NSHomeDirectory())
         ]
 
-        // Scan rclone config for existing remotes
-        scanRcloneConfig()
+        // Load saved remotes from UserDefaults first
+        if let data = UserDefaults.standard.data(forKey: storageKey),
+           let savedRemotes = try? JSONDecoder().decode([CloudRemote].self, from: data) {
+            // Add non-local saved remotes
+            let savedCloudRemotes = savedRemotes.filter { $0.type != .local }
+            loadedRemotes.append(contentsOf: savedCloudRemotes)
+        }
+
+        // Scan rclone config for any remotes not already in our saved list
+        let rcloneRemotes = scanRcloneConfigRemotes()
+        for rcloneRemote in rcloneRemotes {
+            // Only add if not already present (by type or custom rclone name)
+            let alreadyExists = loadedRemotes.contains { existing in
+                existing.type == rcloneRemote.type ||
+                (existing.customRcloneName != nil && existing.customRcloneName == rcloneRemote.customRcloneName)
+            }
+            if !alreadyExists {
+                loadedRemotes.append(rcloneRemote)
+            }
+        }
 
         // Sort cloud remotes by sortOrder
-        let localRemotes = remotes.filter { $0.type == .local }
-        let cloudRemotes = remotes.filter { $0.type != .local }.sorted { $0.sortOrder < $1.sortOrder }
+        let localRemotes = loadedRemotes.filter { $0.type == .local }
+        let cloudRemotes = loadedRemotes.filter { $0.type != .local }.sorted { $0.sortOrder < $1.sortOrder }
         remotes = localRemotes + cloudRemotes
 
         saveRemotes()
     }
-    
-    private func scanRcloneConfig() {
+
+    /// Scan rclone config and return found remotes (without modifying state)
+    private func scanRcloneConfigRemotes() -> [CloudRemote] {
+        var foundRemotes: [CloudRemote] = []
         let rclone = RcloneManager.shared
-        
-        // Check for known provider types
+
         let providerChecks: [(CloudProviderType, [String])] = [
             (.protonDrive, ["proton"]),
             (.googleDrive, ["google", "Google", "gdrive"]),
@@ -60,11 +79,10 @@ class RemotesViewModel: ObservableObject {
             (.box, ["box", "Box"]),
             (.pcloud, ["pcloud", "pCloud"])
         ]
-        
+
         for (providerType, possibleNames) in providerChecks {
             for name in possibleNames {
                 if rclone.isRemoteConfigured(name: name) {
-                    // Found a configured remote
                     let remote = CloudRemote(
                         name: providerType.displayName,
                         type: providerType,
@@ -72,14 +90,16 @@ class RemotesViewModel: ObservableObject {
                         path: "",
                         customRcloneName: name
                     )
-                    // Don't add duplicates
-                    if !remotes.contains(where: { $0.type == providerType }) {
-                        remotes.append(remote)
+                    // Don't add duplicates within this scan
+                    if !foundRemotes.contains(where: { $0.type == providerType }) {
+                        foundRemotes.append(remote)
                     }
-                    break  // Found one for this provider, move to next
+                    break
                 }
             }
         }
+
+        return foundRemotes
     }
     
     func saveRemotes() {
@@ -90,9 +110,10 @@ class RemotesViewModel: ObservableObject {
     
     func addRemote(_ remote: CloudRemote) -> Bool {
         // Check if user can add more remotes based on subscription tier
+        // Only count cloud remotes against the limit, not local storage
         if let limit = StoreKitManager.shared.currentTier.connectionLimit {
-            let currentCount = remotes.count
-            if currentCount >= limit {
+            let cloudRemoteCount = remotes.filter { $0.type != .local }.count
+            if cloudRemoteCount >= limit {
                 // User has reached the limit
                 error = StoreKitManager.shared.currentTier.limitMessage(for: "connections")
                 return false
@@ -171,19 +192,23 @@ class RemotesViewModel: ObservableObject {
     // MARK: - Subscription Feature Gating
 
     /// Check if user can add more remotes based on subscription tier
+    /// Only counts cloud remotes, not local storage
     var canAddMoreRemotes: Bool {
         guard let limit = StoreKitManager.shared.currentTier.connectionLimit else {
             return true // No limit
         }
-        return remotes.count < limit
+        let cloudRemoteCount = remotes.filter { $0.type != .local }.count
+        return cloudRemoteCount < limit
     }
 
     /// Get the number of remaining remotes user can add
+    /// Only counts cloud remotes, not local storage
     var remainingRemotesCount: Int? {
         guard let limit = StoreKitManager.shared.currentTier.connectionLimit else {
             return nil // No limit
         }
-        return max(0, limit - remotes.count)
+        let cloudRemoteCount = remotes.filter { $0.type != .local }.count
+        return max(0, limit - cloudRemoteCount)
     }
 
     /// Check if user should be shown the paywall for adding remotes
