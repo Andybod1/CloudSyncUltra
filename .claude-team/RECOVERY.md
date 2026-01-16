@@ -1,7 +1,7 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.26
+> **Current Version:** v2.0.28
 > **Last Updated:** 2026-01-15
 
 ---
@@ -164,9 +164,9 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 
 ---
 
-## Current State (v2.0.26)
+## Current State (v2.0.28)
 
-### Just Completed: v2.0.26 Sprint
+### Just Completed: v2.0.28 Sprint
 - ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers
 - ✅ **Security Hardening** (#74) - Path sanitization, secure file handling
 - ✅ **Legal Compliance** - Privacy Policy, ToS, GDPR/CCPA docs
@@ -261,4 +261,4 @@ git log --oneline -5
 ---
 
 *Last Updated: 2026-01-15*
-*CloudSync Ultra v2.0.26*
+*CloudSync Ultra v2.0.28*
