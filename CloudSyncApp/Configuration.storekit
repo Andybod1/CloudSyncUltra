@@ -119,31 +119,6 @@
           "referenceName" : "Pro Yearly",
           "subscriptionGroupID" : "21519378",
           "type" : "RecurringSubscription"
-        },
-        {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "19.99",
-          "familyShareable" : false,
-          "groupNumber" : 2,
-          "internalID" : "6739945889",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "All Pro features plus team management and SSO (coming soon)",
-              "displayName" : "CloudSync Team",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.cloudsync.team.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Team Monthly",
-          "subscriptionGroupID" : "21519378",
-          "type" : "RecurringSubscription"
         }
       ]
     }
