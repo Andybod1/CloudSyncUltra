@@ -59,7 +59,10 @@
       "Bash(./scripts/generate-type-inventory.sh:*)",
       "Bash(./scripts/record-test-count.sh:*)",
       "Bash(./scripts/version-check.sh:*)",
-      "Bash(./scripts/check-ownership.sh:*)"
+      "Bash(./scripts/check-ownership.sh:*)",
+      "Bash(git tag:*)",
+      "Bash(./scripts/update-version.sh:*)",
+      "Bash(./scripts/archive-outputs.sh:*)"
     ]
   }
 }
