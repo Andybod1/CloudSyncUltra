@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.28 | **Updated:** 2026-01-16
+> **Version:** 2.0.29 | **Updated:** 2026-01-16
 
 ---
 
@@ -136,7 +136,7 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.28 - Sprint "Launch Ready"
+### Just Completed: v2.0.29 - Sprint "Launch Ready"
 - ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
 - ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
 - ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs

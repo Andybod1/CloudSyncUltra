@@ -2,7 +2,7 @@
 
 > Single file containing everything needed to restore full context.
 > Use this after computer crash or starting fresh session.
-> **Version:** 2.0.28 | **Updated:** 2026-01-15
+> **Version:** 2.0.29 | **Updated:** 2026-01-15
 
 ---
 
@@ -13,7 +13,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.28 |
+| **Version** | 2.0.29 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Project Board** | https://github.com/users/andybod1-lang/projects/1 |
@@ -215,7 +215,7 @@ gh issue view <number>
 
 ## Recent History
 
-### v2.0.28 - 2026-01-15 (Current)
+### v2.0.29 - 2026-01-15 (Current)
 - **Keyboard Navigation** (#54) - Full app navigation support
 - **Input Validation** (#75) - Data handling and security
 - **Brand Identity Docs** (#79) - Visual identity and branding
@@ -255,4 +255,4 @@ Then tell me what state we're in and what needs to happen next.
 ---
 
 *Last Updated: 2026-01-15*
-*CloudSync Ultra v2.0.28*
+*CloudSync Ultra v2.0.29*

@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.29] - 2026-01-16
+
+### Removed
+- **Team Plan** (#106) - Removed from all views and code
+  - SubscriptionTier.swift, PaywallView.swift, SubscriptionView.swift
+  - StoreKitManager.swift, Configuration.storekit
+
+### Added
+- Backlog split: #113-115 (Wizards), #116-120 (Security)
+
+### Improved
+- Moved archives to dedicated `.claude-team/archive/` folder
+- Health score improved to 90%
+
+---
+
 ## [2.0.28] - 2026-01-16
 
 ### Fixed
