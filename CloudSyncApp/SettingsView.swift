@@ -8,6 +8,7 @@
 
 import SwiftUI
 import UserNotifications
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @State private var selectedTab = 0
@@ -271,6 +272,27 @@ struct GeneralSettingsView: View {
                 }
             } header: {
                 Label("Storage", systemImage: "externaldrive")
+            }
+
+            // Feedback Section (Issue #97)
+            Section {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Send Feedback")
+                        Text("Report bugs, suggest features, or share feedback")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Send Feedback") {
+                        NotificationCenter.default.post(name: .showFeedback, object: nil)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel("Send Feedback")
+                    .accessibilityHint("Opens the feedback form to report bugs or suggest features")
+                }
+            } header: {
+                Label("Feedback", systemImage: "bubble.left.and.bubble.right")
             }
 
             // Developer/Testing Section
@@ -557,7 +579,8 @@ struct AccountSettingsView: View {
     @EnvironmentObject var remotesVM: RemotesViewModel
     @State private var selectedRemote: CloudRemote?
     @State private var showAddSheet = false
-    
+    @State private var showConnectionWizard = false
+
     var body: some View {
         HSplitView {
             // Remote List
@@ -591,19 +614,32 @@ struct AccountSettingsView: View {
                     Text("Select a cloud service")
                         .foregroundColor(AppTheme.textSecondary)
 
-                    Button("Add Cloud Storage") {
-                        showAddSheet = true
+                    VStack(spacing: 12) {
+                        Button("Add Cloud Storage") {
+                            showConnectionWizard = true
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        .accessibilityLabel("Add Cloud Storage")
+                        .accessibilityHint("Opens a wizard to guide you through adding a new cloud storage provider")
+                        .keyboardShortcut("n", modifiers: .command)
+
+                        Button("Quick Add") {
+                            showAddSheet = true
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .accessibilityLabel("Quick Add")
+                        .accessibilityHint("Opens the quick add sheet for experienced users")
                     }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .accessibilityLabel("Add Cloud Storage")
-                    .accessibilityHint("Opens a sheet to add a new cloud storage provider")
-                    .keyboardShortcut("n", modifiers: .command)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .sheet(isPresented: $showAddSheet) {
             AddRemoteSheet()
+        }
+        .sheet(isPresented: $showConnectionWizard) {
+            ProviderConnectionWizardView()
+                .environmentObject(remotesVM)
         }
     }
 }
@@ -1332,18 +1368,18 @@ struct EncryptionSettingsView: View {
     private func importRcloneConfig() {
         let panel = NSOpenPanel()
         panel.title = "Import rclone Configuration"
-        panel.allowedContentTypes = [.text]
+        panel.allowedContentTypes = [.text, .plainText, UTType(filenameExtension: "conf")].compactMap { $0 }
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
-            
+
             let configPath = FileManager.default.urls(
                 for: .applicationSupportDirectory,
                 in: .userDomainMask
             )[0].appendingPathComponent("CloudSyncApp/rclone.conf")
-            
+
             do {
                 // Backup existing config
                 let backupPath = configPath.deletingLastPathComponent().appendingPathComponent("rclone.conf.backup")
@@ -1351,15 +1387,82 @@ struct EncryptionSettingsView: View {
                     try? FileManager.default.removeItem(at: backupPath)
                     try FileManager.default.copyItem(at: configPath, to: backupPath)
                 }
-                
+
                 // Import new config
                 try? FileManager.default.removeItem(at: configPath)
                 try FileManager.default.copyItem(at: url, to: configPath)
-                
+
+                // Detect encrypted remotes and enable encryption for their base remotes
+                if let configContent = try? String(contentsOf: url, encoding: .utf8) {
+                    detectAndEnableEncryptedRemotes(from: configContent)
+                }
+
                 // Reload remotes
                 RemotesViewModel.shared.loadRemotes()
             } catch {
                 print("Import failed: \(error)")
+            }
+        }
+    }
+
+    /// Parse rclone config to find crypt remotes and enable encryption for their base remotes
+    private func detectAndEnableEncryptedRemotes(from configContent: String) {
+        let lines = configContent.components(separatedBy: .newlines)
+        var currentRemote: String?
+        var remotesInfo: [String: [String: String]] = [:]
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+            // Section header [remote_name]
+            if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
+                currentRemote = String(trimmed.dropFirst().dropLast())
+                remotesInfo[currentRemote!] = [:]
+            } else if let remote = currentRemote, trimmed.contains("=") {
+                let parts = trimmed.components(separatedBy: "=")
+                if parts.count >= 2 {
+                    let key = parts[0].trimmingCharacters(in: .whitespaces)
+                    let value = parts.dropFirst().joined(separator: "=").trimmingCharacters(in: .whitespaces)
+                    remotesInfo[remote]?[key] = value
+                }
+            }
+        }
+
+        // Find crypt remotes and enable encryption for their base remotes
+        for (cryptRemoteName, info) in remotesInfo {
+            if info["type"] == "crypt", let remoteValue = info["remote"] {
+                // remote value is like "google_drive:encrypted" - extract base remote name
+                let baseRemote = remoteValue.components(separatedBy: ":").first ?? ""
+                if !baseRemote.isEmpty {
+                    print("[Import] Detected crypt remote '\(cryptRemoteName)' for base '\(baseRemote)'")
+
+                    // Extract encryption settings from the crypt remote config
+                    let password = info["password"] ?? ""
+                    let salt = info["password2"] ?? ""
+                    let filenameEncryption = info["filename_encryption"] ?? "standard"
+                    let directoryEncryption = info["directory_name_encryption"] ?? "true"
+
+                    // Create encryption config from imported settings
+                    // Passwords are in rclone's obscured format - save them as-is
+                    let config = RemoteEncryptionConfig(
+                        password: password,
+                        salt: salt,
+                        encryptFilenames: filenameEncryption != "off",
+                        encryptFolders: directoryEncryption == "true"
+                    )
+
+                    // Save the config to mark encryption as configured
+                    do {
+                        try EncryptionManager.shared.saveConfig(config, for: baseRemote)
+                        print("[Import] Saved encryption config for '\(baseRemote)'")
+                    } catch {
+                        print("[Import] Failed to save config for '\(baseRemote)': \(error)")
+                    }
+
+                    // Enable the encryption toggle
+                    EncryptionManager.shared.setEncryptionEnabled(true, for: baseRemote)
+                    print("[Import] Enabled encryption for '\(baseRemote)'")
+                }
             }
         }
     }
