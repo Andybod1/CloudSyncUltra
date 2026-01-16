@@ -123,6 +123,24 @@ if [[ -f ".github/workflows/ci.yml" ]]; then
     fi
 fi
 
+# Build check (actual xcodebuild verification)
+BUILD_STATUS="⏭️"
+BUILD_TEXT="Skipped"
+BUILD_COLOR=$YELLOW
+
+if [[ "$QUICK_MODE" != true ]] && [[ -f "CloudSyncApp.xcodeproj/project.pbxproj" ]]; then
+    BUILD_OUTPUT=$(xcodebuild build -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | tail -5)
+    if echo "$BUILD_OUTPUT" | grep -q "BUILD SUCCEEDED"; then
+        BUILD_STATUS="✅"
+        BUILD_TEXT="Passing"
+        BUILD_COLOR=$GREEN
+    else
+        BUILD_STATUS="❌"
+        BUILD_TEXT="Failing"
+        BUILD_COLOR=$RED
+    fi
+fi
+
 # Version check
 VERSION_OK="✅"
 if ! ./scripts/version-check.sh > /dev/null 2>&1; then
@@ -160,6 +178,7 @@ elif [[ -n "$CI_SUCCESS_RATE" ]] && [[ "$CI_SUCCESS_RATE" -lt 90 ]]; then
         HEALTH_ISSUES+="CI build rate warning (${CI_SUCCESS_RATE}%). "
     fi
 fi
+[[ "$BUILD_STATUS" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 20)) && HEALTH_ISSUES+="Build failing! "
 [[ "$VERSION_OK" == "❌" ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Version mismatch. "
 [[ "$CRITICAL" -gt 0 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="$CRITICAL critical issues. "
 [[ "$TRIAGE" -gt 10 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Triage backlog ($TRIAGE). "
@@ -219,7 +238,7 @@ echo ""
 printf "${BOLD}   %-25s %-25s %-25s${NC}\n" "📦 RELEASE" "🧪 QUALITY" "📈 VELOCITY"
 echo -e "${DIM}   ─────────────────────── ─────────────────────── ───────────────────────${NC}"
 printf "   Version:    ${GREEN}%-13s${NC} Tests:     ${GREEN}%-13s${NC} 7-Day:     ${VELOCITY_COLOR}%s %+d${NC}\n" "v$VERSION" "$TEST_COUNT ✅" "$VELOCITY_ICON" "$VELOCITY"
-printf "   Tag:        ${CYAN}%-13s${NC} Build:     ${GREEN}%-13s${NC} Opened:    %-13s\n" "$LATEST_TAG" "Passing ✅" "$OPENED_7D"
+printf "   Tag:        ${CYAN}%-13s${NC} Build:     ${BUILD_COLOR}%-13s${NC} Opened:    %-13s\n" "$LATEST_TAG" "$BUILD_TEXT $BUILD_STATUS" "$OPENED_7D"
 printf "   Versions:   %-13s CI:        ${CI_COLOR}%-20s${NC} Closed:    ${GREEN}%-13s${NC}\n" "$VERSION_OK" "$CI_STATUS $CI_TEXT" "$CLOSED_7D"
 
 echo ""
@@ -243,6 +262,11 @@ echo -e "${BOLD}   ⚡ NEEDS ATTENTION${NC}"
 echo ""
 
 ALERT_COUNT=0
+
+if [[ "$BUILD_STATUS" == "❌" ]]; then
+    echo -e "   ${RED}●${NC} BUILD FAILING - fix immediately before shipping"
+    ((ALERT_COUNT++))
+fi
 
 if [[ "$CRITICAL" -gt 0 ]]; then
     echo -e "   ${RED}●${NC} $CRITICAL critical issue(s) need immediate attention"
