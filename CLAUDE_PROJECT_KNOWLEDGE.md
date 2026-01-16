@@ -250,7 +250,7 @@ git push --tags origin main
 ./scripts/dashboard.sh
 
 # Review the tracker
-cat ~/.claude-team/OPERATIONAL_EXCELLENCE.md
+cat .claude-team/OPERATIONAL_EXCELLENCE.md
 ```
 - [ ] Health score maintained or improved
 - [ ] Update progress percentages if pillars improved
@@ -279,6 +279,30 @@ cat ~/.claude-team/OPERATIONAL_EXCELLENCE.md
 **Trigger:** Run this check when sprint includes user-facing features or quarterly.
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
+
+---
+
+#### Worker Workflow (Important!)
+
+**Development Workers (Dev-1, Dev-2, Dev-3):**
+```bash
+# Launch via external terminal - NOT as subagents
+.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+```
+- Run in separate terminal sessions
+- Handle sprint development tasks
+- Follow Worker Quality Standards v2.1
+
+**Strategic Partner Assistants (Subagents):**
+```
+# Use Task tool for SP's own parallel work
+Task tool with subagent_type="general-purpose"
+```
+- Research, analysis, exploration
+- File archiving, codebase searches
+- NOT for development tasks
+
+**Key distinction:** External workers = development team. Subagents = SP's assistants.
 
 ---
 

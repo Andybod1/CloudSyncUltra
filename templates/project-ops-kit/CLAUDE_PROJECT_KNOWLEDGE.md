@@ -1,139 +1,183 @@
-# Project Knowledge Template
+# CloudSync Ultra - Project Knowledge
 
-> **Instructions:** Fill in each section with your project's specific details. This file serves as the primary context for Claude workers.
+> **For Claude Project Context** - Essential info for every conversation
+> **Version:** 2.0.28 | **Updated:** 2026-01-16
 
 ---
 
-## Purpose & Context
+## Project Identity
 
-<!-- Describe your project's mission, main objectives, and the problem it solves -->
+| Key | Value |
+|-----|-------|
+| **App** | CloudSync Ultra - macOS cloud sync with 42 providers |
+| **Tech** | SwiftUI + rclone |
+| **Location** | `/Users/antti/Claude/` |
+| **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
+| **Human** | Andy |
 
-**Project:** [Your Project Name]
-**Description:** [What does this project do?]
-**Tech Stack:** [Languages, frameworks, tools]
-**Target Audience:** [Who uses this?]
+---
 
-### Key Stakeholders
-- Project Lead: [Name/Role]
-- Development Team: [Worker roles and domains]
+## What It Does
+
+Syncs files between cloud services (Google Drive, Dropbox, Proton Drive, S3, etc.):
+- Dual-pane file browser with drag & drop
+- Per-remote encryption
+- Scheduled sync (hourly/daily/weekly)
+- Menu bar integration
+- Bandwidth throttling
+- 12/24 hour time format preference
+
+---
+
+## Team Architecture
+
+### Core Team (5 Workers)
+```
+Strategic Partner (This Claude - Opus 4.5)
+    ├── Dev-1 (UI)       → Views, ViewModels, Components
+    ├── Dev-2 (Engine)   → RcloneManager.swift
+    ├── Dev-3 (Services) → Models, *Manager.swift
+    ├── QA (Testing)     → CloudSyncAppTests/
+    └── Dev-Ops          → Git, GitHub, Docs, Research
+```
+
+### Specialized Agents (On-Demand)
+```
+    ├── UX-Designer      → UI/UX analysis, user flows
+    ├── Product-Manager  → Strategy, requirements, roadmap
+    ├── Architect        → System design, refactoring
+    ├── Security-Auditor → Security review, vulnerabilities
+    ├── Performance-Eng  → Deep optimization analysis
+    └── Tech-Writer      → Documentation, guides
+```
+
+### Model Rules
+| Agent Type | Model | /think |
+|------------|-------|--------|
+| Dev-1, Dev-2, Dev-3 | **Opus** | M/L/XL tickets or tricky implementations |
+| QA, Dev-Ops | **Opus** | Always |
+| All Specialized | **Opus** | Always (/think hard) |
+
+**All workers use Opus.** Extended thinking (/think) is used for:
+- M/L/XL sized tickets
+- Tricky or complex implementations
+- QA, Dev-Ops, and Specialized agents (always)
+
+### Ticket Triage Process
+When evaluating tickets, Strategic Partner decides assignment:
+- **Implementation work** → Core team (Dev-1/2/3, QA, Dev-Ops)
+- **Analysis/strategy/review** → Specialized agents
+
+See `.claude-team/TRIAGE_GUIDE.md` for decision tree and examples.
+
+---
+
+## Worker Launch
+
+> ⚠️ **IMPORTANT:** Always use the launch script - never launch workers manually via `claude` command directly. The script handles Terminal setup, briefing injection, and task assignment automatically.
+
+```bash
+# Core team (all use Opus)
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-ops opus
+
+# Specialized agents (all use Opus)
+~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
+```
+
+---
+
+## File Structure
+
+```
+/Users/antti/Claude/
+├── CloudSyncApp/                 # Source (SwiftUI)
+├── CloudSyncAppTests/            # Tests (743 passing)
+├── CloudSyncAppUITests/          # UI Tests (69 tests)
+├── docs/                         # User documentation
+├── .claude-team/
+│   ├── STATUS.md                 # Live worker status
+│   ├── TRIAGE_GUIDE.md           # Ticket assignment decisions
+│   ├── SPECIALIZED_AGENTS.md     # Agent roster & usage
+│   ├── tasks/TASK_*.md           # Active tasks
+│   ├── outputs/*_COMPLETE.md     # Reports
+│   ├── templates/*_BRIEFING.md   # Briefings
+│   └── planning/*.md             # Feature plans
+└── CHANGELOG.md
+```
+
+---
+
+## Essential Commands
+
+```bash
+# Build & Launch
+cd /Users/antti/Claude && xcodebuild build 2>&1 | tail -5
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+
+# Tests
+xcodebuild test -destination 'platform=macOS' 2>&1 | grep "Executed"
+
+# GitHub
+gh issue list
+gh issue view <number>
+```
 
 ---
 
 ## Current State
 
-<!-- Document where the project is right now -->
+### Just Completed: v2.0.28 - Sprint "Launch Ready"
+- ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
+- ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
+- ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs
+- ✅ **Marketing Package** - Positioning, landing page, press kit, Product Hunt plan
+- ✅ **App Store Assets** (#78) - Description, keywords, metadata, screenshot guide
+- ✅ **841 tests** (831 passing, 10 expected failures)
+- ✅ **Operational Excellence at 78%** (Pillar 2 at 100%)
 
-**Version:** See VERSION.txt
-**Status:** [Development/Beta/Production]
+### Strategic: Billion Dollar Framework
+- Revenue target: $50M ARR within 3 years
+- Pricing: Freemium → $9.99/mo Pro → $19.99/user Team
+- Growth: PLG + SEO content + viral features
+- Solo founder: AI support, self-serve everything
+- See `.claude-team/planning/BILLION_DOLLAR_FRAMEWORK.md`
 
-### Recent Achievements
-- [List recent milestones]
-- [Important features completed]
-
-### Known Issues
-- [Active bugs or limitations]
-- [Technical debt items]
-
----
-
-## On the Horizon
-
-<!-- What's coming next? -->
-
-### Near-term Priorities
-1. [Priority 1]
-2. [Priority 2]
-3. [Priority 3]
-
-### Future Considerations
-- [Long-term goals]
-- [Potential features]
+### v2.0.27 (Previous)
+- ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut
+- ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig
+- ✅ **Transfer Preview** (#55) - Dry-run support
 
 ---
 
-## Key Learnings & Principles
+## Key Reminders
 
-<!-- Wisdom gained from building this project -->
-
-### Technical Decisions
-- [Why certain technologies were chosen]
-- [Patterns that work well]
-
-### What We've Learned
-- [Important discoveries]
-- [Lessons from mistakes]
-
-### Principles We Follow
-- [Code quality standards]
-- [Testing requirements]
-- [Documentation practices]
-
----
-
-## Approach & Patterns
-
-<!-- How we work on this project -->
-
-### Development Workflow
-- **Branching:** [Git strategy]
-- **Testing:** [Required coverage, types]
-- **Code Review:** [Process]
-- **Deployment:** [How releases work]
-
-### Sprint Methodology
-- [Sprint duration]
-- [Planning process]
-- [Definition of Done]
-
-### Communication
-- [How workers coordinate]
-- [Status update frequency]
-- [Documentation requirements]
-
----
-
-## Tools & Resources
-
-### Development Environment
-- **IDE:** [e.g., VS Code, Xcode]
-- **Build System:** [e.g., npm, cargo, xcodebuild]
-- **Package Manager:** [e.g., npm, pip, homebrew]
-
-### Key Dependencies
-- [Critical libraries]
-- [External services]
-
-### Documentation Locations
-- `README.md` - Project overview
-- `CONTRIBUTING.md` - Contribution guidelines
-- `docs/` - Detailed documentation
-
-### Useful Commands
-```bash
-# Build
-[your build command]
-
-# Test
-[your test command]
-
-# Run
-[your run command]
-```
-
----
+1. **Launch workers via script** → `~/Claude/.claude-team/scripts/launch_single_worker.sh <worker> opus` (NEVER manually)
+2. **Triage tickets** → Use TRIAGE_GUIDE.md to assign core team OR specialized agents
+3. **Delegate ALL implementation** to workers
+4. **QA = Opus + /think | Specialized = Opus + /think hard**
+5. **Ask Andy** if requirements unclear
 
 ### ⚠️ MANDATORY: Post-Sprint Documentation
 
-> **🔒 PROTECTED SECTION** - Do NOT skip these steps when completing any sprint or major milestone
+> **🔒 PROTECTED SECTION** - Do NOT remove or modify this section without written permission from Andy.
 
-**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh X.X.X` to execute all steps automatically!
+**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh 2.0.XX` to execute all 6 steps automatically!
 
-**After EVERY sprint, complete ALL steps:**
+**After EVERY sprint, complete ALL steps (manually or via release.sh):**
 
 #### 0. Check Project Health FIRST
 ```bash
-# Run project dashboard/health check (customize this)
-./scripts/dashboard.sh  # OR your health check command
+./scripts/dashboard.sh
 ```
 - [ ] Review health score - should be 80%+
 - [ ] Check for any ⚡ NEEDS ATTENTION alerts
@@ -141,23 +185,20 @@
 
 #### 1. Verify Build & Tests
 ```bash
-# Run all tests (customize for your project)
-npm test  # OR: pytest, go test, cargo test, etc.
+# Run all tests
+cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
 
-# Build and verify
-npm run build  # OR: make build, cargo build, etc.
-
-# Launch/smoke test if applicable
-npm start  # OR your launch command
+# Build and launch app
+cd ~/Claude && xcodebuild build 2>&1 | tail -5
+open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
 ```
 - [ ] All tests pass
-- [ ] Build completes successfully
-- [ ] Application launches and works
+- [ ] App launches and works
 
 #### 2. Update Version (use scripts!)
 ```bash
 # Update all docs to new version automatically:
-./scripts/update-version.sh X.X.X
+./scripts/update-version.sh 2.0.XX
 
 # Verify all docs match VERSION.txt:
 ./scripts/version-check.sh
@@ -193,7 +234,7 @@ gh issue list
 
 #### 6. Commit, Tag & Push
 ```bash
-cd {PROJECT_ROOT}
+cd ~/Claude
 git add -A
 git commit -m "docs: Update documentation to vX.X.X"
 git tag vX.X.X
@@ -206,11 +247,19 @@ git push --tags origin main
 #### 7. Reflect on Operational Excellence
 ```bash
 # Check final health score
-./scripts/dashboard.sh  # OR your health check
+./scripts/dashboard.sh
+
+# Review the tracker
+cat .claude-team/OPERATIONAL_EXCELLENCE.md
 ```
-- [ ] Health maintained or improved
-- [ ] Document any lessons learned
-- [ ] Update process improvements
+- [ ] Health score maintained or improved
+- [ ] Update progress percentages if pillars improved
+- [ ] Check if any new gaps emerged
+- [ ] Note any process friction encountered
+- [ ] Identify next operational improvement to tackle
+- [ ] **If scripts improved → Update `templates/project-ops-kit/`**
+
+**Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`, `templates/project-ops-kit/`
 
 #### 8. User-Facing Docs Check (Quarterly or Major Features)
 
@@ -222,24 +271,48 @@ git push --tags origin main
 | `QUICKSTART.md` | Current workflows, keyboard shortcuts |
 | `DEVELOPMENT.md` | Architecture diagrams, new components, test count |
 
-- [ ] Provider count accurate?
+- [ ] Provider count accurate (currently 42+)?
 - [ ] New major features documented?
 - [ ] Screenshots current (if any)?
 - [ ] **If outdated → Create Tech-Writer task**
 
 **Trigger:** Run this check when sprint includes user-facing features or quarterly.
 
----
-
-## Other Instructions
-
-<!-- Special instructions for Claude workers -->
-
-- [Specific coding conventions]
-- [Required steps after changes]
-- [Things to always/never do]
+**⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
 ---
 
-*Last Updated: [Date]*
-*Maintained by: Strategic Partner*
+#### Worker Workflow (Important!)
+
+**Development Workers (Dev-1, Dev-2, Dev-3):**
+```bash
+# Launch via external terminal - NOT as subagents
+.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
+```
+- Run in separate terminal sessions
+- Handle sprint development tasks
+- Follow Worker Quality Standards v2.1
+
+**Strategic Partner Assistants (Subagents):**
+```
+# Use Task tool for SP's own parallel work
+Task tool with subagent_type="general-purpose"
+```
+- Research, analysis, exploration
+- File archiving, codebase searches
+- NOT for development tasks
+
+**Key distinction:** External workers = development team. Subagents = SP's assistants.
+
+---
+
+## Quick Recovery
+
+```bash
+cat /Users/antti/Claude/.claude-team/STATUS.md
+gh issue list
+```
+
+---
+
+*Optimized for Claude Project Knowledge*
