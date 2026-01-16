@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.28 | **Updated:** 2026-01-16
+> **Version:** 2.0.29 | **Updated:** 2026-01-16
 
 ---
 
@@ -136,7 +136,7 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.28 - Sprint "Launch Ready"
+### Just Completed: v2.0.29 - Sprint "Launch Ready"
 - ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
 - ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
 - ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs
@@ -191,9 +191,13 @@ cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSync
 # Build and launch app
 cd ~/Claude && xcodebuild build 2>&1 | tail -5
 open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+
+# Update test counts metric (use actual count from test output)
+echo "$(date +%Y-%m-%d),2.0.XX,<TEST_COUNT>" >> .claude-team/metrics/test-counts.csv
 ```
 - [ ] All tests pass
 - [ ] App launches and works
+- [ ] Test count added to `.claude-team/metrics/test-counts.csv`
 
 #### 2. Update Version (use scripts!)
 ```bash
@@ -261,7 +265,23 @@ cat .claude-team/OPERATIONAL_EXCELLENCE.md
 
 **Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`, `templates/project-ops-kit/`
 
-#### 8. User-Facing Docs Check (Quarterly or Major Features)
+#### 8. Sprint Retrospective
+Quick reflection on the sprint to capture learnings:
+
+| Question | Notes |
+|----------|-------|
+| **What went well?** | (successes, smooth processes, wins) |
+| **What didn't go well?** | (friction, bugs, blockers, delays) |
+| **What to improve?** | (process changes, tooling, documentation) |
+
+- [ ] Noted 1-2 things that went well
+- [ ] Identified any friction or issues encountered
+- [ ] Captured improvement ideas for next sprint
+- [ ] (Optional) Add retro notes to `.claude-team/retros/` if significant learnings
+
+**Tip:** Keep it brief (2-3 min). Focus on actionable improvements, not blame.
+
+#### 9. User-Facing Docs Check (Quarterly or Major Features)
 
 | File | Check For |
 |------|-----------|
