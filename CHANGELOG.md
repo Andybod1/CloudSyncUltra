@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.28] - 2026-01-16
+
+### Fixed
+- **Path Breadcrumb Text Size** (#111) - Matches search field for consistency
+- **Clear History Button Style** (#108) - Uses borderedProminent style
+- **New Task Button Style** (#107) - Uses borderedProminent style
+- **Drag Files Hint Text** (#99) - Larger text with proper wrapping
+
+### Changed
+- **Quick Access Section** (#105) - Moved to bottom of Performance settings
+
+### Improved
+- Dashboard: Test trend display, health history tracking, open PRs display
+- Archived 18 outdated files for cleaner project structure
+
+---
+
+## [2.0.27] - 2026-01-16
+
+### Fixed
+- **Keyboard Shortcuts** (#102) - ⌘1/2/3 now navigate to sidebar sections
+- **Notification Settings** (#100) - Requests permission before opening Settings
+
+---
+
 ## [2.0.26] - 2026-01-16
 
 ### Fixed
