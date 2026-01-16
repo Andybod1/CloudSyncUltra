@@ -136,7 +136,7 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.23 - Sprint "Launch Ready"
+### Just Completed: v2.0.28 - Sprint "Launch Ready"
 - ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
 - ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
 - ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs
@@ -152,7 +152,7 @@ gh issue view <number>
 - Solo founder: AI support, self-serve everything
 - See `.claude-team/planning/BILLION_DOLLAR_FRAMEWORK.md`
 
-### v2.0.22 (Previous)
+### v2.0.27 (Previous)
 - ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut
 - ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig
 - ✅ **Transfer Preview** (#55) - Dry-run support
