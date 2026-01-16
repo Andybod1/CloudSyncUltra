@@ -32,7 +32,9 @@ struct MainWindow: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showQuickActions = false
     @State private var showAddRemoteSheet = false
-    
+    @State private var showConnectionWizard = false
+    @State private var showFeedbackSheet = false
+
     enum SidebarSection: Hashable {
         case dashboard
         case transfer
@@ -63,8 +65,8 @@ struct MainWindow: View {
             SidebarView(
                 selectedSection: $selectedSection,
                 selectedRemote: $selectedRemote,
-                remotes: remotesVM.remotes,
-                runningTasks: tasksVM.runningTasksCount
+                runningTasks: tasksVM.runningTasksCount,
+                showConnectionWizard: $showConnectionWizard
             )
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 300)
         } detail: {
@@ -119,6 +121,16 @@ struct MainWindow: View {
         .sheet(isPresented: $showAddRemoteSheet) {
             AddRemoteSheet()
         }
+        .sheet(isPresented: $showConnectionWizard) {
+            ProviderConnectionWizardView()
+                .environmentObject(remotesVM)
+        }
+        .sheet(isPresented: $showFeedbackSheet) {
+            FeedbackView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showFeedback)) { _ in
+            showFeedbackSheet = true
+        }
     }
     
     @ViewBuilder
@@ -151,9 +163,10 @@ struct MainWindow: View {
 struct SidebarView: View {
     @Binding var selectedSection: MainWindow.SidebarSection
     @Binding var selectedRemote: CloudRemote?
-    let remotes: [CloudRemote]
+    @EnvironmentObject var remotesVM: RemotesViewModel
     let runningTasks: Int
-    
+    @Binding var showConnectionWizard: Bool
+
     @State private var isAddingRemote = false
     @State private var remoteToConnect: CloudRemote?
     
@@ -195,7 +208,7 @@ struct SidebarView: View {
             
             // Cloud Remotes
             Section("Cloud Storage") {
-                ForEach(remotes.filter { $0.type != .local }) { remote in
+                ForEach(remotesVM.remotes.filter { $0.type != .local }) { remote in
                     remoteSidebarItem(remote)
                         .contextMenu {
                             if !remote.isConfigured {
@@ -214,8 +227,13 @@ struct SidebarView: View {
                 }
                 .onMove(perform: moveCloudRemotes)
                 
-                Button {
-                    isAddingRemote = true
+                Menu {
+                    Button("Setup Wizard (Recommended)") {
+                        showConnectionWizard = true
+                    }
+                    Button("Quick Add") {
+                        isAddingRemote = true
+                    }
                 } label: {
                     Label("Add Cloud...", systemImage: "plus.circle")
                         .foregroundColor(.secondary)
@@ -226,7 +244,7 @@ struct SidebarView: View {
             
             // Local Storage
             Section("Local") {
-                ForEach(remotes.filter { $0.type == .local }) { remote in
+                ForEach(remotesVM.remotes.filter { $0.type == .local }) { remote in
                     remoteSidebarItem(remote)
                 }
             }

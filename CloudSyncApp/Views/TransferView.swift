@@ -23,6 +23,7 @@ struct TransferView: View {
     @State private var isDragging = false
     @State private var encryptLeftToRight = false
     @State private var encryptRightToLeft = false
+    @State private var showingTransferWizard = false
 
     // Performance settings
     @AppStorage("showQuickToggle") private var showQuickToggle = true
@@ -151,8 +152,14 @@ struct TransferView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingTransferWizard) {
+            TransferWizardView()
+                .environmentObject(remotesVM)
+                .environmentObject(tasksVM)
+                .environmentObject(transferState)
+        }
     }
-    
+
     private var transferToolbar: some View {
         HStack(spacing: AppTheme.spacing) {
             Picker("Mode", selection: $transferState.transferMode) {
@@ -189,19 +196,13 @@ struct TransferView: View {
 
             Spacer()
 
-            if !transferProgress.isTransferring {
-                HStack(spacing: AppTheme.spacingS) {
-                    Image(systemName: "hand.draw")
-                        .font(AppTheme.subheadlineFont)
-                        .foregroundColor(AppTheme.textSecondary)
-                    Text("Drag files between panes to transfer")
-                        .font(AppTheme.bodyFont)
-                        .foregroundColor(AppTheme.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
+            // Transfer Wizard button
+            Button { showingTransferWizard = true } label: {
+                Label("New Transfer", systemImage: "wand.and.stars")
             }
-
-            Spacer()
+            .disabled(transferProgress.isTransferring)
+            .accessibilityLabel("New Transfer Wizard")
+            .accessibilityHint("Opens a guided wizard to set up a new file transfer")
 
             Button { sourceBrowser.refresh(); destBrowser.refresh() } label: {
                 Image(systemName: "arrow.clockwise")
@@ -265,6 +266,17 @@ struct TransferView: View {
                 .accessibilityLabel("Cancel Transfer")
                 .accessibilityHint("Cancels the current transfer operation")
                 .keyboardShortcut(.escape)
+            } else {
+                // Hint text below buttons
+                VStack(spacing: 4) {
+                    Image(systemName: "hand.draw")
+                        .font(.caption)
+                        .foregroundColor(AppTheme.textSecondary)
+                    Text("Drag files\nbetween panes")
+                        .font(.caption2)
+                        .foregroundColor(AppTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
             }
 
             Spacer()
@@ -488,14 +500,14 @@ struct TransferView: View {
                             log("Progress: \(progress.percentage)% - \(progress.speed) - Files: \(progress.filesTransferred)/\(progress.totalFiles)")
                             await MainActor.run {
                                 transferProgress.percentage = progress.percentage
-                                transferProgress.speed = String(format: "%.2f MB/s", progress.speed)
+                                transferProgress.speed = progress.speed  // Raw speed string from rclone
 
                                 // Update Dock badge with progress percentage
                                 NotificationManager.shared.updateDockProgress(progress.percentage / 100.0)
 
                                 // Update task progress
                                 task.progress = progress.percentage / 100.0
-                                task.speed = String(format: "%.2f MB/s", progress.speed)
+                                task.speed = progress.speed  // Raw speed string from rclone
                                 
                                 // For folders, estimate files transferred based on percentage
                                 if file.isDirectory && totalFileCount > 1 {

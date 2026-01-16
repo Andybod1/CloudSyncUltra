@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct SchedulesView: View {
+    @EnvironmentObject var remotesVM: RemotesViewModel
     @StateObject private var scheduleManager = ScheduleManager.shared
     @State private var showingAddSchedule = false
+    @State private var showingScheduleWizard = false
     @State private var selectedSchedule: SyncSchedule?
     @State private var scheduleToDelete: SyncSchedule?
     @State private var showDeleteConfirmation = false
@@ -24,10 +26,21 @@ struct SchedulesView: View {
 
                 Spacer()
 
-                Button(action: { showingAddSchedule = true }) {
-                    Label("Add Schedule", systemImage: "plus")
+                // Wizard button (guided flow)
+                Button(action: { showingScheduleWizard = true }) {
+                    Label("Create Schedule", systemImage: "wand.and.stars")
                 }
                 .buttonStyle(.borderedProminent)
+                .accessibilityLabel("Create Schedule Wizard")
+                .accessibilityHint("Opens a guided wizard to create a new sync schedule")
+
+                // Quick add button (for experienced users)
+                Button(action: { showingAddSchedule = true }) {
+                    Label("Quick Add", systemImage: "plus")
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel("Quick Add Schedule")
+                .accessibilityHint("Opens the quick add form for experienced users")
             }
             .padding()
 
@@ -60,6 +73,10 @@ struct SchedulesView: View {
         } message: {
             Text("Are you sure you want to delete '\(scheduleToDelete?.name ?? "")'? This cannot be undone.")
         }
+        .sheet(isPresented: $showingScheduleWizard) {
+            ScheduleWizardView()
+                .environmentObject(remotesVM)
+        }
     }
 
     private var emptyState: some View {
@@ -73,10 +90,24 @@ struct SchedulesView: View {
                 .fontWeight(.medium)
             Text("Create a schedule to automatically sync your files.")
                 .foregroundColor(.secondary)
-            Button("Add Schedule") {
-                showingAddSchedule = true
+
+            VStack(spacing: AppTheme.spacingS) {
+                Button {
+                    showingScheduleWizard = true
+                } label: {
+                    Label("Create Schedule", systemImage: "wand.and.stars")
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityLabel("Create Schedule Wizard")
+                .accessibilityHint("Opens a guided wizard to create a new sync schedule")
+
+                Button("Quick Add") {
+                    showingAddSchedule = true
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel("Quick Add Schedule")
+                .accessibilityHint("Opens the quick add form for experienced users")
             }
-            .buttonStyle(.borderedProminent)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
