@@ -1,14 +1,23 @@
-# Sprint: v2.0.31 - Polish & Accessibility
+# Sprint: v2.0.32 - Interactive Onboarding + Windows Research
 
 **Started:** 2026-01-16
-**Completed:** 2026-01-16
-**Status:** ✅ COMPLETE
+**Status:** 📋 PLANNED
 
 ---
 
 ## Sprint Goal
 
-Complete wizard trilogy and make encryption available to all users.
+1. Make onboarding interactive by integrating existing wizards
+2. Research Windows port feasibility and approaches
+
+---
+
+## Worker Assignments
+
+| Worker | Issue | Task |
+|--------|-------|------|
+| **Dev-1** | #83 | Interactive Onboarding implementation |
+| **Architect** | #65 | Windows port research & recommendations |
 
 ---
 
@@ -16,34 +25,83 @@ Complete wizard trilogy and make encryption available to all users.
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 113 | Provider Connection Wizard | Dev-1 | M | ✅ Done |
-| 114 | Schedule Creation Wizard | Dev-1 | M | ✅ Done |
-| 115 | Transfer Setup Wizard | Dev-1 | M | ✅ Done |
-| 116-120 | Security Enhancements | Dev-2 | S | ✅ Done |
-| 121 | Encryption for all users | - | S | ✅ Done |
-| 97 | In-App Feedback Manager | Dev-3 | M | ✅ Done |
+| 83 | Interactive Onboarding | Dev-1 | M | ⏳ Pending |
+| 65 | Windows Port Research | Architect | M | ⏳ Pending |
 
-**Total Closed:** 10 issues
+**Total Effort:** ~4-5 hours
 
 ---
 
-## Commits
+## #83: Interactive Onboarding (Dev-1)
 
-- `3008be4` feat: Add wizard infrastructure and three setup wizards (#113, #114, #115)
-- `5d48a99` feat: Add security enhancements (#116-120)
-- `162d203` feat: Add in-app feedback manager (#97)
-- `6d4924e` fix: Remove encryption paywall and fix multi-select delete (#121)
-- `f0bccca` fix: Auto-detect and enable encryption when importing rclone.conf
-- `d77b520` chore: Release v2.0.31
+### Tasks
+1. Add "Connect Now" button to `AddProviderStepView`
+   - Launch `ProviderConnectionWizardView` as sheet
+   - Update step completion on wizard success
+2. Add "Try Sync" button to `FirstSyncStepView`
+   - Launch `TransferWizardView` as sheet
+   - Show success feedback on completion
+3. Update `OnboardingViewModel` for state tracking
+4. Polish & test end-to-end
+
+### Files to Modify
+- `AddProviderStepView.swift`
+- `FirstSyncStepView.swift`
+- `OnboardingViewModel.swift`
+
+### Definition of Done
+- [ ] "Connect Now" button launches provider wizard
+- [ ] "Try Sync" button launches transfer wizard
+- [ ] Wizard completion updates onboarding state
+- [ ] User can skip interactive parts
+- [ ] Build passes
+
+---
+
+## #65: Windows Port Research (Architect)
+
+### Research Questions
+1. What are the viable approaches for Windows support?
+   - Kotlin Multiplatform, Flutter, Electron/Tauri, .NET MAUI, separate codebase
+2. How much code can be shared vs rewritten?
+3. What's the effort estimate for each approach?
+4. Which approach best fits CloudSync Ultra's architecture?
+5. What are the dependencies? (rclone works on Windows)
+
+### Deliverable
+Research report in `.claude-team/outputs/ARCHITECT_COMPLETE.md`:
+- Approach comparison matrix
+- Recommended path forward
+- Effort estimates
+- Risks and trade-offs
+
+### Definition of Done
+- [ ] All approaches evaluated
+- [ ] Pros/cons documented
+- [ ] Recommendation with rationale
+- [ ] Effort estimate provided
+
+---
+
+## Launch Commands
+
+```bash
+# Dev-1: Interactive Onboarding
+.claude-team/scripts/launch_single_worker.sh dev-1 opus
+
+# Architect: Windows Research
+.claude-team/scripts/launch_single_worker.sh architect opus
+```
 
 ---
 
 ## Previous Sprint
 
-**v2.0.30** - Completed 2026-01-16
-- ✅ #113: Provider Connection Wizard (initial)
-- Created reusable WizardView infrastructure
-- Fixed multi-select delete bug
+**v2.0.31** - Completed 2026-01-16
+- ✅ #113, #114, #115: All three wizards
+- ✅ #116-120: Security enhancements
+- ✅ #121: Encryption for all
+- ✅ #97: Feedback manager
 
 ---
 
