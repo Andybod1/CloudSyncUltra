@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.32] - 2026-01-16
+
+### Added
+- **Interactive Onboarding** (#83) - Wizards integrated into onboarding flow
+  - "Connect a Provider Now" button in AddProviderStepView
+  - "Try a Sync Now" button in FirstSyncStepView
+  - State persistence via AppStorage
+  - Users can skip or complete interactive steps
+
+### Research
+- **Windows Port Feasibility** (#65) - Architecture research complete
+  - Evaluated 7 approaches (Tauri, Flutter, Electron, etc.)
+  - Recommendation: Tauri (Rust + web frontend)
+  - Estimated timeline: 4-5 months with 2 developers
+
+---
+
 ## [2.0.31] - 2026-01-16
 
 ### Added
