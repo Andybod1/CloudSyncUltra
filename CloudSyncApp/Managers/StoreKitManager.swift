@@ -178,7 +178,6 @@ class StoreKitManager: ObservableObject {
                 if let product = products.first(where: { $0.id == transaction.productID }) {
                     subscriptionStatus = try await product.subscription?.status.first
                 }
-
             } catch {
                 logger.error("Transaction verification failed: \(error.localizedDescription)")
             }
@@ -220,7 +219,6 @@ class StoreKitManager: ObservableObject {
 
                     // Always finish transactions
                     await transaction.finish()
-
                 } catch {
                     await MainActor.run {
                         self.logger.error("Transaction update error: \(error.localizedDescription)")

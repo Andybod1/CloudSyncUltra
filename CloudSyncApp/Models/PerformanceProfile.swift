@@ -57,7 +57,7 @@ enum PerformanceProfile: String, CaseIterable {
             )
         case .custom:
             // For custom, return balanced defaults as a starting point
-            return PerformanceProfile.balanced.defaultSettings
+            return Self.balanced.defaultSettings
         }
     }
 }

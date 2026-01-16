@@ -126,8 +126,8 @@ enum SubscriptionTier: String, Codable, CaseIterable {
     }
 
     /// Get the appropriate tier for a given product ID
-    static func tier(for productID: String) -> SubscriptionTier? {
-        for tier in SubscriptionTier.allCases {
+    static func tier(for productID: String) -> Self? {
+        for tier in Self.allCases {
             if tier.productIDs.contains(productID) {
                 return tier
             }
@@ -138,7 +138,7 @@ enum SubscriptionTier: String, Codable, CaseIterable {
     // MARK: - Comparison
 
     /// Check if this tier includes all features of another tier
-    func includes(_ other: SubscriptionTier) -> Bool {
+    func includes(_ other: Self) -> Bool {
         switch (self, other) {
         case (.free, .free):
             return true
@@ -155,7 +155,7 @@ enum SubscriptionTier: String, Codable, CaseIterable {
     }
 
     /// Get available upgrade options
-    var upgradeOptions: [SubscriptionTier] {
+    var upgradeOptions: [Self] {
         switch self {
         case .free:
             return [.pro]

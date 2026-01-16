@@ -78,16 +78,23 @@ final class CrashReportingManager {
 
     private func installExceptionHandler() {
         NSSetUncaughtExceptionHandler { exception in
+            // swiftlint:disable:next prefer_self_in_static_references
             CrashReportingManager.shared.handleException(exception)
         }
     }
 
     private func installSignalHandlers() {
         // Handle common crash signals
+        // C function pointers cannot capture Self - must use explicit type name
+        // swiftlint:disable:next prefer_self_in_static_references
         signal(SIGABRT) { sig in CrashReportingManager.shared.handleSignal("SIGABRT", signal: sig) }
+        // swiftlint:disable:next prefer_self_in_static_references
         signal(SIGILL) { sig in CrashReportingManager.shared.handleSignal("SIGILL", signal: sig) }
+        // swiftlint:disable:next prefer_self_in_static_references
         signal(SIGSEGV) { sig in CrashReportingManager.shared.handleSignal("SIGSEGV", signal: sig) }
+        // swiftlint:disable:next prefer_self_in_static_references
         signal(SIGBUS) { sig in CrashReportingManager.shared.handleSignal("SIGBUS", signal: sig) }
+        // swiftlint:disable:next prefer_self_in_static_references
         signal(SIGTRAP) { sig in CrashReportingManager.shared.handleSignal("SIGTRAP", signal: sig) }
     }
 

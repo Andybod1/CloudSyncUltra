@@ -66,7 +66,7 @@ final class NotificationManager: NSObject, ObservableObject {
 
     // MARK: - Initialization
 
-    private override init() {
+    override private init() {
         // Load persisted preferences
         self.notificationsEnabled = UserDefaults.standard.object(forKey: Keys.notificationsEnabled) as? Bool ?? true
         self.soundEnabled = UserDefaults.standard.object(forKey: Keys.soundEnabled) as? Bool ?? true

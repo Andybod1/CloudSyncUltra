@@ -126,7 +126,6 @@ class TasksViewModel: ObservableObject {
             } else {
                 addLog(taskId: task.id, level: .info, message: "Task completed successfully")
             }
-            
         } catch {
             updatedTask.state = .failed
             updatedTask.completedAt = Date()

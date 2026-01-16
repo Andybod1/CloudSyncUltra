@@ -34,9 +34,9 @@ struct DeviceInfo: Codable, Hashable {
     let memoryTotal: UInt64
     let processorCount: Int
 
-    static var current: DeviceInfo {
+    static var current: Self {
         let info = ProcessInfo.processInfo
-        return DeviceInfo(
+        return Self(
             osVersion: info.operatingSystemVersionString,
             architecture: getArchitecture(),
             memoryTotal: info.physicalMemory,
@@ -61,9 +61,9 @@ struct AppInfo: Codable, Hashable {
     let build: String
     let bundleIdentifier: String
 
-    static var current: AppInfo {
+    static var current: Self {
         let bundle = Bundle.main
-        return AppInfo(
+        return Self(
             version: bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown",
             build: bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown",
             bundleIdentifier: bundle.bundleIdentifier ?? "Unknown"

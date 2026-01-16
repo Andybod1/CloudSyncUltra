@@ -130,7 +130,6 @@ class ProtonDriveManager: ObservableObject {
             await fetchStorageInfo()
             
             Logger.sync.info("Proton Drive connection verified - \(files.count) items in root")
-            
         } catch {
             let errorString = error.localizedDescription.lowercased()
             
@@ -195,7 +194,6 @@ class ProtonDriveManager: ObservableObject {
             startHealthMonitoring()
             
             Logger.sync.info("Proton Drive connected successfully")
-            
         } catch {
             connectionState = .error(error.localizedDescription)
             errorMessage = error.localizedDescription
@@ -274,13 +272,12 @@ class ProtonDriveManager: ObservableObject {
             startHealthMonitoring()
             
             Logger.sync.info("Proton Drive reconnected using saved credentials")
-            
         } catch {
             connectionState = .error(error.localizedDescription)
             errorMessage = error.localizedDescription
             
             // If session expired, we need fresh credentials
-            if error.localizedDescription.contains("401") || 
+            if error.localizedDescription.contains("401") ||
                error.localizedDescription.contains("invalid") {
                 connectionState = .sessionExpired
             }

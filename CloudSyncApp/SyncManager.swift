@@ -36,8 +36,8 @@ class SyncManager: ObservableObject {
     }
     
     var syncInterval: TimeInterval {
-        get { UserDefaults.standard.double(forKey: "syncInterval") != 0 
-            ? UserDefaults.standard.double(forKey: "syncInterval") 
+        get { UserDefaults.standard.double(forKey: "syncInterval") != 0
+            ? UserDefaults.standard.double(forKey: "syncInterval")
             : 300 } // Default 5 minutes
         set { UserDefaults.standard.set(newValue, forKey: "syncInterval") }
     }
@@ -147,7 +147,6 @@ class SyncManager: ObservableObject {
             if syncStatus == .completed {
                 syncStatus = .idle
             }
-            
         } catch {
             syncStatus = .error(error.localizedDescription)
             print("Sync error: \(error)")
@@ -511,7 +510,7 @@ class FileMonitor {
             copyDescription: nil
         )
         
-        let callback: FSEventStreamCallback = { streamRef, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds in
+        let callback: FSEventStreamCallback = { _, clientCallBackInfo, _, _, _, _ in
             guard let info = clientCallBackInfo else { return }
             let monitor = Unmanaged<FileMonitor>.fromOpaque(info).takeUnretainedValue()
             monitor.onChange()

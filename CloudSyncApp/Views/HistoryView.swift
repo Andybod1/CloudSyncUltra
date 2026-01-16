@@ -10,7 +10,7 @@ import SwiftUI
 struct HistoryView: View {
     @EnvironmentObject var tasksVM: TasksViewModel
     @State private var searchText = ""
-    @State private var filterState: TaskState? = nil
+    @State private var filterState: TaskState?
     @State private var selectedTask: SyncTask?
     
     var body: some View {
@@ -108,7 +108,7 @@ struct HistoryView: View {
     
     private var filteredHistory: [SyncTask] {
         tasksVM.taskHistory.filter { task in
-            let matchesSearch = searchText.isEmpty || 
+            let matchesSearch = searchText.isEmpty ||
                 task.name.localizedCaseInsensitiveContains(searchText) ||
                 task.sourceRemote.localizedCaseInsensitiveContains(searchText) ||
                 task.destinationRemote.localizedCaseInsensitiveContains(searchText)

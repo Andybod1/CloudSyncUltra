@@ -133,7 +133,7 @@ class StatusBarController: NSObject {
                 }
             case .completed:
                 statusMenuItem = NSMenuItem(title: "✓ Up to date", action: nil, keyEquivalent: "")
-            case .error(_):
+            case .error:
                 statusMenuItem = NSMenuItem(title: "⚠️ Error", action: nil, keyEquivalent: "")
             }
         }
@@ -240,9 +240,9 @@ class StatusBarController: NSObject {
         // Bring window to front with delay to ensure activation happens
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             // Try to find and show the main window
-            if let mainWindow = NSApp.windows.first(where: { 
-                $0.contentViewController != nil && 
-                $0.isVisible || !$0.isVisible 
+            if let mainWindow = NSApp.windows.first(where: {
+                $0.contentViewController != nil &&
+                $0.isVisible || !$0.isVisible
             }) {
                 mainWindow.makeKeyAndOrderFront(nil)
                 mainWindow.orderFrontRegardless()

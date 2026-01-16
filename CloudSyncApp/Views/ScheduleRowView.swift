@@ -96,10 +96,10 @@ struct ScheduleRowView: View {
                 HStack(spacing: 4) {
                     Button(action: onRunNow) {
                         Image(systemName: "play.fill")
+                            .foregroundColor(.blue)
                     }
                     .buttonStyle(.borderless)
                     .help("Run Now")
-                    .disabled(!schedule.isEnabled)
 
                     Button(action: onEdit) {
                         Image(systemName: "pencil")
@@ -127,7 +127,6 @@ struct ScheduleRowView: View {
             Button(action: onRunNow) {
                 Label("Run Now", systemImage: "play.fill")
             }
-            .disabled(!schedule.isEnabled)
 
             Divider()
 

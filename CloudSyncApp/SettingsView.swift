@@ -135,7 +135,7 @@ struct GeneralSettingsView: View {
                         }
                         Spacer()
                         Button("Open Settings") {
-                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
                                 DispatchQueue.main.async {
                                     if !granted {
                                         // Open System Settings as fallback
@@ -992,7 +992,6 @@ struct RemoteDetailView: View {
             updated.isConfigured = true
             updated.customRcloneName = remoteName
             remotesVM.updateRemote(updated)
-            
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -32,7 +32,21 @@ struct ScheduleEditorSheet: View {
     @State private var customIntervalMinutes: Int = 60
     @State private var selectedDays: Set<Int> = Set([2, 3, 4, 5, 6]) // Weekdays
 
+    // Folder browser state
+    @State private var showSourceFolderBrowser = false
+    @State private var showDestinationFolderBrowser = false
+
     private var isEditing: Bool { schedule != nil }
+
+    /// Look up rclone name for source remote
+    private var sourceRcloneName: String {
+        remotesVM.configuredRemotes.first { $0.name == sourceRemote }?.rcloneName ?? sourceRemote
+    }
+
+    /// Look up rclone name for destination remote
+    private var destinationRcloneName: String {
+        remotesVM.configuredRemotes.first { $0.name == destinationRemote }?.rcloneName ?? destinationRemote
+    }
 
     private var isValid: Bool {
         !name.isEmpty &&
@@ -74,10 +88,32 @@ struct ScheduleEditorSheet: View {
                         }
                     }
 
-                    TextField("Path", text: $sourcePath)
-                        .textFieldStyle(.roundedBorder)
+                    HStack {
+                        Text("Path")
+                        Spacer()
+                        Button(action: { showSourceFolderBrowser = true }) {
+                            HStack {
+                                Text(sourcePath.isEmpty || sourcePath == "/" ? "/ (root)" : sourcePath)
+                                    .foregroundColor(.primary)
+                                Image(systemName: "folder")
+                                    .foregroundColor(.accentColor)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(sourceRemote.isEmpty)
+                        .popover(isPresented: $showSourceFolderBrowser) {
+                            RemoteFolderBrowser(
+                                remoteName: sourceRcloneName,
+                                selectedPath: Binding(
+                                    get: { sourcePath == "/" ? "" : sourcePath },
+                                    set: { sourcePath = $0.isEmpty ? "/" : $0 }
+                                ),
+                                onDismiss: { showSourceFolderBrowser = false }
+                            )
+                        }
+                    }
 
-                    if EncryptionManager.shared.isEncryptionConfigured(for: sourceRemote.lowercased()) {
+                    if EncryptionManager.shared.isEncryptionConfigured(for: sourceRcloneName) {
                         Toggle("Decrypt from source", isOn: $encryptSource)
                     }
                 } header: {
@@ -93,10 +129,32 @@ struct ScheduleEditorSheet: View {
                         }
                     }
 
-                    TextField("Path", text: $destinationPath)
-                        .textFieldStyle(.roundedBorder)
+                    HStack {
+                        Text("Path")
+                        Spacer()
+                        Button(action: { showDestinationFolderBrowser = true }) {
+                            HStack {
+                                Text(destinationPath.isEmpty || destinationPath == "/" ? "/ (root)" : destinationPath)
+                                    .foregroundColor(.primary)
+                                Image(systemName: "folder")
+                                    .foregroundColor(.accentColor)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(destinationRemote.isEmpty)
+                        .popover(isPresented: $showDestinationFolderBrowser) {
+                            RemoteFolderBrowser(
+                                remoteName: destinationRcloneName,
+                                selectedPath: Binding(
+                                    get: { destinationPath == "/" ? "" : destinationPath },
+                                    set: { destinationPath = $0.isEmpty ? "/" : $0 }
+                                ),
+                                onDismiss: { showDestinationFolderBrowser = false }
+                            )
+                        }
+                    }
 
-                    if EncryptionManager.shared.isEncryptionConfigured(for: destinationRemote.lowercased()) {
+                    if EncryptionManager.shared.isEncryptionConfigured(for: destinationRcloneName) {
                         Toggle("Encrypt at destination", isOn: $encryptDestination)
                     }
                 } header: {

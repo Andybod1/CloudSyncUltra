@@ -16,7 +16,7 @@ struct FirstSyncStepView: View {
     @StateObject private var transferState = TransferViewState()
 
     @State private var animateContent = false
-    @State private var selectedConcept: SyncConcept? = nil
+    @State private var selectedConcept: SyncConcept?
     @State private var showDualPane = false
     @State private var showTransferWizard = false
 
@@ -244,7 +244,7 @@ struct FirstSyncStepView: View {
     private func handleTransferWizardDismiss() {
         // Check if the user completed a transfer (by checking if tasks were created)
         // The transfer wizard creates a task when completed
-        if tasksVM.tasks.count > 0 && !onboardingVM.hasCompletedFirstSync {
+        if !tasksVM.tasks.isEmpty && !onboardingVM.hasCompletedFirstSync {
             onboardingVM.firstSyncCompleted()
         }
     }

@@ -99,7 +99,7 @@ struct HelpTopic: Identifiable, Codable, Hashable {
     }
 
     // Equatable conformance
-    static func == (lhs: HelpTopic, rhs: HelpTopic) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }
 }

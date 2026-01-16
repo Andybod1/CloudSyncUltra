@@ -164,7 +164,7 @@ struct FileBrowserView: View {
     /// Get running task that involves this remote
     private var runningTaskForRemote: SyncTask? {
         tasksVM.tasks.first { task in
-            task.state == .running && 
+            task.state == .running &&
             (task.destinationRemote.lowercased() == remote.name.lowercased() ||
              task.sourceRemote.lowercased() == remote.name.lowercased())
         }
@@ -1266,9 +1266,9 @@ struct FileBrowserView: View {
         
         panel.begin { response in
             log("File picker response: \(response.rawValue)")
-            guard response == .OK, !panel.urls.isEmpty else { 
+            guard response == .OK, !panel.urls.isEmpty else {
                 log("File picker cancelled or no files selected")
-                return 
+                return
             }
             
             log("Selected \(panel.urls.count) files for upload")

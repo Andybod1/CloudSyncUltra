@@ -21,7 +21,7 @@ struct MultiThreadDownloadConfig {
     var sizeThreshold: Int
 
     /// Default configuration with sensible defaults
-    static let `default` = MultiThreadDownloadConfig(
+    static let `default` = Self(
         enabled: true,
         threadCount: 4,
         sizeThreshold: 100_000_000  // 100MB
@@ -35,9 +35,9 @@ struct MultiThreadDownloadConfig {
     }
 
     /// Load configuration from UserDefaults
-    static func load() -> MultiThreadDownloadConfig {
+    static func load() -> Self {
         let defaults = UserDefaults.standard
-        return MultiThreadDownloadConfig(
+        return Self(
             enabled: defaults.object(forKey: Keys.enabled) as? Bool ?? true,
             threadCount: min(16, max(1, defaults.integer(forKey: Keys.threadCount) == 0 ? 4 : defaults.integer(forKey: Keys.threadCount))),
             sizeThreshold: defaults.integer(forKey: Keys.sizeThreshold) == 0 ? 100_000_000 : defaults.integer(forKey: Keys.sizeThreshold)
@@ -79,7 +79,7 @@ enum ProviderMultiThreadCapability {
     /// Get capability for a given provider/remote name
     /// - Parameter remoteName: The rclone remote name or provider type
     /// - Returns: The multi-thread capability for this provider
-    static func forProvider(_ remoteName: String) -> ProviderMultiThreadCapability {
+    static func forProvider(_ remoteName: String) -> Self {
         let remote = remoteName.lowercased()
 
         // Full multi-thread support - object storage and major cloud providers
@@ -348,8 +348,8 @@ class TransferOptimizer {
         let remote = remoteName.lowercased()
 
         // Determine chunk size based on provider type detected from name
-        var chunkSizeInMB: Int? = nil
-        var flagPrefix: String? = nil
+        var chunkSizeInMB: Int?
+        var flagPrefix: String?
 
         if remote == "local" {
             chunkSizeInMB = 64  // 64MB for local
@@ -642,7 +642,7 @@ class RcloneManager {
         // Detect rclone path using multiple strategies (#117)
         let tempLogger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.cloudsync.ultra", category: "RcloneManager")
 
-        if let detectedPath = RcloneManager.detectRclonePath(logger: tempLogger) {
+        if let detectedPath = Self.detectRclonePath(logger: tempLogger) {
             self.rclonePath = detectedPath
         } else {
             // Fallback to default Homebrew path (will be validated below)
@@ -1631,7 +1631,7 @@ class RcloneManager {
             var iterations = 0
             let maxIterations = 10  // Safety limit
             
-            while let nextState = parseConfigState(from: lastResult), 
+            while let nextState = parseConfigState(from: lastResult),
                   !nextState.isEmpty,
                   iterations < maxIterations {
                 iterations += 1
@@ -3072,7 +3072,7 @@ class RcloneManager {
         let combinedOutput = outputString + errorString
         
         // If file exists, rclone will show "There was nothing to transfer"
-        if combinedOutput.contains("There was nothing to transfer") || 
+        if combinedOutput.contains("There was nothing to transfer") ||
            combinedOutput.contains("Unchanged skipping") ||
            combinedOutput.contains("Transferred:") && combinedOutput.contains("0 / 0") {
             logger.info("File appears to already exist")
@@ -3549,7 +3549,7 @@ enum SyncStatus: Equatable, Codable {
     case completed
     case error(String)
 
-    static func == (lhs: SyncStatus, rhs: SyncStatus) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case (.idle, .idle), (.checking, .checking), (.syncing, .syncing), (.completed, .completed):
             return true
@@ -3582,6 +3582,15 @@ struct RemoteFile: Codable {
         MimeType = try container.decodeIfPresent(String.self, forKey: .MimeType)
         ModTime = try container.decodeIfPresent(String.self, forKey: .ModTime)
         IsDir = try container.decode(Bool.self, forKey: .IsDir)
+    }
+
+    init(Path: String, Name: String, Size: Int64, MimeType: String?, ModTime: String?, IsDir: Bool) {
+        self.Path = Path
+        self.Name = Name
+        self.Size = Size
+        self.MimeType = MimeType
+        self.ModTime = ModTime
+        self.IsDir = IsDir
     }
 }
 

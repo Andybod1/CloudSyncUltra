@@ -358,7 +358,7 @@ enum ProtonDriveError: CloudSyncError {
     }
     
     /// Parse rclone error output into a ProtonDriveError
-    static func parse(from errorOutput: String) -> ProtonDriveError? {
+    static func parse(from errorOutput: String) -> Self? {
         let lowercased = errorOutput.lowercased()
         
         if lowercased.contains("encryption key") || lowercased.contains("keyring") || lowercased.contains("no valid") {

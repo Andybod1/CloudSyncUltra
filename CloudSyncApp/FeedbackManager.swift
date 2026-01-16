@@ -151,7 +151,7 @@ final class FeedbackManager: ObservableObject {
     /// Check if the gh CLI is installed and available
     func isGhInstalled() async -> Bool {
         do {
-            let _ = try await runCommand("/usr/bin/which", arguments: ["gh"])
+            _ = try await runCommand("/usr/bin/which", arguments: ["gh"])
             return true
         } catch {
             logger.warning("gh CLI not found")

@@ -373,7 +373,6 @@ struct AddProviderStepView: View {
                     isConnecting = false
                     onboardingVM.providerConnected(name: provider.displayName)
                 }
-
             } catch {
                 await MainActor.run {
                     isConnecting = false

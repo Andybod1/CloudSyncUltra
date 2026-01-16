@@ -195,7 +195,7 @@ struct ErrorNotification: Identifiable, Equatable {
     let isCritical: Bool
     let isRetryable: Bool
 
-    static func == (lhs: ErrorNotification, rhs: ErrorNotification) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }
 }

@@ -318,7 +318,7 @@ extension TransferError {
         // Access Denied
         ErrorPattern(
             keywords: ["access denied", "permission denied", "forbidden", "403"]
-        ) { output in .accessDenied(provider: "Cloud Provider", path: nil) },
+        ) { _ in .accessDenied(provider: "Cloud Provider", path: nil) },
 
         // Connection Timeout
         ErrorPattern(
@@ -350,12 +350,12 @@ extension TransferError {
         // File Too Large
         ErrorPattern(
             keywords: ["file too large", "size limit", "exceeds maximum"]
-        ) { output in .fileTooLarge(fileName: "file", maxSize: 0, providerLimit: 0) },
+        ) { _ in .fileTooLarge(fileName: "file", maxSize: 0, providerLimit: 0) },
 
         // Checksum Mismatch
         ErrorPattern(
             keywords: ["checksum", "hash mismatch", "integrity check failed", "md5"]
-        ) { output in .checksumMismatch(fileName: "file") },
+        ) { _ in .checksumMismatch(fileName: "file") },
 
         // Cancelled
         ErrorPattern(

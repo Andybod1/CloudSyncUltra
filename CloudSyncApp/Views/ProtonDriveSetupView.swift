@@ -729,7 +729,7 @@ struct ProtonDriveSetupView: View {
         isConfiguring = false
     }
     
-    private func testConnection() async {
+    func testConnection() async {
         isTesting = true
         testResult = nil
         
@@ -766,7 +766,6 @@ struct ProtonDriveSetupView: View {
             withAnimation {
                 currentStep = .connected
             }
-            
         } catch {
             testResult = TestResult(success: false, message: error.localizedDescription)
         }

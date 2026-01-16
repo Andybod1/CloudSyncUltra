@@ -106,7 +106,7 @@ struct TransferView: View {
         }
         .background(AppTheme.windowBackground)
         .navigationTitle("Transfer")
-        .onChange(of: transferState.sourceRemoteId) { _, newId in
+        .onChange(of: transferState.sourceRemoteId) { _, _ in
             if let remote = selectedSourceRemote {
                 // Initialize encryption state for this remote
                 let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
@@ -129,7 +129,7 @@ struct TransferView: View {
                 }
             }
         }
-        .onChange(of: transferState.destRemoteId) { _, newId in
+        .onChange(of: transferState.destRemoteId) { _, _ in
             if let remote = selectedDestRemote {
                 // Initialize encryption state for this remote
                 let isEncrypted = EncryptionManager.shared.isEncryptionEnabled(for: remote.rcloneName)
@@ -294,7 +294,7 @@ struct TransferView: View {
         let effectiveSrc = getEffectiveRemote(srcRemote, encrypted: encryptLeftToRight)
         let effectiveDst = getEffectiveRemote(dstRemote, encrypted: encryptRightToLeft)
         
-        startTransfer(files: items, from: effectiveSrc, fromPath: sourceBrowser.currentPath, 
+        startTransfer(files: items, from: effectiveSrc, fromPath: sourceBrowser.currentPath,
                       to: effectiveDst, toPath: destBrowser.currentPath, srcBrowser: sourceBrowser, dstBrowser: destBrowser)
     }
     
@@ -363,7 +363,7 @@ struct TransferView: View {
         }
     }
     
-    private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String, 
+    private func startTransfer(files: [FileItem], from: CloudRemote, fromPath: String,
                                to: CloudRemote, toPath: String, srcBrowser: FileBrowserViewModel, dstBrowser: FileBrowserViewModel) {
         // Calculate total size and file count, including folder contents
         var totalSize: Int64 = 0
@@ -782,12 +782,10 @@ class TransferProgressModel: ObservableObject {
     
     func complete(success: Bool, error: String? = nil, message: String? = nil) {
         isCompleted = true; hasError = !success; errorMessage = error
-        if success { 
+        if success {
             percentage = 100
             statusMessage = message ?? "Transfer complete!"
-        }
-        else if isCancelled { statusMessage = "Transfer cancelled" }
-        else { 
+        } else if isCancelled { statusMessage = "Transfer cancelled" } else {
             // Clean up error message - remove raw API details
             if let err = error {
                 if err.contains("already exists") {
