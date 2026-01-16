@@ -265,7 +265,23 @@ cat .claude-team/OPERATIONAL_EXCELLENCE.md
 
 **Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`, `templates/project-ops-kit/`
 
-#### 8. User-Facing Docs Check (Quarterly or Major Features)
+#### 8. Sprint Retrospective
+Quick reflection on the sprint to capture learnings:
+
+| Question | Notes |
+|----------|-------|
+| **What went well?** | (successes, smooth processes, wins) |
+| **What didn't go well?** | (friction, bugs, blockers, delays) |
+| **What to improve?** | (process changes, tooling, documentation) |
+
+- [ ] Noted 1-2 things that went well
+- [ ] Identified any friction or issues encountered
+- [ ] Captured improvement ideas for next sprint
+- [ ] (Optional) Add retro notes to `.claude-team/retros/` if significant learnings
+
+**Tip:** Keep it brief (2-3 min). Focus on actionable improvements, not blame.
+
+#### 9. User-Facing Docs Check (Quarterly or Major Features)
 
 | File | Check For |
 |------|-----------|
