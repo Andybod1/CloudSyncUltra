@@ -81,6 +81,64 @@ else
     TEST_COUNT="855"
 fi
 
+# ═══════════════════════════════════════════════════════════════════════════
+# QUICK WINS DATA (Sprint, Alerts, Heartbeat, Branch)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Sprint Progress (from SPRINT_STATUS.md)
+SPRINT_NAME=""
+SPRINT_DONE=0
+SPRINT_TOTAL=0
+if [[ -f ".claude-team/SPRINT_STATUS.md" ]]; then
+    SPRINT_NAME=$(grep -m1 "^# Sprint:" .claude-team/SPRINT_STATUS.md 2>/dev/null | sed 's/# Sprint: //' | tr -d '\n' || echo "")
+    # Count tasks with ✅ COMPLETED in the phase tables
+    SPRINT_DONE=$(grep -E "^\| [0-9]+.*✅" .claude-team/SPRINT_STATUS.md 2>/dev/null | wc -l | tr -d ' ')
+    # Count all task rows (lines starting with | followed by a number)
+    SPRINT_TOTAL=$(grep -E "^\| [0-9]+" .claude-team/SPRINT_STATUS.md 2>/dev/null | wc -l | tr -d ' ')
+fi
+
+# Recent Alerts (last 3 from ALERTS.md)
+RECENT_ALERTS=""
+if [[ -f ".claude-team/ALERTS.md" ]]; then
+    RECENT_ALERTS=$(grep -E "^⚠️|^🔄" .claude-team/ALERTS.md 2>/dev/null | tail -3)
+fi
+
+# Worker Heartbeat (time since task files were modified)
+WORKER_HEARTBEAT=""
+if [[ -d ".claude-team/tasks" ]]; then
+    NEWEST_TASK=$(find .claude-team/tasks -name "TASK_DEV*.md" -type f -exec stat -f "%m %N" {} \; 2>/dev/null | sort -rn | head -1)
+    if [[ -n "$NEWEST_TASK" ]]; then
+        TASK_TIME=$(echo "$NEWEST_TASK" | cut -d' ' -f1)
+        TASK_FILE=$(echo "$NEWEST_TASK" | cut -d' ' -f2 | xargs basename)
+        NOW=$(date +%s)
+        MINS_AGO=$(( (NOW - TASK_TIME) / 60 ))
+        if [[ $MINS_AGO -lt 60 ]]; then
+            WORKER_HEARTBEAT="${MINS_AGO}m ago (${TASK_FILE})"
+        else
+            HOURS_AGO=$(( MINS_AGO / 60 ))
+            WORKER_HEARTBEAT="${HOURS_AGO}h ago (${TASK_FILE})"
+        fi
+    fi
+fi
+
+# Branch Info (current branch, ahead/behind)
+CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+BRANCH_STATUS=""
+if [[ "$QUICK_MODE" != true ]]; then
+    git fetch origin --quiet 2>/dev/null
+    AHEAD=$(git rev-list --count origin/${CURRENT_BRANCH}..HEAD 2>/dev/null || echo "0")
+    BEHIND=$(git rev-list --count HEAD..origin/${CURRENT_BRANCH} 2>/dev/null || echo "0")
+    if [[ "$AHEAD" -gt 0 ]] && [[ "$BEHIND" -gt 0 ]]; then
+        BRANCH_STATUS="↑${AHEAD} ↓${BEHIND}"
+    elif [[ "$AHEAD" -gt 0 ]]; then
+        BRANCH_STATUS="↑${AHEAD} ahead"
+    elif [[ "$BEHIND" -gt 0 ]]; then
+        BRANCH_STATUS="↓${BEHIND} behind"
+    else
+        BRANCH_STATUS="✓ synced"
+    fi
+fi
+
 # CI status and build success rate
 CI_STATUS="❌"
 CI_TEXT="Not configured"
@@ -252,6 +310,37 @@ printf "   Critical:   ${RED}%-13s${NC} Idle:      ${DIM}%-13s${NC} Uncommitted:
 printf "   High:       ${YELLOW}%-13s${NC} Total:     %-13s Output files:  %-8s\n" "$HIGH" "$WORKERS_TOTAL" "$OUTPUT_FILES"
 printf "   Ready:      ${GREEN}%-13s${NC}                           Oldest issue:  %-8s\n" "$READY" "${OLDEST_ISSUE:-N/A}"
 printf "   Triage:     ${RED}%-13s${NC}                           Stale (>30d):  %-8s\n" "$TRIAGE" "$STALE_COUNT"
+
+echo ""
+echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
+echo ""
+
+# Sprint & Git Section
+printf "${BOLD}   %-25s %-50s${NC}\n" "🏃 SPRINT" "🌿 GIT"
+echo -e "${DIM}   ─────────────────────── ──────────────────────────────────────────────────${NC}"
+if [[ -n "$SPRINT_NAME" ]]; then
+    SPRINT_PROGRESS=""
+    if [[ $SPRINT_TOTAL -gt 0 ]]; then
+        SPRINT_PROGRESS="($SPRINT_DONE/$SPRINT_TOTAL done)"
+    fi
+    printf "   %-25s Branch:    %-40s\n" "$SPRINT_NAME" "$CURRENT_BRANCH"
+    printf "   Progress:   %-13s Remote:    %-40s\n" "$SPRINT_PROGRESS" "${BRANCH_STATUS:-checking...}"
+else
+    printf "   %-25s Branch:    %-40s\n" "No active sprint" "$CURRENT_BRANCH"
+    printf "   %-25s Remote:    %-40s\n" "" "${BRANCH_STATUS:-checking...}"
+fi
+if [[ -n "$WORKER_HEARTBEAT" ]]; then
+    printf "   Heartbeat:  %-60s\n" "$WORKER_HEARTBEAT"
+fi
+
+# Recent Alerts
+if [[ -n "$RECENT_ALERTS" ]]; then
+    echo ""
+    echo -e "${DIM}   Recent alerts:${NC}"
+    echo "$RECENT_ALERTS" | while read -r alert; do
+        echo -e "   ${DIM}$alert${NC}"
+    done
+fi
 
 echo ""
 echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
