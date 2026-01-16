@@ -9,7 +9,7 @@
 
 | Timestamp | Worker | Type | Description | Status |
 |-----------|--------|------|-------------|--------|
-| 2026-01-16 08:14 | Dev-2 | BLOCKED | #103 requires Dev-1 files (Views/) | ✅ Resolved - Reassigned |
+| - | - | - | No active alerts | ✅ |
 
 ---
 
@@ -34,9 +34,9 @@ Types:
 | Date | Alert | Resolution |
 |------|-------|------------|
 | 2026-01-16 | Dev-2 blocked on #103 | Reassigned to Dev-1 |
+| 2026-01-16 | Dev-1 blocked on #106 | SP granted one-time permission |
+| 2026-01-16 | Dev-1 blocked on #113 | SP added files to Xcode project |
 
 ---
 
 *Strategic Partner: Clear resolved alerts weekly*
-⚠️ 2026-01-16 10:09 | dev-1 | BLOCKED | #106 requires dev-3 files (Models/, Managers/)
-✅ 2026-01-16 10:15 | SP | RESOLVED | Dev-1 granted one-time permission for #106 files

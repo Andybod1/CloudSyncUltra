@@ -1,72 +1,49 @@
-# Sprint: v2.0.29 - Clean-up Sprint
+# Sprint: v2.0.31 - Polish & Accessibility
 
 **Started:** 2026-01-16
-**Target Version:** 2.0.29
-**Status:** 🟢 COMPLETE
+**Completed:** 2026-01-16
+**Status:** ✅ COMPLETE
 
 ---
 
-## Sprint Goals
+## Sprint Goal
 
-Remove Team Plan from all views and code (#106):
-- Clean up subscription model
-- Remove dead-end features
-- Simplify UI
+Complete wizard trilogy and make encryption available to all users.
 
 ---
 
-## Worker Status
-
-| Worker | Status | Issues | Task File |
-|--------|--------|--------|-----------|
-| **Dev-1** | 🟢 Running | #106 | TASK_DEV1.md |
-
----
-
-## Phase 1 - Clean-up
+## Sprint Backlog
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 106 | Remove Team Plan from all views | Dev-1 | M | ✅ Complete |
+| 113 | Provider Connection Wizard | Dev-1 | M | ✅ Done |
+| 114 | Schedule Creation Wizard | Dev-1 | M | ✅ Done |
+| 115 | Transfer Setup Wizard | Dev-1 | M | ✅ Done |
+| 116-120 | Security Enhancements | Dev-2 | S | ✅ Done |
+| 121 | Encryption for all users | - | S | ✅ Done |
+| 97 | In-App Feedback Manager | Dev-3 | M | ✅ Done |
+
+**Total Closed:** 10 issues
 
 ---
 
-## Files to Modify
+## Commits
 
-| File | Changes |
-|------|---------|
-| `Models/SubscriptionTier.swift` | Remove `.team` case from enum |
-| `Views/PaywallView.swift` | Remove team from tier list |
-| `Views/SubscriptionView.swift` | Remove team case handling |
-| `Managers/StoreKitManager.swift` | Remove team product ID |
-| `Configuration.storekit` | Remove team product config |
-
----
-
-## Launch Command
-
-```bash
-# Launch Dev-1 worker
-.claude-team/scripts/launch_single_worker.sh dev-1 sonnet
-```
-
----
-
-## Definition of Done
-
-- [x] #106: No Team Plan visible anywhere in app
-- [x] No orphaned code related to Team Plan
-- [x] Build passes
-- [x] QA verification complete
-- [x] Issue closed on GitHub
+- `3008be4` feat: Add wizard infrastructure and three setup wizards (#113, #114, #115)
+- `5d48a99` feat: Add security enhancements (#116-120)
+- `162d203` feat: Add in-app feedback manager (#97)
+- `6d4924e` fix: Remove encryption paywall and fix multi-select delete (#121)
+- `f0bccca` fix: Auto-detect and enable encryption when importing rclone.conf
+- `d77b520` chore: Release v2.0.31
 
 ---
 
 ## Previous Sprint
 
-**v2.0.28** - Completed 2026-01-16
-- Fixed: #111, #108, #107, #105, #99
-- UI Polish Sprint
+**v2.0.30** - Completed 2026-01-16
+- ✅ #113: Provider Connection Wizard (initial)
+- Created reusable WizardView infrastructure
+- Fixed multi-select delete bug
 
 ---
 

@@ -191,9 +191,13 @@ cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSync
 # Build and launch app
 cd ~/Claude && xcodebuild build 2>&1 | tail -5
 open ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*/Build/Products/Debug/CloudSyncApp.app
+
+# Update test counts metric (use actual count from test output)
+echo "$(date +%Y-%m-%d),2.0.XX,<TEST_COUNT>" >> .claude-team/metrics/test-counts.csv
 ```
 - [ ] All tests pass
 - [ ] App launches and works
+- [ ] Test count added to `.claude-team/metrics/test-counts.csv`
 
 #### 2. Update Version (use scripts!)
 ```bash

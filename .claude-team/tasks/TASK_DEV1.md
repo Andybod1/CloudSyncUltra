@@ -1,109 +1,175 @@
-# Task: Remove Team Plan (#106)
+# Task: Sprint v2.0.31 - Polish & Accessibility
 
 ## Worker: Dev-1 (UI)
-## Priority: MEDIUM
-## Size: M (~1-2 hrs)
-
----
-
-## ✅ PERMISSION GRANTED
-
-**Strategic Partner Authorization (2026-01-16):**
-Dev-1 is granted ONE-TIME permission to modify these files for #106:
-- `CloudSyncApp/Models/SubscriptionTier.swift` (normally Dev-3)
-- `CloudSyncApp/Managers/StoreKitManager.swift` (normally Dev-3)
-- `CloudSyncApp/Configuration.storekit`
-
-**Proceed with task - blocker resolved.**
+## Issues: #121, #114, #115
+## Total Size: S + M + M
 
 ---
 
 ## Pre-Flight Checklist
 
 ```bash
-# Ownership check - SKIP for this task (SP permission granted above)
+# Verify ownership - all files in Views/
+ls CloudSyncApp/Views/
 ```
 
 ---
 
-## Problem
+## Task 1: Encryption for All Users (#121)
 
-Team Plan appears throughout the app but is not being offered/supported. Need to remove all references to avoid user confusion.
+### Priority: HIGH
+### Size: S (~30 min)
 
-## Files to Modify
+### Problem
+Encryption is currently paywalled behind Pro. Make it available to all users.
 
-### 1. `CloudSyncApp/Models/SubscriptionTier.swift`
-Remove the `.team` case from the enum and all related logic:
-- Line 24, 35, 46, 58, 68, 90, 95, 100, 123, 145-146, 169, 178, 185, 187-188
-- Update `availableUpgrades` to only return `.pro`
-- Remove `isTeam` computed property references
+### Files to Modify
+- `CloudSyncApp/Views/FileBrowserView.swift` - Remove paywall trigger
+- `CloudSyncApp/Views/SettingsView.swift` - Remove Pro badge if present
 
-### 2. `CloudSyncApp/Views/PaywallView.swift`
-- Line 109: Change `[.free, .pro, .team]` to `[.free, .pro]`
-- Line 129: Remove `.team` case
+### Implementation
+1. Search for `showEncryptionPaywall` or `PaywallView` references
+2. Remove conditional checks that gate encryption behind Pro
+3. Encryption toggle should work for all users
 
-### 3. `CloudSyncApp/Views/SubscriptionView.swift`
-- Line 136, 147: Remove `.team` case handling
+### Verification
+```bash
+# Build check
+xcodebuild build -scheme CloudSyncApp 2>&1 | tail -5
 
-### 4. `CloudSyncApp/Managers/StoreKitManager.swift`
-- Line 52: Remove `"com.cloudsync.team.monthly"`
-- Line 325-326: Remove team case handling
+# Search for remaining paywall references
+grep -r "Paywall\|paywall" CloudSyncApp/Views/
+```
 
-### 5. `CloudSyncApp/Configuration.storekit`
-- Line 142+: Remove team product configuration block
+### Definition of Done
+- [ ] Encryption toggle works without Pro
+- [ ] No paywall shown for encryption
+- [ ] Build passes
 
 ---
 
-## Strategy
+## Task 2: Schedule Creation Wizard (#114)
 
-1. Start with `SubscriptionTier.swift` (the model)
-2. Fix compile errors in Views as they arise
-3. Clean up StoreKitManager
-4. Remove from Configuration.storekit
-5. Search for any remaining references
+### Priority: MEDIUM
+### Size: M (~2 hrs)
+
+### Problem
+Users need a guided flow to create sync schedules.
+
+### Files to Create (in `CloudSyncApp/Views/Wizards/`)
+1. `ScheduleWizard/ScheduleWizardView.swift` - Main wizard
+2. `ScheduleWizard/Steps/SelectRemotesStep.swift` - Choose source/dest
+3. `ScheduleWizard/Steps/ConfigureScheduleStep.swift` - Frequency, time
+4. `ScheduleWizard/Steps/ReviewStep.swift` - Confirm and create
+
+### Files to Modify
+- `CloudSyncApp/Views/SchedulesView.swift` - Add "Create Schedule (Wizard)" button
+
+### Implementation Strategy
+1. Reuse existing `WizardView` and `WizardProgressView` components
+2. Steps:
+   - Step 1: Select source and destination remotes
+   - Step 2: Configure schedule (frequency, time, options)
+   - Step 3: Review and confirm
+3. On completion, create schedule using existing schedule manager
+
+### Reference Code
+```bash
+# Existing wizard infrastructure
+cat CloudSyncApp/Views/Wizards/WizardView.swift
+cat CloudSyncApp/Views/Wizards/ProviderConnectionWizard/ProviderConnectionWizardView.swift
+
+# Existing schedule UI
+cat CloudSyncApp/Views/SchedulesView.swift
+```
+
+### Definition of Done
+- [ ] 3-step wizard implemented
+- [ ] Reuses WizardView infrastructure
+- [ ] Creates schedule on completion
+- [ ] Accessible from SchedulesView
+- [ ] Build passes
+
+---
+
+## Task 3: Transfer Setup Wizard (#115)
+
+### Priority: LOW
+### Size: M (~2 hrs)
+
+### Problem
+Users need a guided flow to set up one-time transfers.
+
+### Files to Create (in `CloudSyncApp/Views/Wizards/`)
+1. `TransferWizard/TransferWizardView.swift` - Main wizard
+2. `TransferWizard/Steps/SelectSourceStep.swift` - Choose source
+3. `TransferWizard/Steps/SelectDestinationStep.swift` - Choose destination
+4. `TransferWizard/Steps/ConfigureOptionsStep.swift` - Transfer options
+5. `TransferWizard/Steps/ConfirmStep.swift` - Review and start
+
+### Files to Modify
+- `CloudSyncApp/Views/TransferView.swift` - Add "Setup Wizard" button
+
+### Implementation Strategy
+1. Reuse existing `WizardView` and `WizardProgressView` components
+2. Steps:
+   - Step 1: Select source remote and folder
+   - Step 2: Select destination remote and folder
+   - Step 3: Configure options (sync mode, filters)
+   - Step 4: Review and start transfer
+3. On completion, initiate transfer using existing transfer logic
+
+### Reference Code
+```bash
+# Existing transfer UI
+cat CloudSyncApp/Views/TransferView.swift
+
+# Existing wizard patterns
+ls CloudSyncApp/Views/Wizards/ProviderConnectionWizard/
+```
+
+### Definition of Done
+- [ ] 4-step wizard implemented
+- [ ] Reuses WizardView infrastructure
+- [ ] Initiates transfer on completion
+- [ ] Accessible from TransferView
+- [ ] Build passes
+
+---
+
+## Execution Order
+
+1. **#121** first - quick win, high priority
+2. **#114** second - schedule wizard
+3. **#115** third - transfer wizard
+
+---
 
 ## Verification Commands
 
 ```bash
-# Search for any remaining team references
-grep -r "team" CloudSyncApp/ --include="*.swift" -i | grep -i plan
-
 # Build check
+xcodebuild build -scheme CloudSyncApp 2>&1 | tail -10
+
+# Full QA check
 ./scripts/worker-qa.sh
+
+# List wizard files
+ls -la CloudSyncApp/Views/Wizards/
 ```
 
 ---
-
-## Definition of Done
-
-- [ ] `.team` case removed from SubscriptionTier enum
-- [ ] No Team Plan in PaywallView
-- [ ] No Team Plan in SubscriptionView
-- [ ] No team product in StoreKitManager
-- [ ] No team in Configuration.storekit
-- [ ] No remaining "team plan" references in codebase
-- [ ] Build passes
-- [ ] App launches and subscription views work
-
----
-
-## Quality Requirements
-
-Before marking complete:
-1. Run `./scripts/worker-qa.sh`
-2. Build must SUCCEED
-3. Verify no team references remain
 
 ## Progress Updates
 
 ```markdown
-## Progress - 08:45
-**Status:** ✅ COMPLETE
-**Working on:** Task completed
-**Completed:** All team references removed from specified files, build passes
-**Blockers:** None (Note: Found additional team references in SyncManager.swift and HelpManager.swift but unknown ownership)
+## Progress - [TIME]
+**Status:** ⏳ Not started
+**Working on:** -
+**Completed:** -
+**Blockers:** None
 ```
 
 ---
 
-*Sprint v2.0.29 - Clean-up Sprint*
+*Sprint v2.0.31 - Polish & Accessibility*
