@@ -59,11 +59,23 @@ CloudSync Ultra is a professional macOS application for cloud storage synchroniz
 - **Recent Activity** — Last 5 operations with file counts and sizes
 - **Quick Actions Hint** — Discover keyboard productivity features
 
-### 🚀 Quick Actions Menu (NEW in v2.0.22)
+### 🧙 Setup Wizards (NEW in v2.0.32)
+- **Provider Connection Wizard** — Guided step-by-step cloud service setup
+- **Schedule Wizard** — Easy configuration of automatic sync schedules
+- **Transfer Wizard** — File transfer with preview option and dry-run support
+- **Interactive Onboarding** — 4-step first-launch wizard with "Connect a Provider Now" and "Try a Sync Now" buttons
+
+### 🚀 Quick Actions Menu
 - **Keyboard Shortcut** — Cmd+Shift+N opens from anywhere
 - **Fast Operations** — Add cloud, quick transfer, new folder, schedule sync
 - **Search-driven** — Type to filter available actions
 - **Context-aware** — Shows relevant actions based on current view
+
+### ⌨️ Full Keyboard Navigation (NEW in v2.0.32)
+- **Global Shortcuts** — Cmd+N (new provider), Cmd+Shift+N (quick actions), Cmd+, (settings)
+- **File Browser** — Arrow keys, Enter, Space for Quick Look, Cmd+A select all
+- **Transfer View** — Tab between panes, arrow keys for direction
+- **Accessible** — Complete app control without mouse
 
 ### 📁 Dual-Pane Transfer
 - **Side-by-Side Browsers** — Source and destination with independent navigation
@@ -153,7 +165,7 @@ Yandex Disk, Mail.ru Cloud, Jottacloud, Koofr, HiDrive, 1fichier, Uptobox, Googl
 - **Keychain Services** — Secure credential storage
 
 ### Quality Assurance
-- **841 Automated Tests** — Comprehensive coverage
+- **855 Automated Tests** — Comprehensive coverage
 - **CI/CD Pipeline** — GitHub Actions integration
 - **Pre-commit Hooks** — Quality gates
 - **Test Categories** — Unit, Integration, UI
@@ -186,14 +198,19 @@ CloudSyncApp/
 │   ├── HistoryView.swift          # Transfer archive
 │   ├── FileBrowserView.swift      # Single-pane browser
 │   ├── QuickActionsView.swift     # Cmd+Shift+N menu
-│   └── OnboardingView/            # 4-step wizard
+│   ├── PaywallView.swift          # Subscription UI
+│   ├── OnboardingView/            # 4-step interactive wizard
+│   └── Wizards/                   # Provider, Schedule, Transfer wizards
 ├── Managers/
 │   ├── RcloneManager.swift        # rclone interface
 │   ├── SyncManager.swift          # Sync orchestration
 │   ├── EncryptionManager.swift    # E2E encryption
 │   ├── TransferOptimizer.swift    # Performance tuning
 │   ├── CrashReportingManager.swift # Privacy-first crashes
-│   └── NotificationManager.swift  # User notifications
+│   ├── NotificationManager.swift  # User notifications
+│   ├── StoreKitManager.swift      # Subscription management
+│   ├── SecurityManager.swift      # Security hardening
+│   └── FeedbackManager.swift      # In-app feedback
 ├── Components/
 │   ├── ProviderIconView.swift     # Provider branding
 │   ├── ErrorBanner.swift          # Error notifications
@@ -264,6 +281,22 @@ CloudSyncApp/
 - **<1s** — File list loading (1000 files)
 - **Real-time** — Progress updates
 
+## Subscription Tiers
+
+CloudSync Ultra offers three subscription tiers:
+
+| Feature | Free | Pro ($9.99/mo) | Team ($19.99/user) |
+|---------|------|----------------|-------------------|
+| Cloud providers | 42+ | 42+ | 42+ |
+| E2E Encryption | Yes | Yes | Yes |
+| Scheduled sync | 1 task | Unlimited | Unlimited |
+| Connected remotes | 3 | Unlimited | Unlimited |
+| Bandwidth throttling | Yes | Yes | Yes |
+| Priority support | - | Yes | Yes |
+| Team management | - | - | Yes |
+
+Powered by **StoreKit 2** for seamless subscription management.
+
 ## Security Model
 
 ### Defense in Depth
@@ -281,7 +314,7 @@ CloudSyncApp/
 
 ## Testing Strategy
 
-### 841 Automated Tests
+### 855 Automated Tests
 - **Models** — CloudProvider, FileItem, TransferError (150+ tests)
 - **ViewModels** — State management, business logic (200+ tests)
 - **Managers** — RcloneManager, TransferOptimizer (250+ tests)
@@ -333,7 +366,7 @@ CloudSyncApp/
 ## Success Metrics
 
 ### App Quality
-- **841 tests** passing (99.8% pass rate)
+- **855 tests** passing (99.8% pass rate)
 - **<0.1% crash rate** in production
 - **4.8/5 stars** target App Store rating
 - **<2s launch time** on M1 Macs
@@ -349,7 +382,7 @@ CloudSyncApp/
 ### Getting Started
 1. Fork the repository
 2. Clone and build locally
-3. Run the 841 test suite
+3. Run the 855 test suite
 4. Make changes with tests
 5. Submit PR with description
 
@@ -370,11 +403,11 @@ CloudSyncApp/
 ---
 
 **Project**: CloudSync Ultra
-**Version**: 2.0.25
-**Released**: January 15, 2026
+**Version**: 2.0.32
+**Released**: January 16, 2026
 **Architecture**: MVVM + SwiftUI
 **Platform**: macOS 14.0+
 **License**: MIT
-**Tests**: 841 (99.8% passing)
+**Tests**: 855 (99.8% passing)
 
 *One app. All your clouds. Perfectly optimized.* ☁️

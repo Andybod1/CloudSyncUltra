@@ -151,14 +151,16 @@ Automatic per-provider tuning:
 
 ## What's New in v2.0.32
 
-- **Keyboard Navigation** - Complete keyboard-driven workflows (#54)
-- **Input Validation** - Enhanced data handling and security (#75)
-- **Brand Identity Docs** - Visual identity and branding guidelines (#79)
-- **Worker Quality Standards** - Operational excellence improvements
+- **Interactive Onboarding** - 4-step wizard with "Connect a Provider Now" and "Try a Sync Now" buttons
+- **Setup Wizards** - Provider Connection, Schedule, and Transfer wizards for guided setup
+- **Subscription Tiers** - Free, Pro ($9.99/mo), Team ($19.99/user) with StoreKit 2
+- **Full Keyboard Navigation** - Complete app control without mouse
+- **Security Hardening** - Path sanitization, secure file handling, log permissions
+- **855 Automated Tests** - Comprehensive test coverage
 
-### Previously in v2.0.22
+### Core Features
 - **Quick Actions** - Cmd+Shift+N productivity boost
-- **Transfer Preview** - See before you sync
+- **Transfer Preview** - See before you sync with dry-run
 - **Smart Chunks** - Provider-optimized transfers
 
 ## Next Steps
@@ -179,7 +181,7 @@ Automatic per-provider tuning:
 
 ---
 
-**Quick Start Version**: 2.0.25
+**Quick Start Version**: 2.0.32
 **Last Updated**: January 2026
 
 Enjoy CloudSync Ultra - The fastest way to manage all your clouds! ☁️⚡

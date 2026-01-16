@@ -1,30 +1,23 @@
-# {PROJECT_NAME} - Crash Recovery Guide
+# CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
 > This guide helps you restore the development environment after restart.
-> **Version:** {VERSION} | **Tests:** {TEST_COUNT} | **Last Updated:** {DATE}
+> **Version:** 2.0.32 | **Tests:** 855 passing | **Providers:** 42
 
 ---
 
 ## 🚀 Quick Recovery (3 Steps)
 
-### Step 1: Check GitHub Issues (Your Work Queue)
+### Step 1: Check Project Health
 ```bash
-cd {PROJECT_ROOT}
-
-# See what was in progress
-gh issue list -l in-progress
-
-# See what's ready to work on
-gh issue list -l ready
-
-# Full dashboard (if available)
+cd ~/Claude
 ./scripts/dashboard.sh
 ```
 
 ### Step 2: Check Git Status
 ```bash
 git status
+git log --oneline -5
 
 # If uncommitted work exists:
 git add -A && git commit -m "WIP: Recovery after crash"
@@ -32,12 +25,78 @@ git add -A && git commit -m "WIP: Recovery after crash"
 
 ### Step 3: Verify Build
 ```bash
-# Run your project's build command
-npm run build  # OR: make build, cargo build, etc.
-
-# Run tests to verify everything works
-npm test  # OR: pytest, go test, cargo test, etc.
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
 ```
+
+---
+
+## 📋 Current State (2026-01-16)
+
+### Sprint v2.0.32 RELEASED
+
+See STATUS.md for current work in progress. Recent completed work:
+- Interactive Onboarding with "Connect a Provider Now" and "Try a Sync Now"
+- Provider Connection, Schedule, and Transfer Wizards
+- Subscription Tiers (Free/Pro/Team) with StoreKit 2
+- Full Keyboard Navigation
+- Security Hardening (SecurityManager, path sanitization)
+- 855 automated tests passing
+
+### Key Files
+- Sprint Status: `.claude-team/SPRINT_STATUS.md`
+- Worker Status: `.claude-team/STATUS.md`
+- Current Tasks: `.claude-team/tasks/`
+
+---
+
+## 🔄 Resume Workers (If Mid-Sprint)
+
+> ⚠️ **IMPORTANT:** Always use the launch script below - never launch workers manually via `claude` command directly. The script handles Terminal setup, briefing injection, and task assignment automatically.
+
+### Launch Commands
+```bash
+# Core Workers
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
+
+# Specialized Agents
+~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
+~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
+```
+
+### Startup Prompts
+
+| Worker | Prompt |
+|--------|--------|
+| Dev-1 | `Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.` |
+| Dev-2 | `Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.` |
+| Dev-3 | `Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.` |
+| Dev-Ops | `Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.` |
+| Revenue-Engineer | `Read /Users/antti/Claude/.claude-team/templates/REVENUE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_REVENUE_ENGINEER.md. Update STATUS.md as you work.` |
+| Legal-Advisor | `Read /Users/antti/Claude/.claude-team/templates/LEGAL_ADVISOR_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_LEGAL_ADVISOR.md. Update STATUS.md as you work.` |
+| Marketing-Lead | `Read /Users/antti/Claude/.claude-team/templates/MARKETING_LEAD_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_LEAD.md. Update STATUS.md as you work.` |
+
+---
+
+## 📊 State Recovery Sources
+
+| Source | What It Shows | Command |
+|--------|---------------|---------|
+| **Dashboard** | Full health overview | `./scripts/dashboard.sh` |
+| **GitHub Issues** | All tracked work | `gh issue list` |
+| STATUS.md | Worker status | `cat .claude-team/STATUS.md` |
+| tasks/*.md | Assigned tasks | `ls .claude-team/tasks/` |
+| outputs/*.md | Completed work | `ls .claude-team/outputs/` |
+| CHANGELOG.md | Recent releases | `head -60 CHANGELOG.md` |
+| Git log | Recent commits | `git log --oneline -10` |
 
 ---
 
@@ -46,63 +105,14 @@ npm test  # OR: pytest, go test, cargo test, etc.
 In a new Desktop Claude chat, say:
 
 ```
-Read these files to restore context for {PROJECT_NAME}:
+Read these files to restore context for CloudSync Ultra:
 
-1. {PROJECT_ROOT}/.claude-team/PROJECT_CONTEXT.md
-2. {PROJECT_ROOT}/.claude-team/STATUS.md
-3. {PROJECT_ROOT}/CHANGELOG.md
+1. /Users/antti/Claude/CLAUDE_PROJECT_KNOWLEDGE.md
+2. /Users/antti/Claude/.claude-team/STATUS.md
+3. /Users/antti/Claude/.claude-team/planning/SPRINT_2.0.23_PLAN.md
 
 Then tell me what state we're in and what needs to happen next.
 ```
-
----
-
-## 🔄 Resume Workers (If Mid-Task)
-
-### Launch Workers
-```bash
-{PROJECT_ROOT}/.claude-team/scripts/launch_workers.sh
-```
-
-### Startup Commands
-
-**Dev-1 Worker**
-```
-Read {PROJECT_ROOT}/.claude-team/templates/DEV1_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.
-```
-
-**Dev-2 Worker**
-```
-Read {PROJECT_ROOT}/.claude-team/templates/DEV2_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.
-```
-
-**Dev-3 Worker**
-```
-Read {PROJECT_ROOT}/.claude-team/templates/DEV3_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.
-```
-
-**QA Worker**
-```
-Read {PROJECT_ROOT}/.claude-team/templates/QA_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_QA.md. Update STATUS.md as you work.
-```
-
-**Dev-Ops Worker**
-```
-Read {PROJECT_ROOT}/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute {PROJECT_ROOT}/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.
-```
-
----
-
-## 📊 State Recovery Sources
-
-| Source | What It Shows | Command |
-|--------|---------------|---------|
-| **GitHub Issues** | All tracked work (crash-proof) | `gh issue list` |
-| STATUS.md | Worker status at crash | `cat .claude-team/STATUS.md` |
-| tasks/*.md | Assigned tasks | `ls .claude-team/tasks/` |
-| outputs/*.md | Completed work | `ls .claude-team/outputs/` |
-| CHANGELOG.md | Recent releases | `head -60 CHANGELOG.md` |
-| Git log | Recent commits | `git log --oneline -10` |
 
 ---
 
@@ -115,37 +125,20 @@ npm install -g @anthropic-ai/claude-code
 
 ### gh (GitHub CLI) Not Found
 ```bash
-# macOS
 brew install gh
-gh auth login
-
-# Linux
-type -p curl >/dev/null || sudo apt install curl -y
-curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-sudo apt update
-sudo apt install gh -y
 gh auth login
 ```
 
 ### Build Fails
 ```bash
-# Clean build artifacts (adjust for your project)
-rm -rf node_modules/ dist/ build/  # Node.js
-rm -rf target/                      # Rust/Java
-rm -rf __pycache__/ *.pyc          # Python
-
-# Reinstall dependencies
-npm install    # OR: pip install -r requirements.txt, cargo build, etc.
-
-# Rebuild
-npm run build  # OR your build command
+rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 ```
 
 ### Permission Denied on Scripts
 ```bash
-chmod +x .claude-team/scripts/*.sh
 chmod +x scripts/*.sh
+chmod +x .claude-team/scripts/*.sh
 ```
 
 ---
@@ -153,12 +146,10 @@ chmod +x scripts/*.sh
 ## 🆘 Emergency: Full Reset
 
 ```bash
-cd {PROJECT_ROOT}
+cd ~/Claude
 git checkout -- .
-# Clean all build artifacts (customize for your project)
-git clean -fdx  # WARNING: Removes all untracked files!
-# Reinstall and rebuild
-npm install && npm run build  # OR your commands
+rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
+xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 ```
 
 ---
@@ -170,7 +161,7 @@ npm install && npm run build  # OR your commands
 | **GitHub Issues** | ✅ Safe | All work tracking on GitHub |
 | Git repo | ✅ Safe | All committed code |
 | Team infrastructure | ✅ Safe | In Git |
-| Build artifacts | ❌ Lost | Rebuild needed |
+| Build artifacts | ❌ Lost | Rebuild with xcodebuild |
 | Terminal sessions | ❌ Lost | Relaunch workers |
 | Uncommitted changes | ❌ Lost | Commit frequently! |
 
@@ -180,30 +171,15 @@ npm install && npm run build  # OR your commands
 
 | Action | Command |
 |--------|---------|
-| Issue dashboard | `./scripts/dashboard.sh` |
+| Project health | `./scripts/dashboard.sh` |
 | View all issues | `gh issue list` |
 | In-progress issues | `gh issue list -l in-progress` |
-| Launch workers | `./.claude-team/scripts/launch_workers.sh` |
+| Launch single worker | `~/Claude/.claude-team/scripts/launch_single_worker.sh <worker> opus` |
 | Check worker status | `cat .claude-team/STATUS.md` |
-| Build project | `npm run build` # OR your build command |
-| Run tests | `npm test` # OR your test command |
+| Build app | `xcodebuild build 2>&1 \| tail -5` |
+| Run tests | `xcodebuild test -destination 'platform=macOS' 2>&1 \| grep Executed` |
 
 ---
 
-## ⚡ Emergency Commands
-
-```bash
-# Quick status check
-cd {PROJECT_ROOT} && pwd && git status --short && gh issue list -l in-progress
-
-# Build and test
-npm run build && npm test  # OR your commands
-
-# See recent activity
-git log --oneline -5 && echo "---" && gh issue list --limit 5
-```
-
----
-
-*Last Updated: {DATE}*
-*{PROJECT_NAME} {VERSION}*
+*Last Updated: 2026-01-16*
+*Current Version: v2.0.32*
