@@ -74,8 +74,12 @@ if command -v gh &> /dev/null; then
     STALE_COUNT=$(gh issue list --state open --json createdAt 2>/dev/null | jq "[.[] | select(.createdAt < \"$(date -v-30d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
 fi
 
-# Test count (from project knowledge or last known)
-TEST_COUNT="743"
+# Test count (from metrics CSV or fallback)
+if [[ -f ".claude-team/metrics/test-counts.csv" ]]; then
+    TEST_COUNT=$(tail -1 .claude-team/metrics/test-counts.csv | cut -d',' -f3)
+else
+    TEST_COUNT="855"
+fi
 
 # CI status and build success rate
 CI_STATUS="❌"
