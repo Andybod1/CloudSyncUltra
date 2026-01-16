@@ -300,6 +300,29 @@ Quick reflection on the sprint to capture learnings:
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
+#### 10. Daily Documentation Update (End of Day)
+
+> **🔒 MANDATORY** - Update these files at the end of EVERY working day.
+
+| File | What to Update |
+|------|----------------|
+| `CLAUDE_PROJECT_KNOWLEDGE.md` | Current state, recent changes, version |
+| `DEVELOPMENT.md` | New components, architecture changes, test count |
+| `GETTING_STARTED.md` | Setup steps, prerequisites, first-run flow |
+| `PROJECT_OVERVIEW.md` | Feature list, architecture highlights |
+| `QUICKSTART.md` | Common workflows, keyboard shortcuts |
+| `README.md` | Feature list, badges, quick start |
+| `RECOVERY.md` | Current state, open issues, recovery steps |
+| `SETUP.md` | Installation, configuration, dependencies |
+
+**Daily Checklist:**
+- [ ] Review what changed today
+- [ ] Update affected documentation files
+- [ ] Ensure version numbers are consistent
+- [ ] Commit documentation updates
+
+**Why Daily?** Documentation debt compounds quickly. Small daily updates prevent large outdated docs.
+
 ---
 
 #### Worker Workflow (Important!)
