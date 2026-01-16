@@ -1,137 +1,109 @@
-# Task: UI Polish Sprint - 5 XS Issues
+# Task: Remove Team Plan (#106)
 
 ## Worker: Dev-1 (UI)
-## Priority: LOW
-## Size: 5×XS (~1-2 hrs total)
+## Priority: MEDIUM
+## Size: M (~1-2 hrs)
+
+---
+
+## ✅ PERMISSION GRANTED
+
+**Strategic Partner Authorization (2026-01-16):**
+Dev-1 is granted ONE-TIME permission to modify these files for #106:
+- `CloudSyncApp/Models/SubscriptionTier.swift` (normally Dev-3)
+- `CloudSyncApp/Managers/StoreKitManager.swift` (normally Dev-3)
+- `CloudSyncApp/Configuration.storekit`
+
+**Proceed with task - blocker resolved.**
 
 ---
 
 ## Pre-Flight Checklist
 
 ```bash
-# Verify ownership - all UI files should be Dev-1 domain
-./scripts/check-ownership.sh CloudSyncApp/Views dev-1
+# Ownership check - SKIP for this task (SP permission granted above)
 ```
 
 ---
 
-## Issue 1: Path Breadcrumb Text Size (#111)
+## Problem
 
-### Problem
-Path breadcrumb (e.g., "/Users/Antti") has smaller text than "Search files..." placeholder.
+Team Plan appears throughout the app but is not being offered/supported. Need to remove all references to avoid user confusion.
 
-### Expected
-Both should have the same text size for visual consistency.
+## Files to Modify
 
-### Location
-File browser view - top bar area
+### 1. `CloudSyncApp/Models/SubscriptionTier.swift`
+Remove the `.team` case from the enum and all related logic:
+- Line 24, 35, 46, 58, 68, 90, 95, 100, 123, 145-146, 169, 178, 185, 187-188
+- Update `availableUpgrades` to only return `.pro`
+- Remove `isTeam` computed property references
 
-### Fix
-Find the breadcrumb Text view and match its font size to the search field.
+### 2. `CloudSyncApp/Views/PaywallView.swift`
+- Line 109: Change `[.free, .pro, .team]` to `[.free, .pro]`
+- Line 129: Remove `.team` case
 
-### Files to Check
-- `CloudSyncApp/Views/FileBrowser*.swift`
-- Look for breadcrumb/path display component
+### 3. `CloudSyncApp/Views/SubscriptionView.swift`
+- Line 136, 147: Remove `.team` case handling
 
----
+### 4. `CloudSyncApp/Managers/StoreKitManager.swift`
+- Line 52: Remove `"com.cloudsync.team.monthly"`
+- Line 325-326: Remove team case handling
 
-## Issue 2: Style Clear History Button (#108)
-
-### Problem
-"Clear History" button has different style than "Add Schedule" button.
-
-### Expected
-Match the button style to "Add Schedule" for consistency.
-
-### Location
-History view → top right "Clear History" button
-
-### Files to Check
-- `CloudSyncApp/Views/HistoryView.swift`
-- Reference: `CloudSyncApp/Views/ScheduleView.swift` for Add Schedule style
+### 5. `CloudSyncApp/Configuration.storekit`
+- Line 142+: Remove team product configuration block
 
 ---
 
-## Issue 3: Style New Task Button (#107)
+## Strategy
 
-### Problem
-"+ New Task" button is large purple gradient, too prominent.
+1. Start with `SubscriptionTier.swift` (the model)
+2. Fix compile errors in Views as they arise
+3. Clean up StoreKitManager
+4. Remove from Configuration.storekit
+5. Search for any remaining references
 
-### Expected
-Match the style to "Add Schedule" button (subtle, consistent).
+## Verification Commands
 
-### Location
-Tasks view → top right "+ New Task" button
+```bash
+# Search for any remaining team references
+grep -r "team" CloudSyncApp/ --include="*.swift" -i | grep -i plan
 
-### Files to Check
-- `CloudSyncApp/Views/TaskView.swift` or similar
-- Reference: `CloudSyncApp/Views/ScheduleView.swift` for Add Schedule style
-
----
-
-## Issue 4: Move Quick Access Section (#105)
-
-### Problem
-"Quick Access" toggle in Performance settings is too prominent.
-
-### Expected
-Move Quick Access section to BOTTOM of Performance settings view.
-
-### Location
-Settings → Performance → Quick Access section
-
-### Files to Check
-- `CloudSyncApp/Views/PerformanceSettingsView.swift`
-- `CloudSyncApp/SettingsView.swift`
+# Build check
+./scripts/worker-qa.sh
+```
 
 ---
 
-## Issue 5: Drag Files Hint Text (#99)
+## Definition of Done
 
-### Problem
-"Drag files between panes to transfer" hint is:
-- Too small
-- Wrapping word-by-word awkwardly
-
-### Expected
-- Larger, readable font size
-- Proper text wrapping or single line
-
-### Location
-File browser view - hint text area
-
-### Files to Check
-- `CloudSyncApp/Views/FileBrowser*.swift`
-- Look for hint/placeholder text
+- [ ] `.team` case removed from SubscriptionTier enum
+- [ ] No Team Plan in PaywallView
+- [ ] No Team Plan in SubscriptionView
+- [ ] No team product in StoreKitManager
+- [ ] No team in Configuration.storekit
+- [ ] No remaining "team plan" references in codebase
+- [ ] Build passes
+- [ ] App launches and subscription views work
 
 ---
 
 ## Quality Requirements
 
-Before marking EACH issue complete:
+Before marking complete:
 1. Run `./scripts/worker-qa.sh`
 2. Build must SUCCEED
-3. Visually verify the fix
-
-## Batch Strategy
-
-Since all are XS UI fixes:
-1. Fix all 5 issues
-2. Run single build verification
-3. Write completion report with all fixes
+3. Verify no team references remain
 
 ## Progress Updates
 
-Update this section every 30 minutes:
-
 ```markdown
-## Progress - 08:45
-**Status:** ✅ COMPLETE
-**Working on:** Task completed successfully
-**Completed:** All 5 issues addressed - fixed #111 and #99, confirmed #105/#107/#108 already fixed
+## Progress - 08:20
+**Status:** 🟡 In Progress
+**Working on:** CloudSyncApp/Models/SubscriptionTier.swift
+**Completed:** Ownership conflicts resolved by SP authorization
 **Blockers:** None
 ```
 
 ---
 
-*Sprint v2.0.28 - UI Polish Sprint*
+*Sprint v2.0.29 - Clean-up Sprint*

@@ -106,7 +106,7 @@ struct PaywallView: View {
 
     private var tierComparisonSection: some View {
         HStack(spacing: 24) {
-            ForEach([SubscriptionTier.free, .pro, .team], id: \.self) { tier in
+            ForEach([SubscriptionTier.free, .pro], id: \.self) { tier in
                 TierCard(
                     tier: tier,
                     isCurrentTier: storeKitManager.currentTier == tier,
@@ -126,7 +126,6 @@ struct PaywallView: View {
         switch tier {
         case .free: return 0.1
         case .pro: return 0.2
-        case .team: return 0.3
         }
     }
 
@@ -171,8 +170,6 @@ struct PaywallView: View {
     private func tierName(for product: Product) -> String {
         if product.id.contains("pro") {
             return "Pro"
-        } else if product.id.contains("team") {
-            return "Team"
         }
         return ""
     }

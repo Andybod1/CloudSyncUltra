@@ -38,3 +38,5 @@ Types:
 ---
 
 *Strategic Partner: Clear resolved alerts weekly*
+⚠️ 2026-01-16 10:09 | dev-1 | BLOCKED | #106 requires dev-3 files (Models/, Managers/)
+✅ 2026-01-16 10:15 | SP | RESOLVED | Dev-1 granted one-time permission for #106 files

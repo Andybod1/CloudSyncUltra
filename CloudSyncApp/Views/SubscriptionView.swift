@@ -133,8 +133,6 @@ struct SubscriptionView: View {
             return LinearGradient(colors: [.gray, .gray.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
         case .pro:
             return LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case .team:
-            return LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
     }
 
@@ -144,8 +142,6 @@ struct SubscriptionView: View {
             return "cloud"
         case .pro:
             return "cloud.fill"
-        case .team:
-            return "person.3.fill"
         }
     }
 

@@ -48,8 +48,7 @@ class StoreKitManager: ObservableObject {
     // Product IDs (must match App Store Connect configuration)
     private let productIDs = [
         "com.cloudsync.pro.monthly",
-        "com.cloudsync.pro.yearly",
-        "com.cloudsync.team.monthly"
+        "com.cloudsync.pro.yearly"
     ]
 
     // MARK: - Initialization
@@ -322,8 +321,6 @@ extension StoreKitManager {
             targetID = "com.cloudsync.pro.monthly"
         case (.pro, true):
             targetID = "com.cloudsync.pro.yearly"
-        case (.team, _):
-            targetID = "com.cloudsync.team.monthly"
         default:
             return nil
         }

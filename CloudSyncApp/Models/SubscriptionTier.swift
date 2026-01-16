@@ -11,7 +11,6 @@ import Foundation
 enum SubscriptionTier: String, Codable, CaseIterable {
     case free
     case pro
-    case team
 
     // MARK: - Display Properties
 
@@ -21,8 +20,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
             return "Free"
         case .pro:
             return "Pro"
-        case .team:
-            return "Team"
         }
     }
 
@@ -32,8 +29,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
             return "$0"
         case .pro:
             return "$9.99"
-        case .team:
-            return "$19.99"
         }
     }
 
@@ -43,8 +38,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
             return nil
         case .pro:
             return "$99.00"
-        case .team:
-            return nil // Team is monthly only
         }
     }
 
@@ -55,7 +48,7 @@ enum SubscriptionTier: String, Codable, CaseIterable {
         switch self {
         case .free:
             return 2
-        case .pro, .team:
+        case .pro:
             return nil // unlimited
         }
     }
@@ -65,7 +58,7 @@ enum SubscriptionTier: String, Codable, CaseIterable {
         switch self {
         case .free:
             return 5
-        case .pro, .team:
+        case .pro:
             return nil
         }
     }
@@ -87,17 +80,12 @@ enum SubscriptionTier: String, Codable, CaseIterable {
 
     /// Whether version history is available
     var hasVersionHistory: Bool {
-        self == .pro || self == .team
-    }
-
-    /// Whether team management features are available
-    var hasTeamManagement: Bool {
-        self == .team
+        self == .pro
     }
 
     /// Whether SSO is available (future feature)
     var hasSSO: Bool {
-        self == .team
+        false
     }
 
     // MARK: - Feature Descriptions
@@ -120,14 +108,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
                 "Version history",
                 "Priority support"
             ]
-        case .team:
-            return [
-                "Everything in Pro",
-                "Team management (coming soon)",
-                "SSO integration (coming soon)",
-                "Advanced analytics",
-                "Dedicated support"
-            ]
         }
     }
 
@@ -142,8 +122,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
                 "com.cloudsync.pro.monthly",
                 "com.cloudsync.pro.yearly"
             ]
-        case .team:
-            return ["com.cloudsync.team.monthly"]
         }
     }
 
@@ -166,8 +144,6 @@ enum SubscriptionTier: String, Codable, CaseIterable {
             return true
         case (.pro, .free), (.pro, .pro):
             return true
-        case (.team, _):
-            return true
         default:
             return false
         }
@@ -175,17 +151,15 @@ enum SubscriptionTier: String, Codable, CaseIterable {
 
     /// Check if upgrade is available from this tier
     var canUpgrade: Bool {
-        self != .team
+        self != .pro
     }
 
     /// Get available upgrade options
     var upgradeOptions: [SubscriptionTier] {
         switch self {
         case .free:
-            return [.pro, .team]
+            return [.pro]
         case .pro:
-            return [.team]
-        case .team:
             return []
         }
     }
@@ -214,11 +188,11 @@ extension SubscriptionTier {
         case "transfer":
             return "You've reached the \(transferLimitGB ?? 0) GB monthly transfer limit for the \(displayName) tier. Upgrade for unlimited transfers."
         case "encryption":
-            return "Encryption is only available in Pro and Team tiers. Upgrade to secure your data."
+            return "Encryption is only available in Pro tier. Upgrade to secure your data."
         case "scheduling":
-            return "Scheduled sync is only available in Pro and Team tiers. Upgrade to automate your syncs."
+            return "Scheduled sync is only available in Pro tier. Upgrade to automate your syncs."
         default:
-            return "This feature requires an upgrade. Check out our Pro and Team tiers."
+            return "This feature requires an upgrade. Check out our Pro tier."
         }
     }
 }
