@@ -1,10 +1,10 @@
 # CloudSync Ultra 2.0 - Development Guide
 
-Technical documentation for developers working on CloudSync Ultra v2.0.25.
+Technical documentation for developers working on CloudSync Ultra v2.0.32.
 
 ## Architecture Overview
 
-### Component Hierarchy (v2.0.25)
+### Component Hierarchy (v2.0.32)
 
 ```
 CloudSyncAppApp (App Entry)
@@ -58,7 +58,7 @@ CloudSyncAppApp (App Entry)
 User Action → SwiftUI View → ViewModel → Manager → rclone → Cloud Provider
                                          ↓
                                   TransferOptimizer
-                                    (v2.0.23)
+                                    (v2.0.32)
                                          ↓
                               Provider-specific tuning
                                          │

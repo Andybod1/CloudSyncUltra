@@ -1,4 +1,4 @@
-# CloudSync Ultra v2.0.25
+# CloudSync Ultra v2.0.32
 
 A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 
@@ -86,7 +86,7 @@ Jottacloud, Google Photos, Flickr, SugarSync, OpenDrive, Put.io, Premiumize.me, 
 
 ## 🚀 Getting Started
 
-> **New in v2.0.25:** Keyboard navigation, input validation, brand identity docs, and worker quality standards. See [CHANGELOG.md](CHANGELOG.md) for all updates.
+> **New in v2.0.32:** Keyboard navigation, input validation, brand identity docs, and worker quality standards. See [CHANGELOG.md](CHANGELOG.md) for all updates.
 
 > **Highlights:** Complete SwiftUI interface with dual-pane transfers, 42+ cloud providers, and 855 automated tests.
 

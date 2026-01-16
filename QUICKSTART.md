@@ -149,7 +149,7 @@ Automatic per-provider tuning:
 | "Can't see files" | Press Cmd+R to refresh |
 | "Auth expired" | Click provider → Reconnect |
 
-## What's New in v2.0.25
+## What's New in v2.0.32
 
 - **Keyboard Navigation** - Complete keyboard-driven workflows (#54)
 - **Input Validation** - Enhanced data handling and security (#75)
