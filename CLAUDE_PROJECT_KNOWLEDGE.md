@@ -136,7 +136,7 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.29 - Sprint "Launch Ready"
+### Just Completed: v2.0.32 - Sprint "Launch Ready"
 - ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers, PaywallView, feature gating
 - ✅ **Security Hardening** (#74) - SecurityManager, path sanitization, secure file handling
 - ✅ **Legal Compliance** - Privacy Policy, ToS, App Privacy Labels, GDPR/CCPA docs

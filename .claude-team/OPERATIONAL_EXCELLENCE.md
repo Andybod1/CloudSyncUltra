@@ -29,7 +29,7 @@ Overall Progress                 [█████████░] 91%
 
 | Item | Status | Script/File | Notes |
 |------|--------|-------------|-------|
-| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.29" |
+| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.32" |
 | Version check script | ✅ Done | `scripts/version-check.sh` | Validates all docs |
 | Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
@@ -173,8 +173,8 @@ Overall Progress                 [█████████░] 91%
 
 ## Recent Improvements (2026-01-16)
 
-- ✅ VERSION.txt updated to 2.0.29
-- ✅ Test metrics CSV updated with v2.0.29 count
+- ✅ VERSION.txt updated to 2.0.32
+- ✅ Test metrics CSV updated with v2.0.32 count
 - ✅ Dashboard alerts cleaned up (stale blockers removed)
 - ✅ Post-sprint checklist enhanced (test count tracking)
 - ✅ Pillar 5 corrected to 100% (all items Done)
