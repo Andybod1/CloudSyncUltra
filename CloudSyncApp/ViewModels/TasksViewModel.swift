@@ -111,7 +111,7 @@ class TasksViewModel: ObservableObject {
             
             for await progress in progressStream {
                 updatedTask.progress = progress.percentage / 100
-                updatedTask.speed = String(format: "%.2f MB/s", progress.speed)
+                updatedTask.speed = progress.speed  // Pass through raw speed string from rclone
                 updatedTask.filesTransferred = progress.filesTransferred
                 updatedTask.totalFiles = progress.totalFiles
                 updateTask(updatedTask)

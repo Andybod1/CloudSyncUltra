@@ -25,9 +25,9 @@ struct TasksView: View {
             .map { $0 }
     }
     
-    /// Currently running task (first one)
-    private var runningTask: SyncTask? {
-        tasksVM.tasks.first { $0.state == .running }
+    /// All currently running tasks
+    private var runningTasks: [SyncTask] {
+        tasksVM.tasks.filter { $0.state == .running }
     }
     
     /// Check if there's anything to show
@@ -42,10 +42,17 @@ struct TasksView: View {
             
             Divider()
             
-            // Running task indicator at top (like Transfer view)
-            if let task = runningTask {
-                RunningTaskIndicator(task: task) {
-                    tasksVM.cancelTask(task)
+            // Running task indicators at top (like Transfer view)
+            if !runningTasks.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(runningTasks) { task in
+                        RunningTaskIndicator(task: task) {
+                            tasksVM.cancelTask(task)
+                        }
+                        if task.id != runningTasks.last?.id {
+                            Divider()
+                        }
+                    }
                 }
                 Divider()
             }

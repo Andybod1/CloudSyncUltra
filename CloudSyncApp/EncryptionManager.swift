@@ -94,13 +94,6 @@ final class EncryptionManager: ObservableObject {
             return
         }
 
-        // Check if user can use encryption based on subscription
-        guard StoreKitManager.cachedTier.hasEncryption else {
-            encryptionDisabledReason = StoreKitManager.cachedTier.limitMessage(for: "encryption")
-            showPaywallForEncryption = true
-            throw EncryptionError.notConfigured
-        }
-
         let encoder = JSONEncoder()
         let data = try encoder.encode(config)
         UserDefaults.standard.set(data, forKey: "encryption_config_\(remoteName)")

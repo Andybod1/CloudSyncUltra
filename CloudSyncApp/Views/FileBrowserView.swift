@@ -16,6 +16,7 @@ struct FileBrowserView: View {
     @StateObject private var browser = FileBrowserViewModel()
     @State private var showNewFolderSheet = false
     @State private var showDeleteConfirm = false
+    @State private var deleteItemCount = 0
     @State private var showConnectSheet = false
     @State private var isDeleting = false
     @State private var deleteError: String?
@@ -43,7 +44,9 @@ struct FileBrowserView: View {
     /// When false: view shows raw encrypted content (gibberish filenames)
     @State private var encryptionEnabled = false
     @State private var showEncryptionModal = false
-    
+    @State private var showEncryptionError = false
+    @State private var encryptionError: String?
+
     // The actual remote being used for operations (may be encrypted version)
     @State private var activeRemote: CloudRemote?
     
@@ -63,16 +66,26 @@ struct FileBrowserView: View {
                 handleEncryptionToggle(isEnabled)
             }
             .modifier(AlertsModifier(
-                showDeleteConfirm: $showDeleteConfirm,
                 showDeleteError: $showDeleteError,
                 showDownloadError: $showDownloadError,
-                selectedCount: browser.selectedFiles.count,
                 deleteError: deleteError,
                 downloadError: downloadError,
-                onDeleteConfirm: deleteSelectedFiles,
                 onDeleteErrorDismiss: { deleteError = nil },
                 onDownloadErrorDismiss: { downloadError = nil }
             ))
+            .onChange(of: showDeleteConfirm) { _, newValue in
+                if newValue {
+                    deleteItemCount = browser.selectedFiles.count
+                }
+            }
+            .alert("Delete Files?", isPresented: $showDeleteConfirm) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    deleteSelectedFiles()
+                }
+            } message: {
+                Text("Are you sure you want to delete \(deleteItemCount) item(s)? This cannot be undone.")
+            }
             .modifier(SheetsModifier(
                 showNewFolderSheet: $showNewFolderSheet,
                 showConnectSheet: $showConnectSheet,
@@ -88,6 +101,13 @@ struct FileBrowserView: View {
                 performRename: performRename,
                 configureEncryption: configureEncryption
             ))
+            .alert("Encryption Error", isPresented: $showEncryptionError) {
+                Button("OK") {
+                    encryptionError = nil
+                }
+            } message: {
+                Text(encryptionError ?? "Failed to configure encryption")
+            }
     }
     
     // MARK: - Main Content
@@ -827,14 +847,22 @@ struct FileBrowserView: View {
                             showRenameSheet = true
                         }
                         Button("Download") {
-                            browser.selectedFiles.removeAll()
-                            browser.selectedFiles.insert(file.id)
+                            // If this file is part of multi-selection, download all selected
+                            // Otherwise, download just this file
+                            if !browser.selectedFiles.contains(file.id) {
+                                browser.selectedFiles.removeAll()
+                                browser.selectedFiles.insert(file.id)
+                            }
                             downloadSelectedFiles()
                         }
                         Divider()
                         Button("Delete", role: .destructive) {
-                            browser.selectedFiles.removeAll()
-                            browser.selectedFiles.insert(file.id)
+                            // If this file is part of multi-selection, delete all selected
+                            // Otherwise, delete just this file
+                            if !browser.selectedFiles.contains(file.id) {
+                                browser.selectedFiles.removeAll()
+                                browser.selectedFiles.insert(file.id)
+                            }
                             showDeleteConfirm = true
                         }
                     }
@@ -924,14 +952,22 @@ struct FileBrowserView: View {
                             showRenameSheet = true
                         }
                         Button("Download") {
-                            browser.selectedFiles.removeAll()
-                            browser.selectedFiles.insert(file.id)
+                            // If this file is part of multi-selection, download all selected
+                            // Otherwise, download just this file
+                            if !browser.selectedFiles.contains(file.id) {
+                                browser.selectedFiles.removeAll()
+                                browser.selectedFiles.insert(file.id)
+                            }
                             downloadSelectedFiles()
                         }
                         Divider()
                         Button("Delete", role: .destructive) {
-                            browser.selectedFiles.removeAll()
-                            browser.selectedFiles.insert(file.id)
+                            // If this file is part of multi-selection, delete all selected
+                            // Otherwise, delete just this file
+                            if !browser.selectedFiles.contains(file.id) {
+                                browser.selectedFiles.removeAll()
+                                browser.selectedFiles.insert(file.id)
+                            }
                             showDeleteConfirm = true
                         }
                     }
@@ -1309,14 +1345,13 @@ struct FileBrowserView: View {
                             log("Got progress stream, starting iteration")
                             
                             for try await progress in progressStream {
-                                let speedStr = String(format: "%.2f MB/s", progress.speed)
-                                log("Progress update: \(progress.percentage)% - \(speedStr)")
+                                log("Progress update: \(progress.percentage)% - \(progress.speed)")
                                 uploadProgress = progress.percentage
-                                uploadSpeed = speedStr
-                                
+                                uploadSpeed = progress.speed  // Raw speed string from rclone
+
                                 // Update task progress
                                 task.progress = Double(index) / Double(panel.urls.count) + (progress.percentage / 100.0) / Double(panel.urls.count)
-                                task.speed = speedStr
+                                task.speed = progress.speed  // Raw speed string from rclone
                                 tasksVM.updateTask(task)
                             }
                             
@@ -1472,6 +1507,8 @@ struct FileBrowserView: View {
         } catch {
             await MainActor.run {
                 encryptionEnabled = false
+                encryptionError = error.localizedDescription
+                showEncryptionError = true
             }
             print("[FileBrowserView] Encryption setup failed: \(error)")
         }
@@ -1732,26 +1769,15 @@ struct RenameFileSheet: View {
 // MARK: - View Modifiers for Type Checking
 
 private struct AlertsModifier: ViewModifier {
-    @Binding var showDeleteConfirm: Bool
     @Binding var showDeleteError: Bool
     @Binding var showDownloadError: Bool
-    let selectedCount: Int
     let deleteError: String?
     let downloadError: String?
-    let onDeleteConfirm: () -> Void
     let onDeleteErrorDismiss: () -> Void
     let onDownloadErrorDismiss: () -> Void
-    
+
     func body(content: Content) -> some View {
         content
-            .alert("Delete Files?", isPresented: $showDeleteConfirm) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    onDeleteConfirm()
-                }
-            } message: {
-                Text("Are you sure you want to delete \(selectedCount) item(s)? This cannot be undone.")
-            }
             .alert("Delete Error", isPresented: $showDeleteError) {
                 Button("OK") {
                     onDeleteErrorDismiss()
