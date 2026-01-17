@@ -40,11 +40,8 @@ OLD_VERSION=$(cat "$PROJECT_ROOT/VERSION.txt" 2>/dev/null | tr -d '[:space:]' ||
 TODAY=$(date +%Y-%m-%d)
 
 echo ""
-# Project name
-PROJECT_NAME=$(basename "$PROJECT_ROOT")
-
 echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}${BLUE}║          ${PROJECT_NAME^^} - Automated Release                     ║${NC}"
+echo -e "${BOLD}${BLUE}║          CloudSync Ultra - Automated Release                 ║${NC}"
 echo -e "${BOLD}${BLUE}║                  v$OLD_VERSION → v$NEW_VERSION                           ║${NC}"
 echo -e "${BOLD}${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
@@ -82,26 +79,29 @@ else
     echo "Running tests..."
     cd "$PROJECT_ROOT"
     
-    # Run your project's test command here
-    # Example: npm test, pytest, go test ./..., xcodebuild test
-    echo "Run your test command here. Example:"
-    echo "  npm test"
-    echo "  pytest"
-    echo "  xcodebuild test -project YourApp.xcodeproj -scheme YourApp"
-    echo ""
-    echo -e "${YELLOW}⚠ Configure test command in this script for your project${NC}"
+    TEST_OUTPUT=$(xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed" | tail -3)
+    
+    echo "$TEST_OUTPUT"
+    
+    if echo "$TEST_OUTPUT" | grep -q "0 failures"; then
+        echo -e "${GREEN}✓ All tests passed${NC}"
+    else
+        echo -e "${RED}✗ Tests failed! Aborting release.${NC}"
+        exit 1
+    fi
 fi
 
 echo ""
 echo "Building app..."
-# Run your project's build command here
-# Example: npm run build, cargo build, xcodebuild
-echo "Run your build command here. Example:"
-echo "  npm run build"
-echo "  cargo build --release"
-echo "  xcodebuild -scheme YourApp build"
-echo ""
-echo -e "${YELLOW}⚠ Configure build command in this script for your project${NC}"
+BUILD_OUTPUT=$(cd "$PROJECT_ROOT" && xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -5)
+
+if echo "$BUILD_OUTPUT" | grep -q "BUILD SUCCEEDED"; then
+    echo -e "${GREEN}✓ Build succeeded${NC}"
+else
+    echo -e "${RED}✗ Build failed! Aborting release.${NC}"
+    echo "$BUILD_OUTPUT"
+    exit 1
+fi
 
 ((STEPS_COMPLETED++))
 
@@ -305,7 +305,7 @@ echo -e "${BOLD}${GREEN}║  Tag:      v$NEW_VERSION                            
 echo -e "${BOLD}${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo "Post-release checklist:"
-echo "  [ ] Verify on GitHub"
+echo "  [ ] Verify on GitHub: https://github.com/andybod1-lang/CloudSyncUltra"
 echo "  [ ] Test the app manually"
 echo "  [ ] Announce release (if applicable)"
 echo ""

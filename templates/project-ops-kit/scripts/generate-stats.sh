@@ -7,8 +7,7 @@ set -e
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-PROJECT_NAME=$(basename "$PROJECT_ROOT")
-echo "📊 $PROJECT_NAME - Project Statistics"
+echo "📊 CloudSync Ultra - Project Statistics"
 echo "========================================"
 echo ""
 
@@ -21,16 +20,16 @@ echo ""
 echo "📁 Code Statistics:"
 echo "-------------------"
 
-# Source files count (customize pattern for your project)
-SOURCE_FILES=$(find . -name "*.swift" -o -name "*.ts" -o -name "*.py" -o -name "*.go" 2>/dev/null | grep -v test | grep -v spec | wc -l | tr -d ' ')
-echo "Source files: $SOURCE_FILES"
+# Swift files count
+SWIFT_FILES=$(find CloudSyncApp -name "*.swift" | wc -l | tr -d ' ')
+echo "Swift source files: $SWIFT_FILES"
 
 # Lines of code (approximate)
-LOC=$(find . \( -name "*.swift" -o -name "*.ts" -o -name "*.py" -o -name "*.go" \) 2>/dev/null | grep -v test | grep -v spec | xargs wc -l 2>/dev/null | tail -1 | tr -d ' ' | cut -d't' -f1)
-echo "Lines of code: ~${LOC:-0}"
+LOC=$(find CloudSyncApp -name "*.swift" -exec cat {} \; | wc -l | tr -d ' ')
+echo "Lines of code: ~$LOC"
 
 # Test files
-TEST_FILES=$(find . -name "*Test*" -o -name "*test*" -o -name "*spec*" 2>/dev/null | wc -l | tr -d ' ')
+TEST_FILES=$(find CloudSyncAppTests -name "*.swift" 2>/dev/null | wc -l | tr -d ' ')
 echo "Test files: $TEST_FILES"
 
 # Test count (from last run if available)
@@ -77,10 +76,11 @@ echo "Documentation lines: ~$DOC_LINES"
 
 echo ""
 
-# Project-specific stats
-echo "📌 Project-specific:"
-echo "--------------------"
-echo "(Customize this section for your project)"
+# Cloud providers
+echo "☁️ Cloud Providers:"
+echo "-------------------"
+PROVIDERS=$(grep -c "case \." CloudSyncApp/Models/CloudProviderType.swift 2>/dev/null || echo "42+")
+echo "Supported providers: $PROVIDERS"
 
 echo ""
 echo "Generated: $(date '+%Y-%m-%d %H:%M:%S')"

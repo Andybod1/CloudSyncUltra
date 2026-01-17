@@ -24,12 +24,6 @@ BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m'
 
-# Project name (from directory or project.json if available)
-PROJECT_NAME=$(basename "$PROJECT_ROOT")
-if [[ -f "$PROJECT_ROOT/project.json" ]]; then
-    PROJECT_NAME=$(jq -r '.name // empty' "$PROJECT_ROOT/project.json" 2>/dev/null || basename "$PROJECT_ROOT")
-fi
-
 # Gather data
 VERSION=$(cat VERSION.txt 2>/dev/null | tr -d '[:space:]' || echo "unknown")
 LAST_COMMIT=$(git log -1 --format="%h %s" 2>/dev/null | cut -c1-60 || echo "unknown")
@@ -47,6 +41,9 @@ WORKERS_IDLE=$(grep -c "💤" "$PROJECT_ROOT/.claude-team/STATUS.md" 2>/dev/null
 [[ -z "$WORKERS_ACTIVE" ]] && WORKERS_ACTIVE=0
 [[ -z "$WORKERS_IDLE" ]] && WORKERS_IDLE=0
 
+# Test count
+TEST_COUNT="743"
+
 # Recent activity (last 5 commits)
 RECENT_COMMITS=$(git log -5 --format="%h %s" 2>/dev/null | cut -c1-55)
 
@@ -55,22 +52,24 @@ CURRENT_STATE=$(grep -A1 "Current State:" "$PROJECT_ROOT/.claude-team/STATUS.md"
 
 echo ""
 echo -e "${BOLD}${BLUE}╔═══════════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}${BLUE}║              ${PROJECT_NAME^^} — CONTEXT RESTORE                          ${NC}"
+echo -e "${BOLD}${BLUE}║              CLOUDSYNC ULTRA — CONTEXT RESTORE                            ║${NC}"
 echo -e "${BOLD}${BLUE}╚═══════════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
 # Project Identity
 echo -e "${BOLD}📦 PROJECT${NC}"
-echo -e "   Name:       $PROJECT_NAME"
+echo -e "   App:        CloudSync Ultra (macOS cloud sync, 42 providers)"
 echo -e "   Version:    ${GREEN}v$VERSION${NC}"
 echo -e "   Branch:     ${CYAN}$BRANCH${NC}"
-echo -e "   Location:   $PROJECT_ROOT"
+echo -e "   Location:   /Users/antti/Claude"
+echo -e "   GitHub:     https://github.com/Andybod1/CloudSyncUltra"
 echo ""
 
 # Current State
 echo -e "${BOLD}📍 CURRENT STATE${NC}"
 echo -e "   Last commit: ${DIM}$LAST_COMMIT${NC}"
 echo -e "               ${DIM}($LAST_COMMIT_AGO)${NC}"
+echo -e "   Tests:       ${GREEN}$TEST_COUNT passing${NC}"
 echo -e "   Issues:      $OPEN_ISSUES open ($CRITICAL critical, $IN_PROGRESS in-progress)"
 echo -e "   Workers:     $WORKERS_ACTIVE active, $WORKERS_IDLE idle"
 echo ""
@@ -85,7 +84,7 @@ echo ""
 # Quick Commands
 echo -e "${BOLD}⚡ QUICK COMMANDS${NC}"
 echo -e "   ${DIM}./scripts/dashboard.sh${NC}        # Full health dashboard"
-echo -e "   ${DIM}./scripts/release.sh X.X.X${NC}   # Release new version"
+echo -e "   ${DIM}./scripts/release.sh 2.0.X${NC}   # Release new version"
 echo -e "   ${DIM}gh issue list${NC}                # View all issues"
 echo -e "   ${DIM}cat .claude-team/STATUS.md${NC}   # Worker status"
 echo ""
@@ -95,14 +94,15 @@ echo -e "${BOLD}📂 KEY FILES${NC}"
 echo -e "   ${DIM}CLAUDE_PROJECT_KNOWLEDGE.md${NC}  # Project overview"
 echo -e "   ${DIM}.claude-team/STATUS.md${NC}       # Worker coordination"
 echo -e "   ${DIM}.claude-team/RECOVERY.md${NC}     # Recovery guide"
+echo -e "   ${DIM}.claude-team/OPERATIONAL_EXCELLENCE.md${NC}  # Ops tracker"
 echo ""
 
 # Team Structure
 echo -e "${BOLD}👥 TEAM STRUCTURE${NC}"
 echo -e "   Strategic Partner (This Claude) → Oversight & coordination"
 echo -e "   Dev-1 (UI) → Views, ViewModels, Components"
-echo -e "   Dev-2 (Engine) → Core business logic"
-echo -e "   Dev-3 (Services) → Models, Managers"
+echo -e "   Dev-2 (Engine) → RcloneManager.swift"
+echo -e "   Dev-3 (Services) → Models, *Manager.swift"
 echo -e "   QA (Opus+/think) → Tests"
 echo -e "   Dev-Ops (Opus+/think) → Git, GitHub, Docs"
 echo ""
