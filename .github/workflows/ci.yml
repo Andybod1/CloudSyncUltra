@@ -178,6 +178,128 @@ jobs:
             echo "### ⚠️ Code Coverage: Not Available" >> $GITHUB_STEP_SUMMARY
           fi
 
+  # Binary Size Tracking
+  binary-size:
+    name: Binary Size
+    runs-on: macos-14
+    needs: build-and-test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      - name: Cache DerivedData
+        uses: actions/cache@v5
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      - name: Build Release
+        run: |
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath build \
+            -quiet
+
+      - name: Measure Binary Size
+        id: size
+        run: |
+          APP_PATH=$(find build -name "CloudSyncApp.app" -type d | head -1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ Could not find CloudSyncApp.app"
+            exit 1
+          fi
+
+          # Get size in bytes
+          SIZE_BYTES=$(du -sk "$APP_PATH" | cut -f1)
+          SIZE_KB=$SIZE_BYTES
+          SIZE_MB=$(echo "scale=2; $SIZE_KB / 1024" | bc)
+
+          echo "size_kb=$SIZE_KB" >> $GITHUB_OUTPUT
+          echo "size_mb=$SIZE_MB" >> $GITHUB_OUTPUT
+
+          echo "📦 App Size: ${SIZE_MB} MB (${SIZE_KB} KB)"
+
+      - name: Compare with Baseline
+        id: compare
+        run: |
+          CURRENT_KB=${{ steps.size.outputs.size_kb }}
+          BASELINE_FILE=".claude-team/metrics/binary-size-baseline.txt"
+
+          if [ -f "$BASELINE_FILE" ]; then
+            BASELINE_KB=$(cat "$BASELINE_FILE" | tr -d '[:space:]')
+            DIFF=$((CURRENT_KB - BASELINE_KB))
+            PCT_CHANGE=$(echo "scale=1; ($DIFF * 100) / $BASELINE_KB" | bc)
+
+            echo "baseline_kb=$BASELINE_KB" >> $GITHUB_OUTPUT
+            echo "diff_kb=$DIFF" >> $GITHUB_OUTPUT
+            echo "pct_change=$PCT_CHANGE" >> $GITHUB_OUTPUT
+
+            echo "📊 Baseline: ${BASELINE_KB} KB"
+            echo "📊 Current:  ${CURRENT_KB} KB"
+            echo "📊 Change:   ${DIFF} KB (${PCT_CHANGE}%)"
+
+            # Warn if size increased by more than 10%
+            if [ "$DIFF" -gt 0 ]; then
+              THRESHOLD=10
+              PCT_INT=${PCT_CHANGE%.*}
+              if [ "${PCT_INT:-0}" -gt "$THRESHOLD" ]; then
+                echo "⚠️ Binary size increased by more than ${THRESHOLD}%!"
+                echo "bloat=true" >> $GITHUB_OUTPUT
+              fi
+            fi
+          else
+            echo "📝 No baseline found - this is the first measurement"
+            echo "baseline_kb=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Binary Size Summary
+        run: |
+          SIZE_MB=${{ steps.size.outputs.size_mb }}
+          BASELINE_KB=${{ steps.compare.outputs.baseline_kb }}
+          DIFF_KB=${{ steps.compare.outputs.diff_kb }}
+          PCT=${{ steps.compare.outputs.pct_change }}
+
+          echo "### 📦 Binary Size: ${SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$BASELINE_KB" != "0" ] && [ -n "$BASELINE_KB" ]; then
+            if [ "${DIFF_KB:-0}" -gt 0 ]; then
+              echo "⚠️ **+${DIFF_KB} KB (+${PCT}%)** from baseline" >> $GITHUB_STEP_SUMMARY
+            elif [ "${DIFF_KB:-0}" -lt 0 ]; then
+              echo "✅ **${DIFF_KB} KB (${PCT}%)** smaller than baseline" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No change from baseline" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "📝 First measurement - no baseline to compare" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Save Size Artifact
+        run: |
+          mkdir -p metrics
+          echo "${{ steps.size.outputs.size_kb }}" > metrics/binary-size.txt
+          echo "{\"size_kb\": ${{ steps.size.outputs.size_kb }}, \"size_mb\": ${{ steps.size.outputs.size_mb }}, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"commit\": \"${{ github.sha }}\"}" > metrics/binary-size.json
+
+      - name: Upload Size Metrics
+        uses: actions/upload-artifact@v6
+        with:
+          name: binary-size
+          path: metrics/
+          retention-days: 90
+
   # Memory Safety Check (ASan + TSan)
   memory-safety:
     name: Memory Safety

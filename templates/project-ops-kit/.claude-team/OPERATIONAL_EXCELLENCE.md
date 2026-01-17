@@ -86,6 +86,7 @@ Health Score                     [█████████▌] 97% ↑
 | Build success rate | ✅ Done | `scripts/dashboard.sh` | Shows CI pass rate |
 | Issue age tracking | ✅ Done | Dashboard | Oldest + stale count |
 | Code coverage report | ✅ Done | CI workflow | Coverage in artifacts + PR summary |
+| Binary size tracking | ✅ Done | CI workflow | Baseline: 30.2 MB, alerts on >10% |
 
 ---
 
@@ -212,6 +213,7 @@ Health Score                     [█████████▌] 97% ↑
 - ✅ `leak-check.sh` created - ASan + TSan memory safety
 - ✅ `mutation-test.sh` created - Muter integration
 - ✅ Memory Safety CI job added to `.github/workflows/ci.yml`
+- ✅ **Binary size tracking** in CI (baseline: 30.2 MB, >10% alert)
 
 ### Advanced Automation
 - ✅ Dependabot configured for GitHub Actions + Swift
