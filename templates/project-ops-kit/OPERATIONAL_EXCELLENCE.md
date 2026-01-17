@@ -121,12 +121,15 @@ Health Score                     [█████████▌] 95% ↑
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
 | Quality Standards doc | ✅ Done | `templates/WORKER_QUALITY_STANDARDS.md` | Mandatory reading |
-| Briefing template | ✅ Done | `templates/DEV_BRIEFING_TEMPLATE.md` | With quality gates |
+| Briefing template (dev) | ✅ Done | `templates/DEV_BRIEFING_TEMPLATE.md` | With quality gates |
+| Briefing template (research) | ✅ Done | `templates/RESEARCH_BRIEFING_TEMPLATE.md` | For integration studies |
+| Provider test checklist | ✅ Done | `templates/PROVIDER_TEST_CHECKLIST.md` | Standardized testing |
 | Type inventory | ✅ Done | `.claude-team/TYPE_INVENTORY.md` | Auto-generated reference |
 | Worker QA script | ✅ Done | `scripts/worker-qa.sh` | Build + tests + version check |
 | Type inventory script | ✅ Done | `scripts/generate-type-inventory.sh` | Refresh before sprint |
 | Launch script updated | ✅ Done | `scripts/launch_single_worker.sh` | Includes quality reminder |
-| DoD checker | ✅ Done | `scripts/check-dod.sh` | Pre-completion verification |
+| DoD checker (code) | ✅ Done | `scripts/check-dod.sh` | Pre-completion verification |
+| DoD checker (research) | ✅ Done | `scripts/check-dod.sh --research` | Research task verification |
 
 ---
 
@@ -178,6 +181,12 @@ Health Score                     [█████████▌] 95% ↑
 
 ## Recent Improvements (2026-01-17)
 
+### Research Task Support (NEW)
+- ✅ `RESEARCH_BRIEFING_TEMPLATE.md` - Briefing template for integration studies
+- ✅ `PROVIDER_TEST_CHECKLIST.md` - Standardized provider testing checklist
+- ✅ `check-dod.sh --research` - Research mode validates guide files, sections, content
+
+### Quality Enhancements
 - ✅ Pre-commit enhanced to 8 checks (was 6)
 - ✅ Coverage threshold added: 50% minimum in pre-commit
 - ✅ Duplicate filename detection in pre-commit

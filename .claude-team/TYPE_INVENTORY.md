@@ -18,9 +18,11 @@ grep -r "class ClassName" CloudSyncApp/
 ## Models (CloudSyncApp/Models/)
 
 ```swift
+class AccountPrivacySettings {
 enum CPUPriority: String, CaseIterable, Codable {
 enum CheckFrequency: String, CaseIterable, Codable {
 enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
+enum FeedbackCategory: String, CaseIterable, Identifiable {
 enum HelpCategory: String, CaseIterable, Codable, Identifiable {
 enum PerformanceProfile: String, CaseIterable {
 enum PreviewError: LocalizedError {
@@ -29,7 +31,7 @@ enum ScheduleFrequency: String, Codable, CaseIterable {
 enum SubscriptionTier: String, Codable, CaseIterable {
 enum TaskState: String, Codable {
 enum TaskType: String, Codable, CaseIterable {
-enum TransferError: Error, Equatable, Codable {
+enum TransferError: Error, Equatable, Codable, LocalizedError {
 struct AppInfo: Codable, Hashable {
 struct ChunkSizeConfig {
 struct CloudRemote: Identifiable, Codable, Equatable, Hashable {
@@ -75,6 +77,7 @@ struct RemoteEncryptionConfig: Codable {
 struct RemoteFile: Codable {
 struct SecurityManager {
 struct SyncProgress {
+struct SystemInfo {
 ```
 
 ## Main Views
@@ -85,6 +88,7 @@ struct AccountSettingsView: View {
 struct ContentView: View {
 struct DashboardView: View {
 struct EncryptionSettingsView: View {
+struct FeedbackView: View {
 struct FileBrowserView: View {
 struct GeneralSettingsView: View {
 struct HistoryView: View {
@@ -100,6 +104,7 @@ struct SettingsView: View {
 struct SidebarView: View {
 struct SubscriptionSettingsView: View {
 struct SubscriptionView: View {
+struct SupportView: View {
 struct SyncSettingsView: View {
 struct TasksView: View {
 struct TransferView: View {
@@ -132,4 +137,4 @@ These types exist but modifying them affects multiple workers:
 
 ---
 
-*Generated: 2026-01-16 08:17*
+*Generated: 2026-01-17 16:59*
