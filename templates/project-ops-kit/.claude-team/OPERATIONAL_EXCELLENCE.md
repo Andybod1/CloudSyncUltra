@@ -141,6 +141,7 @@ Health Score                     [█████████▌] 97% ↑
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
 | Dependabot config | ✅ Done | `.github/dependabot.yml` | Auto-update dependencies |
+| Dependabot auto-merge | ✅ Done | `.github/workflows/dependabot-auto-merge.yml` | Auto-merge patch/minor |
 | Security scanning | ✅ Done | `.github/workflows/security.yml` | Secrets + patterns check |
 | Performance benchmarks | ✅ Done | `.github/workflows/performance.yml` | Build + test timing |
 | Perf benchmark script | ✅ Done | `scripts/perf-benchmark.sh` | Local perf testing |
@@ -214,6 +215,7 @@ Health Score                     [█████████▌] 97% ↑
 
 ### Advanced Automation
 - ✅ Dependabot configured for GitHub Actions + Swift
+- ✅ **Dependabot auto-merge** for patch/minor updates (NEW)
 - ✅ Security scanning workflow added (secrets, patterns, SSL)
 - ✅ Performance benchmark workflow + script
 - ✅ Auto-release notes workflow + script
