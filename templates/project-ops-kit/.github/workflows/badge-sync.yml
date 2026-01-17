@@ -1,0 +1,66 @@
+name: Badge Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'VERSION.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-badges:
+    name: Sync README Badges
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Get Version
+        id: version
+        run: |
+          VERSION=$(cat VERSION.txt | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Update README Version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+
+          # Update title line
+          sed -i "s/^# CloudSync Ultra v[0-9.]*$/# CloudSync Ultra v${VERSION}/" README.md
+
+          # Add/update version badge if not present
+          if ! grep -q "img.shields.io/badge/version" README.md; then
+            # Add version badge after CI badge
+            sed -i "/actions\/workflows\/ci.yml\/badge.svg/a ![Version](https://img.shields.io/badge/version-${VERSION}-blue)" README.md
+          else
+            # Update existing version badge
+            sed -i "s|badge/version-[0-9.]*-|badge/version-${VERSION}-|g" README.md
+          fi
+
+          echo "Updated README to version $VERSION"
+
+      - name: Check for Changes
+        id: changes
+        run: |
+          if git diff --quiet README.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected:"
+            git diff README.md
+          fi
+
+      - name: Commit Changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: Sync README version badge to v${{ steps.version.outputs.version }}"
+          git push

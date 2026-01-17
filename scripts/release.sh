@@ -144,32 +144,41 @@ if grep -q "## \[$NEW_VERSION\]" "$CHANGELOG_FILE"; then
 else
     echo -e "${YELLOW}⚠ No CHANGELOG entry for v$NEW_VERSION${NC}"
     echo ""
-    echo "Recent commits since last tag:"
-    cd "$PROJECT_ROOT" && git log --oneline -10
-    echo ""
-    
-    if confirm "Would you like to add a CHANGELOG entry now?"; then
-        echo ""
-        echo "Enter a brief description of changes (one line):"
-        read -r CHANGELOG_DESC
-        
-        # Create changelog entry
-        TEMP_FILE=$(mktemp)
-        {
-            head -7 "$CHANGELOG_FILE"
-            echo ""
-            echo "## [$NEW_VERSION] - $TODAY"
-            echo ""
-            echo "### Changed"
-            echo "- $CHANGELOG_DESC"
-            echo ""
-            tail -n +8 "$CHANGELOG_FILE"
-        } > "$TEMP_FILE"
-        mv "$TEMP_FILE" "$CHANGELOG_FILE"
-        
-        echo -e "${GREEN}✓ CHANGELOG.md entry added${NC}"
+
+    # Auto-generate changelog from conventional commits
+    if [[ -x "$SCRIPT_DIR/generate-changelog.sh" ]]; then
+        echo "Auto-generating changelog from conventional commits..."
+        "$SCRIPT_DIR/generate-changelog.sh" "$NEW_VERSION" --prepend
+        echo -e "${GREEN}✓ CHANGELOG.md auto-updated from commits${NC}"
     else
-        echo -e "${YELLOW}⚠ Skipping CHANGELOG update - please add manually${NC}"
+        # Fallback to manual entry
+        echo "Recent commits since last tag:"
+        cd "$PROJECT_ROOT" && git log --oneline -10
+        echo ""
+
+        if confirm "Would you like to add a CHANGELOG entry manually?"; then
+            echo ""
+            echo "Enter a brief description of changes (one line):"
+            read -r CHANGELOG_DESC
+
+            # Create changelog entry
+            TEMP_FILE=$(mktemp)
+            {
+                head -7 "$CHANGELOG_FILE"
+                echo ""
+                echo "## [$NEW_VERSION] - $TODAY"
+                echo ""
+                echo "### Changed"
+                echo "- $CHANGELOG_DESC"
+                echo ""
+                tail -n +8 "$CHANGELOG_FILE"
+            } > "$TEMP_FILE"
+            mv "$TEMP_FILE" "$CHANGELOG_FILE"
+
+            echo -e "${GREEN}✓ CHANGELOG.md entry added${NC}"
+        else
+            echo -e "${YELLOW}⚠ Skipping CHANGELOG update - please add manually${NC}"
+        fi
     fi
 fi
 

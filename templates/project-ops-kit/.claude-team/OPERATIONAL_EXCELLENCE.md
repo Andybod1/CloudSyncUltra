@@ -72,6 +72,8 @@ Health Score                     [█████████▌] 97% ↑
 | Auto-generate doc stats | ✅ Done | `scripts/generate-stats.sh` | Code/git/issue stats |
 | Decision Log (ADRs) | ✅ Done | `docs/decisions/` | 3 ADRs documented |
 | API/Architecture docs | ✅ Done | `CloudSyncApp.docc` | Swift-DocC auto-generated |
+| README badge sync | ✅ Done | `.github/workflows/badge-sync.yml` | Auto-update version badge |
+| Doc link checker | ✅ Done | `scripts/check-doc-links.sh` + CI | Validates markdown links |
 
 ---
 
@@ -102,6 +104,8 @@ Health Score                     [█████████▌] 97% ↑
 | Context restore script | ✅ Done | `scripts/restore-context.sh` | 2-min onboarding |
 | Sprint retrospectives | ✅ Done | `.claude-team/retros/` | Template created |
 | Runbook for common tasks | ✅ Done | `docs/RUNBOOK.md` | Step-by-step guides |
+| PR template | ✅ Done | `.github/pull_request_template.md` | Required sections |
+| Auto-CHANGELOG | ✅ Done | `scripts/release.sh` | From conventional commits |
 
 ---
 
@@ -218,6 +222,10 @@ Health Score                     [█████████▌] 97% ↑
 - ✅ **Binary size tracking** in CI (baseline: 30.2 MB, >10% alert)
 - ✅ **Commit message linting** - local hook + CI workflow
 - ✅ **PR size warning** - warns on >500 lines changed
+- ✅ **PR template** - required sections (Summary, Test Plan, Checklist)
+- ✅ **README badge sync** - auto-update version badge on release
+- ✅ **Doc link checker** - validates markdown links in CI
+- ✅ **Auto-CHANGELOG** - generates from conventional commits on release
 
 ### Advanced Automation
 - ✅ Dependabot configured for GitHub Actions + Swift

@@ -141,3 +141,74 @@ jobs:
           echo "| 🔴 XL | 1000+ | Consider splitting |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+  # Check documentation links
+  doc-links:
+    name: Doc Link Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check Documentation Links
+        run: |
+          echo "🔗 Checking documentation links..."
+
+          BROKEN=0
+          CHECKED=0
+
+          # Find all markdown files
+          for file in $(find . -name "*.md" -type f \
+              -not -path "./.git/*" \
+              -not -path "./build/*" \
+              -not -path "./DerivedData/*" \
+              2>/dev/null); do
+
+            # Extract relative links (not URLs, not anchors only, not images)
+            LINKS=$(grep -oE '\[([^\]]+)\]\(([^)]+)\)' "$file" 2>/dev/null | \
+                    grep -oE '\]\([^)]+\)' | \
+                    sed 's/\](//' | sed 's/)//' | \
+                    grep -v '^http' | \
+                    grep -v '^#' | \
+                    grep -v '\.png$' | \
+                    grep -v '\.jpg$' | \
+                    grep -v '\.gif$' | \
+                    grep -v '\.svg$' || true)
+
+            [[ -z "$LINKS" ]] && continue
+
+            FILE_DIR=$(dirname "$file")
+
+            while IFS= read -r link; do
+              [[ -z "$link" ]] && continue
+
+              LINK_PATH=$(echo "$link" | cut -d'#' -f1)
+              [[ -z "$LINK_PATH" ]] && continue
+
+              CHECKED=$((CHECKED + 1))
+
+              # Resolve path
+              if [[ "$LINK_PATH" == /* ]]; then
+                TARGET=".$LINK_PATH"
+              else
+                TARGET="$FILE_DIR/$LINK_PATH"
+              fi
+
+              if [[ ! -e "$TARGET" ]]; then
+                echo "❌ Broken: $file -> $link"
+                BROKEN=$((BROKEN + 1))
+              fi
+            done <<< "$LINKS"
+          done
+
+          echo ""
+          echo "Links checked: $CHECKED"
+
+          if [ "$BROKEN" -gt 0 ]; then
+            echo "### ❌ Doc Links: $BROKEN broken" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Found $BROKEN broken documentation link(s)"
+          else
+            echo "### ✅ Doc Links: All valid" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All $CHECKED documentation links valid"
+          fi
