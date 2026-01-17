@@ -39,6 +39,7 @@ Health Score                     [█████████▌] 97% ↑
 | Pre-commit hooks | ✅ Done | `scripts/pre-commit` | 8 checks incl. coverage |
 | Auto-changelog | ✅ Done | `scripts/generate-changelog.sh` | From conventional commits |
 | DoD automation | ✅ Done | `scripts/check-dod.sh` | 8 criteria verified |
+| Commit message linting | ✅ Done | `scripts/commit-msg` + CI | Conventional commits |
 
 ---
 
@@ -132,6 +133,7 @@ Health Score                     [█████████▌] 97% ↑
 | Type inventory script | ✅ Done | `scripts/generate-type-inventory.sh` | Refresh before sprint |
 | Launch script updated | ✅ Done | `scripts/launch_single_worker.sh` | Includes quality reminder |
 | DoD checker | ✅ Done | `scripts/check-dod.sh` | Pre-completion verification |
+| PR size warning | ✅ Done | `.github/workflows/pr-quality.yml` | Warns on >500 lines |
 
 ---
 
@@ -214,6 +216,8 @@ Health Score                     [█████████▌] 97% ↑
 - ✅ `mutation-test.sh` created - Muter integration
 - ✅ Memory Safety CI job added to `.github/workflows/ci.yml`
 - ✅ **Binary size tracking** in CI (baseline: 30.2 MB, >10% alert)
+- ✅ **Commit message linting** - local hook + CI workflow
+- ✅ **PR size warning** - warns on >500 lines changed
 
 ### Advanced Automation
 - ✅ Dependabot configured for GitHub Actions + Swift

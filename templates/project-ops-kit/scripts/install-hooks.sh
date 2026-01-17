@@ -9,6 +9,7 @@
 #
 # This installs:
 #   - pre-commit: Runs before each commit (build check, syntax, etc.)
+#   - commit-msg: Validates conventional commit message format
 
 set -e
 
@@ -54,14 +55,36 @@ chmod +x "$HOOKS_DIR/pre-commit"
 
 echo -e "  ${GREEN}✓${NC} pre-commit hook installed"
 
+# Install commit-msg hook
+echo -e "${BLUE}Installing commit-msg hook...${NC}"
+
+if [[ -f "$HOOKS_DIR/commit-msg" ]]; then
+    echo -e "  ${YELLOW}⚠${NC} Existing commit-msg hook found"
+    echo -e "  ${YELLOW}  Backing up to commit-msg.backup${NC}"
+    mv "$HOOKS_DIR/commit-msg" "$HOOKS_DIR/commit-msg.backup"
+fi
+
+# Copy hook
+cp "$SCRIPT_DIR/commit-msg" "$HOOKS_DIR/commit-msg"
+chmod +x "$HOOKS_DIR/commit-msg"
+
+echo -e "  ${GREEN}✓${NC} commit-msg hook installed"
+
 # Verify installation
 echo ""
 echo -e "${BLUE}Verifying installation...${NC}"
 
 if [[ -x "$HOOKS_DIR/pre-commit" ]]; then
-    echo -e "  ${GREEN}✓${NC} Hook is executable"
+    echo -e "  ${GREEN}✓${NC} pre-commit is executable"
 else
-    echo -e "  ${RED}✗${NC} Hook not executable"
+    echo -e "  ${RED}✗${NC} pre-commit not executable"
+    exit 1
+fi
+
+if [[ -x "$HOOKS_DIR/commit-msg" ]]; then
+    echo -e "  ${GREEN}✓${NC} commit-msg is executable"
+else
+    echo -e "  ${RED}✗${NC} commit-msg not executable"
     exit 1
 fi
 
@@ -73,6 +96,7 @@ echo -e "${GREEN}${BOLD}══════════════════�
 echo ""
 echo -e "  ${BOLD}What happens now:${NC}"
 echo -e "  • Every commit will run automatic quality checks"
+echo -e "  • Commit messages are validated for conventional format"
 echo -e "  • Build failures will ${RED}block${NC} the commit"
 echo -e "  • Version mismatches will show ${YELLOW}warnings${NC}"
 echo ""
@@ -81,5 +105,5 @@ echo -e "  • ${BLUE}git commit${NC}           - Normal commit (checks run)"
 echo -e "  • ${BLUE}git commit --no-verify${NC} - Skip checks (emergency only)"
 echo ""
 echo -e "  ${BOLD}To uninstall:${NC}"
-echo -e "  • ${BLUE}rm .git/hooks/pre-commit${NC}"
+echo -e "  • ${BLUE}rm .git/hooks/pre-commit .git/hooks/commit-msg${NC}"
 echo ""

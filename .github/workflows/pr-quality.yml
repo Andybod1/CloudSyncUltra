@@ -1,0 +1,143 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # Check commit messages follow conventional commits
+  commit-lint:
+    name: Commit Message Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check Commit Messages
+        run: |
+          echo "🔍 Checking commit messages for conventional format..."
+
+          # Get commits in this PR
+          COMMITS=$(git log --format="%s" origin/${{ github.base_ref }}..HEAD)
+
+          ERRORS=0
+          while IFS= read -r msg; do
+            [[ -z "$msg" ]] && continue
+
+            # Check conventional commit format: type(scope)?: description
+            if [[ "$msg" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?\!?:\ .+ ]]; then
+              echo "✅ $msg"
+            elif [[ "$msg" =~ ^Merge ]]; then
+              echo "⏭️ $msg (merge commit, skipped)"
+            else
+              echo "❌ $msg"
+              echo "   Expected format: type(scope): description"
+              echo "   Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done <<< "$COMMITS"
+
+          echo ""
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "### ❌ Commit Lint Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "$ERRORS commit(s) don't follow [Conventional Commits](https://www.conventionalcommits.org/)." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Expected format:** \`type(scope): description\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Valid types:** feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert" >> $GITHUB_STEP_SUMMARY
+            # Warning only - don't block PRs yet
+            echo "⚠️ $ERRORS commit message(s) don't follow conventional format"
+          else
+            echo "### ✅ Commit Lint Passed" >> $GITHUB_STEP_SUMMARY
+            echo "All commits follow conventional format." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Check PR size and warn if too large
+  pr-size:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check PR Size
+        id: size
+        run: |
+          # Get diff stats
+          STATS=$(git diff --shortstat origin/${{ github.base_ref }}...HEAD)
+
+          # Parse insertions and deletions
+          INSERTIONS=$(echo "$STATS" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo "0")
+          DELETIONS=$(echo "$STATS" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || echo "0")
+          FILES=$(echo "$STATS" | grep -oE '[0-9]+ file' | grep -oE '[0-9]+' || echo "0")
+
+          TOTAL=$((INSERTIONS + DELETIONS))
+
+          echo "insertions=$INSERTIONS" >> $GITHUB_OUTPUT
+          echo "deletions=$DELETIONS" >> $GITHUB_OUTPUT
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+          echo "📊 PR Stats: +$INSERTIONS -$DELETIONS ($TOTAL lines) in $FILES files"
+
+      - name: Size Summary
+        run: |
+          TOTAL=${{ steps.size.outputs.total }}
+          FILES=${{ steps.size.outputs.files }}
+          INSERTIONS=${{ steps.size.outputs.insertions }}
+          DELETIONS=${{ steps.size.outputs.deletions }}
+
+          # Determine size category
+          if [ "$TOTAL" -lt 100 ]; then
+            SIZE="XS"
+            EMOJI="🟢"
+            MSG="Perfect size for quick review"
+          elif [ "$TOTAL" -lt 300 ]; then
+            SIZE="S"
+            EMOJI="🟢"
+            MSG="Good size"
+          elif [ "$TOTAL" -lt 500 ]; then
+            SIZE="M"
+            EMOJI="🟡"
+            MSG="Consider splitting if possible"
+          elif [ "$TOTAL" -lt 1000 ]; then
+            SIZE="L"
+            EMOJI="🟠"
+            MSG="Large PR - review may take longer"
+          else
+            SIZE="XL"
+            EMOJI="🔴"
+            MSG="Very large PR - strongly consider splitting"
+          fi
+
+          echo "### $EMOJI PR Size: $SIZE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Files Changed | $FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Insertions | +$INSERTIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deletions | -$DELETIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total Lines** | **$TOTAL** |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "$MSG" >> $GITHUB_STEP_SUMMARY
+
+          # Size guide
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Size Guide</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Size | Lines | Review Time |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟢 XS | <100 | ~10 min |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟢 S | <300 | ~20 min |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟡 M | <500 | ~30 min |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟠 L | <1000 | ~1 hour |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔴 XL | 1000+ | Consider splitting |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
