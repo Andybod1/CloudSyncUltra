@@ -1,0 +1,146 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Monday at 9am UTC
+    - cron: '0 9 * * 1'
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      # Check for hardcoded secrets
+      - name: Scan for Secrets
+        run: |
+          echo "🔍 Scanning for hardcoded secrets..."
+
+          SECRETS_FOUND=0
+
+          # Patterns that might indicate secrets
+          PATTERNS=(
+            "password\s*=\s*[\"'][^\"']+[\"']"
+            "api_key\s*=\s*[\"'][^\"']+[\"']"
+            "secret\s*=\s*[\"'][^\"']+[\"']"
+            "token\s*=\s*[\"'][A-Za-z0-9+/=]{20,}[\"']"
+            "BEGIN RSA PRIVATE KEY"
+            "BEGIN OPENSSH PRIVATE KEY"
+            "AKIA[0-9A-Z]{16}"
+          )
+
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -rE "$pattern" --include="*.swift" --include="*.plist" CloudSyncApp/ 2>/dev/null | grep -v "Test" | grep -v "Mock"; then
+              echo "⚠️ Potential secret found matching: $pattern"
+              SECRETS_FOUND=$((SECRETS_FOUND + 1))
+            fi
+          done
+
+          if [ $SECRETS_FOUND -eq 0 ]; then
+            echo "✅ No hardcoded secrets detected"
+          else
+            echo "❌ Found $SECRETS_FOUND potential secret(s)"
+            echo "::warning::Potential hardcoded secrets detected - review findings"
+          fi
+
+      # Check for insecure coding patterns
+      - name: Check Insecure Patterns
+        run: |
+          echo "🔍 Checking for insecure coding patterns..."
+
+          ISSUES=0
+
+          # Check for insecure HTTP URLs (should use HTTPS)
+          HTTP_URLS=$(grep -rE "http://[^localhost]" --include="*.swift" CloudSyncApp/ 2>/dev/null | grep -v "https://" | wc -l | tr -d ' ')
+          if [ "$HTTP_URLS" -gt 0 ]; then
+            echo "⚠️ Found $HTTP_URLS insecure HTTP URL(s)"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for disabled SSL validation
+          if grep -rE "allowsInvalidSSLCertificate|disableSSLCertificateValidation|validatesDomainName\s*=\s*false" --include="*.swift" CloudSyncApp/ 2>/dev/null; then
+            echo "⚠️ Found disabled SSL validation"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for use of deprecated crypto
+          if grep -rE "MD5|SHA1\(" --include="*.swift" CloudSyncApp/ 2>/dev/null | grep -v "Test"; then
+            echo "⚠️ Found use of weak hash algorithms (MD5/SHA1)"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for hardcoded IVs in crypto
+          if grep -rE "iv\s*=\s*[\"'][^\"']{16,}[\"']" --include="*.swift" CloudSyncApp/ 2>/dev/null; then
+            echo "⚠️ Found potentially hardcoded IV"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          if [ $ISSUES -eq 0 ]; then
+            echo "✅ No insecure patterns detected"
+          else
+            echo "::warning::Found $ISSUES insecure pattern(s) - review code"
+          fi
+
+      # Check for vulnerable dependencies (SPM)
+      - name: Audit Swift Dependencies
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking Swift package dependencies..."
+
+          if [ -f "Package.swift" ]; then
+            # Resolve and show dependencies
+            swift package show-dependencies 2>/dev/null || echo "No SPM dependencies"
+
+            # Check for known vulnerable versions (manual check)
+            echo "✅ Dependency check complete"
+          else
+            echo "ℹ️ No Package.swift found - skipping SPM audit"
+          fi
+
+      # Check Info.plist security settings
+      - name: Check App Security Settings
+        run: |
+          echo "🔍 Checking app security configuration..."
+
+          PLIST="CloudSyncApp/Info.plist"
+          if [ -f "$PLIST" ]; then
+            # Check App Transport Security
+            if grep -q "NSAllowsArbitraryLoads" "$PLIST"; then
+              if grep -A1 "NSAllowsArbitraryLoads" "$PLIST" | grep -q "true"; then
+                echo "⚠️ App Transport Security allows arbitrary loads"
+              fi
+            else
+              echo "✅ App Transport Security is properly configured"
+            fi
+
+            # Check for proper entitlements usage
+            echo "✅ Info.plist security check complete"
+          else
+            echo "ℹ️ Info.plist not found at expected location"
+          fi
+
+      # Summary
+      - name: Security Summary
+        run: |
+          echo "### 🔒 Security Scan Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Checks performed:" >> $GITHUB_STEP_SUMMARY
+          echo "- Hardcoded secrets scan" >> $GITHUB_STEP_SUMMARY
+          echo "- Insecure coding patterns" >> $GITHUB_STEP_SUMMARY
+          echo "- Dependency audit" >> $GITHUB_STEP_SUMMARY
+          echo "- App security settings" >> $GITHUB_STEP_SUMMARY

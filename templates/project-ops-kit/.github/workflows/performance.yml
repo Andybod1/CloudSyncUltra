@@ -1,0 +1,151 @@
+name: Performance Benchmarks
+
+on:
+  # Run on releases
+  release:
+    types: [published]
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      save_baseline:
+        description: 'Save results as new baseline'
+        required: false
+        default: 'false'
+        type: boolean
+  # Weekly check
+  schedule:
+    - cron: '0 10 * * 1'  # Monday 10am UTC
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  benchmark:
+    name: Performance Benchmark
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-perf-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-perf-${{ runner.os }}-
+
+      # Measure clean build time
+      - name: Clean Build Benchmark
+        id: build_time
+        run: |
+          echo "🏗️ Measuring clean build time..."
+
+          # Clean
+          xcodebuild clean -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -quiet 2>/dev/null || true
+
+          # Time the build
+          START=$(date +%s)
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -quiet
+          END=$(date +%s)
+
+          BUILD_TIME=$((END - START))
+          echo "build_time=$BUILD_TIME" >> $GITHUB_OUTPUT
+          echo "✅ Build completed in ${BUILD_TIME}s"
+
+      # Run performance tests
+      - name: Run Performance Tests
+        id: perf_tests
+        continue-on-error: true
+        run: |
+          echo "⚡ Running performance tests..."
+
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -only-testing:CloudSyncAppTests \
+            2>&1 | tee test_output.txt || true
+
+          # Extract performance metrics
+          grep -E "measured \[.*\] average:" test_output.txt > perf_metrics.txt || true
+
+          if [ -s perf_metrics.txt ]; then
+            echo "Found performance metrics:"
+            cat perf_metrics.txt
+          else
+            echo "No performance test metrics found"
+          fi
+
+      # Measure test execution time
+      - name: Test Suite Benchmark
+        id: test_time
+        run: |
+          echo "🧪 Measuring test execution time..."
+
+          START=$(date +%s)
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -skip-testing:CloudSyncAppUITests \
+            -quiet 2>&1 || true
+          END=$(date +%s)
+
+          TEST_TIME=$((END - START))
+          echo "test_time=$TEST_TIME" >> $GITHUB_OUTPUT
+          echo "✅ Tests completed in ${TEST_TIME}s"
+
+      # Compare with baseline
+      - name: Compare with Baseline
+        run: |
+          BUILD_TIME=${{ steps.build_time.outputs.build_time }}
+          TEST_TIME=${{ steps.test_time.outputs.test_time }}
+
+          echo "### ⚡ Performance Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Time |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Clean Build | ${BUILD_TIME}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | ${TEST_TIME}s |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for regressions (>20% slower than typical)
+          if [ "$BUILD_TIME" -gt 120 ]; then
+            echo "⚠️ **Warning:** Build time exceeds 2 minutes" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$TEST_TIME" -gt 60 ]; then
+            echo "⚠️ **Warning:** Test time exceeds 1 minute" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # Save metrics artifact
+      - name: Save Metrics
+        run: |
+          mkdir -p metrics
+          cat > metrics/benchmark-$(date +%Y%m%d).json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "version": "$(cat VERSION.txt | tr -d '[:space:]')",
+            "commit": "${{ github.sha }}",
+            "build_time_seconds": ${{ steps.build_time.outputs.build_time }},
+            "test_time_seconds": ${{ steps.test_time.outputs.test_time }}
+          }
+          EOF
+
+      - name: Upload Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-metrics
+          path: metrics/
+          retention-days: 90

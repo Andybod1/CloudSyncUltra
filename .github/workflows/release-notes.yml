@@ -1,0 +1,139 @@
+name: Auto Release Notes
+
+on:
+  release:
+    types: [created]
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to generate notes for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog
+
+      - name: Get Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.tag }}"
+          else
+            VERSION="${{ github.event.release.tag_name }}"
+          fi
+          echo "version=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Find Previous Tag
+        id: prev_tag
+        run: |
+          CURRENT="${{ steps.version.outputs.tag }}"
+          PREV=$(git describe --tags --abbrev=0 "${CURRENT}^" 2>/dev/null || echo "")
+          echo "prev_tag=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PREV_TAG="${{ steps.prev_tag.outputs.prev_tag }}"
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+
+          # Initialize sections
+          FEATURES=""
+          FIXES=""
+          PERF=""
+          DOCS=""
+          CHORE=""
+
+          # Parse commits
+          while IFS= read -r commit; do
+            [[ -z "$commit" ]] && continue
+
+            case "$commit" in
+              feat*)
+                MSG=$(echo "$commit" | sed 's/^feat[^:]*: //')
+                FEATURES="${FEATURES}- ${MSG}\n"
+                ;;
+              fix*)
+                MSG=$(echo "$commit" | sed 's/^fix[^:]*: //')
+                FIXES="${FIXES}- ${MSG}\n"
+                ;;
+              perf*)
+                MSG=$(echo "$commit" | sed 's/^perf[^:]*: //')
+                PERF="${PERF}- ${MSG}\n"
+                ;;
+              docs*)
+                MSG=$(echo "$commit" | sed 's/^docs[^:]*: //')
+                DOCS="${DOCS}- ${MSG}\n"
+                ;;
+              chore*|ci*|build*)
+                MSG=$(echo "$commit" | sed 's/^[a-z]*[^:]*: //')
+                CHORE="${CHORE}- ${MSG}\n"
+                ;;
+            esac
+          done < <(git log --pretty=format:"%s" $RANGE)
+
+          # Build release notes
+          NOTES="## What's Changed\n\n"
+
+          if [ -n "$FEATURES" ]; then
+            NOTES="${NOTES}### ✨ New Features\n${FEATURES}\n"
+          fi
+
+          if [ -n "$FIXES" ]; then
+            NOTES="${NOTES}### 🐛 Bug Fixes\n${FIXES}\n"
+          fi
+
+          if [ -n "$PERF" ]; then
+            NOTES="${NOTES}### ⚡ Performance\n${PERF}\n"
+          fi
+
+          if [ -n "$DOCS" ]; then
+            NOTES="${NOTES}### 📚 Documentation\n${DOCS}\n"
+          fi
+
+          if [ -n "$CHORE" ]; then
+            NOTES="${NOTES}### 🔧 Maintenance\n${CHORE}\n"
+          fi
+
+          # Add comparison link
+          if [ -n "$PREV_TAG" ]; then
+            NOTES="${NOTES}\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...v${VERSION}"
+          fi
+
+          # Save to file (escape for multiline)
+          echo -e "$NOTES" > release_notes.md
+          cat release_notes.md
+
+      - name: Update Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          body_path: release_notes.md
+          append_body: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Notes Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release_notes.md
