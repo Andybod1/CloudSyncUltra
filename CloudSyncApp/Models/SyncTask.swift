@@ -107,25 +107,25 @@ struct SyncTask: Identifiable, Codable {
     }
     
     /// Get effective source remote name (crypt or base)
+    /// Note: sourceRemote should be the rclone config name (e.g., "google"), not display name
     var effectiveSourceRemote: String {
         if encryptSource {
-            let baseName = sourceRemote.lowercased().replacingOccurrences(of: " ", with: "")
-            if EncryptionManager.shared.isEncryptionConfigured(for: baseName) {
-                return EncryptionManager.shared.getCryptRemoteName(for: baseName)
+            if EncryptionManager.shared.isEncryptionConfigured(for: sourceRemote) {
+                return EncryptionManager.shared.getCryptRemoteName(for: sourceRemote)
             }
         }
-        return sourceRemote.lowercased().replacingOccurrences(of: " ", with: "")
+        return sourceRemote
     }
-    
+
     /// Get effective destination remote name (crypt or base)
+    /// Note: destinationRemote should be the rclone config name (e.g., "google"), not display name
     var effectiveDestinationRemote: String {
         if encryptDestination {
-            let baseName = destinationRemote.lowercased().replacingOccurrences(of: " ", with: "")
-            if EncryptionManager.shared.isEncryptionConfigured(for: baseName) {
-                return EncryptionManager.shared.getCryptRemoteName(for: baseName)
+            if EncryptionManager.shared.isEncryptionConfigured(for: destinationRemote) {
+                return EncryptionManager.shared.getCryptRemoteName(for: destinationRemote)
             }
         }
-        return destinationRemote.lowercased().replacingOccurrences(of: " ", with: "")
+        return destinationRemote
     }
     
     /// Check if any encryption is enabled
@@ -139,26 +139,30 @@ struct SyncTask: Identifiable, Codable {
     
     var formattedBytesTransferred: String {
         if totalBytes == 0 {
-            return "No data"
+            // For completed tasks with no bytes, show "Already in sync" instead of "No data"
+            if state == .completed {
+                return "Already in sync"
+            }
+            return "Checking..."
         }
-        
+
         let transferred = ByteCountFormatter.string(fromByteCount: bytesTransferred, countStyle: .file)
         let total = ByteCountFormatter.string(fromByteCount: totalBytes, countStyle: .file)
-        
+
         let isFolder = metadata?["isFolder"] == "true"
-        
+
         if state == .running {
             // During transfer, show as progress
             let percentage = totalBytes > 0 ? Int((Double(bytesTransferred) / Double(totalBytes)) * 100) : 0
-            
+
             if isFolder {
                 // For folders, emphasize that it's total data being transferred
                 return "\(transferred) of \(total) transferred (\(percentage)%)"
             }
-            
+
             return "\(transferred) of \(total) (\(percentage)%)"
         }
-        
+
         return "\(transferred) / \(total)"
     }
     

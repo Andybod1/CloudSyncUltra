@@ -10,6 +10,23 @@ import SwiftUI
 struct SelectRemotesStep: View {
     @ObservedObject var state: ScheduleWizardState
     @EnvironmentObject var remotesVM: RemotesViewModel
+    @State private var showSourceFolderBrowser = false
+    @State private var showDestinationFolderBrowser = false
+    @State private var showSourceEncryptionSetup = false
+    @State private var showDestinationEncryptionSetup = false
+
+    private func selectLocalFolder(for binding: Binding<String>) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Select a folder"
+        panel.prompt = "Select"
+
+        if panel.runModal() == .OK, let url = panel.url {
+            binding.wrappedValue = url.path
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -38,18 +55,46 @@ struct SelectRemotesStep: View {
                         excludeRemote: state.destinationRemote
                     )
 
-                    if state.sourceRemote != nil {
+                    if let sourceRemote = state.sourceRemote {
                         HStack {
                             Text("Path:")
                                 .foregroundColor(.secondary)
                             TextField("/ (root)", text: $state.sourcePath)
                                 .textFieldStyle(.roundedBorder)
+                            Button(action: {
+                                if sourceRemote.type == .local {
+                                    selectLocalFolder(for: $state.sourcePath)
+                                } else {
+                                    showSourceFolderBrowser = true
+                                }
+                            }) {
+                                Image(systemName: "folder")
+                            }
+                            .buttonStyle(.bordered)
+                            .help("Browse folders")
                         }
                         .padding(.horizontal)
+                        .sheet(isPresented: $showSourceFolderBrowser) {
+                            RemoteFolderBrowser(
+                                remoteName: sourceRemote.rcloneName,
+                                isLocal: false,
+                                selectedPath: $state.sourcePath,
+                                onDismiss: { showSourceFolderBrowser = false }
+                            )
+                        }
 
                         // Encryption toggle for non-local remotes
-                        if let remote = state.sourceRemote, remote.type != .local {
-                            Toggle(isOn: $state.encryptSource) {
+                        if sourceRemote.type != .local {
+                            Toggle(isOn: Binding(
+                                get: { state.encryptSource },
+                                set: { newValue in
+                                    if newValue && !EncryptionManager.shared.isEncryptionConfigured(for: sourceRemote.rcloneName) {
+                                        showSourceEncryptionSetup = true
+                                    } else {
+                                        state.encryptSource = newValue
+                                    }
+                                }
+                            )) {
                                 HStack(spacing: AppTheme.spacingXS) {
                                     Image(systemName: "lock.fill")
                                         .foregroundColor(state.encryptSource ? .green : .secondary)
@@ -57,6 +102,11 @@ struct SelectRemotesStep: View {
                                 }
                             }
                             .padding(.horizontal)
+                            .sheet(isPresented: $showSourceEncryptionSetup) {
+                                EncryptionSetupSheet(remote: sourceRemote) {
+                                    state.encryptSource = true
+                                }
+                            }
                         }
                     }
                 }
@@ -80,18 +130,46 @@ struct SelectRemotesStep: View {
                         excludeRemote: state.sourceRemote
                     )
 
-                    if state.destinationRemote != nil {
+                    if let destRemote = state.destinationRemote {
                         HStack {
                             Text("Path:")
                                 .foregroundColor(.secondary)
                             TextField("/ (root)", text: $state.destinationPath)
                                 .textFieldStyle(.roundedBorder)
+                            Button(action: {
+                                if destRemote.type == .local {
+                                    selectLocalFolder(for: $state.destinationPath)
+                                } else {
+                                    showDestinationFolderBrowser = true
+                                }
+                            }) {
+                                Image(systemName: "folder")
+                            }
+                            .buttonStyle(.bordered)
+                            .help("Browse folders")
                         }
                         .padding(.horizontal)
+                        .sheet(isPresented: $showDestinationFolderBrowser) {
+                            RemoteFolderBrowser(
+                                remoteName: destRemote.rcloneName,
+                                isLocal: false,
+                                selectedPath: $state.destinationPath,
+                                onDismiss: { showDestinationFolderBrowser = false }
+                            )
+                        }
 
                         // Encryption toggle for non-local remotes
-                        if let remote = state.destinationRemote, remote.type != .local {
-                            Toggle(isOn: $state.encryptDestination) {
+                        if destRemote.type != .local {
+                            Toggle(isOn: Binding(
+                                get: { state.encryptDestination },
+                                set: { newValue in
+                                    if newValue && !EncryptionManager.shared.isEncryptionConfigured(for: destRemote.rcloneName) {
+                                        showDestinationEncryptionSetup = true
+                                    } else {
+                                        state.encryptDestination = newValue
+                                    }
+                                }
+                            )) {
                                 HStack(spacing: AppTheme.spacingXS) {
                                     Image(systemName: "lock.fill")
                                         .foregroundColor(state.encryptDestination ? .green : .secondary)
@@ -99,6 +177,11 @@ struct SelectRemotesStep: View {
                                 }
                             }
                             .padding(.horizontal)
+                            .sheet(isPresented: $showDestinationEncryptionSetup) {
+                                EncryptionSetupSheet(remote: destRemote) {
+                                    state.encryptDestination = true
+                                }
+                            }
                         }
                     }
                 }

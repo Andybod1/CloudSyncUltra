@@ -2032,13 +2032,13 @@ class RcloneManager {
             Task {
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: self.rclonePath)
-                
+
                 // Build source and destination strings
                 let source = sourceRemote.isEmpty || sourceRemote == "local" ? sourcePath : "\(sourceRemote):\(sourcePath)"
                 let dest = destRemote.isEmpty || destRemote == "local" ? destPath : "\(destRemote):\(destPath)"
-                
+
                 var args: [String] = []
-                
+
                 switch mode {
                 case .oneWay:
                     args = [
@@ -2070,7 +2070,9 @@ class RcloneManager {
                         "--conflict-resolve", "newer",
                         "--conflict-loser", "num",
                         "--verbose",
-                        "--max-delete", "50"
+                        "--max-delete", "50",
+                        "--progress",
+                        "--stats", "1s"
                     ]
                     // Apply buffer optimization (#70) - bisync uses different parallelism model
                     args.append(contentsOf: ["--buffer-size", "32M"])
@@ -2078,30 +2080,46 @@ class RcloneManager {
 
                 // Add bandwidth limits
                 args.append(contentsOf: self.getBandwidthArgs())
-                
+
                 process.arguments = args
-                
+
+                print("[RcloneManager] Running: rclone \(args.joined(separator: " "))")
+
                 let pipe = Pipe()
                 process.standardOutput = pipe
                 process.standardError = pipe
-                
+
+                var hasYieldedProgress = false
+
                 pipe.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
                     if !data.isEmpty {
                         if let output = String(data: data, encoding: .utf8) {
+                            print("[RcloneManager] Output: \(output)")
                             if let progress = self.parseProgress(from: output) {
+                                hasYieldedProgress = true
                                 continuation.yield(progress)
                             }
                         }
                     }
                 }
-                
+
                 try process.run()
                 self.process = process
-                
+
                 process.waitUntilExit()
-                
+
                 pipe.fileHandleForReading.readabilityHandler = nil
+
+                // If no progress was yielded but command succeeded, yield a completed progress
+                let exitCode = process.terminationStatus
+                print("[RcloneManager] Sync completed with exit code: \(exitCode)")
+                if !hasYieldedProgress && exitCode == 0 {
+                    var completedProgress = SyncProgress()
+                    completedProgress.percent = 100
+                    continuation.yield(completedProgress)
+                }
+
                 continuation.finish()
             }
         }

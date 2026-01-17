@@ -29,8 +29,10 @@ struct FileBrowserView: View {
     @State private var uploadTotalFiles: Int = 0
     @State private var currentUploadTask: SyncTask?
     @State private var downloadError: String?
+    @State private var uploadError: String?
     @State private var showDeleteError = false
     @State private var showDownloadError = false
+    @State private var showUploadError = false
     @State private var showRenameSheet = false
     @State private var renameFile: FileItem?
     @State private var newFileName = ""
@@ -68,10 +70,13 @@ struct FileBrowserView: View {
             .modifier(AlertsModifier(
                 showDeleteError: $showDeleteError,
                 showDownloadError: $showDownloadError,
+                showUploadError: $showUploadError,
                 deleteError: deleteError,
                 downloadError: downloadError,
+                uploadError: uploadError,
                 onDeleteErrorDismiss: { deleteError = nil },
-                onDownloadErrorDismiss: { downloadError = nil }
+                onDownloadErrorDismiss: { downloadError = nil },
+                onUploadErrorDismiss: { uploadError = nil }
             ))
             .onChange(of: showDeleteConfirm) { _, newValue in
                 if newValue {
@@ -1390,8 +1395,8 @@ struct FileBrowserView: View {
                     uploadFileIndex = 0
                     uploadTotalFiles = 0
                     currentUploadTask = nil
-                    downloadError = error.localizedDescription
-                    showDownloadError = true
+                    uploadError = error.localizedDescription
+                    showUploadError = true
                 }
             }
         }
@@ -1771,10 +1776,13 @@ struct RenameFileSheet: View {
 private struct AlertsModifier: ViewModifier {
     @Binding var showDeleteError: Bool
     @Binding var showDownloadError: Bool
+    @Binding var showUploadError: Bool
     let deleteError: String?
     let downloadError: String?
+    let uploadError: String?
     let onDeleteErrorDismiss: () -> Void
     let onDownloadErrorDismiss: () -> Void
+    let onUploadErrorDismiss: () -> Void
 
     func body(content: Content) -> some View {
         content
@@ -1791,6 +1799,13 @@ private struct AlertsModifier: ViewModifier {
                 }
             } message: {
                 Text(downloadError ?? "Unknown error")
+            }
+            .alert("Upload Error", isPresented: $showUploadError) {
+                Button("OK") {
+                    onUploadErrorDismiss()
+                }
+            } message: {
+                Text(uploadError ?? "Unknown error")
             }
     }
 }

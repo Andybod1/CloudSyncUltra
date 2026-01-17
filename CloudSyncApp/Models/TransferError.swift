@@ -1,7 +1,7 @@
 import Foundation
 
 /// Comprehensive error types for cloud transfer operations
-enum TransferError: Error, Equatable, Codable {
+enum TransferError: Error, Equatable, Codable, LocalizedError {
 
     // MARK: - Storage & Quota Errors
 
@@ -244,6 +244,11 @@ enum TransferError: Error, Equatable, Codable {
         default:
             return false
         }
+    }
+
+    /// LocalizedError conformance - returns the user-friendly message
+    var errorDescription: String? {
+        return userMessage
     }
 }
 

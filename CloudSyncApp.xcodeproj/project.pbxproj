@@ -83,6 +83,7 @@
 		AB /* FileBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC /* FileBrowserViewModel.swift */; };
 		AD /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE /* MainWindow.swift */; };
 		ADD01 /* AddProviderStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD02 /* AddProviderStepView.swift */; };
+		ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */; };
 		AF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0 /* DashboardView.swift */; };
 		B041C2E9E82EAA4027C4BCDC /* MainWindowIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19E4FEDBCB418DE1806942D /* MainWindowIntegrationTests.swift */; };
 		B1 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2 /* TransferView.swift */; };
@@ -120,21 +121,21 @@
 		F55E0A979B6C9A6344B933AC /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6A056898C5413DB9FC0C7 /* StoreKitManager.swift */; };
 		F9455A915EF77B90D3A135CD /* ProviderIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D506FF630286532822C2F401 /* ProviderIconView.swift */; };
 		F9F6431099FEBF1B1708BFA1 /* ScheduleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */; };
+		FB01 /* FeedbackCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB02 /* FeedbackCategory.swift */; };
+		FB03 /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB04 /* FeedbackManager.swift */; };
+		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
 		FEE0B457B924834A99AEE7A8 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D49B2D17312CF790988F9C /* SecurityManager.swift */; };
 		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
 		SCHED001 /* ScheduleWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED101 /* ScheduleWizardView.swift */; };
 		SCHED002 /* SelectRemotesStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED102 /* SelectRemotesStep.swift */; };
 		SCHED003 /* ConfigureScheduleStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED103 /* ConfigureScheduleStep.swift */; };
 		SCHED004 /* ScheduleReviewStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED104 /* ScheduleReviewStep.swift */; };
+		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
 		TRANS001 /* TransferWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS101 /* TransferWizardView.swift */; };
 		TRANS002 /* TransferSourceStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS102 /* TransferSourceStep.swift */; };
 		TRANS003 /* TransferDestinationStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS103 /* TransferDestinationStep.swift */; };
 		TRANS004 /* TransferOptionsStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS104 /* TransferOptionsStep.swift */; };
 		TRANS005 /* TransferReviewStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS105 /* TransferReviewStep.swift */; };
-		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
-		FB01 /* FeedbackCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB02 /* FeedbackCategory.swift */; };
-		FB03 /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB04 /* FeedbackManager.swift */; };
-		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -216,6 +217,7 @@
 		874E321597BF2B2982570A05 /* MenuBarScheduleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/MenuBarScheduleTests.swift; sourceTree = SOURCE_ROOT; };
 		8787F26DDBDE93A2675DDA33 /* SubscriptionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SubscriptionView.swift; path = CloudSyncApp/Views/SubscriptionView.swift; sourceTree = SOURCE_ROOT; };
 		8E993DCCAE5027CC85D02A70 /* SecureString.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecureString.swift; sourceTree = "<group>"; };
+		90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RemoteFolderBrowser.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/RemoteFolderBrowser.swift; sourceTree = SOURCE_ROOT; };
 		913A773063349BA1D4C769F8 /* TransferViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferViewUITests.swift; sourceTree = "<group>"; };
 		94A865AA92D3853E31E7C05D /* PerformanceSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceSettingsView.swift; sourceTree = "<group>"; };
 		990D0F70CC76B66CE3B45B4E /* Phase1Week3ProvidersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/Phase1Week3ProvidersTests.swift; sourceTree = SOURCE_ROOT; };
@@ -276,21 +278,21 @@
 		EF64D6804F2A00547C7B4675 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4547BACA8D0CFB390C1E064 /* Phase1Week1ProvidersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/Phase1Week1ProvidersTests.swift; sourceTree = SOURCE_ROOT; };
 		F558D6C3377DEC3C817F705C /* HelpManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpManager.swift; path = CloudSyncApp/HelpManager.swift; sourceTree = SOURCE_ROOT; };
+		FB02 /* FeedbackCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackCategory.swift; path = CloudSyncApp/Models/FeedbackCategory.swift; sourceTree = SOURCE_ROOT; };
+		FB04 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackManager.swift; path = CloudSyncApp/FeedbackManager.swift; sourceTree = SOURCE_ROOT; };
+		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
 		FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED101 /* ScheduleWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/ScheduleWizardView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED102 /* SelectRemotesStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/SelectRemotesStep.swift; sourceTree = SOURCE_ROOT; };
 		SCHED103 /* ConfigureScheduleStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/ConfigureScheduleStep.swift; sourceTree = SOURCE_ROOT; };
 		SCHED104 /* ScheduleReviewStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/ScheduleReviewStep.swift; sourceTree = SOURCE_ROOT; };
+		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
 		TRANS101 /* TransferWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/TransferWizardView.swift; sourceTree = SOURCE_ROOT; };
 		TRANS102 /* TransferSourceStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/Steps/TransferSourceStep.swift; sourceTree = SOURCE_ROOT; };
 		TRANS103 /* TransferDestinationStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/Steps/TransferDestinationStep.swift; sourceTree = SOURCE_ROOT; };
 		TRANS104 /* TransferOptionsStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/Steps/TransferOptionsStep.swift; sourceTree = SOURCE_ROOT; };
 		TRANS105 /* TransferReviewStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/Steps/TransferReviewStep.swift; sourceTree = SOURCE_ROOT; };
-		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
-		FB02 /* FeedbackCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackCategory.swift; path = CloudSyncApp/Models/FeedbackCategory.swift; sourceTree = SOURCE_ROOT; };
-		FB04 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackManager.swift; path = CloudSyncApp/FeedbackManager.swift; sourceTree = SOURCE_ROOT; };
-		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -529,6 +531,7 @@
 				8787F26DDBDE93A2675DDA33 /* SubscriptionView.swift */,
 				94A865AA92D3853E31E7C05D /* PerformanceSettingsView.swift */,
 				FB06 /* FeedbackView.swift */,
+				90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -738,6 +741,7 @@
 				FB01 /* FeedbackCategory.swift in Sources */,
 				FB03 /* FeedbackManager.swift in Sources */,
 				FB05 /* FeedbackView.swift in Sources */,
+				ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
