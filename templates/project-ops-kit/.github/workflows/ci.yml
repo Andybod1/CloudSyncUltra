@@ -6,144 +6,150 @@ on:
   pull_request:
     branches: [main]
 
-# TODO: Configure this CI workflow for your project's tech stack
-# This is a template - customize the build and test steps below
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
 
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: ubuntu-latest  # or macos-latest, windows-latest
+    runs-on: macos-14
 
     steps:
       # Checkout code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # TODO: Add your language/framework setup steps
-      # Examples:
-      #
-      # Node.js:
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      #     cache: 'npm'
-      # - name: Install dependencies
-      #   run: npm ci
-      #
-      # Python:
-      # - name: Setup Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      # - name: Install dependencies
-      #   run: pip install -r requirements.txt
-      #
-      # Go:
-      # - name: Setup Go
-      #   uses: actions/setup-go@v5
-      #   with:
-      #     go-version: '1.21'
+      # Setup environment
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      # Run SwiftLint
+      - name: SwiftLint
+        run: |
+          echo "📝 Running SwiftLint..."
+          LINT_RESULT=$(swiftlint lint --reporter github-actions-logging 2>&1) || true
+          echo "$LINT_RESULT"
+
+          # Count errors (serious violations)
+          ERROR_COUNT=$(echo "$LINT_RESULT" | grep -c "error:" || echo "0")
+          WARNING_COUNT=$(echo "$LINT_RESULT" | grep -c "warning:" || echo "0")
+
+          echo ""
+          echo "📊 SwiftLint Results: $ERROR_COUNT errors, $WARNING_COUNT warnings"
+
+          # Fail only on errors, not warnings
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "❌ SwiftLint found $ERROR_COUNT error(s) - these should be fixed"
+            # Currently non-blocking while codebase is cleaned up
+            # TODO: Enable strict mode once violations are fixed
+            # exit 1
+          fi
+          echo "✅ SwiftLint check complete"
+
+      # Cache DerivedData for faster builds
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      # Install xcpretty if not available
+      - name: Install xcpretty
+        run: |
+          if ! command -v xcpretty &> /dev/null; then
+            gem install xcpretty
+          fi
 
       # Build the project
       - name: Build
         run: |
-          echo "TODO: Add your build command"
-          # npm run build
-          # go build ./...
-          # cargo build
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            | xcpretty
 
       # Run tests with code coverage
-      # TODO: Uncomment and customize for your tech stack
-
-      # Node.js with Jest/Vitest:
-      # - name: Run Tests with Coverage
-      #   run: |
-      #     npm test -- --coverage --reporters=default --reporters=jest-junit
-      #     # or: npm run test:coverage
-
-      # Python with pytest:
-      # - name: Run Tests with Coverage
-      #   run: |
-      #     pip install pytest-cov pytest-html
-      #     pytest --cov=./src --cov-report=xml --cov-report=html --cov-report=term
-
-      # Go:
-      # - name: Run Tests with Coverage
-      #   run: |
-      #     go test -race -coverprofile=coverage.out -covermode=atomic ./...
-      #     go tool cover -func=coverage.out
-
-      # Rust:
-      # - name: Run Tests with Coverage
-      #   run: |
-      #     cargo install cargo-tarpaulin
-      #     cargo tarpaulin --out Xml --all-features
-
-      # Java/Kotlin with Gradle:
-      # - name: Run Tests with Coverage
-      #   run: |
-      #     ./gradlew test jacocoTestReport
-
-      # Generic fallback:
-      - name: Run Tests
+      - name: Run Tests with Coverage
         run: |
-          echo "TODO: Add your test command with coverage"
-          # Examples above for various languages
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults \
+            | xcpretty --report junit --output build/reports/junit.xml
 
-      # Extract and report code coverage
-      # TODO: Customize based on your coverage tool
+      # Extract and report code coverage (non-blocking)
+      - name: Generate Coverage Report
+        continue-on-error: true
+        run: |
+          # Find the xcresult bundle
+          RESULT_BUNDLE="TestResults.xcresult"
+          
+          if [ -d "$RESULT_BUNDLE" ]; then
+            echo "📊 Code Coverage Report"
+            echo "========================"
+            
+            # Get coverage percentage (may fail if no coverage data)
+            if xcrun xccov view --report --only-targets "$RESULT_BUNDLE" > coverage_report.txt 2>&1; then
+              # Display coverage summary
+              cat coverage_report.txt
+              
+              # Extract overall coverage percentage for CloudSyncApp target
+              COVERAGE=$(grep "CloudSyncApp.app" coverage_report.txt | awk '{print $4}' | tr -d '%' || echo "")
+              
+              if [ ! -z "$COVERAGE" ]; then
+                echo ""
+                echo "📈 CloudSyncApp Coverage: ${COVERAGE}%"
+                
+                # Save coverage to file for artifact
+                echo "$COVERAGE" > coverage_percentage.txt
+                
+                # Check threshold (80% for Quality++)
+                THRESHOLD=80
+                COVERAGE_INT=${COVERAGE%.*}
+                if [ "$COVERAGE_INT" -lt "$THRESHOLD" ]; then
+                  echo "⚠️ Coverage ($COVERAGE%) is below target ($THRESHOLD%)"
+                  # Warning only - not blocking until coverage improves
+                else
+                  echo "✅ Coverage ($COVERAGE%) meets target ($THRESHOLD%)"
+                fi
+              else
+                echo "⚠️ Could not extract coverage percentage"
+              fi
+            else
+              echo "⚠️ Coverage data not available in result bundle"
+              echo "   This can happen if code coverage collection failed during test run"
+              cat coverage_report.txt 2>/dev/null || true
+            fi
+          else
+            echo "⚠️ No test results found at $RESULT_BUNDLE"
+          fi
 
-      # JavaScript/TypeScript (Jest/Vitest):
-      # - name: Generate Coverage Report
-      #   run: |
-      #     echo "📊 Code Coverage Report"
-      #     echo "========================"
-      #
-      #     # Extract coverage from coverage-summary.json
-      #     if [ -f coverage/coverage-summary.json ]; then
-      #       COVERAGE=$(jq '.total.lines.pct' coverage/coverage-summary.json)
-      #       echo "📈 Overall Coverage: ${COVERAGE}%"
-      #       echo "$COVERAGE" > coverage_percentage.txt
-      #
-      #       # Check threshold
-      #       THRESHOLD=80
-      #       if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-      #         echo "⚠️ Warning: Coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
-      #         # Uncomment to fail CI: exit 1
-      #       fi
-      #     fi
-
-      # Python (pytest-cov):
-      # - name: Generate Coverage Report
-      #   run: |
-      #     echo "📊 Code Coverage Report"
-      #     echo "========================"
-      #
-      #     # Coverage already displayed by pytest
-      #     # Extract from XML for artifact
-      #     if [ -f coverage.xml ]; then
-      #       COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print(float(ET.parse('coverage.xml').getroot().get('line-rate'))*100)")
-      #       echo "$COVERAGE" > coverage_percentage.txt
-      #       echo "📈 Overall Coverage: ${COVERAGE}%"
-      #     fi
-
-      # Go:
-      # - name: Generate Coverage Report
-      #   run: |
-      #     echo "📊 Code Coverage Report"
-      #     echo "========================"
-      #
-      #     # Parse coverage.out for percentage
-      #     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-      #     echo "$COVERAGE" > coverage_percentage.txt
-      #     echo "📈 Overall Coverage: ${COVERAGE}%"
+      # Generate detailed coverage JSON (non-blocking)
+      - name: Generate Coverage JSON
+        if: always()
+        continue-on-error: true
+        run: |
+          RESULT_BUNDLE="TestResults.xcresult"
+          if [ -d "$RESULT_BUNDLE" ]; then
+            xcrun xccov view --report --json "$RESULT_BUNDLE" > coverage.json 2>&1 || echo "{}" > coverage.json
+          fi
 
       # Check version consistency
       - name: Version Check
         run: |
           chmod +x ./scripts/version-check.sh
-          ./scripts/version-check.sh || true
+          ./scripts/version-check.sh
 
       # Upload test results and coverage
       - name: Upload Test Results & Coverage
@@ -152,35 +158,95 @@ jobs:
         with:
           name: test-results
           path: |
-            # Common coverage output paths
             build/reports/
-            coverage/
-            coverage.*
-            .coverage
-            htmlcov/
+            TestResults.xcresult/
             coverage_report.txt
             coverage_percentage.txt
-            # Node.js
-            coverage-final.json
-            # Python
-            .pytest_cache/
-            # Go
-            coverage.out
-            # Rust
-            cobertura.xml
-            # Java/Kotlin
-            build/reports/jacoco/
+            coverage.json
           retention-days: 14
-          if-no-files-found: ignore
 
       # Post coverage summary to PR (if PR)
-      # TODO: Enable when coverage is configured
-      # - name: Coverage Summary
-      #   if: github.event_name == 'pull_request' && success()
-      #   run: |
-      #     if [ -f coverage_percentage.txt ]; then
-      #       COVERAGE=$(cat coverage_percentage.txt)
-      #       echo "### 📊 Code Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
-      #       echo "" >> $GITHUB_STEP_SUMMARY
-      #       echo "See artifacts for detailed coverage report." >> $GITHUB_STEP_SUMMARY
-      #     fi
+      - name: Coverage Summary
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f coverage_percentage.txt ]; then
+            COVERAGE=$(cat coverage_percentage.txt)
+            echo "### 📊 Code Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See artifacts for detailed coverage report." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ⚠️ Code Coverage: Not Available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Memory Safety Check (ASan + TSan)
+  memory-safety:
+    name: Memory Safety
+    runs-on: macos-14
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install rclone
+        run: brew install rclone
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
+      - name: Run Address Sanitizer
+        continue-on-error: true
+        run: |
+          echo "🔍 Running Address Sanitizer..."
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -skip-testing:CloudSyncAppUITests \
+            -enableAddressSanitizer YES \
+            -quiet 2>&1 | tee asan_output.txt || true
+
+          if grep -q "AddressSanitizer" asan_output.txt; then
+            echo "⚠️ Address Sanitizer found issues"
+            grep -A 5 "AddressSanitizer" asan_output.txt | head -30
+          else
+            echo "✅ No memory issues detected"
+          fi
+
+      - name: Run Thread Sanitizer
+        continue-on-error: true
+        run: |
+          echo "🔍 Running Thread Sanitizer..."
+          xcodebuild test \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -skip-testing:CloudSyncAppUITests \
+            -enableThreadSanitizer YES \
+            -quiet 2>&1 | tee tsan_output.txt || true
+
+          if grep -q "ThreadSanitizer" tsan_output.txt; then
+            echo "⚠️ Thread Sanitizer found race conditions"
+            grep -A 5 "ThreadSanitizer" tsan_output.txt | head -30
+          else
+            echo "✅ No race conditions detected"
+          fi
+
+      - name: Memory Safety Summary
+        run: |
+          echo "### 🧠 Memory Safety Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if grep -q "AddressSanitizer\|ThreadSanitizer" asan_output.txt tsan_output.txt 2>/dev/null; then
+            echo "⚠️ Issues detected - review logs" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No memory or threading issues detected" >> $GITHUB_STEP_SUMMARY
+          fi

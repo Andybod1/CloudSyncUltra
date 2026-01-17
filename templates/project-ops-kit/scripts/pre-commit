@@ -243,7 +243,7 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Check 8: Test coverage check (50% minimum)
+# Check 8: Test coverage check (80% minimum)
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}[8/8]${NC} Checking test coverage..."
 
@@ -278,10 +278,10 @@ if [[ -n "$STAGED_SOURCE" ]]; then
             if [[ -n "$COVERAGE_PCT" ]]; then
                 COVERAGE_INT=$(echo "$COVERAGE_PCT" | cut -d'.' -f1)
 
-                if [[ $COVERAGE_INT -ge 50 ]]; then
-                    echo -e "  ${GREEN}✓${NC} Coverage: ${COVERAGE_INT}% (minimum: 50%)"
+                if [[ $COVERAGE_INT -ge 80 ]]; then
+                    echo -e "  ${GREEN}✓${NC} Coverage: ${COVERAGE_INT}% (minimum: 80%)"
                 else
-                    echo -e "  ${YELLOW}⚠${NC} Coverage: ${COVERAGE_INT}% (below 50% minimum)"
+                    echo -e "  ${YELLOW}⚠${NC} Coverage: ${COVERAGE_INT}% (below 80% minimum)"
                     echo -e "      Consider adding tests to improve coverage"
                     WARNINGS=$((WARNINGS + 1))
                 fi
