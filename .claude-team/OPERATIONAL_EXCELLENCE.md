@@ -3,22 +3,23 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** In Progress
-> **Last Updated:** 2026-01-16 (Sprint v2.0.32 → 90%)
+> **Last Updated:** 2026-01-17 (Sprint v2.0.33 → 95%)
 
 ---
 
 ## Progress Overview
 
 ```
-Pillar 1: Automation First       [██████████] 100%
-Pillar 2: Quality Gates          [██████████] 100%
-Pillar 3: Single Source of Truth [██████████] 100%
-Pillar 4: Metrics & Visibility   [██████████] 100%
-Pillar 5: Knowledge Management   [██████████] 100%
+Pillar 1: Automation First       [██████████] 100% ✅
+Pillar 2: Quality Gates          [██████████] 100% ✅ (enhanced)
+Pillar 3: Single Source of Truth [██████████] 100% ✅
+Pillar 4: Metrics & Visibility   [██████████] 100% ✅
+Pillar 5: Knowledge Management   [██████████] 100% ✅
 Pillar 6: Business Operations    [█████░░░░░] 50%  ⚠️ Focus area
-Pillar 7: Worker Quality         [██████████] 100%
+Pillar 7: Worker Quality         [██████████] 100% ✅ (enhanced)
 ─────────────────────────────────────────────────
 Overall Progress                 [█████████░] 93%
+Health Score                     [█████████▌] 95% ↑
 ```
 
 ---
@@ -29,13 +30,14 @@ Overall Progress                 [█████████░] 93%
 
 | Item | Status | Script/File | Notes |
 |------|--------|-------------|-------|
-| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.32" |
-| Version check script | ✅ Done | `scripts/version-check.sh` | Validates all docs |
-| Version update script | ✅ Done | `scripts/update-version.sh` | Updates all docs |
+| VERSION.txt single source | ✅ Done | `VERSION.txt` | Contains "2.0.33" |
+| Version check script | ✅ Done | `scripts/version-check.sh` | Validates 8 files |
+| Version update script | ✅ Done | `scripts/update-version.sh` | Updates 8 files |
 | Automated release | ✅ Done | `scripts/release.sh` | Full 6-step automation |
 | GitHub Actions CI | ✅ Done | `.github/workflows/ci.yml` | Build + test on push |
-| Pre-commit hooks | ✅ Done | `scripts/pre-commit` | Build check, syntax, debug artifacts |
+| Pre-commit hooks | ✅ Done | `scripts/pre-commit` | 8 checks incl. coverage |
 | Auto-changelog | ✅ Done | `scripts/generate-changelog.sh` | From conventional commits |
+| DoD automation | ✅ Done | `scripts/check-dod.sh` | 8 criteria verified |
 
 ---
 
@@ -47,9 +49,10 @@ Overall Progress                 [█████████░] 93%
 |------|--------|----------|-------|
 | Protected main branch | ✅ Done | GitHub Settings | CI must pass |
 | PR required for changes | ✅ Done | GitHub Settings | Branch protection enabled |
-| Definition of Done check | ✅ Done | `.claude-team/DEFINITION_OF_DONE.md` | Checklist created |
-| Test coverage threshold | ✅ Done | CI workflow | 30% threshold with warning |
+| Definition of Done check | ✅ Done | `scripts/check-dod.sh` | Automated 8-criteria check |
+| Test coverage threshold | ✅ Done | Pre-commit + CI | 50% pre-commit, 30% CI |
 | Build verification | ✅ Done | Pre-commit hooks | Every commit builds |
+| Duplicate file detection | ✅ Done | Pre-commit hooks | Prevents same-name files |
 
 ---
 
@@ -120,9 +123,10 @@ Overall Progress                 [█████████░] 93%
 | Quality Standards doc | ✅ Done | `templates/WORKER_QUALITY_STANDARDS.md` | Mandatory reading |
 | Briefing template | ✅ Done | `templates/DEV_BRIEFING_TEMPLATE.md` | With quality gates |
 | Type inventory | ✅ Done | `.claude-team/TYPE_INVENTORY.md` | Auto-generated reference |
-| Worker QA script | ✅ Done | `scripts/worker-qa.sh` | Build + project check |
+| Worker QA script | ✅ Done | `scripts/worker-qa.sh` | Build + tests + version check |
 | Type inventory script | ✅ Done | `scripts/generate-type-inventory.sh` | Refresh before sprint |
 | Launch script updated | ✅ Done | `scripts/launch_single_worker.sh` | Includes quality reminder |
+| DoD checker | ✅ Done | `scripts/check-dod.sh` | Pre-completion verification |
 
 ---
 
@@ -134,24 +138,25 @@ Overall Progress                 [█████████░] 93%
 ./scripts/record-test-count.sh      # Record test count to CSV
 ./scripts/generate-changelog.sh     # Generate changelog from commits
 
-# Session management  
+# Session management
 ./scripts/save-session.sh           # Quick session summary
 
 # Version & release
-./scripts/version-check.sh          # Validate doc versions
-./scripts/update-version.sh 2.0.23  # Update all versions
-./scripts/release.sh 2.0.23         # Full automated release
+./scripts/version-check.sh          # Validate 8 doc versions
+./scripts/update-version.sh 2.0.33  # Update all 8 version locations
+./scripts/release.sh 2.0.33         # Full automated release
 
 # Quality & health
 ./scripts/dashboard.sh              # Project health dashboard
 ./scripts/install-hooks.sh          # Install pre-commit hooks
+./scripts/check-dod.sh              # Definition of Done checker (8 criteria)
 
 # Business operations
 ./scripts/notarize.sh              # macOS app notarization
 ./scripts/submit-appstore.sh       # App Store Connect submission
 
-# Worker quality (NEW)
-./scripts/worker-qa.sh             # Pre-completion QA check
+# Worker quality
+./scripts/worker-qa.sh             # Build + tests + version QA check
 ./scripts/generate-type-inventory.sh # Refresh type reference
 ```
 
@@ -161,17 +166,31 @@ Overall Progress                 [█████████░] 93%
 
 | Metric | Before | Now | Target |
 |--------|--------|-----|--------|
-| Health Score | 70% | 85% | 95%+ |
-| Open Issues | 19 | 12 | <15 ✅ |
-| Closed (7-day) | 30 | 108 | Growing ✅ |
+| Health Score | 70% | 95% | 95%+ ✅ |
+| Open Issues | 19 | 0 | <15 ✅ |
+| Closed (7-day) | 30 | 121 | Growing ✅ |
 | Test Count | 743 | 855 | 900+ |
-| Operational Excellence | 89% | 91% | 95%+ |
+| Operational Excellence | 89% | 93% | 95%+ |
 
-> **Focus Area:** Pillar 6 (Business Operations) at 50% - #97 Feedback + #98 Analytics planned.
+> **Focus Area:** Pillar 6 (Business Operations) at 50% - Feedback + Analytics planned.
 
 ---
 
-## Recent Improvements (2026-01-16)
+## Recent Improvements (2026-01-17)
+
+- ✅ Pre-commit enhanced to 8 checks (was 6)
+- ✅ Coverage threshold added: 50% minimum in pre-commit
+- ✅ Duplicate filename detection in pre-commit
+- ✅ Stricter version check (blocks when version files staged)
+- ✅ `check-dod.sh` created - automated DoD verification
+- ✅ `worker-qa.sh` enhanced - now runs tests + version check
+- ✅ `version-check.sh` expanded to validate 8 files
+- ✅ `update-version.sh` expanded to update 8 files
+- ✅ Health score reached 95% target
+- ✅ All issues closed (0 open)
+- ✅ Template synced to project-ops-kit
+
+### Previous (2026-01-16)
 
 - ✅ Swift-DocC documentation catalog added (`CloudSyncApp.docc`)
 - ✅ Documentation build script created (`scripts/build-docs.sh`)
