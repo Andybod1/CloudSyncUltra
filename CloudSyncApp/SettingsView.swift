@@ -46,11 +46,17 @@ struct SettingsView: View {
                     }
                     .tag(4)
 
+                AnalyticsSettingsView()
+                    .tabItem {
+                        Label("Privacy", systemImage: "hand.raised")
+                    }
+                    .tag(5)
+
                 AboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
-                    .tag(5)
+                    .tag(6)
             }
 
             Text("CloudSync Ultra v2.0")

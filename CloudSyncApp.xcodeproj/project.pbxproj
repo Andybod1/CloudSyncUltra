@@ -126,6 +126,9 @@
 		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
 		SUP01 /* SupportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP02 /* SupportManager.swift */; };
 		SUP03 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP04 /* SupportView.swift */; };
+		ANA01 /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA02 /* AnalyticsEvent.swift */; };
+		ANA03 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA04 /* AnalyticsManager.swift */; };
+		ANA05 /* AnalyticsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA06 /* AnalyticsSettingsView.swift */; };
 		FEE0B457B924834A99AEE7A8 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D49B2D17312CF790988F9C /* SecurityManager.swift */; };
 		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
 		SCHED001 /* ScheduleWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED101 /* ScheduleWizardView.swift */; };
@@ -285,6 +288,9 @@
 		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
 		SUP02 /* SupportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportManager.swift; path = CloudSyncApp/SupportManager.swift; sourceTree = SOURCE_ROOT; };
 		SUP04 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportView.swift; path = CloudSyncApp/Views/SupportView.swift; sourceTree = SOURCE_ROOT; };
+		ANA02 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsEvent.swift; path = CloudSyncApp/Models/AnalyticsEvent.swift; sourceTree = SOURCE_ROOT; };
+		ANA04 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsManager.swift; path = CloudSyncApp/AnalyticsManager.swift; sourceTree = SOURCE_ROOT; };
+		ANA06 /* AnalyticsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsSettingsView.swift; path = CloudSyncApp/Views/AnalyticsSettingsView.swift; sourceTree = SOURCE_ROOT; };
 		FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED101 /* ScheduleWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/ScheduleWizardView.swift; sourceTree = SOURCE_ROOT; };
@@ -417,6 +423,7 @@
 				43097CB31FE0746630E17F49 /* AuthRateLimiter.swift */,
 				FB04 /* FeedbackManager.swift */,
 				SUP02 /* SupportManager.swift */,
+				ANA04 /* AnalyticsManager.swift */,
 			);
 			path = CloudSyncApp;
 			sourceTree = "<group>";
@@ -499,6 +506,7 @@
 				5AFE5ABA9470475042E35F1B /* PerformanceProfile.swift */,
 				8E993DCCAE5027CC85D02A70 /* SecureString.swift */,
 				FB02 /* FeedbackCategory.swift */,
+				ANA02 /* AnalyticsEvent.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -537,6 +545,7 @@
 				94A865AA92D3853E31E7C05D /* PerformanceSettingsView.swift */,
 				FB06 /* FeedbackView.swift */,
 				SUP04 /* SupportView.swift */,
+				ANA06 /* AnalyticsSettingsView.swift */,
 				90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */,
 			);
 			path = Views;
@@ -749,6 +758,9 @@
 				FB05 /* FeedbackView.swift in Sources */,
 				SUP01 /* SupportManager.swift in Sources */,
 				SUP03 /* SupportView.swift in Sources */,
+				ANA01 /* AnalyticsEvent.swift in Sources */,
+				ANA03 /* AnalyticsManager.swift in Sources */,
+				ANA05 /* AnalyticsSettingsView.swift in Sources */,
 				ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
