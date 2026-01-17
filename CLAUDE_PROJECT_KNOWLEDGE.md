@@ -171,11 +171,11 @@ gh issue view <number>
 
 > **🔒 PROTECTED SECTION** - Do NOT remove or modify this section without written permission from Andy.
 
-**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh 2.0.XX` to execute all 6 steps automatically!
+**🚀 AUTOMATED OPTION:** Run `./scripts/release.sh 2.0.XX` to execute steps 2-7 automatically!
 
 **After EVERY sprint, complete ALL steps (manually or via release.sh):**
 
-#### 0. Check Project Health FIRST
+#### 1. Check Project Health FIRST
 ```bash
 ./scripts/dashboard.sh
 ```
@@ -183,7 +183,7 @@ gh issue view <number>
 - [ ] Check for any ⚡ NEEDS ATTENTION alerts
 - [ ] Note any issues to address
 
-#### 1. Verify Build & Tests
+#### 2. Verify Build & Tests
 ```bash
 # Run all tests
 cd ~/Claude && xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS' 2>&1 | grep -E "Executed|passed|failed"
@@ -199,7 +199,7 @@ echo "$(date +%Y-%m-%d),2.0.XX,<TEST_COUNT>" >> .claude-team/metrics/test-counts
 - [ ] App launches and works
 - [ ] Test count added to `.claude-team/metrics/test-counts.csv`
 
-#### 2. Update Version (use scripts!)
+#### 3. Update Version (use scripts!)
 ```bash
 # Update all docs to new version automatically:
 ./scripts/update-version.sh 2.0.XX
@@ -211,7 +211,7 @@ echo "$(date +%Y-%m-%d),2.0.XX,<TEST_COUNT>" >> .claude-team/metrics/test-counts
 - [ ] All docs updated via script
 - [ ] version-check.sh passes ✅
 
-#### 3. Update Documentation Files
+#### 4. Update Documentation Files
 
 | File | What to Update |
 |------|----------------|
@@ -220,7 +220,7 @@ echo "$(date +%Y-%m-%d),2.0.XX,<TEST_COUNT>" >> .claude-team/metrics/test-counts
 | `RECOVERY.md` | Version, current state, test count, open issues |
 | `CLAUDE_PROJECT_KNOWLEDGE.md` | Version, test count, current state |
 
-#### 4. GitHub Housekeeping
+#### 5. GitHub Housekeeping
 ```bash
 # Close completed issues
 gh issue close <number> -c "Completed in vX.X.X"
@@ -231,12 +231,12 @@ gh issue list
 - [ ] All completed issues closed
 - [ ] Labels updated (remove `in-progress`, add `done` if applicable)
 
-#### 5. Clean Up Sprint Files
+#### 6. Clean Up Sprint Files
 - [ ] Archive or clear `.claude-team/tasks/TASK_*.md` files
 - [ ] Organize `.claude-team/outputs/*_COMPLETE.md` reports
 - [ ] Update GitHub Project Board (move cards to Done)
 
-#### 6. Commit, Tag & Push
+#### 7. Commit, Tag & Push
 ```bash
 cd ~/Claude
 git add -A
@@ -248,7 +248,7 @@ git push --tags origin main
 - [ ] Version tagged
 - [ ] Pushed to GitHub
 
-#### 7. Reflect on Operational Excellence
+#### 8. Reflect on Operational Excellence
 ```bash
 # Check final health score
 ./scripts/dashboard.sh
@@ -265,7 +265,7 @@ cat .claude-team/OPERATIONAL_EXCELLENCE.md
 
 **Files:** `scripts/dashboard.sh`, `.claude-team/OPERATIONAL_EXCELLENCE.md`, `templates/project-ops-kit/`
 
-#### 8. Sprint Retrospective
+#### 9. Sprint Retrospective
 Quick reflection on the sprint to capture learnings:
 
 | Question | Notes |
@@ -281,7 +281,7 @@ Quick reflection on the sprint to capture learnings:
 
 **Tip:** Keep it brief (2-3 min). Focus on actionable improvements, not blame.
 
-#### 9. User-Facing Docs Check (Quarterly or Major Features)
+#### 10. User-Facing Docs Check (Quarterly or Major Features)
 
 | File | Check For |
 |------|-----------|
@@ -300,7 +300,7 @@ Quick reflection on the sprint to capture learnings:
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
-#### 10. Daily Documentation Update (End of Day)
+#### 11. Daily Documentation Update (End of Day)
 
 > **🔒 MANDATORY** - Update these files at the end of EVERY working day.
 
