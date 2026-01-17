@@ -48,10 +48,7 @@ ASAN_OUTPUT=$(xcodebuild test \
     2>&1) || ASAN_FAILED=1
 
 # Check for ASan errors
-LEAK_ERRORS=$(echo "$ASAN_OUTPUT" | grep -c "AddressSanitizer" || echo "0")
-MEMORY_ERRORS=$(echo "$ASAN_OUTPUT" | grep -c "heap-use-after-free\|heap-buffer-overflow\|stack-buffer-overflow\|use-after-scope" || echo "0")
-
-if [[ "$LEAK_ERRORS" -gt 0 ]] || [[ "$MEMORY_ERRORS" -gt 0 ]]; then
+if echo "$ASAN_OUTPUT" | grep -q "AddressSanitizer"; then
     echo -e "${RED}❌ Address Sanitizer found issues:${NC}"
     echo "$ASAN_OUTPUT" | grep -A 5 "AddressSanitizer" | head -30
     ISSUES_FOUND=1
@@ -75,9 +72,7 @@ TSAN_OUTPUT=$(xcodebuild test \
     -quiet \
     2>&1) || TSAN_FAILED=1
 
-RACE_ERRORS=$(echo "$TSAN_OUTPUT" | grep -c "ThreadSanitizer" || echo "0")
-
-if [[ "$RACE_ERRORS" -gt 0 ]]; then
+if echo "$TSAN_OUTPUT" | grep -q "ThreadSanitizer"; then
     echo -e "${RED}❌ Thread Sanitizer found race conditions:${NC}"
     echo "$TSAN_OUTPUT" | grep -A 5 "ThreadSanitizer" | head -30
     ISSUES_FOUND=1
