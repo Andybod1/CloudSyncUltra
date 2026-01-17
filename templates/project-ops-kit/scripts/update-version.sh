@@ -81,8 +81,8 @@ update_file \
 # 5. Update RECOVERY.md (footer)
 update_file \
     "$PROJECT_ROOT/.claude-team/RECOVERY.md" \
-    "v$OLD_VERSION" \
-    "v$NEW_VERSION" \
+    "CloudSync Ultra v$OLD_VERSION" \
+    "CloudSync Ultra v$NEW_VERSION" \
     ".claude-team/RECOVERY.md (footer)"
 
 # 6. Update PROJECT_CONTEXT.md if exists
@@ -92,6 +92,35 @@ if [[ -f "$PROJECT_ROOT/.claude-team/PROJECT_CONTEXT.md" ]]; then
         "Version:.* $OLD_VERSION" \
         "Version:** $NEW_VERSION | **Updated:** $TODAY" \
         ".claude-team/PROJECT_CONTEXT.md"
+fi
+
+# 7. Update README.md title
+update_file \
+    "$PROJECT_ROOT/README.md" \
+    "# CloudSync Ultra v$OLD_VERSION" \
+    "# CloudSync Ultra v$NEW_VERSION" \
+    "README.md"
+
+# 8. Update project.json
+if [[ -f "$PROJECT_ROOT/project.json" ]]; then
+    if grep -q "\"version\": \"$OLD_VERSION\"" "$PROJECT_ROOT/project.json"; then
+        sed -i '' "s/\"version\": \"$OLD_VERSION\"/\"version\": \"$NEW_VERSION\"/g" \
+            "$PROJECT_ROOT/project.json"
+        echo -e "${GREEN}✓ Updated: project.json${NC}"
+    else
+        echo -e "${YELLOW}⚠ Pattern not found in project.json${NC}"
+    fi
+fi
+
+# 9. Update Xcode MARKETING_VERSION in project.pbxproj
+if [[ -f "$PROJECT_ROOT/CloudSyncApp.xcodeproj/project.pbxproj" ]]; then
+    if grep -q "MARKETING_VERSION = $OLD_VERSION" "$PROJECT_ROOT/CloudSyncApp.xcodeproj/project.pbxproj"; then
+        sed -i '' "s/MARKETING_VERSION = $OLD_VERSION/MARKETING_VERSION = $NEW_VERSION/g" \
+            "$PROJECT_ROOT/CloudSyncApp.xcodeproj/project.pbxproj"
+        echo -e "${GREEN}✓ Updated: project.pbxproj (MARKETING_VERSION)${NC}"
+    else
+        echo -e "${YELLOW}⚠ Pattern not found in project.pbxproj${NC}"
+    fi
 fi
 
 echo ""
