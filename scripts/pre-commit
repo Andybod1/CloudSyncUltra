@@ -43,7 +43,7 @@ WARNINGS=0
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 1: Swift files syntax check (fast)
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[1/7]${NC} Checking Swift syntax..."
+echo -e "${BLUE}[1/8]${NC} Checking Swift syntax..."
 
 # Get staged Swift files
 STAGED_SWIFT=$(git diff --cached --name-only --diff-filter=ACM | grep "\.swift$" || true)
@@ -73,7 +73,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 2: SwiftLint (code style)
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[2/7]${NC} Running SwiftLint..."
+echo -e "${BLUE}[2/8]${NC} Running SwiftLint..."
 
 if command -v swiftlint &> /dev/null; then
     if [[ -n "$STAGED_SWIFT" ]]; then
@@ -103,7 +103,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 3: Build check (critical)
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[3/7]${NC} Building project..."
+echo -e "${BLUE}[3/8]${NC} Building project..."
 
 # Only do full build if Swift files changed
 if [[ -n "$STAGED_SWIFT" ]]; then
@@ -131,7 +131,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 4: Version consistency (strict when committing version-related files)
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[4/7]${NC} Checking version consistency..."
+echo -e "${BLUE}[4/8]${NC} Checking version consistency..."
 
 # Check if version-related files are being committed
 VERSION_FILES_STAGED=$(git diff --cached --name-only | grep -E "(VERSION\.txt|CHANGELOG|README\.md|STATUS\.md|RECOVERY\.md|PROJECT_CONTEXT\.md|CLAUDE_PROJECT_KNOWLEDGE\.md|project\.json|project\.pbxproj)" || true)
@@ -158,7 +158,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 5: No debug code left behind
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[5/7]${NC} Checking for debug artifacts..."
+echo -e "${BLUE}[5/8]${NC} Checking for debug artifacts..."
 
 DEBUG_PATTERNS=(
     "print(\"DEBUG"
@@ -189,7 +189,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 6: Large files check
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[6/7]${NC} Checking for large files..."
+echo -e "${BLUE}[6/8]${NC} Checking for large files..."
 
 LARGE_FILES=$(git diff --cached --name-only | while read file; do
     if [[ -f "$file" ]]; then
@@ -211,7 +211,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # Check 7: Duplicate filename detection
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${BLUE}[7/7]${NC} Checking for duplicate filenames..."
+echo -e "${BLUE}[7/8]${NC} Checking for duplicate filenames..."
 
 # Get newly added Swift files
 ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep "\.swift$" || true)
@@ -240,6 +240,68 @@ if [[ -n "$ADDED_FILES" ]]; then
     fi
 else
     echo -e "  ${GREEN}✓${NC} No new Swift files added"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Check 8: Test coverage check (50% minimum)
+# ─────────────────────────────────────────────────────────────────────────────
+echo -e "${BLUE}[8/8]${NC} Checking test coverage..."
+
+# Only run coverage check when Swift source files are staged
+STAGED_SOURCE=$(git diff --cached --name-only --diff-filter=ACM | grep "^CloudSyncApp/.*\.swift$" || true)
+
+if [[ -n "$STAGED_SOURCE" ]]; then
+    # Use temp result bundle for reliable coverage extraction
+    RESULT_BUNDLE="/tmp/PreCommitTestResults.xcresult"
+    rm -rf "$RESULT_BUNDLE" 2>/dev/null || true
+
+    # Run unit tests with coverage enabled (skip UI tests for speed)
+    TEST_OUTPUT=$(xcodebuild test \
+        -project CloudSyncApp.xcodeproj \
+        -scheme CloudSyncApp \
+        -destination 'platform=macOS' \
+        -skip-testing:CloudSyncAppUITests \
+        -enableCodeCoverage YES \
+        -resultBundlePath "$RESULT_BUNDLE" \
+        -quiet \
+        2>&1) || TEST_FAILED=1
+
+    # Check for result bundle (created even with expected failures)
+    if [[ -d "$RESULT_BUNDLE" ]]; then
+        # Get coverage report (line 3 has overall coverage after header/dashes)
+        COVERAGE_LINE=$(xcrun xccov view --report "$RESULT_BUNDLE" 2>/dev/null | head -3 | tail -1)
+
+        if [[ -n "$COVERAGE_LINE" ]]; then
+            # Extract percentage (format: "Name  XX.XX% (n/m)")
+            COVERAGE_PCT=$(echo "$COVERAGE_LINE" | grep -oE "[0-9]+\.[0-9]+%" | head -1 | tr -d '%')
+
+            if [[ -n "$COVERAGE_PCT" ]]; then
+                COVERAGE_INT=$(echo "$COVERAGE_PCT" | cut -d'.' -f1)
+
+                if [[ $COVERAGE_INT -ge 50 ]]; then
+                    echo -e "  ${GREEN}✓${NC} Coverage: ${COVERAGE_INT}% (minimum: 50%)"
+                else
+                    echo -e "  ${YELLOW}⚠${NC} Coverage: ${COVERAGE_INT}% (below 50% minimum)"
+                    echo -e "      Consider adding tests to improve coverage"
+                    WARNINGS=$((WARNINGS + 1))
+                fi
+            else
+                echo -e "  ${YELLOW}⚠${NC} Could not parse coverage data"
+            fi
+        else
+            echo -e "  ${YELLOW}⚠${NC} Coverage report not available"
+        fi
+
+        # Cleanup
+        rm -rf "$RESULT_BUNDLE" 2>/dev/null || true
+    elif [[ -n "$TEST_FAILED" ]]; then
+        echo -e "  ${RED}✗${NC} Tests failed - cannot check coverage"
+        ERRORS=$((ERRORS + 1))
+    else
+        echo -e "  ${YELLOW}⚠${NC} No test results generated"
+    fi
+else
+    echo -e "  ${GREEN}✓${NC} Skipped (no source changes)"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
