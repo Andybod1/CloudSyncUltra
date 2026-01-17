@@ -303,6 +303,8 @@ struct TestConnectionStep: View {
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
         case .jottacloud:
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
+        case .googlePhotos:
+            try await rclone.setupGooglePhotos(remoteName: rcloneName)
         case .flickr:
             try await rclone.setupFlickr(remoteName: rcloneName)
         case .sugarsync:

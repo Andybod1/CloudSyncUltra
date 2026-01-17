@@ -1787,7 +1787,19 @@ class RcloneManager {
     }
     
     // MARK: - OAuth Services Expansion: Media & Consumer
-    
+
+    func setupGooglePhotos(remoteName: String) async throws {
+        // Google Photos uses OAuth - opens browser for authentication
+        // CRITICAL: Must pass read_only=true to request photoslibrary.readonly scope
+        // Without this, Google returns 403 PERMISSION_DENIED - insufficient authentication scopes
+        // See: https://rclone.org/googlephotos/#standard-options
+        try await createRemoteInteractive(
+            name: remoteName,
+            type: "gphotos",
+            additionalParams: ["read_only": "true"]
+        )
+    }
+
     func setupFlickr(remoteName: String) async throws {
         // Flickr uses OAuth - opens browser for authentication
         try await createRemoteInteractive(name: remoteName, type: "flickr")

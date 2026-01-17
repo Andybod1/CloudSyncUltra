@@ -53,6 +53,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     case jottacloud = "jottacloud"
     
     // OAuth Services Expansion: Media & Consumer
+    case googlePhotos = "gphotos"
     case flickr = "flickr"
     case sugarsync = "sugarsync"
     case opendrive = "opendrive"
@@ -111,6 +112,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "Jottacloud"
         
         // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "Google Photos"
         case .flickr: return "Flickr"
         case .sugarsync: return "SugarSync"
         case .opendrive: return "OpenDrive"
@@ -170,6 +172,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return "cloud.fill"
 
         // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "photo.on.rectangle.angled"
         case .flickr: return "camera.fill"
         case .sugarsync: return "arrow.triangle.2.circlepath"
         case .opendrive: return "externaldrive.fill"
@@ -229,6 +232,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .jottacloud: return Color(hex: "0093C5")   // Jottacloud Blue
 
         // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return Color(hex: "4285F4") // Google Blue
         case .flickr: return Color(hex: "0063DC")       // Flickr Blue
         case .sugarsync: return Color(hex: "00ABE6")    // SugarSync Blue
         case .opendrive: return Color(hex: "4AAB4F")    // OpenDrive Green
@@ -285,12 +289,13 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "jottacloud"
-        
+
         // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "gphotos"
         case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
-        
+
         // OAuth Expansion: Specialized & Enterprise
         case .putio: return "putio"
         case .premiumizeme: return "premiumizeme"
@@ -298,7 +303,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .filefabric: return "filefabric"
         }
     }
-    
+
     /// Default rclone remote name for this provider type
     var defaultRcloneName: String {
         switch self {
@@ -342,18 +347,19 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // Additional Providers
         case .jottacloud: return "jottacloud"
-        
+
         // OAuth Expansion: Media & Consumer
+        case .googlePhotos: return "gphotos"
         case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
-        
+
         // OAuth Expansion: Specialized & Enterprise
         case .putio: return "putio"
         case .premiumizeme: return "premiumizeme"
         case .quatrix: return "quatrix"
         case .filefabric: return "filefabric"
-        
+
         default: return rawValue
         }
     }
@@ -384,7 +390,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         switch self {
         case .googleDrive, .dropbox, .oneDrive, .box, .yandexDisk,
              .googleCloudStorage, .oneDriveBusiness, .sharepoint,
-             .flickr, .sugarsync, .opendrive,
+             .googlePhotos, .flickr, .sugarsync, .opendrive,
              .putio, .premiumizeme, .quatrix, .filefabric, .pcloud:
             return true
         default:

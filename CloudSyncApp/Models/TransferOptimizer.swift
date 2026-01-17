@@ -31,8 +31,8 @@ struct ChunkSizeConfig {
              .azureBlob, .alibabaOSS:
             return 16 * 1024 * 1024  // 16MB - object storage optimized
 
-        // Google Drive - optimized for resumable uploads API
-        case .googleDrive:
+        // Google Drive/Photos - optimized for resumable uploads API
+        case .googleDrive, .googlePhotos:
             return 8 * 1024 * 1024   // 8MB - resumable uploads
 
         // OneDrive - Microsoft recommended (multiple of 320KB)
