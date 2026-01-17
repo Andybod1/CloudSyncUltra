@@ -114,6 +114,27 @@ check_file \
     "" \
     ".claude-team/PROJECT_CONTEXT.md"
 
+# README.md - looks for "# CloudSync Ultra v2.0.33"
+check_file \
+    "$PROJECT_ROOT/README.md" \
+    "# CloudSync Ultra v$VERSION" \
+    "" \
+    "README.md"
+
+# project.json - looks for "version": "2.0.33"
+check_file \
+    "$PROJECT_ROOT/project.json" \
+    "\"version\": \"$VERSION\"" \
+    "" \
+    "project.json"
+
+# project.pbxproj - looks for MARKETING_VERSION = 2.0.33
+check_file \
+    "$PROJECT_ROOT/CloudSyncApp.xcodeproj/project.pbxproj" \
+    "MARKETING_VERSION = $VERSION" \
+    "" \
+    "project.pbxproj (MARKETING_VERSION)"
+
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 

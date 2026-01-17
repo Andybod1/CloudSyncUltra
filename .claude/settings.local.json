@@ -80,7 +80,11 @@
       "Bash(git log:*)",
       "Bash(sort:*)",
       "Bash(xcrun docc:*)",
-      "Bash(git describe:*)"
+      "Bash(git describe:*)",
+      "Bash(while read fname)",
+      "Bash(do echo \"=== $fname ===\" find /Users/antti/claude -type f -name \"$fname\")",
+      "Bash(for fname in \"CloudSyncAppUITests.swift\" \"DashboardUITests.swift\" \"FileBrowserUITests.swift\" \"SettingsView.swift\" \"TasksUITests.swift\" \"TransferViewUITests.swift\" \"WorkflowUITests.swift\")",
+      "Bash(tree:*)"
     ]
   }
 }
