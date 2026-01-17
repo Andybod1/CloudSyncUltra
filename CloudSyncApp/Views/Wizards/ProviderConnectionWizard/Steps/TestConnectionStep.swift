@@ -350,20 +350,28 @@ struct TestStepRow: View {
     }
 }
 
-#Preview {
-    @Previewable @State var isConnecting = false
-    @Previewable @State var connectionError: String?
-    @Previewable @State var isConnected = false
+struct TestConnectionStep_Previews: PreviewProvider {
+    struct PreviewWrapper: View {
+        @State var isConnecting = false
+        @State var connectionError: String?
+        @State var isConnected = false
 
-    TestConnectionStep(
-        provider: .googleDrive,
-        remoteName: "Google Drive",
-        username: "user@example.com",
-        password: "password",
-        twoFactorCode: "",
-        isConnecting: $isConnecting,
-        connectionError: $connectionError,
-        isConnected: $isConnected
-    )
-    .frame(width: 700, height: 600)
+        var body: some View {
+            TestConnectionStep(
+                provider: .googleDrive,
+                remoteName: "Google Drive",
+                username: "user@example.com",
+                password: "password",
+                twoFactorCode: "",
+                isConnecting: $isConnecting,
+                connectionError: $connectionError,
+                isConnected: $isConnected
+            )
+            .frame(width: 700, height: 600)
+        }
+    }
+
+    static var previews: some View {
+        PreviewWrapper()
+    }
 }

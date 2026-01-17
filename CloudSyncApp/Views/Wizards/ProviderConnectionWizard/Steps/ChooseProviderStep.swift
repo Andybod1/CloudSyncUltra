@@ -261,13 +261,21 @@ struct WizardProviderCard: View {
     }
 }
 
-#Preview {
-    @Previewable @State var selectedProvider: CloudProviderType?
-    @Previewable @State var remoteName = ""
+struct ChooseProviderStep_Previews: PreviewProvider {
+    struct PreviewWrapper: View {
+        @State var selectedProvider: CloudProviderType?
+        @State var remoteName = ""
 
-    ChooseProviderStep(
-        selectedProvider: $selectedProvider,
-        remoteName: $remoteName
-    )
-    .frame(width: 700, height: 600)
+        var body: some View {
+            ChooseProviderStep(
+                selectedProvider: $selectedProvider,
+                remoteName: $remoteName
+            )
+            .frame(width: 700, height: 600)
+        }
+    }
+
+    static var previews: some View {
+        PreviewWrapper()
+    }
 }

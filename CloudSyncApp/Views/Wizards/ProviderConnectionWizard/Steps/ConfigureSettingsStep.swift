@@ -360,16 +360,24 @@ struct ConfigureSettingsStep: View {
     }
 }
 
-#Preview {
-    @Previewable @State var username = ""
-    @Previewable @State var password = ""
-    @Previewable @State var twoFactorCode = ""
+struct ConfigureSettingsStep_Previews: PreviewProvider {
+    struct PreviewWrapper: View {
+        @State var username = ""
+        @State var password = ""
+        @State var twoFactorCode = ""
 
-    ConfigureSettingsStep(
-        provider: .protonDrive,
-        username: $username,
-        password: $password,
-        twoFactorCode: $twoFactorCode
-    )
-    .frame(width: 700, height: 600)
+        var body: some View {
+            ConfigureSettingsStep(
+                provider: .protonDrive,
+                username: $username,
+                password: $password,
+                twoFactorCode: $twoFactorCode
+            )
+            .frame(width: 700, height: 600)
+        }
+    }
+
+    static var previews: some View {
+        PreviewWrapper()
+    }
 }
