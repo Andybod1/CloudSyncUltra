@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Kind</key>
+    <string>Xcode.IDEFoundation.TextSubstitutionFileTemplateKind</string>
+    <key>Description</key>
+    <string>An ObservableObject ViewModel following CloudSync Ultra conventions.</string>
+    <key>Summary</key>
+    <string>A ViewModel with @MainActor and @Published properties</string>
+    <key>SortOrder</key>
+    <string>2</string>
+    <key>DefaultCompletionName</key>
+    <string>ViewModel</string>
+    <key>Platforms</key>
+    <array>
+        <string>com.apple.platform.macosx</string>
+    </array>
+    <key>Options</key>
+    <array>
+        <dict>
+            <key>Identifier</key>
+            <string>productName</string>
+            <key>Required</key>
+            <true/>
+            <key>Name</key>
+            <string>Name:</string>
+            <key>Description</key>
+            <string>The name of the view model</string>
+            <key>Type</key>
+            <string>text</string>
+            <key>NotPersisted</key>
+            <true/>
+        </dict>
+    </array>
+</dict>
+</plist>

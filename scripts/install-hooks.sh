@@ -70,6 +70,21 @@ chmod +x "$HOOKS_DIR/commit-msg"
 
 echo -e "  ${GREEN}✓${NC} commit-msg hook installed"
 
+# Install pre-push hook
+echo -e "${BLUE}Installing pre-push hook...${NC}"
+
+if [[ -f "$HOOKS_DIR/pre-push" ]]; then
+    echo -e "  ${YELLOW}⚠${NC} Existing pre-push hook found"
+    echo -e "  ${YELLOW}  Backing up to pre-push.backup${NC}"
+    mv "$HOOKS_DIR/pre-push" "$HOOKS_DIR/pre-push.backup"
+fi
+
+# Copy hook
+cp "$SCRIPT_DIR/pre-push" "$HOOKS_DIR/pre-push"
+chmod +x "$HOOKS_DIR/pre-push"
+
+echo -e "  ${GREEN}✓${NC} pre-push hook installed"
+
 # Verify installation
 echo ""
 echo -e "${BLUE}Verifying installation...${NC}"
@@ -85,6 +100,13 @@ if [[ -x "$HOOKS_DIR/commit-msg" ]]; then
     echo -e "  ${GREEN}✓${NC} commit-msg is executable"
 else
     echo -e "  ${RED}✗${NC} commit-msg not executable"
+    exit 1
+fi
+
+if [[ -x "$HOOKS_DIR/pre-push" ]]; then
+    echo -e "  ${GREEN}✓${NC} pre-push is executable"
+else
+    echo -e "  ${RED}✗${NC} pre-push not executable"
     exit 1
 fi
 

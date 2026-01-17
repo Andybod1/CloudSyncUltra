@@ -74,6 +74,17 @@ if command -v gh &> /dev/null; then
     STALE_COUNT=$(gh issue list --state open --json createdAt 2>/dev/null | jq "[.[] | select(.createdAt < \"$(date -v-30d +%Y-%m-%dT%H:%M:%SZ)\")] | length" 2>/dev/null || echo "0")
 fi
 
+# TODO/FIXME counts (code health indicators)
+TODO_COUNT=0
+FIXME_COUNT=0
+HACK_COUNT=0
+if [[ -d "CloudSyncApp" ]]; then
+    TODO_COUNT=$(grep -rE "//\s*(TODO|@todo)" CloudSyncApp/ --include="*.swift" 2>/dev/null | wc -l | tr -d ' ')
+    FIXME_COUNT=$(grep -rE "//\s*(FIXME|@fixme)" CloudSyncApp/ --include="*.swift" 2>/dev/null | wc -l | tr -d ' ')
+    HACK_COUNT=$(grep -rE "//\s*(HACK|XXX)" CloudSyncApp/ --include="*.swift" 2>/dev/null | wc -l | tr -d ' ')
+fi
+CODE_DEBT=$((TODO_COUNT + FIXME_COUNT + HACK_COUNT))
+
 # Test count and trend (from metrics CSV)
 TEST_COUNT="0"
 TEST_TREND=""
@@ -256,6 +267,8 @@ fi
 [[ "$OUTPUT_FILES" -gt 20 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Output files piling up ($OUTPUT_FILES). "
 [[ "$VELOCITY" -lt -5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 10)) && HEALTH_ISSUES+="Negative velocity. "
 [[ "$STALE_COUNT" -gt 5 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="$STALE_COUNT stale issues. "
+[[ "$CODE_DEBT" -ge 30 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="Code debt ($CODE_DEBT items). "
+[[ "$FIXME_COUNT" -ge 10 ]] && HEALTH_SCORE=$((HEALTH_SCORE - 5)) && HEALTH_ISSUES+="$FIXME_COUNT FIXMEs need attention. "
 
 # Health color
 HEALTH_COLOR=$GREEN
@@ -367,9 +380,14 @@ printf "${BOLD}   %-25s %-25s %-25s${NC}\n" "📦 RELEASE" "🧪 QUALITY" "📈 
 echo -e "${DIM}   ─────────────────────── ─────────────────────── ───────────────────────${NC}"
 TEST_DISPLAY="$TEST_COUNT ✅"
 [[ -n "$TEST_TREND" ]] && TEST_DISPLAY="$TEST_COUNT $TEST_TREND"
+# Code debt color (green if <10, yellow if <30, red if >=30)
+DEBT_COLOR=$GREEN
+[[ $CODE_DEBT -ge 10 ]] && DEBT_COLOR=$YELLOW
+[[ $CODE_DEBT -ge 30 ]] && DEBT_COLOR=$RED
 printf "   Version:    ${GREEN}%-13s${NC} Tests:     ${GREEN}%-13s${NC} 7-Day:     ${VELOCITY_COLOR}%s %+d${NC}\n" "v$VERSION" "$TEST_DISPLAY" "$VELOCITY_ICON" "$VELOCITY"
 printf "   Tag:        ${CYAN}%-13s${NC} Build:     ${BUILD_COLOR}%-13s${NC} Opened:    %-13s\n" "$LATEST_TAG" "$BUILD_TEXT $BUILD_STATUS" "$OPENED_7D"
 printf "   Versions:   %-13s CI:        ${CI_COLOR}%-20s${NC} Closed:    ${GREEN}%-13s${NC}\n" "$VERSION_OK" "$CI_STATUS $CI_TEXT" "$CLOSED_7D"
+printf "                             Code Debt: ${DEBT_COLOR}%-13s${NC}\n" "$CODE_DEBT items"
 
 echo ""
 echo -e "${BOLD}${BLUE}───────────────────────────────────────────────────────────────────────────${NC}"
@@ -474,6 +492,16 @@ fi
 
 if [[ "$OPEN_PRS" -gt 0 ]]; then
     echo -e "   ${CYAN}●${NC} $OPEN_PRS open pull request(s) awaiting review"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$FIXME_COUNT" -ge 10 ]]; then
+    echo -e "   ${YELLOW}●${NC} $FIXME_COUNT FIXME comments need resolution"
+    ((ALERT_COUNT++))
+fi
+
+if [[ "$CODE_DEBT" -ge 30 ]]; then
+    echo -e "   ${DIM}●${NC} Code debt: $TODO_COUNT TODOs, $FIXME_COUNT FIXMEs, $HACK_COUNT HACKs"
     ((ALERT_COUNT++))
 fi
 
