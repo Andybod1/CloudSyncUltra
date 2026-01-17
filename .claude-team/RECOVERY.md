@@ -1,8 +1,8 @@
 # CloudSync Ultra - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
-> **Current Version:** v2.0.32
-> **Last Updated:** 2026-01-15
+> **Current Version:** v2.0.33
+> **Last Updated:** 2026-01-17
 
 ---
 
@@ -164,15 +164,14 @@ Marketing-Strategist: Read /Users/antti/Claude/.claude-team/templates/MARKETING_
 
 ---
 
-## Current State (v2.0.32)
+## Current State (v2.0.33)
 
-### Just Completed: v2.0.32 Sprint
-- ✅ **StoreKit 2 Subscriptions** (#46) - Free/Pro/Team tiers
-- ✅ **Security Hardening** (#74) - Path sanitization, secure file handling
-- ✅ **Legal Compliance** - Privacy Policy, ToS, GDPR/CCPA docs
-- ✅ **Marketing Package** - Positioning, landing page, press kit
-- ✅ **App Store Assets** (#78) - Description, keywords, metadata
-- ✅ **841 tests** (831 passing, 10 expected failures)
+### Just Completed: v2.0.33 Sprint
+- ✅ **Schedule Wizard Folder Browser** - Path picker for source/destination
+- ✅ **Encryption Setup Integration** - Toggle prompts for password setup
+- ✅ **Error Message Improvements** - Human-readable TransferError messages
+- ✅ **Sync Progress Fixes** - "Already in sync" instead of "No data"
+- ✅ **855 tests** (845 passing, 10 expected failures)
 
 ### v2.0.22 Sprint
 - ✅ Quick Actions Menu (#49) - Cmd+Shift+N shortcut
@@ -260,5 +259,5 @@ git log --oneline -5
 
 ---
 
-*Last Updated: 2026-01-15*
-*CloudSync Ultra v2.0.32*
+*Last Updated: 2026-01-17*
+*CloudSync Ultra v2.0.33*

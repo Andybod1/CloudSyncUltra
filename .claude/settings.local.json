@@ -79,7 +79,8 @@
       "Bash(swiftlint lint:*)",
       "Bash(git log:*)",
       "Bash(sort:*)",
-      "Bash(xcrun docc:*)"
+      "Bash(xcrun docc:*)",
+      "Bash(git describe:*)"
     ]
   }
 }

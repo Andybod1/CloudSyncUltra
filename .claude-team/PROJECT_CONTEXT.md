@@ -2,7 +2,7 @@
 
 > Single file containing everything needed to restore full context.
 > Use this after computer crash or starting fresh session.
-> **Version:** 2.0.32 | **Updated:** 2026-01-15
+> **Version:** 2.0.33 | **Updated:** 2026-01-17
 
 ---
 
@@ -13,7 +13,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.32 |
+| **Version** | 2.0.33 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Project Board** | https://github.com/users/andybod1-lang/projects/1 |
@@ -215,11 +215,15 @@ gh issue view <number>
 
 ## Recent History
 
-### v2.0.32 - 2026-01-15 (Current)
-- **Keyboard Navigation** (#54) - Full app navigation support
-- **Input Validation** (#75) - Data handling and security
-- **Brand Identity Docs** (#79) - Visual identity and branding
-- **Worker Quality Standards** (Pillar 7) - Operational excellence
+### v2.0.33 - 2026-01-17 (Current)
+- **Schedule Wizard Folder Browser** - Path picker for source/destination
+- **Encryption Setup Integration** - Toggle prompts for password setup
+- **Error Message Improvements** - Human-readable TransferError messages
+- **Sync Progress Fixes** - "Already in sync" instead of "No data"
+
+### v2.0.32 - 2026-01-16
+- **Interactive Onboarding** (#83) - Wizards integrated into onboarding flow
+- **Windows Port Research** (#65) - Architecture feasibility study
 
 ### v2.0.24 - 2026-01-15
 - **Launch Ready Sprint** - StoreKit 2 subscriptions, security hardening
@@ -254,5 +258,5 @@ Then tell me what state we're in and what needs to happen next.
 
 ---
 
-*Last Updated: 2026-01-15*
-*CloudSync Ultra v2.0.32*
+*Last Updated: 2026-01-17*
+*CloudSync Ultra v2.0.33*
