@@ -124,6 +124,8 @@
 		FB01 /* FeedbackCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB02 /* FeedbackCategory.swift */; };
 		FB03 /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB04 /* FeedbackManager.swift */; };
 		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
+		SUP01 /* SupportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP02 /* SupportManager.swift */; };
+		SUP03 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP04 /* SupportView.swift */; };
 		FEE0B457B924834A99AEE7A8 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D49B2D17312CF790988F9C /* SecurityManager.swift */; };
 		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
 		SCHED001 /* ScheduleWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED101 /* ScheduleWizardView.swift */; };
@@ -281,6 +283,8 @@
 		FB02 /* FeedbackCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackCategory.swift; path = CloudSyncApp/Models/FeedbackCategory.swift; sourceTree = SOURCE_ROOT; };
 		FB04 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackManager.swift; path = CloudSyncApp/FeedbackManager.swift; sourceTree = SOURCE_ROOT; };
 		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
+		SUP02 /* SupportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportManager.swift; path = CloudSyncApp/SupportManager.swift; sourceTree = SOURCE_ROOT; };
+		SUP04 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportView.swift; path = CloudSyncApp/Views/SupportView.swift; sourceTree = SOURCE_ROOT; };
 		FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED101 /* ScheduleWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/ScheduleWizardView.swift; sourceTree = SOURCE_ROOT; };
@@ -412,6 +416,7 @@
 				59D49B2D17312CF790988F9C /* SecurityManager.swift */,
 				43097CB31FE0746630E17F49 /* AuthRateLimiter.swift */,
 				FB04 /* FeedbackManager.swift */,
+				SUP02 /* SupportManager.swift */,
 			);
 			path = CloudSyncApp;
 			sourceTree = "<group>";
@@ -531,6 +536,7 @@
 				8787F26DDBDE93A2675DDA33 /* SubscriptionView.swift */,
 				94A865AA92D3853E31E7C05D /* PerformanceSettingsView.swift */,
 				FB06 /* FeedbackView.swift */,
+				SUP04 /* SupportView.swift */,
 				90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */,
 			);
 			path = Views;
@@ -741,6 +747,8 @@
 				FB01 /* FeedbackCategory.swift in Sources */,
 				FB03 /* FeedbackManager.swift in Sources */,
 				FB05 /* FeedbackView.swift in Sources */,
+				SUP01 /* SupportManager.swift in Sources */,
+				SUP03 /* SupportView.swift in Sources */,
 				ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

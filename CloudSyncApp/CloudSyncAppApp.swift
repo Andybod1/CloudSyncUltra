@@ -69,8 +69,13 @@ struct CloudSyncAppApp: App {
                 .keyboardShortcut("3", modifiers: .command)
             }
 
-            // Help menu - Send Feedback (Issue #97)
+            // Help menu - Send Feedback (Issue #97) + Support
             CommandGroup(replacing: .help) {
+                Button("Support Center...") {
+                    NotificationCenter.default.post(name: .showSupport, object: nil)
+                }
+                .keyboardShortcut("/", modifiers: [.command])
+
                 Button("Send Feedback...") {
                     NotificationCenter.default.post(name: .showFeedback, object: nil)
                 }
@@ -80,6 +85,12 @@ struct CloudSyncAppApp: App {
 
                 Button("CloudSync Ultra Help") {
                     if let url = URL(string: "https://github.com/Andybod1/CloudSyncUltra/wiki") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+
+                Button("GitHub Discussions") {
+                    if let url = URL(string: "https://github.com/Andybod1/CloudSyncUltra/discussions") {
                         NSWorkspace.shared.open(url)
                     }
                 }
@@ -159,4 +170,5 @@ extension Notification.Name {
     static let syncStatusChanged = Notification.Name("SyncStatusChanged")
     static let showQuickActions = Notification.Name("showQuickActions")
     static let showFeedback = Notification.Name("showFeedback")
+    static let showSupport = Notification.Name("showSupport")
 }

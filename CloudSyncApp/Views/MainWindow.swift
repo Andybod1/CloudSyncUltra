@@ -34,6 +34,7 @@ struct MainWindow: View {
     @State private var showAddRemoteSheet = false
     @State private var showConnectionWizard = false
     @State private var showFeedbackSheet = false
+    @State private var showSupportSheet = false
 
     enum SidebarSection: Hashable {
         case dashboard
@@ -128,8 +129,14 @@ struct MainWindow: View {
         .sheet(isPresented: $showFeedbackSheet) {
             FeedbackView()
         }
+        .sheet(isPresented: $showSupportSheet) {
+            SupportView()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .showFeedback)) { _ in
             showFeedbackSheet = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showSupport)) { _ in
+            showSupportSheet = true
         }
     }
     
