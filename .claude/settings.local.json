@@ -65,7 +65,21 @@
       "Bash(./scripts/archive-outputs.sh:*)",
       "Bash(while read ts file)",
       "Bash(done)",
-      "Bash(./scripts/release.sh:*)"
+      "Bash(./scripts/release.sh:*)",
+      "Bash(~/.claude-team/scripts/launch_single_worker.sh:*)",
+      "Bash(~/Claude/.claude-team/scripts/launch_single_worker.sh:*)",
+      "Bash(./scripts/add-files-to-xcode.sh:*)",
+      "Bash(killall:*)",
+      "Bash(rclone copy:*)",
+      "Bash(for f in .claude-team/PROJECT_CONTEXT.md .claude-team/OPERATIONAL_EXCELLENCE.md .claude-team/RECOVERY.md CLAUDE_PROJECT_KNOWLEDGE.md templates/project-ops-kit/CLAUDE_PROJECT_KNOWLEDGE.md)",
+      "Bash(do sed -i s/2.0.29/2.0.32/g $f)",
+      "Bash(rclone listremotes:*)",
+      "Bash(swiftlint version:*)",
+      "Bash(brew install:*)",
+      "Bash(swiftlint lint:*)",
+      "Bash(git log:*)",
+      "Bash(sort:*)",
+      "Bash(xcrun docc:*)"
     ]
   }
 }

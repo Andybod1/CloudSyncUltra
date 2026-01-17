@@ -296,7 +296,7 @@ final class SyncManagerPhase2Tests: XCTestCase {
         // Given: Test progress
         var progress = SyncProgress()
         progress.percent = 50
-        progress.speed = 1000000  // 1 MB/s in bytes
+        progress.speed = "1.0 MiB/s"
         
         // When: Setting progress
         syncManager.currentProgress = progress
@@ -312,21 +312,21 @@ final class SyncManagerPhase2Tests: XCTestCase {
         // 25%
         var progress25 = SyncProgress()
         progress25.percent = 25
-        progress25.speed = 500000  // 500 KB/s
+        progress25.speed = "500.0 KiB/s"
         syncManager.currentProgress = progress25
         XCTAssertEqual(syncManager.currentProgress?.percent, 25)
         
         // 50%
         var progress50 = SyncProgress()
         progress50.percent = 50
-        progress50.speed = 1000000  // 1 MB/s
+        progress50.speed = "1.0 MiB/s"
         syncManager.currentProgress = progress50
         XCTAssertEqual(syncManager.currentProgress?.percent, 50)
         
         // 75%
         var progress75 = SyncProgress()
         progress75.percent = 75
-        progress75.speed = 1500000  // 1.5 MB/s
+        progress75.speed = "1.5 MiB/s"
         syncManager.currentProgress = progress75
         XCTAssertEqual(syncManager.currentProgress?.percent, 75)
         
@@ -341,7 +341,7 @@ final class SyncManagerPhase2Tests: XCTestCase {
         // Given: Progress is set
         var progress = SyncProgress()
         progress.percent = 50
-        progress.speed = 1000000  // 1 MB/s
+        progress.speed = "1.0 MiB/s"
         syncManager.currentProgress = progress
         XCTAssertNotNil(syncManager.currentProgress)
         

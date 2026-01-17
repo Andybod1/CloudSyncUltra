@@ -3,7 +3,7 @@
 
 > **Goal:** World-class operations that guarantee world-class product
 > **Status:** Template - Customize for your project
-> **Last Updated:** 2026-01-15
+> **Last Updated:** 2026-01-16
 
 ---
 
@@ -75,7 +75,7 @@ gh api repos/{owner}/{repo}/branches/main/protection
 | Project config | ✅ Done | `project.json` | Centralized metadata |
 | Auto-generate doc stats | ✅ Done | `scripts/generate-stats.sh` | Code/git/issue stats |
 | Decision Log (ADRs) | ✅ Done | `docs/decisions/` | Template included |
-| API/Architecture docs | ❌ TODO | Auto-generated | From code comments |
+| API/Architecture docs | 🔲 Setup | `scripts/build-docs.sh` | Swift-DocC (see guide below) |
 
 ---
 
@@ -130,7 +130,7 @@ gh api repos/{owner}/{repo}/branches/main/protection
 ./scripts/generate-stats.sh         # Auto-generate project stats
 ./scripts/record-test-count.sh      # Record test count to CSV
 
-# Session management  
+# Session management
 ./scripts/save-session.sh           # Quick session summary
 
 # Version & release
@@ -141,6 +141,10 @@ gh api repos/{owner}/{repo}/branches/main/protection
 # Quality & health
 ./scripts/dashboard.sh              # Project health dashboard
 ./scripts/install-hooks.sh          # Install pre-commit hooks
+
+# Documentation
+./scripts/build-docs.sh             # Build Swift-DocC documentation
+./scripts/build-docs.sh --open      # Build and open in Xcode
 ```
 
 ---
@@ -205,6 +209,88 @@ gh api repos/{owner}/{repo}/branches/main/protection
 - CI must pass before merging
 - Direct pushes to main will be blocked
 - Update Pillar 2 to 100% 🎉
+
+---
+
+## Swift-DocC Setup Guide 📚
+
+**Why:** Auto-generated API documentation stays in sync with code (single source of truth)
+
+### Quick Setup
+
+1. **Run the build script (creates template if needed):**
+```bash
+./scripts/build-docs.sh
+```
+
+2. **Edit the generated documentation catalog:**
+```
+YourApp/YourApp.docc/
+├── YourApp.md          # Landing page - edit topics
+├── GettingStarted.md   # Tutorial article
+└── Resources/          # Images, etc.
+```
+
+3. **Build and view:**
+```bash
+./scripts/build-docs.sh --open
+```
+
+### Landing Page Template
+
+```markdown
+# ``YourApp``
+
+Brief description of your app.
+
+## Overview
+
+Detailed overview of features and capabilities.
+
+## Topics
+
+### Essentials
+- <doc:GettingStarted>
+- <doc:Architecture>
+
+### Core Types
+- ``MainModel``
+- ``ViewModel``
+- ``Manager``
+```
+
+### Writing Good Doc Comments
+
+Use `///` comments in Swift for auto-generated docs:
+
+```swift
+/// Manages cloud storage operations.
+///
+/// Use this manager to list, upload, and download files
+/// from configured cloud providers.
+///
+/// - Note: Requires rclone to be installed.
+class CloudManager {
+    /// Lists files at the specified path.
+    /// - Parameters:
+    ///   - path: The remote path to list
+    ///   - recursive: Whether to list subdirectories
+    /// - Returns: Array of file items
+    /// - Throws: `CloudError` if the operation fails
+    func listFiles(at path: String, recursive: Bool) async throws -> [FileItem]
+}
+```
+
+### View in Xcode
+
+1. Product → Build Documentation (⌃⇧⌘D)
+2. Window → Developer Documentation
+3. Search for your module name
+
+### After Setup
+
+- Update Pillar 3 to 100% 🎉
+- Add documentation build to CI (optional)
 
 ---
 

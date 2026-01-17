@@ -454,7 +454,7 @@ final class SyncManagerTests: XCTestCase {
         // Given: A test progress
         var progress = SyncProgress()
         progress.percent = 50
-        progress.speed = 1500000  // 1.5 MB/s in bytes
+        progress.speed = "1.5 MiB/s"
         
         // When: Setting current progress
         syncManager.currentProgress = progress
@@ -468,7 +468,7 @@ final class SyncManagerTests: XCTestCase {
         // When: Setting progress
         var progress = SyncProgress()
         progress.percent = 75
-        progress.speed = 2000000  // 2 MB/s
+        progress.speed = "2.0 MiB/s"
         syncManager.currentProgress = progress
         
         // Then: Should be retrievable
@@ -480,13 +480,13 @@ final class SyncManagerTests: XCTestCase {
         // Given: Initial progress
         var initialProgress = SyncProgress()
         initialProgress.percent = 25
-        initialProgress.speed = 500000  // 500 KB/s
+        initialProgress.speed = "500.0 KiB/s"
         syncManager.currentProgress = initialProgress
         
         // When: Updating progress
         var newProgress = SyncProgress()
         newProgress.percent = 75
-        newProgress.speed = 2000000  // 2 MB/s
+        newProgress.speed = "2.0 MiB/s"
         syncManager.currentProgress = newProgress
         
         // Then: Should be updated
@@ -619,7 +619,7 @@ final class SyncManagerTests: XCTestCase {
         syncManager.syncStatus = .syncing
         var progress = SyncProgress()
         progress.percent = 50
-        progress.speed = 1000000  // 1 MB/s
+        progress.speed = "1.0 MiB/s"
         syncManager.currentProgress = progress
         
         // When: Stopping monitoring

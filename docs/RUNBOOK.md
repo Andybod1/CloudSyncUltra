@@ -47,6 +47,16 @@ xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp 2>&1 | grep
 ./scripts/dashboard.sh
 ```
 
+### Build API Documentation
+
+```bash
+# Build and open documentation in Xcode
+./scripts/build-docs.sh --open
+
+# Or build via Xcode: Product → Build Documentation (⌃⇧⌘D)
+# Then view: Window → Developer Documentation
+```
+
 ---
 
 ## Sprint Operations

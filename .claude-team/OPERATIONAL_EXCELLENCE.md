@@ -12,13 +12,13 @@
 ```
 Pillar 1: Automation First       [██████████] 100%
 Pillar 2: Quality Gates          [██████████] 100%
-Pillar 3: Single Source of Truth [█████████░] 90%
+Pillar 3: Single Source of Truth [██████████] 100%
 Pillar 4: Metrics & Visibility   [██████████] 100%
 Pillar 5: Knowledge Management   [██████████] 100%
 Pillar 6: Business Operations    [█████░░░░░] 50%  ⚠️ Focus area
 Pillar 7: Worker Quality         [██████████] 100%
 ─────────────────────────────────────────────────
-Overall Progress                 [█████████░] 91%
+Overall Progress                 [█████████░] 93%
 ```
 
 ---
@@ -63,7 +63,7 @@ Overall Progress                 [█████████░] 91%
 | Project config | ✅ Done | `project.json` | Centralized metadata |
 | Auto-generate doc stats | ✅ Done | `scripts/generate-stats.sh` | Code/git/issue stats |
 | Decision Log (ADRs) | ✅ Done | `docs/decisions/` | 3 ADRs documented |
-| API/Architecture docs | ❌ TODO | Auto-generated | From code comments |
+| API/Architecture docs | ✅ Done | `CloudSyncApp.docc` | Swift-DocC auto-generated |
 
 ---
 
@@ -173,6 +173,9 @@ Overall Progress                 [█████████░] 91%
 
 ## Recent Improvements (2026-01-16)
 
+- ✅ Swift-DocC documentation catalog added (`CloudSyncApp.docc`)
+- ✅ Documentation build script created (`scripts/build-docs.sh`)
+- ✅ Pillar 3 completed - API docs now auto-generated
 - ✅ VERSION.txt updated to 2.0.32
 - ✅ Test metrics CSV updated with v2.0.32 count
 - ✅ Dashboard alerts cleaned up (stale blockers removed)

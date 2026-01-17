@@ -190,6 +190,12 @@ class ScheduleManager: ObservableObject {
 
     // MARK: - Execution
 
+    /// Look up rclone config name from display name
+    private func rcloneName(for displayName: String) -> String {
+        let remotesVM = RemotesViewModel.shared
+        return remotesVM.configuredRemotes.first { $0.name == displayName }?.rcloneName ?? displayName
+    }
+
     func executeSchedule(_ schedule: SyncSchedule) async {
         guard let index = schedules.firstIndex(where: { $0.id == schedule.id }) else { return }
         guard currentlyExecutingScheduleId == nil else {
@@ -200,13 +206,19 @@ class ScheduleManager: ObservableObject {
         print("[ScheduleManager] Executing '\(schedule.name)'")
         currentlyExecutingScheduleId = schedule.id
 
-        // Create task
+        // Look up actual rclone config names from display names
+        let sourceRcloneName = rcloneName(for: schedule.sourceRemote)
+        let destRcloneName = rcloneName(for: schedule.destinationRemote)
+        print("[ScheduleManager] Source: \(schedule.sourceRemote) -> \(sourceRcloneName)")
+        print("[ScheduleManager] Dest: \(schedule.destinationRemote) -> \(destRcloneName)")
+
+        // Create task with rclone config names
         let task = SyncTask(
             name: "Scheduled: \(schedule.name)",
             type: schedule.syncType,
-            sourceRemote: schedule.sourceRemote,
+            sourceRemote: sourceRcloneName,
             sourcePath: schedule.sourcePath,
-            destinationRemote: schedule.destinationRemote,
+            destinationRemote: destRcloneName,
             destinationPath: schedule.destinationPath,
             encryptSource: schedule.encryptSource,
             encryptDestination: schedule.encryptDestination

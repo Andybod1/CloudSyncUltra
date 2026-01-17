@@ -47,6 +47,16 @@ cd /path/to/project
 ./scripts/dashboard.sh
 ```
 
+### Build API Documentation
+
+```bash
+# Build and open documentation
+./scripts/build-docs.sh --open
+
+# For Xcode projects: Product → Build Documentation (⌃⇧⌘D)
+# Then view: Window → Developer Documentation
+```
+
 ---
 
 ## Sprint Operations

@@ -114,6 +114,8 @@ class TasksViewModel: ObservableObject {
                 updatedTask.speed = progress.speed  // Pass through raw speed string from rclone
                 updatedTask.filesTransferred = progress.filesTransferred
                 updatedTask.totalFiles = progress.totalFiles
+                updatedTask.bytesTransferred = progress.bytesTransferred
+                updatedTask.totalBytes = progress.totalBytes
                 updateTask(updatedTask)
             }
             
