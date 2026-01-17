@@ -2107,7 +2107,8 @@ class RcloneManager {
                 process.standardOutput = pipe
                 process.standardError = pipe
 
-                var hasYieldedProgress = false
+                // Use nonisolated(unsafe) since we synchronize via waitUntilExit
+                nonisolated(unsafe) var hasYieldedProgress = false
 
                 pipe.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
@@ -3219,8 +3220,9 @@ class RcloneManager {
 
                 self.logger.info("Cloud-to-cloud with progress: \(source, privacy: .private) -> \(destination, privacy: .private)")
 
-                var errorOutput = ""
-                var currentProgress = SyncProgress()
+                // Use nonisolated(unsafe) since we synchronize via waitUntilExit
+                nonisolated(unsafe) var errorOutput = ""
+                nonisolated(unsafe) var currentProgress = SyncProgress()
 
                 pipe.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData

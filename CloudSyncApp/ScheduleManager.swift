@@ -115,8 +115,9 @@ class ScheduleManager: ObservableObject {
 
         // Background check every minute to catch any missed schedules
         backgroundCheckTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            guard let strongSelf = self else { return }
             Task { @MainActor in
-                self?.checkForDueSchedules()
+                strongSelf.checkForDueSchedules()
             }
         }
 
@@ -157,10 +158,10 @@ class ScheduleManager: ObservableObject {
 
         // Create new timer
         let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            guard let strongSelf = self else { return }
             Task { @MainActor in
-                guard let self = self else { return }
-                if let current = self.schedules.first(where: { $0.id == schedule.id }), current.isEnabled {
-                    await self.executeSchedule(current)
+                if let current = strongSelf.schedules.first(where: { $0.id == schedule.id }), current.isEnabled {
+                    await strongSelf.executeSchedule(current)
                 }
             }
         }

@@ -34,18 +34,19 @@ class StatusBarController: NSObject {
         
         // Update menu every 0.1 seconds for real-time transfer progress (same speed as main window)
         updateTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let strongSelf = self else { return }
             Task { @MainActor in
                 // Check for active tasks and update icon
                 let tasksVM = TasksViewModel.shared
                 let hasActiveTasks = tasksVM.tasks.contains { $0.state == .running }
-                
+
                 if hasActiveTasks {
-                    self?.updateIcon(status: .syncing)
+                    strongSelf.updateIcon(status: .syncing)
                 } else {
-                    self?.updateIcon(status: self?.syncManager.syncStatus ?? .idle)
+                    strongSelf.updateIcon(status: strongSelf.syncManager.syncStatus)
                 }
-                
-                self?.updateMenu()
+
+                strongSelf.updateMenu()
             }
         }
         

@@ -78,8 +78,9 @@ class SyncManager: ObservableObject {
         // Setup periodic sync
         if autoSync {
             syncTimer = Timer.scheduledTimer(withTimeInterval: syncInterval, repeats: true) { [weak self] _ in
+                guard let strongSelf = self else { return }
                 Task { @MainActor in
-                    await self?.performSync()
+                    await strongSelf.performSync()
                 }
             }
         }
