@@ -9,19 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.33] - 2026-01-17
+## [2.0.34] - 2026-01-17
 
 ### Added
-- **Schedule Wizard Folder Browser** - Path picker for source/destination selection
-  - Native NSOpenPanel for Local Storage (handles macOS permissions)
-  - RemoteFolderBrowser for cloud remotes with breadcrumb navigation
-- **Encryption Setup Integration** - Toggle prompts for password setup when not configured
+- **Google Photos Provider** - Full support with read-only OAuth scope (#159)
+  - `googlePhotos` provider type with proper rclone gphotos backend
+  - Read-only scope prevents accidental deletions
+  - Transfer optimization with 8MB chunk size
 
-### Fixed
-- **TransferError Messages** - Now shows human-readable error messages instead of raw enum format
-- **Sync Progress Display** - Shows "Already in sync" instead of "No data" for completed tasks
-- **Upload/Download Alerts** - Separate error alerts for upload vs download failures
-- **Bisync Progress** - Added --progress and --stats flags for proper progress reporting
+### Research
+- **Enterprise Provider Integration Studies** (Sprint v2.0.34)
+  - SharePoint (#156): Already works, MEDIUM difficulty for custom OAuth
+  - OneDrive Business (#155): Already works, EASY
+  - Nextcloud (#139): Already works via WebDAV, EASY
+  - MEGA (#146): Needs 2FA field, MEDIUM
+  - Koofr (#147): Already works, EASY
+  - Finding: 4 of 5 providers already work with no code changes
 
 ---
 

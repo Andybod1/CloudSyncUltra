@@ -1,41 +1,30 @@
-# CloudSync Ultra - Sprint v2.0.33 Status
+# CloudSync Ultra - Sprint v2.0.34 Status
 
-**Version: v2.0.33**
+**Version: v2.0.34**
 
-## Current Sprint: v2.0.33 "Schedule Wizard Polish"
+## Current Sprint: v2.0.34 "Bug Fix + Enterprise Providers"
 **Duration:** 2026-01-17
 **Status:** ✅ SPRINT COMPLETE
 
 ## Completed Tasks
 
-### Schedule Wizard Improvements ✅
+### Google Photos OAuth Fix (#159) ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- Folder browser added to source/destination path selection
-- Native NSOpenPanel for Local Storage (handles macOS permissions)
-- RemoteFolderBrowser for cloud remotes with breadcrumb navigation
+- Added `googlePhotos` provider type to CloudProvider enum
+- Configured RcloneManager.setupGooglePhotos() with read_only=true scope
+- Prevents accidental deletions through API
 
-### Encryption Setup Integration ✅
+### Integration Studies Complete ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- Toggle prompts for password setup when encryption not configured
-- EncryptionSetupSheet properly integrated with wizard state
-- Fixed sheet presentation timing issues
+- SharePoint (#156): Already works, MEDIUM difficulty for enterprise OAuth
+- OneDrive Business (#155): Already works, EASY
+- Nextcloud (#139): Already works via WebDAV, EASY
+- MEGA (#146): Needs 2FA field, MEDIUM
+- Koofr (#147): Already works, EASY
 
-### Error Message Improvements ✅
-**Completed:** 2026-01-17
-**Deliverables:**
-- TransferError now conforms to LocalizedError
-- Human-readable error messages instead of raw enum format
-- Separate "Upload Error" vs "Download Error" alerts
-
-### Sync Progress Fixes ✅
-**Completed:** 2026-01-17
-**Deliverables:**
-- "Already in sync" displayed for completed tasks with no transfers
-- "Checking..." shown for running tasks instead of "No data"
-- Added --progress and --stats flags to bisync mode
-- Fallback progress when sync completes with nothing to transfer
+**Key Finding:** 4 of 5 providers need no code changes!
 
 ---
 
@@ -43,20 +32,21 @@
 
 | Task | Status |
 |------|--------|
-| Schedule Wizard Folder Browser | ✅ DONE |
-| Encryption Setup Integration | ✅ DONE |
-| TransferError LocalizedError | ✅ DONE |
-| Sync Progress "No data" Fix | ✅ DONE |
-| Upload/Download Error Alerts | ✅ DONE |
+| Google Photos OAuth Fix #159 | ✅ DONE |
+| SharePoint Study #156 | ✅ DONE |
+| OneDrive Business Study #155 | ✅ DONE |
+| Nextcloud Study #139 | ✅ DONE |
+| MEGA Study #146 | ✅ DONE |
+| Koofr Study #147 | ✅ DONE |
 
 ---
 
 ## Metrics
 
-- **Tests:** 855 (845 passing, 10 expected failures)
+- **Tests:** 855 (0 unexpected failures)
 - **Build:** ✅ PASSING
-- **Health Score:** 90%
-- **Operational Excellence:** 93%
+- **Health Score:** 75%
+- **Operational Excellence:** 100%
 
 ---
 

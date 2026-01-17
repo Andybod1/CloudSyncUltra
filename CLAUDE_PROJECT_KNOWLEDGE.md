@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.33 | **Updated:** 2026-01-17
+> **Version:** 2.0.34 | **Updated:** 2026-01-17
 
 ---
 
@@ -136,14 +136,17 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.33 - Sprint "Schedule Wizard Polish"
-- ✅ **Schedule Wizard Folder Browser** - Added folder picker for source/destination paths
-- ✅ **Encryption Setup Integration** - Toggle prompts for password when not configured
-- ✅ **Error Message Improvements** - TransferError now shows human-readable messages
-- ✅ **Sync Progress Fixes** - "Already in sync" instead of "No data" for completed tasks
-- ✅ **Local Storage Permissions** - Native NSOpenPanel for macOS folder access
-- ✅ **855 tests** (845 passing, 10 expected failures)
-- ✅ **Operational Excellence at 93%**
+### Just Completed: v2.0.34 - Sprint "Bug Fix + Enterprise Providers"
+- ✅ **Google Photos OAuth Fix** (#159) - Added read_only=true scope
+- ✅ **Integration Studies Complete** - 5 provider research reports
+  - SharePoint: Already works (MEDIUM for enterprise OAuth)
+  - OneDrive Business: Already works (EASY)
+  - Nextcloud: Already works via WebDAV (EASY)
+  - MEGA: Needs 2FA field (MEDIUM)
+  - Koofr: Already works (EASY)
+- ✅ **Key Finding:** 4 of 5 providers need no code changes
+- ✅ **855 tests** (0 unexpected failures)
+- ✅ **Operational Excellence at 100%**
 
 ### Strategic: Billion Dollar Framework
 - Revenue target: $50M ARR within 3 years

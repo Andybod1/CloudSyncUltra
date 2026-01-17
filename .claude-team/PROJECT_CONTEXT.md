@@ -2,7 +2,7 @@
 
 > Single file containing everything needed to restore full context.
 > Use this after computer crash or starting fresh session.
-> **Version:** 2.0.33 | **Updated:** 2026-01-17
+> **Version:** 2.0.34 | **Updated:** 2026-01-17
 
 ---
 
@@ -13,7 +13,7 @@
 | **Name** | CloudSync Ultra |
 | **Type** | macOS Cloud Sync Application |
 | **Tech** | SwiftUI + rclone |
-| **Version** | 2.0.33 |
+| **Version** | 2.0.34 |
 | **Location** | `/Users/antti/Claude/` |
 | **GitHub** | https://github.com/andybod1-lang/CloudSyncUltra |
 | **Project Board** | https://github.com/users/andybod1-lang/projects/1 |
@@ -215,7 +215,7 @@ gh issue view <number>
 
 ## Recent History
 
-### v2.0.33 - 2026-01-17 (Current)
+### v2.0.34 - 2026-01-17 (Current)
 - **Schedule Wizard Folder Browser** - Path picker for source/destination
 - **Encryption Setup Integration** - Toggle prompts for password setup
 - **Error Message Improvements** - Human-readable TransferError messages
@@ -259,4 +259,4 @@ Then tell me what state we're in and what needs to happen next.
 ---
 
 *Last Updated: 2026-01-17*
-*CloudSync Ultra v2.0.33*
+*CloudSync Ultra v2.0.34*
