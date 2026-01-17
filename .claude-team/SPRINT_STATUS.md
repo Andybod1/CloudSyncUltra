@@ -1,4 +1,4 @@
-# Sprint: v2.0.34 - Bug Fix + Enterprise Providers
+# Sprint: v2.0.35 - Cloud Storage & Protocols
 
 **Started:** 2026-01-17
 **Completed:** 2026-01-17
@@ -8,9 +8,9 @@
 
 ## Sprint Goal
 
-1. Fix the Google Photos OAuth bug (only open bug)
-2. Research top enterprise provider integrations (SharePoint, OneDrive Business)
-3. Research popular consumer/self-hosted options (Nextcloud, MEGA, Koofr)
+1. Implement MEGA 2FA support (from v2.0.34 study findings)
+2. Research S3-compatible cloud storage providers
+3. Research common file transfer protocols
 
 ---
 
@@ -18,53 +18,59 @@
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 159 | [Bug] Google Photos OAuth scope insufficient | Dev-1 | S | ✅ Done |
-| 156 | [Integration Study]: SharePoint | Architect-1 | L | ✅ Done |
-| 155 | [Integration Study]: OneDrive Business | Architect-2 | L | ✅ Done |
-| 139 | [Integration Study]: Nextcloud | Architect-3 | M | ✅ Done |
-| 146 | [Integration Study]: MEGA | Architect-4 | M | ✅ Done |
-| 147 | [Integration Study]: Koofr | Architect-5 | S | ✅ Done |
+| 160 | [Enhancement]: MEGA 2FA Support | Dev-1 | S | ✅ Done |
+| 126 | [Integration Study]: Amazon S3 | Architect-1 | M | ✅ Done |
+| 127 | [Integration Study]: Backblaze B2 | Architect-2 | M | ✅ Done |
+| 130 | [Integration Study]: Cloudflare R2 | Architect-3 | S | ✅ Done |
+| 142 | [Integration Study]: WebDAV | Architect-4 | M | ✅ Done |
+| 143 | [Integration Study]: SFTP | Architect-5 | M | ✅ Done |
 
-**Total Points:** 2S + 2L + 2M = ~6 story points
+**Total Points:** 2S + 4M = ~5 story points
 
 ---
 
 ## Results Summary
 
-### Bug Fix
-- **#159 Google Photos OAuth** - Fixed by adding `read_only=true` parameter to OAuth flow
+### Implementation
+- **#160 MEGA 2FA** - Added optional TOTP code field to MEGA wizard
 
 ### Integration Studies
 
 | Provider | Difficulty | Status | Notes |
 |----------|------------|--------|-------|
-| SharePoint | MEDIUM | Already works | Enterprise needs custom OAuth UI |
-| OneDrive Business | EASY | Already works | Same as personal OneDrive |
-| Nextcloud | EASY | Already works | Uses WebDAV, needs app passwords |
-| MEGA | MEDIUM | Needs 2FA field | Has bandwidth quota limits |
-| Koofr | EASY | Already works | Can connect external clouds |
+| Amazon S3 | EASY | Already works | Full implementation complete |
+| Backblaze B2 | EASY | Already works | Native B2 API supported |
+| Cloudflare R2 | EASY | Already works | S3-compatible, zero egress fees |
+| WebDAV | EASY | Already works | Vendor-specific optimizations available |
+| SFTP | MEDIUM | Partially works | Needs SSH key authentication UI |
 
 ### Key Finding
-**4 of 5 providers already work** in CloudSync Ultra with no code changes needed!
+**5 of 6 providers already work** in CloudSync Ultra with no code changes needed!
 
 ---
 
 ## Deliverables
 
-- `.claude-team/outputs/DEV1_COMPLETE.md` - Google Photos fix details
-- `.claude-team/outputs/ARCHITECT1_SHAREPOINT.md` - SharePoint study (14KB)
-- `.claude-team/outputs/ARCHITECT2_ONEDRIVE_BUSINESS.md` - OneDrive Business study
-- `.claude-team/outputs/ARCHITECT3_NEXTCLOUD.md` - Nextcloud study
-- `.claude-team/outputs/ARCHITECT4_MEGA.md` - MEGA study (12KB)
-- `.claude-team/outputs/ARCHITECT5_KOOFR.md` - Koofr study
+- `.claude-team/outputs/DEV1_COMPLETE.md` - MEGA 2FA implementation
+- `.claude-team/outputs/ARCHITECT1_S3.md` - Amazon S3 study
+- `.claude-team/outputs/ARCHITECT2_B2.md` - Backblaze B2 study
+- `.claude-team/outputs/ARCHITECT3_R2.md` - Cloudflare R2 study
+- `.claude-team/outputs/ARCHITECT4_WEBDAV.md` - WebDAV study
+- `.claude-team/outputs/ARCHITECT5_SFTP.md` - SFTP study
+
+---
+
+## Follow-up Tickets Created
+
+- **#163**: SFTP SSH Key Authentication Support (from study findings)
 
 ---
 
 ## Previous Sprint
 
-**v2.0.32** - Completed 2026-01-16
-- ✅ #83: Interactive Onboarding
-- ✅ #65: Windows Port Research
+**v2.0.34** - Completed 2026-01-17
+- ✅ #159: Google Photos OAuth Fix
+- ✅ #156, #155, #139, #146, #147: Enterprise Provider Studies
 
 ---
 

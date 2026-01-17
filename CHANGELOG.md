@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.35] - 2026-01-17
+
+### Added
+- **MEGA 2FA Support** (#160) - Two-factor authentication for MEGA connections
+  - Optional TOTP code field in MEGA wizard
+  - Follows existing ProtonDrive 2FA pattern
+
+### Research
+- **Cloud Storage & Protocol Integration Studies** (Sprint v2.0.35)
+  - Amazon S3 (#126): Already works, EASY
+  - Backblaze B2 (#127): Already works, EASY
+  - Cloudflare R2 (#130): Already works, EASY
+  - WebDAV (#142): Already works, EASY
+  - SFTP (#143): Partially works, needs SSH key UI (MEDIUM)
+  - Finding: 5 of 6 providers already work with no code changes
+
+---
+
 ## [2.0.34] - 2026-01-17
 
 ### Added

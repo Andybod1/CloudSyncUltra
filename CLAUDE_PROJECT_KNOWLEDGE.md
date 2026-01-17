@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.34 | **Updated:** 2026-01-17
+> **Version:** 2.0.35 | **Updated:** 2026-01-17
 
 ---
 
@@ -136,17 +136,17 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.34 - Sprint "Bug Fix + Enterprise Providers"
-- ✅ **Google Photos OAuth Fix** (#159) - Added read_only=true scope
-- ✅ **Integration Studies Complete** - 5 provider research reports
-  - SharePoint: Already works (MEDIUM for enterprise OAuth)
-  - OneDrive Business: Already works (EASY)
-  - Nextcloud: Already works via WebDAV (EASY)
-  - MEGA: Needs 2FA field (MEDIUM)
-  - Koofr: Already works (EASY)
-- ✅ **Key Finding:** 4 of 5 providers need no code changes
+### Just Completed: v2.0.35 - Sprint "Cloud Storage & Protocols"
+- ✅ **MEGA 2FA Support** (#160) - Added optional TOTP code field
+- ✅ **Integration Studies Complete** - 6 provider research reports
+  - Amazon S3: Already works (EASY)
+  - Backblaze B2: Already works (EASY)
+  - Cloudflare R2: Already works (EASY)
+  - WebDAV: Already works (EASY)
+  - SFTP: Needs SSH key UI (MEDIUM)
+- ✅ **Key Finding:** 5 of 6 providers need no code changes
 - ✅ **855 tests** (0 unexpected failures)
-- ✅ **Operational Excellence at 100%**
+- ✅ **New ticket:** #163 SFTP SSH Key Support
 
 ### Strategic: Billion Dollar Framework
 - Revenue target: $50M ARR within 3 years

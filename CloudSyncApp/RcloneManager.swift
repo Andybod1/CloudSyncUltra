@@ -1251,14 +1251,20 @@ class RcloneManager {
         try await createRemote(name: remoteName, type: "s3", parameters: params)
     }
     
-    func setupMega(remoteName: String, username: String, password: String) async throws {
+    func setupMega(remoteName: String, username: String, password: String, mfaCode: String? = nil) async throws {
+        var params: [String: String] = [
+            "user": username,
+            "pass": password
+        ]
+
+        if let mfa = mfaCode, !mfa.isEmpty {
+            params["mfa"] = mfa
+        }
+
         try await createRemote(
             name: remoteName,
             type: "mega",
-            parameters: [
-                "user": username,
-                "pass": password
-            ]
+            parameters: params
         )
     }
     

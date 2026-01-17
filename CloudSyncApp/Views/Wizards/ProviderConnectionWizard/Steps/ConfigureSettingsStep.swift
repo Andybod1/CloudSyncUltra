@@ -14,7 +14,11 @@ struct ConfigureSettingsStep: View {
     @Binding var twoFactorCode: String
 
     private var needsTwoFactor: Bool {
-        provider == .protonDrive
+        provider == .protonDrive || provider == .mega
+    }
+
+    private var twoFactorLabel: String {
+        provider == .mega ? "2FA Code\n(if enabled)" : "2FA Code"
     }
 
     private var isICloud: Bool {
@@ -300,10 +304,10 @@ struct ConfigureSettingsStep: View {
                         .textFieldStyle(.roundedBorder)
                     }
 
-                    // 2FA field for ProtonDrive
+                    // 2FA field for ProtonDrive and MEGA
                     if needsTwoFactor {
                         HStack {
-                            Text("2FA Code")
+                            Text(twoFactorLabel)
                                 .frame(width: 100, alignment: .trailing)
                             TextField("123456", text: $twoFactorCode)
                                 .textFieldStyle(.roundedBorder)
@@ -340,7 +344,7 @@ struct ConfigureSettingsStep: View {
         case .s3:
             return "Enter your AWS Access Key ID as username and Secret Access Key as password."
         case .mega:
-            return "Use your MEGA email and password. App-specific passwords are recommended."
+            return "Use your MEGA email and password. If you have 2FA enabled, enter the current code from your authenticator app."
         default:
             return nil
         }

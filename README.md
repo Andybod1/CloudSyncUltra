@@ -1,4 +1,4 @@
-# CloudSync Ultra v2.0.34
+# CloudSync Ultra v2.0.35
 
 A powerful, native macOS cloud synchronization app built with SwiftUI. Manage all your cloud storage services from one beautiful interface.
 

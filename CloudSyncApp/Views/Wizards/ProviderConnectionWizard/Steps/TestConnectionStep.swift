@@ -290,7 +290,12 @@ struct TestConnectionStep: View {
         case .s3:
             try await rclone.setupS3(remoteName: rcloneName, accessKey: username, secretKey: password)
         case .mega:
-            try await rclone.setupMega(remoteName: rcloneName, username: username, password: password)
+            try await rclone.setupMega(
+                remoteName: rcloneName,
+                username: username,
+                password: password,
+                mfaCode: twoFactorCode.isEmpty ? nil : twoFactorCode
+            )
         case .box:
             try await rclone.setupBox(remoteName: rcloneName)
         case .pcloud:

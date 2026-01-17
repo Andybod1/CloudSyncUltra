@@ -1,30 +1,30 @@
-# CloudSync Ultra - Sprint v2.0.34 Status
+# CloudSync Ultra - Sprint v2.0.35 Status
 
-**Version: v2.0.34**
+**Version: v2.0.35**
 
-## Current Sprint: v2.0.34 "Bug Fix + Enterprise Providers"
+## Current Sprint: v2.0.35 "Cloud Storage & Protocols"
 **Duration:** 2026-01-17
 **Status:** ✅ SPRINT COMPLETE
 
 ## Completed Tasks
 
-### Google Photos OAuth Fix (#159) ✅
+### MEGA 2FA Support (#160) ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- Added `googlePhotos` provider type to CloudProvider enum
-- Configured RcloneManager.setupGooglePhotos() with read_only=true scope
-- Prevents accidental deletions through API
+- Added optional 2FA/TOTP field to MEGA provider wizard
+- Updated `setupMega()` to pass MFA code to rclone
+- Follows existing ProtonDrive 2FA pattern
 
 ### Integration Studies Complete ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- SharePoint (#156): Already works, MEDIUM difficulty for enterprise OAuth
-- OneDrive Business (#155): Already works, EASY
-- Nextcloud (#139): Already works via WebDAV, EASY
-- MEGA (#146): Needs 2FA field, MEDIUM
-- Koofr (#147): Already works, EASY
+- Amazon S3 (#126): Already works, EASY
+- Backblaze B2 (#127): Already works, EASY
+- Cloudflare R2 (#130): Already works, EASY
+- WebDAV (#142): Already works, EASY
+- SFTP (#143): Partially works, needs SSH key UI (MEDIUM)
 
-**Key Finding:** 4 of 5 providers need no code changes!
+**Key Finding:** 5 of 6 providers already work with no code changes!
 
 ---
 
@@ -32,12 +32,12 @@
 
 | Task | Status |
 |------|--------|
-| Google Photos OAuth Fix #159 | ✅ DONE |
-| SharePoint Study #156 | ✅ DONE |
-| OneDrive Business Study #155 | ✅ DONE |
-| Nextcloud Study #139 | ✅ DONE |
-| MEGA Study #146 | ✅ DONE |
-| Koofr Study #147 | ✅ DONE |
+| MEGA 2FA Support #160 | ✅ DONE |
+| Amazon S3 Study #126 | ✅ DONE |
+| Backblaze B2 Study #127 | ✅ DONE |
+| Cloudflare R2 Study #130 | ✅ DONE |
+| WebDAV Study #142 | ✅ DONE |
+| SFTP Study #143 | ✅ DONE |
 
 ---
 
@@ -46,7 +46,7 @@
 - **Tests:** 855 (0 unexpected failures)
 - **Build:** ✅ PASSING
 - **Health Score:** 75%
-- **Operational Excellence:** 100%
+- **Open Issues:** 26
 
 ---
 
