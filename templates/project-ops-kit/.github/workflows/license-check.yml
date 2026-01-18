@@ -1,0 +1,206 @@
+name: License Compliance Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'Podfile'
+      - 'Podfile.lock'
+      - 'Cartfile'
+      - 'Cartfile.resolved'
+      - '.github/workflows/license-check.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'Podfile'
+      - 'Podfile.lock'
+  schedule:
+    # Run monthly on the 1st at 5am UTC
+    - cron: '0 5 1 * *'
+  workflow_dispatch:
+
+jobs:
+  license-check:
+    name: Check Dependency Licenses
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check SPM Dependencies
+        id: spm
+        run: |
+          echo "🔍 Checking Swift Package Manager dependencies..."
+
+          ISSUES=0
+          WARNINGS=0
+
+          # Allowed licenses (permissive)
+          ALLOWED_LICENSES="MIT|Apache-2.0|BSD-2-Clause|BSD-3-Clause|ISC|Zlib|Unlicense|CC0-1.0"
+
+          # Problematic licenses (copyleft - may require source disclosure)
+          COPYLEFT_LICENSES="GPL|LGPL|AGPL|MPL|EPL|CDDL"
+
+          if [ -f "Package.resolved" ]; then
+            echo "Found Package.resolved"
+
+            # Extract package names and URLs
+            PACKAGES=$(cat Package.resolved | grep -E '"(identity|location)"' | paste - - | sed 's/.*identity.*: "\([^"]*\)".*location.*: "\([^"]*\)".*/\1: \2/')
+
+            echo ""
+            echo "Dependencies found:"
+            echo "$PACKAGES"
+
+            # Check each package (simplified - would need actual license lookup in production)
+            echo ""
+            echo "Note: Automated license detection requires API access to package registries."
+            echo "Manual review recommended for: "
+            echo "$PACKAGES" | while read pkg; do
+              echo "  - $pkg"
+            done
+
+          elif [ -f "Package.swift" ]; then
+            echo "Found Package.swift but no resolved file"
+            echo "Run 'swift package resolve' to generate Package.resolved"
+          else
+            echo "No Swift Package Manager configuration found"
+          fi
+
+          echo "spm_issues=$ISSUES" >> $GITHUB_OUTPUT
+
+      - name: Check Bundler Dependencies
+        id: bundler
+        if: hashFiles('Gemfile.lock') != ''
+        run: |
+          echo "🔍 Checking Ruby/Bundler dependencies..."
+
+          ISSUES=0
+
+          if [ -f "Gemfile.lock" ]; then
+            # Install license_finder if available
+            if command -v license_finder &> /dev/null; then
+              license_finder --quiet || ISSUES=$((ISSUES + 1))
+            else
+              echo "license_finder not installed - performing basic check"
+
+              # Extract gems from Gemfile.lock
+              GEMS=$(grep -A 1000 "^GEM" Gemfile.lock | grep -B 1000 "^PLATFORMS" | grep "^    [a-z]" | awk '{print $1}' | head -20)
+
+              echo "Bundler dependencies:"
+              echo "$GEMS"
+            fi
+          fi
+
+          echo "bundler_issues=$ISSUES" >> $GITHUB_OUTPUT
+
+      - name: Check for License Files
+        run: |
+          echo "🔍 Checking for license documentation..."
+
+          # Check if project has its own license
+          if [ -f "LICENSE" ] || [ -f "LICENSE.md" ] || [ -f "LICENSE.txt" ]; then
+            echo "✅ Project license file found"
+            head -5 LICENSE* 2>/dev/null || true
+          else
+            echo "⚠️ No LICENSE file found in project root"
+          fi
+
+          echo ""
+
+          # Check for third-party licenses directory
+          if [ -d "Licenses" ] || [ -d "ThirdPartyLicenses" ] || [ -d "Acknowledgements" ]; then
+            echo "✅ Third-party licenses directory found"
+            ls Licenses/ ThirdPartyLicenses/ Acknowledgements/ 2>/dev/null || true
+          else
+            echo "ℹ️ No dedicated third-party licenses directory"
+          fi
+
+      - name: Generate License Report
+        run: |
+          echo "### 📄 License Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Project license
+          if [ -f "LICENSE" ] || [ -f "LICENSE.md" ] || [ -f "LICENSE.txt" ]; then
+            LICENSE_TYPE=$(head -1 LICENSE* 2>/dev/null | head -1)
+            echo "**Project License:** Found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Project License:** ⚠️ Not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Dependency Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # SPM dependencies
+          if [ -f "Package.resolved" ]; then
+            PKG_COUNT=$(grep -c '"identity"' Package.resolved 2>/dev/null || echo "0")
+            echo "- **Swift Packages:** $PKG_COUNT dependencies" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Swift Packages:** None detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Bundler dependencies
+          if [ -f "Gemfile.lock" ]; then
+            GEM_COUNT=$(grep -c "^    [a-z]" Gemfile.lock 2>/dev/null || echo "0")
+            echo "- **Ruby Gems:** ~$GEM_COUNT dependencies" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Allowed Licenses" >> $GITHUB_STEP_SUMMARY
+          echo "- MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause" >> $GITHUB_STEP_SUMMARY
+          echo "- ISC, Zlib, Unlicense, CC0-1.0" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Licenses Requiring Review" >> $GITHUB_STEP_SUMMARY
+          echo "- GPL, LGPL, AGPL (copyleft)" >> $GITHUB_STEP_SUMMARY
+          echo "- MPL, EPL, CDDL (weak copyleft)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Ensure all dependencies use compatible licenses before release.*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create License Inventory
+        run: |
+          mkdir -p license-inventory
+
+          # Create inventory file
+          cat > license-inventory/DEPENDENCIES.md << 'EOF'
+          # Dependency License Inventory
+
+          ## Swift Package Manager Dependencies
+
+          | Package | License | Status |
+          |---------|---------|--------|
+          EOF
+
+          # Add SPM packages if available
+          if [ -f "Package.resolved" ]; then
+            grep '"identity"' Package.resolved | sed 's/.*: "\([^"]*\)".*/| \1 | TBD | Review |/' >> license-inventory/DEPENDENCIES.md
+          fi
+
+          cat >> license-inventory/DEPENDENCIES.md << 'EOF'
+
+          ## Ruby/Bundler Dependencies
+
+          See Gemfile.lock for complete list.
+
+          ## License Compliance Notes
+
+          - All dependencies should be reviewed before release
+          - Copyleft licenses (GPL, LGPL) require special handling
+          - Keep this inventory updated when adding new dependencies
+
+          ---
+          *Generated automatically by license-check workflow*
+          EOF
+
+      - name: Upload License Inventory
+        uses: actions/upload-artifact@v6
+        with:
+          name: license-inventory
+          path: license-inventory/
+          retention-days: 90
