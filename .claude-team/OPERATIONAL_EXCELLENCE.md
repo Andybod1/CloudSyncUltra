@@ -87,7 +87,8 @@ Health Score                     [█████████░] 95%  ↑
 | Item | Status | File | Notes |
 |------|--------|------|-------|
 | Version number | ✅ Done | `VERSION.txt` | All docs read from here |
-| Project config | ✅ Done | `project.json` | Centralized metadata |
+| Project config | ✅ Done | `project.json` | **Consolidated config with all thresholds** |
+| Config access script | ✅ Done | `scripts/config.sh` | `config.sh get thresholds.coverage.minimum` |
 | Auto-generate doc stats | ✅ Done | `scripts/generate-stats.sh` | Code/git/issue stats |
 | Decision Log (ADRs) | ✅ Done | `docs/decisions/` | 3 ADRs documented |
 | API/Architecture docs | ✅ Done | `CloudSyncApp.docc` | Swift-DocC auto-generated |
@@ -244,6 +245,10 @@ Health Score                     [█████████░] 95%  ↑
 ---
 
 ## Recent Improvements (2026-01-18)
+
+### Config Consolidation (Pillar 3++)
+- ✅ **Consolidated project.json** - All thresholds in single source of truth
+- ✅ **Config access script** - `scripts/config.sh get thresholds.coverage.minimum`
 
 ### Phase 2a Automation
 - ✅ **Complexity gate in CI** - Added complexity job to `.github/workflows/ci.yml`

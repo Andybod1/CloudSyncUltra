@@ -9,7 +9,7 @@
     "oauthProviders": 23,
     "tests": 855,
     "uiTests": 69,
-    "updated": "2026-01-16"
+    "updated": "2026-01-18"
   },
 
   "tech": {
@@ -17,7 +17,123 @@
     "minVersion": "14.0",
     "framework": "SwiftUI",
     "backend": "rclone",
-    "language": "Swift"
+    "language": "Swift",
+    "xcode": "15.0+"
+  },
+
+  "thresholds": {
+    "_comment": "Single source of truth for all quality thresholds",
+
+    "coverage": {
+      "minimum": 80,
+      "target": 90,
+      "ci": 80
+    },
+
+    "complexity": {
+      "maxFunctionLines": 50,
+      "maxFileLines": 500,
+      "maxNestingDepth": 4,
+      "maxParameters": 5,
+      "maxCyclomaticComplexity": 16
+    },
+
+    "linting": {
+      "fileLength": { "warning": 1200, "error": 2600 },
+      "typeBodyLength": { "warning": 600, "error": 2200 },
+      "functionBodyLength": { "warning": 120, "error": 700 },
+      "lineLength": { "warning": 120, "error": 200 },
+      "cyclomaticComplexity": { "warning": 16, "error": 40 }
+    },
+
+    "binary": {
+      "maxSizeMB": 35,
+      "baselineKB": 30924,
+      "alertOnIncreasePercent": 10
+    },
+
+    "pr": {
+      "warnLinesChanged": 500,
+      "blockLinesChanged": 1000
+    },
+
+    "issues": {
+      "staleAfterDays": 60,
+      "maxOpenIssues": 25
+    }
+  },
+
+  "ci": {
+    "mainBranch": "main",
+    "runner": "macos-14",
+    "workflows": {
+      "main": ".github/workflows/ci.yml",
+      "security": ".github/workflows/security.yml",
+      "performance": ".github/workflows/performance.yml"
+    },
+    "jobs": ["Build & Test", "Complexity Check", "Binary Size", "Memory Safety"],
+    "artifacts": {
+      "testResults": "test-results",
+      "coverage": "coverage-report",
+      "binarySize": "binary-size",
+      "complexity": "complexity-metrics"
+    },
+    "retentionDays": {
+      "testResults": 14,
+      "metrics": 90
+    }
+  },
+
+  "dependencies": {
+    "schedule": "weekly",
+    "day": "monday",
+    "ecosystems": ["github-actions", "swift", "bundler"],
+    "autoMerge": {
+      "patch": true,
+      "minor": true,
+      "major": false
+    }
+  },
+
+  "paths": {
+    "source": "CloudSyncApp/",
+    "tests": "CloudSyncAppTests/",
+    "uiTests": "CloudSyncAppUITests/",
+    "docs": "docs/",
+    "scripts": "scripts/",
+    "team": ".claude-team/",
+    "tasks": ".claude-team/tasks/",
+    "outputs": ".claude-team/outputs/",
+    "archive": ".claude-team/archive/",
+    "metrics": ".claude-team/metrics/"
+  },
+
+  "configFiles": {
+    "_comment": "Tool-specific configs that read from these thresholds",
+    "swiftlint": ".swiftlint.yml",
+    "muter": "muter.conf.yml",
+    "dependabot": ".github/dependabot.yml",
+    "preCommit": "scripts/pre-commit"
+  },
+
+  "scripts": {
+    "build": "xcodebuild build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp",
+    "test": "xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'",
+    "release": "./scripts/release.sh",
+    "dashboard": "./scripts/dashboard.sh",
+    "versionCheck": "./scripts/version-check.sh",
+    "updateVersion": "./scripts/update-version.sh",
+    "complexityCheck": "./scripts/complexity-check.sh",
+    "techDebt": "./scripts/track-tech-debt.sh",
+    "workerQA": "./scripts/worker-qa.sh"
+  },
+
+  "quality": {
+    "testCoverage": "target: 80%",
+    "ciPipeline": ".github/workflows/ci.yml",
+    "preCommitHooks": true,
+    "protectedBranch": true,
+    "healthScoreTarget": 95
   },
 
   "team": {
@@ -37,39 +153,18 @@
     "model": "opus"
   },
 
-  "paths": {
-    "source": "CloudSyncApp/",
-    "tests": "CloudSyncAppTests/",
-    "uiTests": "CloudSyncAppUITests/",
-    "docs": "docs/",
-    "scripts": "scripts/",
-    "team": ".claude-team/",
-    "tasks": ".claude-team/tasks/",
-    "outputs": ".claude-team/outputs/",
-    "archive": ".claude-team/archive/"
-  },
-
-  "scripts": {
-    "build": "xcodebuild build -project CloudSyncApp.xcodeproj -scheme CloudSyncApp",
-    "test": "xcodebuild test -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -destination 'platform=macOS'",
-    "release": "./scripts/release.sh",
-    "dashboard": "./scripts/dashboard.sh",
-    "versionCheck": "./scripts/version-check.sh",
-    "updateVersion": "./scripts/update-version.sh"
-  },
-
-  "quality": {
-    "testCoverage": "target: 80%",
-    "ciPipeline": ".github/workflows/ci.yml",
-    "preCommitHooks": true,
-    "protectedBranch": true,
-    "healthScore": 90
-  },
-
   "features": {
     "wizards": ["ProviderConnection", "Schedule", "Transfer"],
     "encryption": "E2E available to all users",
     "onboarding": "Interactive with wizard integration",
     "feedback": "In-app via GitHub issues"
+  },
+
+  "providers": {
+    "total": 42,
+    "oauth": ["Google Drive", "OneDrive", "Dropbox", "Box", "pCloud"],
+    "enterprise": ["SharePoint", "Azure Blob", "AWS S3", "Google Cloud Storage"],
+    "selfHosted": ["Nextcloud", "ownCloud", "Seafile", "WebDAV"],
+    "specialty": ["ProtonDrive", "MEGA", "Backblaze B2", "Storj"]
   }
 }
