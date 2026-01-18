@@ -51,29 +51,29 @@ final class MainWindowIntegrationTests: XCTestCase {
     }
     
     func testOAuthExpansionConfiguration() {
-        // Test OAuth expansion providers have configuration (Google Photos removed)
+        // Test OAuth expansion providers have configuration (Google Photos and Flickr removed)
         let oauthExpansion: [CloudProviderType] = [
-            .flickr, .sugarsync, .opendrive,
+            .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
-        
-        XCTAssertEqual(oauthExpansion.count, 7, "Should have 7 OAuth expansion providers")
-        
+
+        XCTAssertEqual(oauthExpansion.count, 6, "Should have 6 OAuth expansion providers")
+
         for provider in oauthExpansion {
             XCTAssertTrue(provider.isSupported, "\(provider.displayName) should be supported")
         }
     }
-    
+
     // MARK: - OAuth Provider Configuration Tests
-    
+
     func testOAuthProvidersNoCredentials() {
         // OAuth providers should not require credentials in UI
         let oauthProviders: [CloudProviderType] = [
             .googleDrive, .dropbox, .oneDrive, .box, .pcloud,
-            .flickr, .sugarsync, .opendrive,
+            .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
-        
+
         // OAuth providers use browser authentication
         for provider in oauthProviders {
             XCTAssertNotNil(provider.rcloneType)
@@ -142,9 +142,9 @@ final class MainWindowIntegrationTests: XCTestCase {
     
     func testCloudRemoteCreation() {
         let testProviders: [CloudProviderType] = [
-            .googleDrive, .dropbox, .pcloud, .flickr
+            .googleDrive, .dropbox, .pcloud, .sugarsync
         ]
-        
+
         for provider in testProviders {
             let remote = CloudRemote(
                 name: "Test \(provider.displayName)",
@@ -287,13 +287,13 @@ final class MainWindowIntegrationTests: XCTestCase {
     func testMultipleProvidersSupported() {
         // Should support connecting multiple providers simultaneously
         let providers: [CloudProviderType] = [
-            .googleDrive, .dropbox, .pcloud, .flickr, .protonDrive
+            .googleDrive, .dropbox, .pcloud, .sugarsync, .protonDrive
         ]
-        
+
         let remotes = providers.map { provider in
             CloudRemote(name: provider.displayName, type: provider, isConfigured: true)
         }
-        
+
         XCTAssertEqual(remotes.count, 5)
         XCTAssertEqual(Set(remotes.map { $0.type }).count, 5) // All unique
     }

@@ -67,7 +67,7 @@ struct ChunkSizeConfig {
             return 16 * 1024 * 1024  // 16MB
 
         // Media & consumer services
-        case .flickr, .sugarsync, .opendrive:
+        case .sugarsync, .opendrive:
             return 8 * 1024 * 1024   // 8MB
 
         // Specialized services

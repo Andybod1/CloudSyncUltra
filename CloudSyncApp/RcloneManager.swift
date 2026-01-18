@@ -1848,19 +1848,26 @@ class RcloneManager {
         )
     }
 
-    func setupFlickr(remoteName: String) async throws {
-        // Flickr uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "flickr")
-    }
-    
     func setupSugarSync(remoteName: String) async throws {
         // SugarSync uses OAuth - opens browser for authentication
         try await createRemoteInteractive(name: remoteName, type: "sugarsync")
     }
     
-    func setupOpenDrive(remoteName: String) async throws {
-        // OpenDrive uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "opendrive")
+    func setupOpenDrive(remoteName: String, username: String, password: String) async throws {
+        // OpenDrive uses username/password authentication (not OAuth)
+        // Password must be obscured for rclone config
+        let obscuredPassword = try await obscurePassword(password)
+
+        let params: [String: String] = [
+            "username": username,
+            "password": obscuredPassword
+        ]
+
+        try await createRemote(
+            name: remoteName,
+            type: "opendrive",
+            parameters: params
+        )
     }
     
     // MARK: - OAuth Services Expansion: Specialized & Enterprise

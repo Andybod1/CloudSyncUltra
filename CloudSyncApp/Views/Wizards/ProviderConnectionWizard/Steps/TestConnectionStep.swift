@@ -348,12 +348,14 @@ struct TestConnectionStep: View {
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
         case .googlePhotos:
             try await rclone.setupGooglePhotos(remoteName: rcloneName)
-        case .flickr:
-            try await rclone.setupFlickr(remoteName: rcloneName)
         case .sugarsync:
             try await rclone.setupSugarSync(remoteName: rcloneName)
         case .opendrive:
-            try await rclone.setupOpenDrive(remoteName: rcloneName)
+            try await rclone.setupOpenDrive(
+                remoteName: rcloneName,
+                username: username,
+                password: password
+            )
         case .putio:
             try await rclone.setupPutio(remoteName: rcloneName)
         case .premiumizeme:
@@ -362,6 +364,13 @@ struct TestConnectionStep: View {
             try await rclone.setupQuatrix(remoteName: rcloneName)
         case .filefabric:
             try await rclone.setupFileFabric(remoteName: rcloneName)
+        case .azureFiles:
+            // Azure Files uses account name and key
+            try await rclone.setupAzureFiles(
+                remoteName: rcloneName,
+                accountName: username,
+                accountKey: password
+            )
         default:
             throw RcloneError.configurationFailed("Provider \(provider.displayName) not yet supported")
         }

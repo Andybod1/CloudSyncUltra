@@ -54,7 +54,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
     
     // OAuth Services Expansion: Media & Consumer
     case googlePhotos = "gphotos"
-    case flickr = "flickr"
     case sugarsync = "sugarsync"
     case opendrive = "opendrive"
     
@@ -113,7 +112,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         
         // OAuth Expansion: Media & Consumer
         case .googlePhotos: return "Google Photos"
-        case .flickr: return "Flickr"
         case .sugarsync: return "SugarSync"
         case .opendrive: return "OpenDrive"
         
@@ -173,7 +171,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
 
         // OAuth Expansion: Media & Consumer
         case .googlePhotos: return "photo.on.rectangle.angled"
-        case .flickr: return "camera.fill"
         case .sugarsync: return "arrow.triangle.2.circlepath"
         case .opendrive: return "externaldrive.fill"
 
@@ -233,7 +230,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
 
         // OAuth Expansion: Media & Consumer
         case .googlePhotos: return Color(hex: "4285F4") // Google Blue
-        case .flickr: return Color(hex: "0063DC")       // Flickr Blue
         case .sugarsync: return Color(hex: "00ABE6")    // SugarSync Blue
         case .opendrive: return Color(hex: "4AAB4F")    // OpenDrive Green
 
@@ -292,7 +288,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
 
         // OAuth Expansion: Media & Consumer
         case .googlePhotos: return "gphotos"
-        case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
 
@@ -350,7 +345,6 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
 
         // OAuth Expansion: Media & Consumer
         case .googlePhotos: return "gphotos"
-        case .flickr: return "flickr"
         case .sugarsync: return "sugarsync"
         case .opendrive: return "opendrive"
 
@@ -363,7 +357,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         default: return rawValue
         }
     }
-    
+
     var isSupported: Bool {
         switch self {
         case .icloud: return true  // Enable iCloud
@@ -390,7 +384,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         switch self {
         case .googleDrive, .dropbox, .oneDrive, .box, .yandexDisk,
              .googleCloudStorage, .oneDriveBusiness, .sharepoint,
-             .googlePhotos, .flickr, .sugarsync, .opendrive,
+             .googlePhotos, .sugarsync,
              .putio, .premiumizeme, .quatrix, .filefabric, .pcloud:
             return true
         default:

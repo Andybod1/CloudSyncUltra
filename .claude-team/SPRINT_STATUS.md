@@ -1,91 +1,89 @@
-# Sprint: v2.0.38 - Provider Research Blitz
+# Sprint: v2.0.39 - Provider Bug Fixes
 
 **Started:** 2026-01-18
-**Status:** ✅ COMPLETE
+**Status:** 🟡 IN PROGRESS
 
 ---
 
 ## Sprint Goal
 
-Complete ALL 14 remaining integration studies → 100% provider research complete ✅
+Fix all critical/high priority provider bugs discovered in research sprint
 
 ---
 
-## Wave 1: First 5 Studies (Parallel)
+## Priority 1: Critical & Quick Wins
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 145 | [Integration Study]: Local Storage | Architect-1 | S | ✅ Complete |
-| 136 | [Integration Study]: Azure Files | Architect-2 | S | ✅ Complete |
-| 148 | [Integration Study]: Yandex Disk | Architect-3 | S | ✅ Complete |
-| 149 | [Integration Study]: Mail.ru Cloud | Architect-4 | S | ✅ Complete |
-| 150 | [Integration Study]: Flickr | Architect-5 | S | ✅ Complete |
+| 170 | OpenDrive OAuth → password auth | Dev-1 | M | ⬜ Pending |
+| 169 | Remove Flickr provider | Dev-2 | S | ⬜ Pending |
+| 166 | Azure Files TestConnectionStep | Dev-3 | S | ⬜ Pending |
 
-## Wave 2: Next 5 Studies (Parallel)
+## Priority 2: TestConnectionStep Fixes
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 141 | [Integration Study]: Seafile | Architect-1 | M | ✅ Complete |
-| 138 | [Integration Study]: Alibaba Cloud OSS | Architect-2 | M | ✅ Complete |
-| 132 | [Integration Study]: Oracle Cloud Object Storage | Architect-3 | M | ✅ Complete |
-| 151 | [Integration Study]: SugarSync | Architect-4 | S | ✅ Complete |
-| 152 | [Integration Study]: OpenDrive | Architect-5 | S | ✅ Complete |
+| 171 | Seafile TestConnectionStep + server URL | Dev-1 | M | ⬜ Pending |
+| 172 | Alibaba OSS TestConnectionStep + region | Dev-2 | M | ⬜ Pending |
+| 173 | FileFabric server URL field | Dev-3 | M | ⬜ Pending |
 
-## Wave 3: Final 4 Studies (Parallel)
+## Priority 3: Auth Pattern Fixes
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 158 | [Integration Study]: FileFabric | Architect-1 | M | ✅ Complete |
-| 157 | [Integration Study]: Quatrix | Architect-2 | M | ✅ Complete |
-| 154 | [Integration Study]: Premiumize.me | Architect-3 | S | ✅ Complete |
-| 153 | [Integration Study]: Put.io | Architect-4 | S | ✅ Complete |
+| 174 | Quatrix API key auth (not OAuth) | Dev-1 | M | ⬜ Pending |
+| 168 | Mail.ru app password guidance | Dev-2 | S | ⬜ Pending |
 
 ---
 
-## Key Findings
+## Worker Outputs
 
-### Fully Implemented (No Changes Needed)
-- ✅ Yandex Disk - OAuth working
-- ✅ Mail.ru Cloud - Working (needs app password docs)
-- ✅ Oracle Cloud - S3-compatible working
-- ✅ SugarSync - OAuth working
-- ✅ Premiumize.me - OAuth working
-- ✅ Put.io - OAuth working
+### Priority 1
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Dev-1 | #170 OpenDrive | outputs/DEV1_170_OPENDRIVE.md | ⬜ |
+| Dev-2 | #169 Flickr | outputs/DEV2_169_FLICKR.md | ⬜ |
+| Dev-3 | #166 Azure Files | outputs/DEV3_166_AZURE.md | ⬜ |
 
-### Bugs Found (Tickets Created)
-| # | Issue | Priority |
-|---|-------|----------|
-| #166 | Azure Files missing TestConnectionStep | High |
-| #167 | Local Storage security-scoped bookmarks | High |
-| #168 | Mail.ru app password guidance | Medium |
-| #169 | Remove Flickr - no rclone backend | High |
-| #170 | OpenDrive OAuth bug (uses password) | **Critical** |
-| #171 | Seafile missing TestConnectionStep | High |
-| #172 | Alibaba OSS missing region picker | High |
-| #173 | FileFabric missing server URL | High |
-| #174 | Quatrix API key auth (not OAuth) | Medium |
+### Priority 2
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Dev-1 | #171 Seafile | outputs/DEV1_171_SEAFILE.md | ⬜ |
+| Dev-2 | #172 Alibaba OSS | outputs/DEV2_172_ALIBABA.md | ⬜ |
+| Dev-3 | #173 FileFabric | outputs/DEV3_173_FILEFABRIC.md | ⬜ |
 
-### Invalid Provider
-- ❌ Flickr - rclone has NO backend, must be removed
+### Priority 3
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Dev-1 | #174 Quatrix | outputs/DEV1_174_QUATRIX.md | ⬜ |
+| Dev-2 | #168 Mail.ru | outputs/DEV2_168_MAILRU.md | ⬜ |
 
 ---
 
-## Sprint Outcomes
+## Progress Tracker
 
-- **14/14 studies complete** (100%)
-- **9 bug/enhancement tickets** created
-- **1 critical bug** found (OpenDrive)
-- **1 provider to remove** (Flickr)
-- **Provider research phase complete**
+- [ ] Priority 1: Critical & Quick Wins (0/3)
+- [ ] Priority 2: TestConnectionStep Fixes (0/3)
+- [ ] Priority 3: Auth Pattern Fixes (0/2)
+
+**Total:** 0/8 bugs fixed
+
+---
+
+## Deferred
+
+| # | Title | Reason |
+|---|-------|--------|
+| 167 | Local Storage security-scoped bookmarks | Enhancement, not blocking |
 
 ---
 
 ## Previous Sprint
 
-**v2.0.37** - Completed 2026-01-18
-- ✅ #165: ownCloud wizard fix
-- ✅ #164: FTPS security support
-- ✅ #129, #128, #131, #134: S3-compatible provider studies
+**v2.0.38** - Completed 2026-01-18
+- ✅ 14 integration studies completed
+- ✅ Provider research phase 100% complete
+- Created 9 bug/enhancement tickets
 
 ---
 

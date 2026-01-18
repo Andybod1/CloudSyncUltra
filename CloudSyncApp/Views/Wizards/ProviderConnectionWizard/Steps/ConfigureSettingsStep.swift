@@ -515,6 +515,10 @@ struct ConfigureSettingsStep: View {
             return "Enter your SSH host and username. You can authenticate with password, SSH key, or both."
         case .ftp:
             return "Enter your FTP server host and credentials. FTPS is recommended for secure connections."
+        case .opendrive:
+            return "Enter your OpenDrive account email and password."
+        case .azureFiles:
+            return "Enter your Azure Storage Account name as username and Access Key as password."
         default:
             return nil
         }

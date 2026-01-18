@@ -54,7 +54,6 @@ extension AppTheme {
         static let jottacloud = Color(hex: "0093C5")
 
         // Media & Specialty
-        static let flickr = Color(hex: "0063DC")
         static let sugarsync = Color(hex: "00ABE6")
         static let opendrive = Color(hex: "4AAB4F")
         static let putio = Color(hex: "F5A622")
@@ -128,8 +127,6 @@ extension AppTheme {
             return ProviderColors.mailRuCloud
         case "jottacloud":
             return ProviderColors.jottacloud
-        case "flickr":
-            return ProviderColors.flickr
         case "sugarsync":
             return ProviderColors.sugarsync
         case "opendrive":

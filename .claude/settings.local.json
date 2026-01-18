@@ -129,7 +129,8 @@
       "WebFetch(domain:docs.filebase.com)",
       "WebFetch(domain:filebase.com)",
       "WebFetch(domain:docs.digitalocean.com)",
-      "WebFetch(domain:simplebackups.com)"
+      "WebFetch(domain:simplebackups.com)",
+      "Bash(python3:*)"
     ]
   }
 }

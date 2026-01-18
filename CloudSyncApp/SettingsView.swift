@@ -986,8 +986,6 @@ struct RemoteDetailView: View {
                 try await RcloneManager.shared.setupPCloud(remoteName: remoteName)
             case .yandexDisk:
                 try await RcloneManager.shared.setupYandexDisk(remoteName: remoteName)
-            case .flickr:
-                try await RcloneManager.shared.setupFlickr(remoteName: remoteName)
             case .putio:
                 try await RcloneManager.shared.setupPutio(remoteName: remoteName)
             default:

@@ -878,12 +878,14 @@ struct ConnectRemoteSheet: View {
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
 
         // OAuth Expansion: Media & Consumer
-        case .flickr:
-            try await rclone.setupFlickr(remoteName: rcloneName)
         case .sugarsync:
             try await rclone.setupSugarSync(remoteName: rcloneName)
         case .opendrive:
-            try await rclone.setupOpenDrive(remoteName: rcloneName)
+            try await rclone.setupOpenDrive(
+                remoteName: rcloneName,
+                username: username,
+                password: password
+            )
 
         // OAuth Expansion: Specialized & Enterprise
         case .putio:

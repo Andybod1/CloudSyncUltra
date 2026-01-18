@@ -46,53 +46,53 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
         
         // Jottacloud: 1
         let jottacloud: [CloudProviderType] = [.jottacloud]
-        
-        // OAuth Expansion: 7 (Google Photos removed due to API limitations)
+
+        // OAuth Expansion: 7 (Flickr removed)
         let oauthExpansion: [CloudProviderType] = [
-            .flickr, .sugarsync, .opendrive,
+            .googlePhotos, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
-        
+
         XCTAssertEqual(original.count, 13, "Should have 13 original providers")
         XCTAssertEqual(week1.count, 6, "Should have 6 Week 1 providers")
         XCTAssertEqual(week2.count, 8, "Should have 8 Week 2 providers")
         XCTAssertEqual(week3.count, 6, "Should have 6 Week 3 providers")
         XCTAssertEqual(jottacloud.count, 1, "Should have 1 Jottacloud provider")
         XCTAssertEqual(oauthExpansion.count, 7, "Should have 7 OAuth expansion providers")
-        
+
         let total = original.count + week1.count + week2.count + week3.count + jottacloud.count + oauthExpansion.count
         XCTAssertEqual(total, 41, "Total should be 41 providers")
         XCTAssertEqual(allProviders.count, total, "AllCases should match counted total")
     }
-    
+
     // MARK: - OAuth Provider Tests
-    
+
     func testOAuthProviderCount() {
         let oauthProviders: [CloudProviderType] = [
             // Original OAuth (4)
             .googleDrive, .dropbox, .oneDrive, .box,
-            
+
             // Phase 1 OAuth (7)
             .yandexDisk, .pcloud, .koofr, .mailRuCloud,
             .sharepoint, .oneDriveBusiness, .googleCloudStorage,
-            
-            // OAuth Expansion (7) - Google Photos removed
-            .flickr, .sugarsync, .opendrive,
+
+            // OAuth Expansion (7) - Flickr removed
+            .googlePhotos, .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
-        
+
         XCTAssertEqual(oauthProviders.count, 18, "Should have 18 OAuth providers")
     }
-    
+
     func testAllOAuthProvidersAreSupported() {
         let oauthProviders: [CloudProviderType] = [
             .googleDrive, .dropbox, .oneDrive, .box,
             .yandexDisk, .pcloud, .koofr, .mailRuCloud,
             .sharepoint, .oneDriveBusiness, .googleCloudStorage,
-            .flickr, .sugarsync, .opendrive,
+            .sugarsync, .opendrive,
             .putio, .premiumizeme, .quatrix, .filefabric
         ]
-        
+
         for provider in oauthProviders {
             XCTAssertTrue(provider.isSupported, "\(provider.displayName) should be supported")
         }
@@ -127,17 +127,11 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     }
     
     func testMediaProviders() {
-        // Google Photos removed due to API limitations (March 2025)
-        let mediaProviders: [CloudProviderType] = [
-            .flickr
-        ]
-        
-        XCTAssertEqual(mediaProviders.count, 1, "Should have 1 media provider (Google Photos removed)")
-        
-        for provider in mediaProviders {
-            XCTAssertTrue(provider.isSupported)
-            XCTAssertFalse(provider.isExperimental)
-        }
+        // Google Photos and Flickr removed (no valid rclone backend)
+        // Note: No dedicated media providers remain after removals
+        let mediaProviders: [CloudProviderType] = []
+
+        XCTAssertEqual(mediaProviders.count, 0, "Should have 0 media providers (Google Photos and Flickr removed)")
     }
     
     func testObjectStorageProviders() {
@@ -379,12 +373,10 @@ final class CloudSyncUltraIntegrationTests: XCTestCase {
     
     func testUniqueFeatures() {
         // Features no competitor has
-        // Note: Google Photos removed due to API limitations
-        let mediaProviders: [CloudProviderType] = [.flickr]
+        // Note: Google Photos and Flickr removed (no valid rclone backend)
         let specializedProviders: [CloudProviderType] = [.putio, .premiumizeme]
         let nordicProviders: [CloudProviderType] = [.jottacloud]
-        
-        XCTAssertEqual(mediaProviders.count, 1, "Unique: 1 media provider")
+
         XCTAssertEqual(specializedProviders.count, 2, "Unique: 2 specialized providers")
         XCTAssertEqual(nordicProviders.count, 1, "Unique: Nordic coverage")
     }
