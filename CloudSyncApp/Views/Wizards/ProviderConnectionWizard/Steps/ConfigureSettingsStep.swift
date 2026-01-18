@@ -19,6 +19,8 @@ struct ConfigureSettingsStep: View {
     var useFTPS: Binding<Bool> = .constant(true)
     var useImplicitTLS: Binding<Bool> = .constant(false)  // false = Explicit (port 21), true = Implicit (port 990)
     var skipCertVerify: Binding<Bool> = .constant(false)
+    // Server URL for self-hosted providers (Seafile, etc.)
+    var serverURL: Binding<String> = .constant("")
 
     private var needsTwoFactor: Bool {
         provider == .protonDrive || provider == .mega
@@ -38,6 +40,14 @@ struct ConfigureSettingsStep: View {
 
     private var isFTP: Bool {
         provider == .ftp
+    }
+
+    private var isSeafile: Bool {
+        provider == .seafile
+    }
+
+    private var isFileFabric: Bool {
+        provider == .filefabric
     }
 
     var body: some View {
@@ -82,6 +92,8 @@ struct ConfigureSettingsStep: View {
     private var authenticationDescription: String {
         if isICloud {
             return "iCloud Drive can be accessed through your local Mac folder"
+        } else if isFileFabric {
+            return "Enter your File Fabric server URL, then authenticate via OAuth in your browser."
         } else if provider.requiresOAuth {
             return "This provider uses secure OAuth authentication. You'll be redirected to \(provider.displayName) to sign in."
         } else {
@@ -176,6 +188,48 @@ struct ConfigureSettingsStep: View {
     @ViewBuilder
     private var oauthConfiguration: some View {
         VStack(spacing: 20) {
+            // FileFabric Server URL field (required before OAuth)
+            if isFileFabric {
+                GroupBox {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "server.rack")
+                                .font(.title2)
+                                .foregroundColor(provider.brandColor)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Server Configuration")
+                                    .font(.headline)
+                                Text("Enter your File Fabric server URL")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        Divider()
+
+                        HStack {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.blue)
+                            Text("File Fabric requires your organization's server URL before authentication.")
+                                .font(.caption)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(8)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(6)
+
+                        HStack {
+                            Text("Server URL")
+                                .frame(width: 100, alignment: .trailing)
+                            TextField("https://yourfabric.smestorage.com", text: serverURL)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                    }
+                    .padding()
+                }
+            }
+
             // Account email field
             GroupBox {
                 VStack(spacing: 16) {
@@ -296,6 +350,19 @@ struct ConfigureSettingsStep: View {
                         .padding(8)
                         .background(Color.blue.opacity(0.1))
                         .cornerRadius(6)
+                    }
+
+                    // Server URL field for Seafile, FileFabric (and other self-hosted providers)
+                    if isSeafile || isFileFabric {
+                        HStack {
+                            Text("Server URL")
+                                .frame(width: 100, alignment: .trailing)
+                            TextField(
+                                isSeafile ? "https://cloud.seafile.com" : "https://yourfabric.smestorage.com",
+                                text: serverURL
+                            )
+                            .textFieldStyle(.roundedBorder)
+                        }
                     }
 
                     // Username field (hide for Jottacloud)
@@ -519,6 +586,12 @@ struct ConfigureSettingsStep: View {
             return "Enter your OpenDrive account email and password."
         case .azureFiles:
             return "Enter your Azure Storage Account name as username and Access Key as password."
+        case .seafile:
+            return "Enter your Seafile server URL (e.g., https://cloud.seafile.com), email, and password."
+        case .filefabric:
+            return "Enter your File Fabric server URL (e.g., https://yourfabric.smestorage.com), then authenticate via OAuth."
+        case .alibabaOSS:
+            return "Enter your Alibaba Cloud Access Key ID as username and Access Key Secret as password. Create keys in the RAM Console. Default region is Singapore (ap-southeast-1)."
         default:
             return nil
         }
@@ -555,6 +628,8 @@ struct ConfigureSettingsStep: View {
             return URL(string: "https://proton.me/support/proton-drive")
         case .s3:
             return URL(string: "https://aws.amazon.com/iam/")
+        case .alibabaOSS:
+            return URL(string: "https://ram.console.aliyun.com/")
         default:
             return nil
         }

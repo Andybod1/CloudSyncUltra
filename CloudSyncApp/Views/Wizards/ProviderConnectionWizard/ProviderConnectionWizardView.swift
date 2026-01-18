@@ -28,6 +28,9 @@ class ProviderConnectionWizardState: ObservableObject {
     @Published var useImplicitTLS: Bool = false  // Default: Explicit TLS (port 21)
     @Published var skipCertVerify: Bool = false  // Default: verify certificates
 
+    // Server URL for self-hosted providers (Seafile, etc.)
+    @Published var serverURL: String = ""
+
     func reset() {
         currentStep = 0
         selectedProvider = nil
@@ -43,6 +46,7 @@ class ProviderConnectionWizardState: ObservableObject {
         useFTPS = true
         useImplicitTLS = false
         skipCertVerify = false
+        serverURL = ""
     }
 }
 
@@ -103,7 +107,8 @@ struct ProviderConnectionWizardView: View {
                     sshKeyPassphrase: $wizardState.sshKeyPassphrase,
                     useFTPS: $wizardState.useFTPS,
                     useImplicitTLS: $wizardState.useImplicitTLS,
-                    skipCertVerify: $wizardState.skipCertVerify
+                    skipCertVerify: $wizardState.skipCertVerify,
+                    serverURL: $wizardState.serverURL
                 )
             case 2:
                 TestConnectionStep(
@@ -117,6 +122,7 @@ struct ProviderConnectionWizardView: View {
                     useFTPS: wizardState.useFTPS,
                     useImplicitTLS: wizardState.useImplicitTLS,
                     skipCertVerify: wizardState.skipCertVerify,
+                    serverURL: wizardState.serverURL,
                     isConnecting: $wizardState.isConnecting,
                     connectionError: $wizardState.connectionError,
                     isConnected: $wizardState.isConnected

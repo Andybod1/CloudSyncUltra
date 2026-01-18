@@ -895,7 +895,7 @@ struct ConnectRemoteSheet: View {
         case .quatrix:
             try await rclone.setupQuatrix(remoteName: rcloneName)
         case .filefabric:
-            try await rclone.setupFileFabric(remoteName: rcloneName)
+            try await rclone.setupFileFabric(remoteName: rcloneName, serverURL: "")
 
         default:
             throw RcloneError.configurationFailed("Provider \(remote.type.displayName) not yet supported")

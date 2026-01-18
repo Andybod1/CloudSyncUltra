@@ -1887,9 +1887,14 @@ class RcloneManager {
         try await createRemoteInteractive(name: remoteName, type: "quatrix")
     }
     
-    func setupFileFabric(remoteName: String) async throws {
-        // File Fabric uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "filefabric")
+    func setupFileFabric(remoteName: String, serverURL: String) async throws {
+        // File Fabric requires a server URL before OAuth authentication
+        // The URL is the base URL of your File Fabric server (e.g., https://yourfabric.smestorage.com)
+        var params: [String: String] = [:]
+        if !serverURL.isEmpty {
+            params["url"] = serverURL
+        }
+        try await createRemoteInteractive(name: remoteName, type: "filefabric", additionalParams: params)
     }
     
     // MARK: - Generic Remote Creation

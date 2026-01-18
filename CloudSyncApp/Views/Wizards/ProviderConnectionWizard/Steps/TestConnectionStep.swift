@@ -20,6 +20,8 @@ struct TestConnectionStep: View {
     let useFTPS: Bool
     let useImplicitTLS: Bool
     let skipCertVerify: Bool
+    // Server URL for self-hosted providers (Seafile, etc.)
+    let serverURL: String
     @Binding var isConnecting: Bool
     @Binding var connectionError: String?
     @Binding var isConnected: Bool
@@ -363,13 +365,32 @@ struct TestConnectionStep: View {
         case .quatrix:
             try await rclone.setupQuatrix(remoteName: rcloneName)
         case .filefabric:
-            try await rclone.setupFileFabric(remoteName: rcloneName)
+            try await rclone.setupFileFabric(remoteName: rcloneName, serverURL: serverURL)
         case .azureFiles:
             // Azure Files uses account name and key
             try await rclone.setupAzureFiles(
                 remoteName: rcloneName,
                 accountName: username,
                 accountKey: password
+            )
+        case .seafile:
+            try await rclone.setupSeafile(
+                remoteName: rcloneName,
+                url: serverURL,
+                username: username,
+                password: password
+            )
+        case .alibabaOSS:
+            // Alibaba Cloud OSS uses Access Key ID + Secret
+            // Default to Singapore region (ap-southeast-1) for international users
+            let alibabaRegion = "ap-southeast-1"
+            let endpoint = "oss-\(alibabaRegion).aliyuncs.com"
+            try await rclone.setupAlibabaOSS(
+                remoteName: rcloneName,
+                accessKey: username,
+                secretKey: password,
+                endpoint: endpoint,
+                region: alibabaRegion
             )
         default:
             throw RcloneError.configurationFailed("Provider \(provider.displayName) not yet supported")
@@ -422,6 +443,7 @@ struct TestConnectionStep_Previews: PreviewProvider {
                 useFTPS: true,
                 useImplicitTLS: false,
                 skipCertVerify: false,
+                serverURL: "",
                 isConnecting: $isConnecting,
                 connectionError: $connectionError,
                 isConnected: $isConnected
