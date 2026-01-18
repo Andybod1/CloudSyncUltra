@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.39 | **Updated:** 2026-01-17
+> **Version:** 2.0.40 | **Updated:** 2026-01-17
 
 ---
 
@@ -136,7 +136,7 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.39 - Sprint "Bug Fixes & S3-Compatible Providers"
+### Just Completed: v2.0.40 - Sprint "Bug Fixes & S3-Compatible Providers"
 - ✅ **ownCloud Bug Fix** (#165) - Added missing wizard case for ownCloud/Nextcloud
 - ✅ **FTPS Security** (#164) - Added FTPS toggle and plain FTP security warning
 - ✅ **Integration Studies** - 4 S3-compatible providers

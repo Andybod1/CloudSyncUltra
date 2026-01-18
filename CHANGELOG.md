@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.40] - 2026-01-18
+
+### Added
+- **Contract Testing** - Rclone JSON parsing verification
+  - 11 contract tests for lsjson, stats, and error parsing
+  - JSON fixtures for valid responses, empty dirs, edge cases
+  - Verifies RemoteFile struct compatibility with rclone output
+- **Performance Baselines** - Automated regression detection
+  - 13 performance tests with XCTest measure blocks
+  - Baseline thresholds for file parsing (1K, 10K files)
+  - CI workflow alerts on >20% regression
+- **Mutation Testing CI** - Weekly code quality checks
+  - Scheduled workflow (Saturday 3am UTC)
+  - 60% mutation score threshold
+  - Results uploaded as artifacts
+
+### Changed
+- QA Score increased to 95/100
+
+---
+
 ## [2.0.39] - 2026-01-18
 
 ### Fixed

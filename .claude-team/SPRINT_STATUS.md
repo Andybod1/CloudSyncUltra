@@ -16,44 +16,44 @@ Strengthen testing infrastructure with contract tests, performance baselines, an
 
 | # | Task | Worker | Size | Status |
 |---|------|--------|------|--------|
-| 1 | Create rclone JSON fixtures (lsjson, stats, errors) | Dev-1 | S | ⬜ Pending |
-| 2 | Implement RcloneContractTests.swift | Dev-1 | M | ⬜ Pending |
-| 3 | Add fixtures to test target in Xcode | Dev-1 | S | ⬜ Pending |
+| 1 | Create rclone JSON fixtures (lsjson, stats, errors) | Dev-1 | S | ✅ Done |
+| 2 | Implement RcloneContractTests.swift | Dev-1 | M | ✅ Done |
+| 3 | Add fixtures to test target in Xcode | Dev-1 | S | ✅ Done |
 
 ## Phase 2: Performance Baselines
 
 | # | Task | Worker | Size | Status |
 |---|------|--------|------|--------|
-| 4 | Create PerformanceTests.swift with measure blocks | Dev-2 | M | ⬜ Pending |
-| 5 | Create perf-baseline.json with thresholds | Dev-2 | S | ⬜ Pending |
-| 6 | Update performance.yml workflow | Dev-2 | S | ⬜ Pending |
+| 4 | Create PerformanceTests.swift with measure blocks | Dev-2 | M | ✅ Done |
+| 5 | Create perf-baseline.json with thresholds | Dev-2 | S | ✅ Done |
+| 6 | Update performance.yml workflow | Dev-2 | S | ✅ Done |
 
 ## Phase 3: Mutation Testing CI
 
 | # | Task | Worker | Size | Status |
 |---|------|--------|------|--------|
-| 7 | Create mutation-testing.yml workflow | Dev-3 | M | ⬜ Pending |
-| 8 | Configure weekly schedule + manual trigger | Dev-3 | S | ⬜ Pending |
-| 9 | Add mutation score to workflow summary | Dev-3 | S | ⬜ Pending |
+| 7 | Create mutation-testing.yml workflow | Dev-3 | M | ✅ Done |
+| 8 | Configure weekly schedule + manual trigger | Dev-3 | S | ✅ Done |
+| 9 | Add mutation score to workflow summary | Dev-3 | S | ✅ Done |
 
 ---
 
 ## Deliverables
 
 ### Contract Testing
-- `CloudSyncAppTests/Fixtures/Rclone/lsjson-response.json`
-- `CloudSyncAppTests/Fixtures/Rclone/lsjson-empty.json`
-- `CloudSyncAppTests/Fixtures/Rclone/stats-progress.json`
-- `CloudSyncAppTests/Fixtures/Rclone/error-not-found.txt`
-- `CloudSyncAppTests/RcloneContractTests.swift`
+- ✅ `CloudSyncAppTests/Fixtures/Rclone/lsjson-response.json`
+- ✅ `CloudSyncAppTests/Fixtures/Rclone/lsjson-empty.json`
+- ✅ `CloudSyncAppTests/Fixtures/Rclone/stats-progress.json`
+- ✅ `CloudSyncAppTests/Fixtures/Rclone/error-not-found.txt`
+- ✅ `CloudSyncAppTests/RcloneContractTests.swift` (11 tests)
 
 ### Performance Baselines
-- `CloudSyncAppTests/PerformanceTests.swift`
-- `.claude-team/metrics/perf-baseline.json`
-- Updated `.github/workflows/performance.yml`
+- ✅ `CloudSyncAppTests/PerformanceTests.swift` (13 tests)
+- ✅ `.claude-team/metrics/perf-baseline.json`
+- ✅ `.github/workflows/performance.yml` (>20% regression alerts)
 
 ### Mutation Testing
-- `.github/workflows/mutation-testing.yml`
+- ✅ `.github/workflows/mutation-testing.yml` (weekly Saturday 3am UTC)
 
 ---
 
@@ -69,11 +69,11 @@ Strengthen testing infrastructure with contract tests, performance baselines, an
 
 ## Success Criteria
 
-- [ ] 10+ contract tests covering JSON parsing
-- [ ] Performance baseline file created
-- [ ] CI alerts on >20% performance regression
-- [ ] Weekly mutation testing workflow runs
-- [ ] Mutation score reported in workflow summary
+- [x] 10+ contract tests covering JSON parsing (11 tests)
+- [x] Performance baseline file created
+- [x] CI alerts on >20% performance regression
+- [x] Weekly mutation testing workflow runs
+- [x] Mutation score reported in workflow summary
 
 ---
 
@@ -85,7 +85,7 @@ Strengthen testing infrastructure with contract tests, performance baselines, an
 | Performance baselines | +4 |
 | Mutation testing | +3 |
 
-**Projected QA Score:** 95/100 (up from 85/100)
+**QA Score:** 95/100 ✅
 
 ---
 
