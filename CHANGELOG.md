@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.39] - 2026-01-18
+
+### Fixed
+- **OpenDrive Authentication** (#170) - Changed from OAuth to password authentication
+  - Updated RcloneManager.setupOpenDrive() to accept username/password
+  - Fixed wizard flow for credential-based authentication
+- **Flickr Provider Removed** (#169) - No valid rclone backend exists
+  - Removed from CloudProviderType enum (41 providers now)
+  - Updated all test expectations
+- **Azure Files Wizard** (#166) - Added missing TestConnectionStep case
+- **Seafile Wizard** (#171) - Added TestConnectionStep + server URL field
+- **Alibaba OSS Wizard** (#172) - Added TestConnectionStep case
+- **FileFabric Wizard** (#173) - Added server URL field for self-hosted instances
+- **Quatrix Authentication** (#174) - Changed from OAuth to API key authentication
+  - Updated RcloneManager.setupQuatrix() to accept host/apiKey
+- **Mail.ru Wizard** (#168) - Added app password guidance instructions
+
+### Changed
+- Provider count reduced from 42 to 41 (Flickr removed)
+- Test count increased from 855 to 897
+
+### Research
+- **Integration Studies** (Sprint v2.0.38) - 14 provider studies completed
+  - Local Storage, Azure Files, Yandex Disk, Mail.ru, Flickr
+  - Seafile, Alibaba OSS, Oracle Cloud, SugarSync, OpenDrive
+  - FileFabric, Quatrix, Premiumize.me, Put.io
+  - Discovered 9 bugs/enhancements, all addressed in v2.0.39
+
+---
+
 ## [2.0.37] - 2026-01-18
 
 ### Fixed
