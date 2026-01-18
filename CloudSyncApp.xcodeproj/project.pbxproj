@@ -24,6 +24,7 @@
 		19 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20 /* EncryptionManager.swift */; };
 		1A895E4AAA78AC9F4CE51364 /* JottacloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63BCA8D8C177E469BF4667C /* JottacloudProviderTests.swift */; };
 		1B162F32BC976843C403F875 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */; };
+		PWUI00000001000000000001 /* ProviderWizardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PWUI00000002000000000002 /* ProviderWizardUITests.swift */; };
 		1B886135514887EC390443F0 /* Phase1Week2ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7900A9FE676AF733C72749E /* Phase1Week2ProvidersTests.swift */; };
 		1E2C4260CDBD4302607AD61C /* HelpCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAAD6BF7230D609CD93447E /* HelpCategory.swift */; };
 		24C6CFBD2B9C48DD9DB46DD9 /* WizardProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778B4EFD43A54985A2E5C824 /* WizardProgressView.swift */; };
@@ -272,6 +273,7 @@
 		C7DA7F1856757AB4C4C72C7A /* ErrorNotificationManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ErrorNotificationManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		C7DCC18765B1FACCAA965FF5 /* SyncTaskTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/SyncTaskTests.swift; sourceTree = SOURCE_ROOT; };
 		C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
+		PWUI00000002000000000002 /* ProviderWizardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderWizardUITests.swift; sourceTree = "<group>"; };
 		CB0886CF56CD5228242B90F9 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CMP02 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletionStepView.swift; path = CloudSyncApp/Views/Onboarding/CompletionStepView.swift; sourceTree = SOURCE_ROOT; };
 		D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/RcloneContractTests.swift; sourceTree = SOURCE_ROOT; };
@@ -479,6 +481,7 @@
 				676F55F5D2D0390999318696 /* TasksUITests.swift */,
 				2A48BBE0B7CF92DB356AB1FB /* WorkflowUITests.swift */,
 				C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */,
+				PWUI00000002000000000002 /* ProviderWizardUITests.swift */,
 			);
 			path = CloudSyncAppUITests;
 			sourceTree = "<group>";
@@ -837,6 +840,7 @@
 				05C65938403FAA1C275F694D /* TasksUITests.swift in Sources */,
 				F380524C70F44E5D037321B3 /* WorkflowUITests.swift in Sources */,
 				1B162F32BC976843C403F875 /* SettingsUITests.swift in Sources */,
+				PWUI00000001000000000001 /* ProviderWizardUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
