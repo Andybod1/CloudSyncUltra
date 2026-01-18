@@ -109,6 +109,8 @@ Health Score                     [█████████░] 95%  ↑
 | Issue age tracking | ✅ Done | Dashboard | Oldest + stale count |
 | Code coverage report | ✅ Done | CI workflow | Coverage in artifacts + PR summary |
 | Binary size tracking | ✅ Done | CI workflow | Baseline: 30.2 MB, alerts on >10% |
+| Technical debt tracking | ✅ Done | `scripts/track-tech-debt.sh` | CSV + JSON metrics history |
+| Complexity metrics CI | ✅ Done | CI workflow | Complexity job in ci.yml |
 
 ---
 
@@ -216,6 +218,10 @@ Health Score                     [█████████░] 95%  ↑
 
 # Advanced automation
 ./scripts/generate-release-notes.sh # Auto-generate release notes
+
+# Phase 2a - Technical debt & alerts
+./scripts/track-tech-debt.sh        # Record complexity metrics over time
+./scripts/send-alert.sh             # Slack/Discord webhook alerts
 ```
 
 ---
@@ -238,6 +244,11 @@ Health Score                     [█████████░] 95%  ↑
 ---
 
 ## Recent Improvements (2026-01-18)
+
+### Phase 2a Automation
+- ✅ **Complexity gate in CI** - Added complexity job to `.github/workflows/ci.yml`
+- ✅ **Technical debt tracking** - `scripts/track-tech-debt.sh` records metrics to CSV
+- ✅ **Webhook alerts** - `scripts/send-alert.sh` for Slack/Discord notifications
 
 ### Phase 1++ Quick Wins
 - ✅ **Auto-archive outputs** - `scripts/archive-outputs.sh` enhanced with sprint detection

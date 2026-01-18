@@ -301,6 +301,71 @@ jobs:
           path: metrics/
           retention-days: 90
 
+  # Code Complexity Check
+  complexity:
+    name: Complexity Check
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Complexity Check
+        id: complexity
+        run: |
+          chmod +x ./scripts/complexity-check.sh
+
+          # Run complexity check and capture output
+          ./scripts/complexity-check.sh --warn-only 2>&1 | tee complexity_output.txt
+
+          # Extract counts
+          ERRORS=$(grep "Errors:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
+          WARNINGS=$(grep "Warnings:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
+          FILES=$(grep "Files checked:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
+
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+          # Save metrics for tracking
+          mkdir -p metrics
+          echo "{\"errors\": $ERRORS, \"warnings\": $WARNINGS, \"files\": $FILES, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"commit\": \"${{ github.sha }}\"}" > metrics/complexity.json
+
+      - name: Check for New Complexity Issues
+        if: github.event_name == 'pull_request'
+        run: |
+          ERRORS=${{ steps.complexity.outputs.errors }}
+
+          # For PRs, we could compare against main branch
+          # For now, just report
+          if [ "$ERRORS" -gt 50 ]; then
+            echo "⚠️ High complexity: $ERRORS errors detected"
+            echo "Consider refactoring large files before merging"
+          fi
+
+      - name: Complexity Summary
+        run: |
+          ERRORS=${{ steps.complexity.outputs.errors }}
+          WARNINGS=${{ steps.complexity.outputs.warnings }}
+          FILES=${{ steps.complexity.outputs.files }}
+
+          echo "### 📐 Code Complexity" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Files Checked | $FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Errors (large files/functions) | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Warnings (nesting/unwraps) | $WARNINGS |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Complexity Metrics
+        uses: actions/upload-artifact@v6
+        with:
+          name: complexity-metrics
+          path: |
+            metrics/
+            complexity_output.txt
+          retention-days: 90
+
   # Memory Safety Check (ASan + TSan)
   memory-safety:
     name: Memory Safety
