@@ -104,9 +104,10 @@ jobs:
           THRESHOLD_INT=${THRESHOLD%.*}
 
           if [ "${SCORE_INT:-0}" -lt "${THRESHOLD_INT:-60}" ]; then
-            echo "⚠️ **Warning:** Mutation score (${SCORE}%) is below threshold (${THRESHOLD}%)" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **FAILED:** Mutation score (${SCORE}%) is below threshold (${THRESHOLD}%)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Consider improving test coverage to catch more mutations." >> $GITHUB_STEP_SUMMARY
+            echo "Improve test coverage to catch more mutations before merging." >> $GITHUB_STEP_SUMMARY
+            exit 1
           else
             echo "✅ Mutation score meets threshold" >> $GITHUB_STEP_SUMMARY
           fi
