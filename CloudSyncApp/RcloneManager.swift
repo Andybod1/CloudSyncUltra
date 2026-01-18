@@ -1325,7 +1325,16 @@ class RcloneManager {
         try await createRemote(name: remoteName, type: "sftp", parameters: params)
     }
     
-    func setupFTP(remoteName: String, host: String, password: String, user: String = "", port: String = "21") async throws {
+    func setupFTP(
+        remoteName: String,
+        host: String,
+        password: String,
+        user: String = "",
+        port: String = "21",
+        useTLS: Bool = false,          // Explicit TLS (STARTTLS)
+        useImplicitTLS: Bool = false,  // Implicit TLS (port 990)
+        skipCertVerify: Bool = false
+    ) async throws {
         var params: [String: String] = [
             "host": host,
             "pass": password,
@@ -1333,6 +1342,15 @@ class RcloneManager {
         ]
         if !user.isEmpty {
             params["user"] = user
+        }
+        if useTLS {
+            params["explicit_tls"] = "true"
+        }
+        if useImplicitTLS {
+            params["tls"] = "true"
+        }
+        if skipCertVerify {
+            params["no_check_certificate"] = "true"
         }
         try await createRemote(name: remoteName, type: "ftp", parameters: params)
     }

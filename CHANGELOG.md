@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.37] - 2026-01-18
+
+### Fixed
+- **ownCloud Wizard Connection** (#165) - Fixed missing switch case in TestConnectionStep
+  - Added `.owncloud` and `.nextcloud` cases to wizard flow
+  - Proper WebDAV URL construction with `/remote.php/webdav/` suffix
+
+### Added
+- **FTP Security Enhancements** (#164) - FTPS support and security warnings
+  - FTPS toggle (Explicit TLS / Implicit TLS modes)
+  - Security warning for plain FTP connections
+  - Certificate verification skip option for self-signed certs
+
+### Research
+- **S3-Compatible Provider Studies** (Sprint v2.0.37)
+  - DigitalOcean Spaces (#129): Already works, EASY
+  - Wasabi (#128): Already works, EASY
+  - Scaleway (#131): Already works, EASY
+  - Filebase (#134): Already works, EASY
+  - Finding: All 4 S3-compatible providers fully implemented
+
+### Process
+- **QA Phase Added** - Two-phase sprint with QA verification before closure
+
+---
+
 ## [2.0.36] - 2026-01-17
 
 ### Added

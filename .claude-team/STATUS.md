@@ -1,31 +1,43 @@
-# CloudSync Ultra - Sprint v2.0.36 Status
+# CloudSync Ultra - Sprint v2.0.37 Status
 
-**Version: v2.0.36**
+**Version: v2.0.37**
 
-## Current Sprint: v2.0.36 "Cloud Platforms & File Protocols"
-**Duration:** 2026-01-17
+## Current Sprint: v2.0.37 "Bug Fixes & S3-Compatible Providers"
+**Duration:** 2026-01-18
 **Status:** ✅ SPRINT COMPLETE
 
 ## Completed Tasks
 
-### SFTP SSH Key Authentication (#163) ✅
-**Completed:** 2026-01-17
-**Deliverables:**
-- SSH key file picker (defaults to ~/.ssh/, shows hidden files)
-- Key passphrase support for encrypted keys
-- Updated RcloneManager with key_file and key_file_pass parameters
-- Follows existing provider wizard patterns
+### Phase 1: Development & Research
 
-### Integration Studies Complete ✅
-**Completed:** 2026-01-17
+#### ownCloud Bug Fix (#165) ✅
+**Completed:** 2026-01-18
 **Deliverables:**
-- Azure Blob Storage (#137): Already works, EASY
-- Google Cloud Storage (#135): Already works, EASY
-- Storj (#133): Already works, EASY
-- FTP (#144): Already works, EASY
-- ownCloud (#140): Already works via WebDAV, EASY
+- Added `.owncloud` case to TestConnectionStep.swift
+- Added `.nextcloud` case to TestConnectionStep.swift
+- Proper WebDAV URL construction
 
-**Key Finding:** All 5 providers already work with no code changes!
+#### FTPS Security Enhancement (#164) ✅
+**Completed:** 2026-01-18
+**Deliverables:**
+- Extended setupFTP() with TLS parameters
+- Added FTPS toggle UI in wizard
+- Added security warning for plain FTP
+
+#### Integration Studies ✅
+**Completed:** 2026-01-18
+- DigitalOcean Spaces (#129): Already works, EASY
+- Wasabi (#128): Already works, EASY
+- Scaleway (#131): Already works, EASY
+- Filebase (#134): Already works, EASY
+
+**Key Finding:** All 4 S3-compatible providers fully implemented!
+
+### Phase 2: QA Verification ✅
+- ownCloud wizard verified working
+- FTPS implementation verified
+- 855 tests passing (0 unexpected failures)
+- Build verified
 
 ---
 
@@ -33,12 +45,13 @@
 
 | Task | Status |
 |------|--------|
-| SFTP SSH Key Auth #163 | ✅ DONE |
-| Azure Blob Storage Study #137 | ✅ DONE |
-| Google Cloud Storage Study #135 | ✅ DONE |
-| Storj Study #133 | ✅ DONE |
-| FTP Study #144 | ✅ DONE |
-| ownCloud Study #140 | ✅ DONE |
+| ownCloud Bug Fix #165 | ✅ DONE |
+| FTPS Support #164 | ✅ DONE |
+| DigitalOcean Spaces Study #129 | ✅ DONE |
+| Wasabi Study #128 | ✅ DONE |
+| Scaleway Study #131 | ✅ DONE |
+| Filebase Study #134 | ✅ DONE |
+| QA Verification | ✅ DONE |
 
 ---
 
@@ -47,9 +60,9 @@
 - **Tests:** 855 (0 unexpected failures)
 - **Build:** ✅ PASSING
 - **Health Score:** 75%
-- **Open Issues:** 20
+- **Open Issues:** 18
 
 ---
 
-*Last updated: 2026-01-17*
+*Last updated: 2026-01-18*
 *Build: ✅ PASSING*

@@ -15,6 +15,10 @@ struct ConfigureSettingsStep: View {
     // SFTP SSH key authentication (default bindings for non-SFTP providers)
     var sshKeyFile: Binding<String> = .constant("")
     var sshKeyPassphrase: Binding<String> = .constant("")
+    // FTP security options (default bindings for non-FTP providers)
+    var useFTPS: Binding<Bool> = .constant(true)
+    var useImplicitTLS: Binding<Bool> = .constant(false)  // false = Explicit (port 21), true = Implicit (port 990)
+    var skipCertVerify: Binding<Bool> = .constant(false)
 
     private var needsTwoFactor: Bool {
         provider == .protonDrive || provider == .mega
@@ -30,6 +34,10 @@ struct ConfigureSettingsStep: View {
 
     private var isSFTP: Bool {
         provider == .sftp
+    }
+
+    private var isFTP: Bool {
+        provider == .ftp
     }
 
     var body: some View {
@@ -390,6 +398,91 @@ struct ConfigureSettingsStep: View {
                 }
             }
 
+            // FTP Security Configuration
+            if isFTP {
+                GroupBox {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "lock.shield.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Connection Security")
+                                    .font(.headline)
+                                Text("Configure encryption for your FTP connection")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+                        }
+
+                        Divider()
+
+                        // Enable FTPS toggle
+                        Toggle(isOn: useFTPS) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Enable FTPS (Secure)")
+                                    .font(.subheadline)
+                                Text("Encrypt your connection using TLS/SSL")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        // TLS mode picker (only shown when FTPS is enabled)
+                        if useFTPS.wrappedValue {
+                            HStack {
+                                Text("TLS Mode")
+                                    .frame(width: 100, alignment: .trailing)
+                                Picker("", selection: useImplicitTLS) {
+                                    Text("Explicit (Port 21)").tag(false)
+                                    Text("Implicit (Port 990)").tag(true)
+                                }
+                                .pickerStyle(.segmented)
+                            }
+
+                            HStack {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.secondary)
+                                Text(useImplicitTLS.wrappedValue
+                                     ? "Implicit TLS connects on port 990 with immediate encryption"
+                                     : "Explicit TLS (STARTTLS) upgrades a plain connection to encrypted")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            // Skip certificate verification toggle
+                            Toggle(isOn: skipCertVerify) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Skip certificate verification")
+                                        .font(.subheadline)
+                                    Text("Use for self-signed certificates (less secure)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+
+                        // Plain FTP warning
+                        if !useFTPS.wrappedValue {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                Text("Plain FTP transmits passwords without encryption.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(8)
+                            .background(Color.orange.opacity(0.1))
+                            .cornerRadius(6)
+                        }
+                    }
+                    .padding()
+                }
+            }
+
             // Security note
             HStack(spacing: 8) {
                 Image(systemName: "lock.fill")
@@ -420,6 +513,8 @@ struct ConfigureSettingsStep: View {
             return "Use your MEGA email and password. If you have 2FA enabled, enter the current code from your authenticator app."
         case .sftp:
             return "Enter your SSH host and username. You can authenticate with password, SSH key, or both."
+        case .ftp:
+            return "Enter your FTP server host and credentials. FTPS is recommended for secure connections."
         default:
             return nil
         }

@@ -16,6 +16,10 @@ struct TestConnectionStep: View {
     // SFTP SSH key authentication
     let sshKeyFile: String
     let sshKeyPassphrase: String
+    // FTP security options
+    let useFTPS: Bool
+    let useImplicitTLS: Bool
+    let skipCertVerify: Bool
     @Binding var isConnecting: Bool
     @Binding var connectionError: String?
     @Binding var isConnected: Bool
@@ -305,6 +309,24 @@ struct TestConnectionStep: View {
             try await rclone.setupPCloud(remoteName: rcloneName)
         case .webdav:
             try await rclone.setupWebDAV(remoteName: rcloneName, url: username, password: password)
+        case .owncloud:
+            // Construct WebDAV URL: {baseURL}/remote.php/webdav/
+            let owncloudWebdavURL = username.hasSuffix("/") ? "\(username)remote.php/webdav/" : "\(username)/remote.php/webdav/"
+            try await rclone.setupOwnCloud(
+                remoteName: rcloneName,
+                url: owncloudWebdavURL,
+                username: username,  // Note: username field is used for server URL in WebDAV providers
+                password: password
+            )
+        case .nextcloud:
+            // Construct WebDAV URL: {baseURL}/remote.php/webdav/
+            let nextcloudWebdavURL = username.hasSuffix("/") ? "\(username)remote.php/webdav/" : "\(username)/remote.php/webdav/"
+            try await rclone.setupNextcloud(
+                remoteName: rcloneName,
+                url: nextcloudWebdavURL,
+                username: username,  // Note: username field is used for server URL in WebDAV providers
+                password: password
+            )
         case .sftp:
             try await rclone.setupSFTP(
                 remoteName: rcloneName,
@@ -314,7 +336,14 @@ struct TestConnectionStep: View {
                 keyPassphrase: sshKeyPassphrase
             )
         case .ftp:
-            try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
+            try await rclone.setupFTP(
+                remoteName: rcloneName,
+                host: username,
+                password: password,
+                useTLS: useFTPS && !useImplicitTLS,  // Explicit TLS when FTPS enabled and not implicit
+                useImplicitTLS: useFTPS && useImplicitTLS,  // Implicit TLS when both FTPS and implicit are enabled
+                skipCertVerify: skipCertVerify
+            )
         case .jottacloud:
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
         case .googlePhotos:
@@ -381,6 +410,9 @@ struct TestConnectionStep_Previews: PreviewProvider {
                 twoFactorCode: "",
                 sshKeyFile: "",
                 sshKeyPassphrase: "",
+                useFTPS: true,
+                useImplicitTLS: false,
+                skipCertVerify: false,
                 isConnecting: $isConnecting,
                 connectionError: $connectionError,
                 isConnected: $isConnected

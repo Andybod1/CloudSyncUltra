@@ -1,30 +1,38 @@
-# Sprint: v2.0.36 - Cloud Platforms & File Protocols
+# Sprint: v2.0.37 - Bug Fixes & S3-Compatible Providers
 
-**Started:** 2026-01-17
+**Started:** 2026-01-18
 **Status:** ✅ COMPLETE
 
 ---
 
 ## Sprint Goal
 
-1. ✅ Implement SFTP SSH key authentication (from v2.0.35 study)
-2. ✅ Complete remaining medium-priority cloud storage studies
-3. ✅ Research additional file transfer protocols
+1. ✅ Fix ownCloud wizard bug (HIGH priority)
+2. ✅ Add FTPS security support (MEDIUM priority)
+3. ✅ Complete S3-compatible provider studies
+4. ✅ QA verification of dev work
 
 ---
 
-## Sprint Backlog
+## Phase 1: Development & Research
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 163 | [Enhancement]: SFTP SSH Key Authentication | Dev-1 | M | ✅ Complete |
-| 137 | [Integration Study]: Azure Blob Storage | Architect-1 | M | ✅ Complete |
-| 135 | [Integration Study]: Google Cloud Storage | Architect-2 | M | ✅ Complete |
-| 133 | [Integration Study]: Storj | Architect-3 | M | ✅ Complete |
-| 144 | [Integration Study]: FTP | Architect-4 | S | ✅ Complete |
-| 140 | [Integration Study]: ownCloud | Architect-5 | S | ✅ Complete |
+| 165 | [Bug]: ownCloud missing case in TestConnectionStep | Dev-1 | S | ✅ Complete |
+| 164 | [Enhancement]: FTPS Support + Security Warning | Dev-2 | S | ✅ Complete |
+| 129 | [Integration Study]: DigitalOcean Spaces | Architect-1 | S | ✅ Complete |
+| 128 | [Integration Study]: Wasabi | Architect-2 | S | ✅ Complete |
+| 131 | [Integration Study]: Scaleway Object Storage | Architect-3 | S | ✅ Complete |
+| 134 | [Integration Study]: Filebase | Architect-4 | S | ✅ Complete |
 
-**Total Points:** 4M + 2S = ~5 story points
+## Phase 2: QA Verification
+
+| Task | Status |
+|------|--------|
+| Verify #165 ownCloud fix | ✅ Complete |
+| Verify #164 FTPS implementation | ✅ Complete |
+| Run full test suite (855 tests) | ✅ Complete |
+| Build & launch verification | ✅ Complete |
 
 ---
 
@@ -32,30 +40,31 @@
 
 | Worker | Task | Output File |
 |--------|------|-------------|
-| Dev-1 | SFTP SSH Key Auth #163 | `outputs/DEV1_COMPLETE.md` |
-| Architect-1 | Azure Blob Storage #137 | `outputs/ARCHITECT1_AZURE.md` |
-| Architect-2 | Google Cloud Storage #135 | `outputs/ARCHITECT2_GCS.md` |
-| Architect-3 | Storj #133 | `outputs/ARCHITECT3_STORJ.md` |
-| Architect-4 | FTP #144 | `outputs/ARCHITECT4_FTP.md` |
-| Architect-5 | ownCloud #140 | `outputs/ARCHITECT5_OWNCLOUD.md` |
+| Dev-1 | ownCloud Bug Fix #165 | `outputs/DEV1_COMPLETE.md` |
+| Dev-2 | FTPS Support #164 | `outputs/DEV2_COMPLETE.md` |
+| Architect-1 | DigitalOcean Spaces #129 | `outputs/ARCHITECT1_DIGITALOCEAN.md` |
+| Architect-2 | Wasabi #128 | `outputs/ARCHITECT2_WASABI.md` |
+| Architect-3 | Scaleway #131 | `outputs/ARCHITECT3_SCALEWAY.md` |
+| Architect-4 | Filebase #134 | `outputs/ARCHITECT4_FILEBASE.md` |
+| QA | Verification | `outputs/QA_COMPLETE.md` |
 
 ---
 
 ## Key Findings
 
-- **All 5 cloud providers already work** with no code changes
-- SFTP SSH key authentication successfully implemented
-- Total 16 providers studied across sprints v2.0.34-v2.0.36
-- 14 of 16 providers work out of the box
+- **All 4 S3-compatible providers** already fully implemented
+- **ownCloud/Nextcloud** wizard now working
+- **FTPS** security toggle added with plain FTP warning
+- **First sprint with QA phase** - two-phase execution successful
 
 ---
 
 ## Previous Sprint
 
-**v2.0.35** - Completed 2026-01-17
-- ✅ #160: MEGA 2FA Support
-- ✅ #126, #127, #130, #142, #143: Cloud Storage & Protocol Studies
+**v2.0.36** - Completed 2026-01-17
+- ✅ #163: SFTP SSH Key Authentication
+- ✅ #137, #135, #133, #144, #140: Cloud Storage & Protocol Studies
 
 ---
 
-*Last Updated: 2026-01-17*
+*Last Updated: 2026-01-18*

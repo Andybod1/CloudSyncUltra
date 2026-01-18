@@ -23,6 +23,11 @@ class ProviderConnectionWizardState: ObservableObject {
     @Published var sshKeyFile: String = ""
     @Published var sshKeyPassphrase: String = ""
 
+    // FTP security options
+    @Published var useFTPS: Bool = true          // Default: FTPS enabled for security
+    @Published var useImplicitTLS: Bool = false  // Default: Explicit TLS (port 21)
+    @Published var skipCertVerify: Bool = false  // Default: verify certificates
+
     func reset() {
         currentStep = 0
         selectedProvider = nil
@@ -35,6 +40,9 @@ class ProviderConnectionWizardState: ObservableObject {
         isConnected = false
         sshKeyFile = ""
         sshKeyPassphrase = ""
+        useFTPS = true
+        useImplicitTLS = false
+        skipCertVerify = false
     }
 }
 
@@ -92,7 +100,10 @@ struct ProviderConnectionWizardView: View {
                     password: $wizardState.password,
                     twoFactorCode: $wizardState.twoFactorCode,
                     sshKeyFile: $wizardState.sshKeyFile,
-                    sshKeyPassphrase: $wizardState.sshKeyPassphrase
+                    sshKeyPassphrase: $wizardState.sshKeyPassphrase,
+                    useFTPS: $wizardState.useFTPS,
+                    useImplicitTLS: $wizardState.useImplicitTLS,
+                    skipCertVerify: $wizardState.skipCertVerify
                 )
             case 2:
                 TestConnectionStep(
@@ -103,6 +114,9 @@ struct ProviderConnectionWizardView: View {
                     twoFactorCode: wizardState.twoFactorCode,
                     sshKeyFile: wizardState.sshKeyFile,
                     sshKeyPassphrase: wizardState.sshKeyPassphrase,
+                    useFTPS: wizardState.useFTPS,
+                    useImplicitTLS: wizardState.useImplicitTLS,
+                    skipCertVerify: wizardState.skipCertVerify,
                     isConnecting: $wizardState.isConnecting,
                     connectionError: $wizardState.connectionError,
                     isConnected: $wizardState.isConnected
