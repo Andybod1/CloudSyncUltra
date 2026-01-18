@@ -16,7 +16,7 @@ Pillar 3: Single Source of Truth [██████████] 100% ✅
 Pillar 4: Metrics & Visibility   [██████████] 100% ✅ Dashboard working
 Pillar 5: Knowledge Management   [██████████] 100% ✅
 Pillar 6: Business Operations    [██████████] 100% ✅
-Pillar 7: Worker Quality         [████████░░] 80%  ⚠️  No active workers
+Pillar 7: Worker Quality         [█████████░] 90%  ✅ Common mistakes doc added
 Pillar 8: Advanced Automation    [██████████] 100% ✅ Workflows passing
 ─────────────────────────────────────────────────
 Overall Progress (Framework)     [██████████] 100%
@@ -157,6 +157,7 @@ Health Score                     [█████████░] 95%  ↑
 | Launch script updated | ✅ Done | `scripts/launch_single_worker.sh` | Includes quality reminder |
 | DoD checker | ✅ Done | `scripts/check-dod.sh` | Pre-completion verification |
 | PR size warning | ✅ Done | `.github/workflows/pr-quality.yml` | Warns on >500 lines |
+| Common mistakes doc | ✅ Done | `.claude-team/COMMON_MISTAKES.md` | Learn from past errors |
 
 ---
 
