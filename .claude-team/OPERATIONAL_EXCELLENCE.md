@@ -239,6 +239,18 @@ Health Score                     [█████████░] 95%  ↑
 
 ## Recent Improvements (2026-01-18)
 
+### Phase 1++ Quick Wins
+- ✅ **Auto-archive outputs** - `scripts/archive-outputs.sh` enhanced with sprint detection
+- ✅ **Auto-version bump** - `scripts/bump-version.sh` based on conventional commits
+- ✅ **Complexity metrics** - `scripts/complexity-check.sh` for code quality
+- ✅ **Release notes enhanced** - `scripts/generate-release-notes.sh` with App Store format
+
+### Worker Quality Complete (12 items)
+- ✅ **Output validation** - `scripts/validate-output.sh`
+- ✅ **Pre-flight checklist** - `scripts/preflight.sh`
+- ✅ **Worker onboarding** - `.claude-team/WORKER_ONBOARDING.md`
+- ✅ **Common mistakes** - `.claude-team/COMMON_MISTAKES.md`
+
 ### CI Restored
 - ✅ **Repository made PUBLIC** - Unlimited GitHub Actions minutes
 - ✅ **All 3 CI jobs passing** - Build & Test, Binary Size, Memory Safety
