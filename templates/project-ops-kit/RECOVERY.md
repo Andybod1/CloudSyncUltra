@@ -1,8 +1,8 @@
-# CloudSync Ultra - Crash Recovery Guide
+# {{PROJECT_NAME}} - Crash Recovery Guide
 
 > **All work is tracked via GitHub Issues** - survives any crash automatically.
 > This guide helps you restore the development environment after restart.
-> **Version:** 2.0.32 | **Tests:** 855 passing | **Providers:** 42
+> **Version:** {{VERSION}} | **Tests:** {{TEST_COUNT}} passing
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### Step 1: Check Project Health
 ```bash
-cd ~/Claude
+cd {{PROJECT_PATH}}
 ./scripts/dashboard.sh
 ```
 
@@ -25,22 +25,20 @@ git add -A && git commit -m "WIP: Recovery after crash"
 
 ### Step 3: Verify Build
 ```bash
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build 2>&1 | tail -10
+{{BUILD_COMMAND}} 2>&1 | tail -10
 ```
 
 ---
 
-## 📋 Current State (2026-01-16)
+## 📋 Current State
 
-### Sprint v2.0.32 RELEASED
+### Sprint {{VERSION}}
 
 See STATUS.md for current work in progress. Recent completed work:
-- Interactive Onboarding with "Connect a Provider Now" and "Try a Sync Now"
-- Provider Connection, Schedule, and Transfer Wizards
-- Subscription Tiers (Free/Pro/Team) with StoreKit 2
-- Full Keyboard Navigation
-- Security Hardening (SecurityManager, path sanitization)
-- 855 automated tests passing
+<!-- Update with recent accomplishments -->
+- Feature 1
+- Feature 2
+- {{TEST_COUNT}} automated tests passing
 
 ### Key Files
 - Sprint Status: `.claude-team/SPRINT_STATUS.md`
@@ -56,33 +54,27 @@ See STATUS.md for current work in progress. Recent completed work:
 ### Launch Commands
 ```bash
 # Core Workers
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-1 opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-2 opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh dev-3 opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh devops opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh dev-1 opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh dev-2 opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh dev-3 opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh devops opus
 
 # Specialized Agents
-~/Claude/.claude-team/scripts/launch_single_worker.sh revenue-engineer opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh legal-advisor opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh marketing-lead opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh qa opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh ux-designer opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh product-manager opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh architect opus
-~/Claude/.claude-team/scripts/launch_single_worker.sh security-auditor opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh qa opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh ux-designer opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh product-manager opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh architect opus
+{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh security-auditor opus
 ```
 
 ### Startup Prompts
 
 | Worker | Prompt |
 |--------|--------|
-| Dev-1 | `Read /Users/antti/Claude/.claude-team/templates/DEV1_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.` |
-| Dev-2 | `Read /Users/antti/Claude/.claude-team/templates/DEV2_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.` |
-| Dev-3 | `Read /Users/antti/Claude/.claude-team/templates/DEV3_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.` |
-| Dev-Ops | `Read /Users/antti/Claude/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.` |
-| Revenue-Engineer | `Read /Users/antti/Claude/.claude-team/templates/REVENUE_ENGINEER_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_REVENUE_ENGINEER.md. Update STATUS.md as you work.` |
-| Legal-Advisor | `Read /Users/antti/Claude/.claude-team/templates/LEGAL_ADVISOR_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_LEGAL_ADVISOR.md. Update STATUS.md as you work.` |
-| Marketing-Lead | `Read /Users/antti/Claude/.claude-team/templates/MARKETING_LEAD_BRIEFING.md then read and execute /Users/antti/Claude/.claude-team/tasks/TASK_MARKETING_LEAD.md. Update STATUS.md as you work.` |
+| Dev-1 | `Read {{PROJECT_PATH}}/.claude-team/templates/DEV1_BRIEFING.md then read and execute {{PROJECT_PATH}}/.claude-team/tasks/TASK_DEV1.md. Update STATUS.md as you work.` |
+| Dev-2 | `Read {{PROJECT_PATH}}/.claude-team/templates/DEV2_BRIEFING.md then read and execute {{PROJECT_PATH}}/.claude-team/tasks/TASK_DEV2.md. Update STATUS.md as you work.` |
+| Dev-3 | `Read {{PROJECT_PATH}}/.claude-team/templates/DEV3_BRIEFING.md then read and execute {{PROJECT_PATH}}/.claude-team/tasks/TASK_DEV3.md. Update STATUS.md as you work.` |
+| Dev-Ops | `Read {{PROJECT_PATH}}/.claude-team/templates/DEVOPS_BRIEFING.md then read and execute {{PROJECT_PATH}}/.claude-team/tasks/TASK_DEVOPS.md. Update STATUS.md as you work.` |
 
 ---
 
@@ -105,11 +97,11 @@ See STATUS.md for current work in progress. Recent completed work:
 In a new Desktop Claude chat, say:
 
 ```
-Read these files to restore context for CloudSync Ultra:
+Read these files to restore context for {{PROJECT_NAME}}:
 
-1. /Users/antti/Claude/CLAUDE_PROJECT_KNOWLEDGE.md
-2. /Users/antti/Claude/.claude-team/STATUS.md
-3. /Users/antti/Claude/.claude-team/planning/SPRINT_2.0.23_PLAN.md
+1. {{PROJECT_PATH}}/CLAUDE_PROJECT_KNOWLEDGE.md
+2. {{PROJECT_PATH}}/.claude-team/STATUS.md
+3. {{PROJECT_PATH}}/.claude-team/planning/SPRINT_PLAN.md
 
 Then tell me what state we're in and what needs to happen next.
 ```
@@ -131,8 +123,8 @@ gh auth login
 
 ### Build Fails
 ```bash
-rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
+rm -rf ~/Library/Developer/Xcode/DerivedData/{{PROJECT_DIR}}-*
+{{BUILD_COMMAND}}
 ```
 
 ### Permission Denied on Scripts
@@ -146,10 +138,10 @@ chmod +x .claude-team/scripts/*.sh
 ## 🆘 Emergency: Full Reset
 
 ```bash
-cd ~/Claude
+cd {{PROJECT_PATH}}
 git checkout -- .
-rm -rf ~/Library/Developer/Xcode/DerivedData/CloudSyncApp-*
-xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
+rm -rf ~/Library/Developer/Xcode/DerivedData/{{PROJECT_DIR}}-*
+{{BUILD_COMMAND}}
 ```
 
 ---
@@ -161,7 +153,7 @@ xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 | **GitHub Issues** | ✅ Safe | All work tracking on GitHub |
 | Git repo | ✅ Safe | All committed code |
 | Team infrastructure | ✅ Safe | In Git |
-| Build artifacts | ❌ Lost | Rebuild with xcodebuild |
+| Build artifacts | ❌ Lost | Rebuild with build command |
 | Terminal sessions | ❌ Lost | Relaunch workers |
 | Uncommitted changes | ❌ Lost | Commit frequently! |
 
@@ -174,12 +166,12 @@ xcodebuild -project CloudSyncApp.xcodeproj -scheme CloudSyncApp build
 | Project health | `./scripts/dashboard.sh` |
 | View all issues | `gh issue list` |
 | In-progress issues | `gh issue list -l in-progress` |
-| Launch single worker | `~/Claude/.claude-team/scripts/launch_single_worker.sh <worker> opus` |
+| Launch single worker | `{{PROJECT_PATH}}/.claude-team/scripts/launch_single_worker.sh <worker> opus` |
 | Check worker status | `cat .claude-team/STATUS.md` |
-| Build app | `xcodebuild build 2>&1 \| tail -5` |
-| Run tests | `xcodebuild test -destination 'platform=macOS' 2>&1 \| grep Executed` |
+| Build app | `{{BUILD_COMMAND}} 2>&1 \| tail -5` |
+| Run tests | `{{TEST_COMMAND}} 2>&1 \| grep Executed` |
 
 ---
 
-*Last Updated: 2026-01-16*
-*Current Version: v2.0.32*
+*Last Updated: {{DATE}}*
+*Current Version: {{VERSION}}*

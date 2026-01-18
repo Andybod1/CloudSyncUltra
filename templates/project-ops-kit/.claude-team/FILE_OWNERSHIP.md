@@ -2,7 +2,7 @@
 
 > **Purpose:** Defines which worker owns which files/directories.
 > **Rule:** Only the owner may modify files in their domain.
-> **Updated:** 2026-01-16
+> **Updated:** {{DATE}}
 
 ---
 
@@ -10,36 +10,36 @@
 
 ### Dev-1 (UI)
 ```
-CloudSyncApp/Views/                    ✅ Full ownership
-CloudSyncApp/ViewModels/               ✅ Full ownership
-CloudSyncApp/Components/               ✅ Full ownership
-CloudSyncApp/Styles/                   ✅ Full ownership
+{{SOURCE_DIR}}/Views/                    ✅ Full ownership
+{{SOURCE_DIR}}/ViewModels/               ✅ Full ownership
+{{SOURCE_DIR}}/Components/               ✅ Full ownership
+{{SOURCE_DIR}}/Styles/                   ✅ Full ownership
 ```
 
 ### Dev-2 (Engine)
 ```
-CloudSyncApp/RcloneManager.swift       ✅ Full ownership
-CloudSyncApp/TransferOptimizer.swift   ✅ Full ownership
+{{SOURCE_DIR}}/CoreEngine/               ✅ Full ownership
+{{SOURCE_DIR}}/ServiceInterface.swift    ✅ Full ownership
 ```
 
 ### Dev-3 (Services)
 ```
-CloudSyncApp/Models/                   ✅ Full ownership
-CloudSyncApp/Managers/                 ✅ Full ownership (except RcloneManager)
+{{SOURCE_DIR}}/Models/                   ✅ Full ownership
+{{SOURCE_DIR}}/Managers/                 ✅ Full ownership (except core engine)
 ```
 
 ### QA (Testing)
 ```
-CloudSyncAppTests/                     ✅ Full ownership
-CloudSyncAppUITests/                   ✅ Full ownership
+{{TEST_DIR}}/                            ✅ Full ownership
+{{UI_TEST_DIR}}/                         ✅ Full ownership
 ```
 
 ### Dev-Ops (Infrastructure)
 ```
-.claude-team/                          ✅ Full ownership
-scripts/                               ✅ Full ownership
-.github/                               ✅ Full ownership
-docs/                                  ✅ Full ownership
+.claude-team/                            ✅ Full ownership
+scripts/                                 ✅ Full ownership
+.github/                                 ✅ Full ownership
+docs/                                    ✅ Full ownership
 ```
 
 ---
@@ -50,11 +50,11 @@ These files affect multiple workers. Modification requires Strategic Partner app
 
 | File | Impact | Approval Required |
 |------|--------|-------------------|
-| `CloudSyncAppApp.swift` | App entry point | Strategic Partner |
+| `{{APP_ENTRY_POINT}}` | App entry point | Strategic Partner |
 | `MainWindow.swift` | Navigation structure | Strategic Partner |
 | `ContentView.swift` | Root view | Strategic Partner |
 | `Info.plist` | App configuration | Strategic Partner |
-| `CloudSyncApp.xcodeproj` | Project structure | Strategic Partner |
+| `{{PROJECT_FILE}}` | Project structure | Strategic Partner |
 
 ---
 
@@ -64,12 +64,12 @@ These files affect multiple workers. Modification requires Strategic Partner app
 # Quick check: Is this file in my domain?
 # Replace [FILE] and [WORKER] with actual values
 
-FILE="CloudSyncApp/Views/TasksView.swift"
+FILE="{{SOURCE_DIR}}/Views/TasksView.swift"
 WORKER="Dev-1"
 
 # Check directory
 echo $FILE | grep -E "Views/|ViewModels/|Components/" && echo "→ Dev-1 domain"
-echo $FILE | grep -E "RcloneManager|TransferOptimizer" && echo "→ Dev-2 domain"
+echo $FILE | grep -E "CoreEngine|ServiceInterface" && echo "→ Dev-2 domain"
 echo $FILE | grep -E "Models/|Managers/" && echo "→ Dev-3 domain"
 ```
 
@@ -96,4 +96,4 @@ Strategic Partner may grant temporary cross-domain access:
 
 ---
 
-*Last updated: 2026-01-16*
+*Last updated: {{DATE}}*

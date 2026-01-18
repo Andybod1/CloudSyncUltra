@@ -23,8 +23,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Install rclone
-        run: brew install rclone
+      # Install dependencies (customize for your project)
+      # - name: Install Dependencies
+      #   run: brew install <your-dependencies>
 
       - name: Install SwiftLint
         run: brew install swiftlint
@@ -66,12 +67,12 @@ jobs:
             gem install xcpretty
           fi
 
-      # Build the project
+      # Build the project (customize project/scheme names)
       - name: Build
         run: |
           xcodebuild build \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
             | xcpretty
 
@@ -79,8 +80,8 @@ jobs:
       - name: Run Tests with Coverage
         run: |
           xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
             -enableCodeCoverage YES \
             -resultBundlePath TestResults \
@@ -103,12 +104,12 @@ jobs:
               # Display coverage summary
               cat coverage_report.txt
 
-              # Extract overall coverage percentage for CloudSyncApp target
-              COVERAGE=$(grep "CloudSyncApp.app" coverage_report.txt | awk '{print $4}' | tr -d '%' || echo "")
+              # Extract overall coverage percentage (customize app name)
+              COVERAGE=$(grep "YourApp.app" coverage_report.txt | awk '{print $4}' | tr -d '%' || echo "")
 
               if [ ! -z "$COVERAGE" ]; then
                 echo ""
-                echo "📈 CloudSyncApp Coverage: ${COVERAGE}%"
+                echo "📈 Coverage: ${COVERAGE}%"
                 echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
 
                 # Save coverage to file for artifact
@@ -179,6 +180,76 @@ jobs:
             echo "### ⚠️ Code Coverage: Not Available" >> $GITHUB_STEP_SUMMARY
           fi
 
+  # Code Complexity Check
+  complexity:
+    name: Complexity Check
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Complexity Check
+        id: complexity
+        run: |
+          chmod +x ./scripts/complexity-check.sh
+
+          # Run complexity check and capture output (strip ANSI codes)
+          ./scripts/complexity-check.sh --warn-only 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee complexity_output.txt
+
+          # Extract counts (use head -1 to ensure single value)
+          ERRORS=$(grep "Errors:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+          WARNINGS=$(grep "Warnings:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+          FILES=$(grep "Files checked:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+
+          # Ensure we have valid numbers (default to 0 if empty)
+          ERRORS="${ERRORS:-0}"
+          WARNINGS="${WARNINGS:-0}"
+          FILES="${FILES:-0}"
+
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+          # Save metrics for tracking
+          mkdir -p metrics
+          echo "{\"errors\": $ERRORS, \"warnings\": $WARNINGS, \"files\": $FILES, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"commit\": \"${{ github.sha }}\"}" > metrics/complexity.json
+
+      - name: Check for New Complexity Issues
+        if: github.event_name == 'pull_request'
+        run: |
+          ERRORS=${{ steps.complexity.outputs.errors }}
+
+          # For PRs, we could compare against main branch
+          # For now, just report
+          if [ "$ERRORS" -gt 50 ]; then
+            echo "⚠️ High complexity: $ERRORS errors detected"
+            echo "Consider refactoring large files before merging"
+          fi
+
+      - name: Complexity Summary
+        run: |
+          ERRORS=${{ steps.complexity.outputs.errors }}
+          WARNINGS=${{ steps.complexity.outputs.warnings }}
+          FILES=${{ steps.complexity.outputs.files }}
+
+          echo "### 📐 Code Complexity" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Files Checked | $FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Errors (large files/functions) | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Warnings (nesting/unwraps) | $WARNINGS |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Complexity Metrics
+        uses: actions/upload-artifact@v6
+        with:
+          name: complexity-metrics
+          path: |
+            metrics/
+            complexity_output.txt
+          retention-days: 90
+
   # Binary Size Tracking
   binary-size:
     name: Binary Size
@@ -192,8 +263,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Install rclone
-        run: brew install rclone
+      # Install dependencies (customize for your project)
+      # - name: Install Dependencies
+      #   run: brew install <your-dependencies>
 
       - name: Cache DerivedData
         uses: actions/cache@v5
@@ -206,8 +278,8 @@ jobs:
       - name: Build Release
         run: |
           xcodebuild build \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -configuration Release \
             -destination 'platform=macOS' \
             -derivedDataPath build \
@@ -216,10 +288,10 @@ jobs:
       - name: Measure Binary Size
         id: size
         run: |
-          APP_PATH=$(find build -name "CloudSyncApp.app" -type d | head -1)
+          APP_PATH=$(find build -name "YourApp.app" -type d | head -1)
 
           if [ -z "$APP_PATH" ]; then
-            echo "❌ Could not find CloudSyncApp.app"
+            echo "❌ Could not find YourApp.app"
             exit 1
           fi
 
@@ -315,8 +387,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Install rclone
-        run: brew install rclone
+      # Install dependencies (customize for your project)
+      # - name: Install Dependencies
+      #   run: brew install <your-dependencies>
 
       - name: Cache DerivedData
         uses: actions/cache@v5
@@ -331,10 +404,10 @@ jobs:
         run: |
           echo "🔍 Running Address Sanitizer..."
           xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
-            -skip-testing:CloudSyncAppUITests \
+            -skip-testing:YourProjectUITests \
             -enableAddressSanitizer YES \
             -quiet 2>&1 | tee asan_output.txt || true
 
@@ -350,10 +423,10 @@ jobs:
         run: |
           echo "🔍 Running Thread Sanitizer..."
           xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
-            -skip-testing:CloudSyncAppUITests \
+            -skip-testing:YourProjectUITests \
             -enableThreadSanitizer YES \
             -quiet 2>&1 | tee tsan_output.txt || true
 

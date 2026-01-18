@@ -31,8 +31,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Install rclone
-        run: brew install rclone
+      # Install dependencies (customize for your project)
+      # - name: Install Dependencies
+      #   run: brew install <your-dependencies>
 
       - name: Cache DerivedData
         uses: actions/cache@v5
@@ -48,14 +49,14 @@ jobs:
         run: |
           echo "🏗️ Measuring clean build time..."
 
-          # Clean
-          xcodebuild clean -project CloudSyncApp.xcodeproj -scheme CloudSyncApp -quiet 2>/dev/null || true
+          # Clean (customize project/scheme names)
+          xcodebuild clean -project YourProject.xcodeproj -scheme YourScheme -quiet 2>/dev/null || true
 
           # Time the build
           START=$(date +%s)
           xcodebuild build \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
             -quiet
           END=$(date +%s)
@@ -72,10 +73,10 @@ jobs:
           echo "⚡ Running performance tests..."
 
           xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
-            -only-testing:CloudSyncAppTests/PerformanceTests \
+            -only-testing:YourProjectTests/PerformanceTests \
             -resultBundlePath PerfResults \
             2>&1 | tee test_output.txt || true
 
@@ -89,6 +90,24 @@ jobs:
           else
             echo "No performance test metrics found"
             echo "perf_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Load baseline for comparison
+      - name: Load Baseline
+        id: baseline
+        run: |
+          BASELINE_FILE=".claude-team/metrics/perf-baseline.json"
+
+          if [ -f "$BASELINE_FILE" ]; then
+            echo "📊 Found baseline file"
+            BASELINE_BUILD=$(jq -r '.build_time_seconds // 0' "$BASELINE_FILE")
+            BASELINE_TEST=$(jq -r '.test_time_seconds // 0' "$BASELINE_FILE")
+            echo "baseline_build=$BASELINE_BUILD" >> $GITHUB_OUTPUT
+            echo "baseline_test=$BASELINE_TEST" >> $GITHUB_OUTPUT
+            echo "has_baseline=true" >> $GITHUB_OUTPUT
+          else
+            echo "📝 No baseline found - this will establish initial metrics"
+            echo "has_baseline=false" >> $GITHUB_OUTPUT
           fi
 
       # Check against baseline
@@ -130,10 +149,10 @@ jobs:
 
           START=$(date +%s)
           xcodebuild test \
-            -project CloudSyncApp.xcodeproj \
-            -scheme CloudSyncApp \
+            -project YourProject.xcodeproj \
+            -scheme YourScheme \
             -destination 'platform=macOS' \
-            -skip-testing:CloudSyncAppUITests \
+            -skip-testing:YourProjectUITests \
             -quiet 2>&1 || true
           END=$(date +%s)
 
@@ -141,21 +160,105 @@ jobs:
           echo "test_time=$TEST_TIME" >> $GITHUB_OUTPUT
           echo "✅ Tests completed in ${TEST_TIME}s"
 
+      # Regression Detection
+      - name: Regression Detection
+        id: regression
+        run: |
+          BUILD_TIME=${{ steps.build_time.outputs.build_time }}
+          TEST_TIME=${{ steps.test_time.outputs.test_time }}
+          HAS_BASELINE=${{ steps.baseline.outputs.has_baseline }}
+
+          REGRESSION_DETECTED=false
+          REGRESSION_DETAILS=""
+
+          if [ "$HAS_BASELINE" == "true" ]; then
+            BASELINE_BUILD=${{ steps.baseline.outputs.baseline_build }}
+            BASELINE_TEST=${{ steps.baseline.outputs.baseline_test }}
+
+            # Calculate percentage changes
+            if [ "$BASELINE_BUILD" -gt 0 ]; then
+              BUILD_CHANGE=$(echo "scale=1; (($BUILD_TIME - $BASELINE_BUILD) * 100) / $BASELINE_BUILD" | bc)
+              echo "Build time change: ${BUILD_CHANGE}%"
+
+              # Regression threshold: 20% slower
+              BUILD_THRESHOLD=20
+              if [ "$(echo "$BUILD_CHANGE > $BUILD_THRESHOLD" | bc)" -eq 1 ]; then
+                REGRESSION_DETECTED=true
+                REGRESSION_DETAILS="Build time regression: ${BUILD_CHANGE}% slower (${BUILD_TIME}s vs ${BASELINE_BUILD}s baseline)"
+              fi
+            fi
+
+            if [ "$BASELINE_TEST" -gt 0 ]; then
+              TEST_CHANGE=$(echo "scale=1; (($TEST_TIME - $BASELINE_TEST) * 100) / $BASELINE_TEST" | bc)
+              echo "Test time change: ${TEST_CHANGE}%"
+
+              # Regression threshold: 20% slower
+              TEST_THRESHOLD=20
+              if [ "$(echo "$TEST_CHANGE > $TEST_THRESHOLD" | bc)" -eq 1 ]; then
+                REGRESSION_DETECTED=true
+                REGRESSION_DETAILS="${REGRESSION_DETAILS}Test time regression: ${TEST_CHANGE}% slower (${TEST_TIME}s vs ${BASELINE_TEST}s baseline)"
+              fi
+            fi
+          fi
+
+          echo "regression=$REGRESSION_DETECTED" >> $GITHUB_OUTPUT
+          echo "details=$REGRESSION_DETAILS" >> $GITHUB_OUTPUT
+
       # Compare with baseline
       - name: Compare with Baseline
         run: |
           BUILD_TIME=${{ steps.build_time.outputs.build_time }}
           TEST_TIME=${{ steps.test_time.outputs.test_time }}
+          HAS_BASELINE=${{ steps.baseline.outputs.has_baseline }}
+          REGRESSION=${{ steps.regression.outputs.regression }}
 
           echo "### ⚡ Performance Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Time |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Clean Build | ${BUILD_TIME}s |" >> $GITHUB_STEP_SUMMARY
-          echo "| Test Suite | ${TEST_TIME}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Time | Baseline | Change |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|----------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$HAS_BASELINE" == "true" ]; then
+            BASELINE_BUILD=${{ steps.baseline.outputs.baseline_build }}
+            BASELINE_TEST=${{ steps.baseline.outputs.baseline_test }}
+
+            BUILD_DIFF=$((BUILD_TIME - BASELINE_BUILD))
+            TEST_DIFF=$((TEST_TIME - BASELINE_TEST))
+
+            if [ "$BUILD_DIFF" -gt 0 ]; then
+              BUILD_STATUS="⚠️ +${BUILD_DIFF}s"
+            elif [ "$BUILD_DIFF" -lt 0 ]; then
+              BUILD_STATUS="✅ ${BUILD_DIFF}s"
+            else
+              BUILD_STATUS="✅ no change"
+            fi
+
+            if [ "$TEST_DIFF" -gt 0 ]; then
+              TEST_STATUS="⚠️ +${TEST_DIFF}s"
+            elif [ "$TEST_DIFF" -lt 0 ]; then
+              TEST_STATUS="✅ ${TEST_DIFF}s"
+            else
+              TEST_STATUS="✅ no change"
+            fi
+
+            echo "| Clean Build | ${BUILD_TIME}s | ${BASELINE_BUILD}s | $BUILD_STATUS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Test Suite | ${TEST_TIME}s | ${BASELINE_TEST}s | $TEST_STATUS |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Clean Build | ${BUILD_TIME}s | - | 📝 first measurement |" >> $GITHUB_STEP_SUMMARY
+            echo "| Test Suite | ${TEST_TIME}s | - | 📝 first measurement |" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Check for regressions (>20% slower than typical)
+          # Regression warnings
+          if [ "$REGRESSION" == "true" ]; then
+            echo "### ⚠️ Performance Regression Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Performance has degraded by more than 20% compared to baseline." >> $GITHUB_STEP_SUMMARY
+            echo "Consider investigating before merging." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Absolute thresholds (fallback)
           if [ "$BUILD_TIME" -gt 120 ]; then
             echo "⚠️ **Warning:** Build time exceeds 2 minutes" >> $GITHUB_STEP_SUMMARY
           fi
@@ -173,9 +276,27 @@ jobs:
             "version": "$(cat VERSION.txt | tr -d '[:space:]')",
             "commit": "${{ github.sha }}",
             "build_time_seconds": ${{ steps.build_time.outputs.build_time }},
+            "test_time_seconds": ${{ steps.test_time.outputs.test_time }},
+            "regression_detected": ${{ steps.regression.outputs.regression }}
+          }
+          EOF
+
+      # Save as new baseline if requested
+      - name: Save Baseline
+        if: inputs.save_baseline == 'true' || (github.event_name == 'release')
+        run: |
+          echo "📊 Saving new performance baseline..."
+          mkdir -p .claude-team/metrics
+          cat > .claude-team/metrics/perf-baseline.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "version": "$(cat VERSION.txt | tr -d '[:space:]')",
+            "commit": "${{ github.sha }}",
+            "build_time_seconds": ${{ steps.build_time.outputs.build_time }},
             "test_time_seconds": ${{ steps.test_time.outputs.test_time }}
           }
           EOF
+          echo "✅ Baseline saved to .claude-team/metrics/perf-baseline.json"
 
       - name: Upload Metrics
         uses: actions/upload-artifact@v6
@@ -183,3 +304,11 @@ jobs:
           name: performance-metrics
           path: metrics/
           retention-days: 90
+
+      # Fail on regression (optional - uncomment to make blocking)
+      # - name: Fail on Regression
+      #   if: steps.regression.outputs.regression == 'true'
+      #   run: |
+      #     echo "❌ Performance regression detected!"
+      #     echo "${{ steps.regression.outputs.details }}"
+      #     exit 1
