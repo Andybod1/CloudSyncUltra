@@ -281,7 +281,34 @@ Quick reflection on the sprint to capture learnings:
 
 **Tip:** Keep it brief (2-3 min). Focus on actionable improvements, not blame.
 
-#### 9. User-Facing Docs Check (Quarterly or Major Features)
+#### 9. Sync Project-Ops-Kit Template
+
+> Keep the reusable template in sync with operational improvements.
+
+```bash
+# Compare current ops files with template
+diff -q .claude-team/OPERATIONAL_EXCELLENCE.md templates/project-ops-kit/.claude-team/OPERATIONAL_EXCELLENCE.md
+diff -q scripts/dashboard.sh templates/project-ops-kit/scripts/dashboard.sh
+diff -q scripts/release.sh templates/project-ops-kit/scripts/release.sh
+```
+
+| Source File | Template Location |
+|-------------|-------------------|
+| `.claude-team/OPERATIONAL_EXCELLENCE.md` | `templates/project-ops-kit/.claude-team/` |
+| `scripts/dashboard.sh` | `templates/project-ops-kit/scripts/` |
+| `scripts/release.sh` | `templates/project-ops-kit/scripts/` |
+| `scripts/update-version.sh` | `templates/project-ops-kit/scripts/` |
+| `scripts/version-check.sh` | `templates/project-ops-kit/scripts/` |
+| `CLAUDE_PROJECT_KNOWLEDGE.md` | `templates/project-ops-kit/` |
+
+- [ ] Check if any operational scripts were improved this sprint
+- [ ] Check if checklist or processes were updated
+- [ ] Copy updated files to `templates/project-ops-kit/`
+- [ ] Remove project-specific content from template copies
+
+**Trigger:** Run when scripts, checklists, or operational docs are modified.
+
+#### 10. User-Facing Docs Check (Quarterly or Major Features)
 
 | File | Check For |
 |------|-----------|
@@ -300,7 +327,7 @@ Quick reflection on the sprint to capture learnings:
 
 **⚡ Do this IMMEDIATELY after each sprint - don't wait to be asked!**
 
-#### 10. Daily Documentation Update (End of Day)
+#### 11. Daily Documentation Update (End of Day)
 
 > **🔒 MANDATORY** - Update these files at the end of EVERY working day.
 
