@@ -337,8 +337,9 @@ class ProtonDriveManager: ObservableObject {
         
         // Check connection every 5 minutes
         healthCheckTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            guard let strongSelf = self else { return }
             Task { @MainActor in
-                await self?.verifyConnection()
+                await strongSelf.verifyConnection()
             }
         }
         
