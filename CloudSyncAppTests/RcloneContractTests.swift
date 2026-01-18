@@ -200,7 +200,7 @@ final class RcloneContractTests: XCTestCase {
         }
 
         // Final fallback: Load from file system during development
-        let devPath = "/Users/antti/Claude/CloudSyncAppTests/Fixtures/Rclone/\(name)"
+        let devPath = "/Users/antti/claude/CloudSyncAppTests/Fixtures/Rclone/\(name)"
         if FileManager.default.fileExists(atPath: devPath) {
             return try Data(contentsOf: URL(fileURLWithPath: devPath))
         }

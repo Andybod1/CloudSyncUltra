@@ -91,36 +91,83 @@ jobs:
             echo "perf_found=false" >> $GITHUB_OUTPUT
           fi
 
-      # Check against baseline
+      # Check against baseline with regression detection
       - name: Check Performance Baseline
+        id: baseline_check
         if: steps.perf_tests.outputs.perf_found == 'true'
         run: |
           BASELINE_FILE=".claude-team/metrics/perf-baseline.json"
+          REGRESSION_THRESHOLD=20  # Alert on >20% regression
+          HAS_REGRESSION=false
 
           echo "### Performance Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "$BASELINE_FILE" ]; then
-            echo "Comparing against baseline..." >> $GITHUB_STEP_SUMMARY
+            echo "Comparing against baseline (regression threshold: ${REGRESSION_THRESHOLD}%)..." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "| Test | Result |" >> $GITHUB_STEP_SUMMARY
-            echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Test | Measured (ms) | Baseline (ms) | Threshold (ms) | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|---------------|---------------|----------------|--------|" >> $GITHUB_STEP_SUMMARY
 
-            # Parse and display metrics
+            # Parse and compare metrics against baseline
             while IFS= read -r line; do
               TEST_NAME=$(echo "$line" | grep -oE "test[A-Za-z_0-9]+" | head -1)
-              AVG_TIME=$(echo "$line" | grep -oE "average: [0-9.]+" | sed 's/average: //')
+              # Extract average time in seconds, convert to ms
+              AVG_TIME_SEC=$(echo "$line" | grep -oE "average: [0-9.]+" | sed 's/average: //')
 
-              if [ -n "$TEST_NAME" ] && [ -n "$AVG_TIME" ]; then
-                echo "| $TEST_NAME | ${AVG_TIME}s |" >> $GITHUB_STEP_SUMMARY
+              if [ -n "$TEST_NAME" ] && [ -n "$AVG_TIME_SEC" ]; then
+                # Convert seconds to milliseconds (multiply by 1000)
+                AVG_TIME_MS=$(echo "$AVG_TIME_SEC * 1000" | bc -l | xargs printf "%.1f")
+
+                # Get baseline and threshold from JSON
+                BASELINE_MS=$(jq -r ".baselines.\"$TEST_NAME\".average_ms // \"N/A\"" "$BASELINE_FILE")
+                THRESHOLD_MS=$(jq -r ".baselines.\"$TEST_NAME\".threshold_ms // \"N/A\"" "$BASELINE_FILE")
+
+                if [ "$BASELINE_MS" != "N/A" ] && [ "$THRESHOLD_MS" != "N/A" ]; then
+                  # Check for regression (>20% above baseline)
+                  REGRESSION_LIMIT=$(echo "$BASELINE_MS * (1 + $REGRESSION_THRESHOLD / 100)" | bc -l)
+
+                  if (( $(echo "$AVG_TIME_MS > $THRESHOLD_MS" | bc -l) )); then
+                    STATUS="FAIL - exceeds threshold"
+                    HAS_REGRESSION=true
+                  elif (( $(echo "$AVG_TIME_MS > $REGRESSION_LIMIT" | bc -l) )); then
+                    STATUS="WARN - >20% regression"
+                    HAS_REGRESSION=true
+                  else
+                    STATUS="PASS"
+                  fi
+
+                  echo "| $TEST_NAME | $AVG_TIME_MS | $BASELINE_MS | $THRESHOLD_MS | $STATUS |" >> $GITHUB_STEP_SUMMARY
+                else
+                  echo "| $TEST_NAME | $AVG_TIME_MS | N/A | N/A | No baseline |" >> $GITHUB_STEP_SUMMARY
+                fi
               fi
             done < perf_metrics.txt
 
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Baseline file: $BASELINE_FILE" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$HAS_REGRESSION" = true ]; then
+              echo "regression_detected=true" >> $GITHUB_OUTPUT
+              echo "::warning::Performance regression detected! One or more tests exceeded baseline by >20%"
+              echo "**Warning: Performance regression detected!**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "regression_detected=false" >> $GITHUB_OUTPUT
+              echo "All performance tests within acceptable limits." >> $GITHUB_STEP_SUMMARY
+            fi
           else
             echo "No baseline file found - establishing initial metrics" >> $GITHUB_STEP_SUMMARY
+            echo "regression_detected=false" >> $GITHUB_OUTPUT
           fi
+
+      # Alert on regression
+      - name: Alert on Performance Regression
+        if: steps.baseline_check.outputs.regression_detected == 'true'
+        run: |
+          echo "::error::Performance regression detected!"
+          echo "One or more performance tests exceeded the 20% regression threshold."
+          echo "Review the Performance Test Results in the workflow summary."
+          # Fail the workflow on regression
+          exit 1
 
       # Measure test execution time
       - name: Test Suite Benchmark

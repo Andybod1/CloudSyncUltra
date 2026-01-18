@@ -10,6 +10,7 @@
 		01 /* CloudSyncAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02 /* CloudSyncAppApp.swift */; };
 		03 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04 /* ContentView.swift */; };
 		05 /* RcloneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06 /* RcloneManager.swift */; };
+		FIX001 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = FIX002 /* Fixtures */; };
 		05C65938403FAA1C275F694D /* TasksUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676F55F5D2D0390999318696 /* TasksUITests.swift */; };
 		07 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08 /* SyncManager.swift */; };
 		0853A8B6DCF0320F979C9F09 /* OAuthExpansionProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57298D30CEEFA6B8FCE7AB3 /* OAuthExpansionProvidersTests.swift */; };
@@ -278,6 +279,7 @@
 		CMP02 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletionStepView.swift; path = CloudSyncApp/Views/Onboarding/CompletionStepView.swift; sourceTree = SOURCE_ROOT; };
 		D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/RcloneContractTests.swift; sourceTree = SOURCE_ROOT; };
 		D2D2881ED8DA0ABD6E7BFC23 /* ScheduleFrequencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ScheduleFrequencyTests.swift; sourceTree = SOURCE_ROOT; };
+		FIX002 /* Fixtures */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = CloudSyncAppTests/Fixtures; sourceTree = SOURCE_ROOT; };
 		D506FF630286532822C2F401 /* ProviderIconView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProviderIconView.swift; sourceTree = "<group>"; };
 		D63BCA8D8C177E469BF4667C /* JottacloudProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/JottacloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		DCC849189CAEEFB49851CF23 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Components.swift; path = CloudSyncApp/Components/Components.swift; sourceTree = SOURCE_ROOT; };
@@ -399,6 +401,7 @@
 				F1F9C303108B298BD53683C4 /* PerformanceTests.swift */,
 				6CFA5CB7FDFDE71D9E8867D4 /* WorkflowIntegrationTests.swift */,
 				6B6FC62D70DAAFB022B73B65 /* SnapshotTests.swift */,
+				FIX002 /* Fixtures */,
 			);
 			path = CloudSyncAppTests;
 			sourceTree = SOURCE_ROOT;
@@ -680,6 +683,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FIX001 /* Fixtures in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
