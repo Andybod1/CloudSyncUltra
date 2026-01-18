@@ -112,6 +112,23 @@ jobs:
             echo "ℹ️ No Package.swift found - skipping SPM audit"
           fi
 
+      # Check for known vulnerabilities using OSV database
+      - name: Run OSV Scanner
+        uses: google/osv-scanner-action@v1.9.2
+        continue-on-error: true  # Warning only for now
+        with:
+          scan-args: |-
+            --lockfile=Gemfile.lock
+            --recursive
+            ./
+
+      - name: OSV Scanner Summary
+        if: always()
+        run: |
+          echo "### 🔍 OSV Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Scanned for known CVEs in dependencies using Google OSV database." >> $GITHUB_STEP_SUMMARY
+
       # Check Info.plist security settings
       - name: Check App Security Settings
         run: |
@@ -143,4 +160,5 @@ jobs:
           echo "- Hardcoded secrets scan" >> $GITHUB_STEP_SUMMARY
           echo "- Insecure coding patterns" >> $GITHUB_STEP_SUMMARY
           echo "- Dependency audit" >> $GITHUB_STEP_SUMMARY
+          echo "- OSV vulnerability scan" >> $GITHUB_STEP_SUMMARY
           echo "- App security settings" >> $GITHUB_STEP_SUMMARY

@@ -43,12 +43,10 @@ jobs:
           echo ""
           echo "📊 SwiftLint Results: $ERROR_COUNT errors, $WARNING_COUNT warnings"
 
-          # Fail only on errors, not warnings
+          # Fail only on errors, not warnings (strict mode enabled)
           if [ "$ERROR_COUNT" -gt 0 ]; then
-            echo "❌ SwiftLint found $ERROR_COUNT error(s) - these should be fixed"
-            # Currently non-blocking while codebase is cleaned up
-            # TODO: Enable strict mode once violations are fixed
-            # exit 1
+            echo "❌ SwiftLint found $ERROR_COUNT error(s) - failing build"
+            exit 1
           fi
           echo "✅ SwiftLint check complete"
 

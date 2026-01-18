@@ -23,26 +23,26 @@ excluded:
 # TODO: Gradually lower these as codebase is refactored
 # ─────────────────────────────────────────────────────────────────────────────
 
-# File length - RcloneManager.swift is 2508 lines
+# File length - RcloneManager.swift is 2566 lines (tightened thresholds)
 file_length:
-  warning: 1500
-  error: 3000
+  warning: 1200
+  error: 2600
   ignore_comment_only_lines: true
 
-# Type body - RcloneManager class is 2054 lines
+# Type body - RcloneManager class is 2112 lines (tightened thresholds)
 type_body_length:
-  warning: 750
-  error: 2500
+  warning: 600
+  error: 2200
 
-# Function body - HelpManager has 698 line function
+# Function body - HelpManager has 698 line function (tightened thresholds)
 function_body_length:
-  warning: 150
-  error: 750
+  warning: 120
+  error: 700
 
-# Cyclomatic complexity - AppTheme+ProviderColors has 39
+# Cyclomatic complexity - AppTheme+ProviderColors has 39 (20% reduction applied)
 cyclomatic_complexity:
-  warning: 20
-  error: 50
+  warning: 16
+  error: 40
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enabled Rules
@@ -97,18 +97,18 @@ disabled_rules:
 # Rule Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Line length - be reasonable for SwiftUI
+# Line length - be reasonable for SwiftUI (tightened thresholds)
 line_length:
-  warning: 150
+  warning: 120
   error: 200
   ignores_comments: true
   ignores_urls: true
   ignores_function_declarations: true
   ignores_interpolated_strings: true
 
-# Function parameter count
+# Function parameter count (tightened thresholds)
 function_parameter_count:
-  warning: 6
+  warning: 5
   error: 8
 
 # Type name length
@@ -155,10 +155,10 @@ identifier_name:
     - ModTime
     - MimeType
 
-# Large tuple
+# Large tuple (20% reduction applied)
 large_tuple:
-  warning: 4
-  error: 5
+  warning: 3
+  error: 4
 
 # Vertical whitespace
 vertical_whitespace:
