@@ -132,7 +132,8 @@
       "WebFetch(domain:simplebackups.com)",
       "Bash(python3:*)",
       "Bash(for f in .claude-team/RECOVERY.md .claude-team/ALERTS.md README.md)",
-      "Bash(do sed -i '' 's/2\\\\.0\\\\.37/2.0.39/g' \"$f\")"
+      "Bash(do sed -i '' 's/2\\\\.0\\\\.37/2.0.39/g' \"$f\")",
+      "Bash(./scripts/complexity-check.sh:*)"
     ]
   }
 }

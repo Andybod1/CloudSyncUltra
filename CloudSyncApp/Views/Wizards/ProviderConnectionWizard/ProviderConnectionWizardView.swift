@@ -36,6 +36,13 @@ class ProviderConnectionWizardState: ObservableObject {
     @Published var localFolderURL: URL?
     @Published var localBookmarkCreated: Bool = false
 
+    // Enterprise OAuth configuration (#161)
+    @Published var useCustomOAuth: Bool = false
+    @Published var customOAuthClientId: String = ""
+    @Published var customOAuthClientSecret: String = ""
+    @Published var customOAuthAuthURL: String = ""
+    @Published var customOAuthTokenURL: String = ""
+
     func reset() {
         currentStep = 0
         selectedProvider = nil
@@ -55,6 +62,11 @@ class ProviderConnectionWizardState: ObservableObject {
         localFolderPath = ""
         localFolderURL = nil
         localBookmarkCreated = false
+        useCustomOAuth = false
+        customOAuthClientId = ""
+        customOAuthClientSecret = ""
+        customOAuthAuthURL = ""
+        customOAuthTokenURL = ""
     }
 }
 
@@ -125,7 +137,12 @@ struct ProviderConnectionWizardView: View {
                         useFTPS: $wizardState.useFTPS,
                         useImplicitTLS: $wizardState.useImplicitTLS,
                         skipCertVerify: $wizardState.skipCertVerify,
-                        serverURL: $wizardState.serverURL
+                        serverURL: $wizardState.serverURL,
+                        useCustomOAuth: $wizardState.useCustomOAuth,
+                        customOAuthClientId: $wizardState.customOAuthClientId,
+                        customOAuthClientSecret: $wizardState.customOAuthClientSecret,
+                        customOAuthAuthURL: $wizardState.customOAuthAuthURL,
+                        customOAuthTokenURL: $wizardState.customOAuthTokenURL
                     )
                 }
             case 2:
@@ -142,6 +159,11 @@ struct ProviderConnectionWizardView: View {
                     skipCertVerify: wizardState.skipCertVerify,
                     serverURL: wizardState.serverURL,
                     localFolderPath: wizardState.localFolderPath,  // Local Storage support (#167)
+                    useCustomOAuth: wizardState.useCustomOAuth,  // Enterprise OAuth (#161)
+                    customOAuthClientId: wizardState.customOAuthClientId,
+                    customOAuthClientSecret: wizardState.customOAuthClientSecret,
+                    customOAuthAuthURL: wizardState.customOAuthAuthURL,
+                    customOAuthTokenURL: wizardState.customOAuthTokenURL,
                     isConnecting: $wizardState.isConnecting,
                     connectionError: $wizardState.connectionError,
                     isConnected: $wizardState.isConnected

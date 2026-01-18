@@ -19,8 +19,36 @@ struct ConfigureSettingsStep: View {
     var useFTPS: Binding<Bool> = .constant(true)
     var useImplicitTLS: Binding<Bool> = .constant(false)  // false = Explicit (port 21), true = Implicit (port 990)
     var skipCertVerify: Binding<Bool> = .constant(false)
-    // Server URL for self-hosted providers (Seafile, etc.)
+    // Server URL for self-hosted providers (Seafile, Nextcloud, ownCloud, etc.)
     var serverURL: Binding<String> = .constant("")
+
+    // Enterprise OAuth configuration (#161)
+    var useCustomOAuth: Binding<Bool> = .constant(false)
+    var customOAuthClientId: Binding<String> = .constant("")
+    var customOAuthClientSecret: Binding<String> = .constant("")
+    var customOAuthAuthURL: Binding<String> = .constant("")
+    var customOAuthTokenURL: Binding<String> = .constant("")
+
+    // MARK: - State Properties
+    @State private var showAdvancedOAuth: Bool = false
+
+    // MARK: - Nextcloud URL Validation State (#162)
+    @State private var serverURLValidation: NextcloudURLValidation = .empty
+
+    /// Validation state for Nextcloud/ownCloud server URLs
+    enum NextcloudURLValidation: Equatable {
+        case empty
+        case invalid(reason: String)
+        case warning(message: String)
+        case valid
+
+        var isValid: Bool {
+            switch self {
+            case .valid, .warning: return true
+            default: return false
+            }
+        }
+    }
 
     private var needsTwoFactor: Bool {
         provider == .protonDrive || provider == .mega
@@ -52,6 +80,26 @@ struct ConfigureSettingsStep: View {
 
     private var isQuatrix: Bool {
         provider == .quatrix
+    }
+
+    private var isNextcloud: Bool {
+        provider == .nextcloud
+    }
+
+    private var isOwncloud: Bool {
+        provider == .owncloud
+    }
+
+    /// Whether this provider supports custom OAuth configuration (#161)
+    /// Enterprise users may need to use their own OAuth app for rate limits or security policies
+    private var supportsCustomOAuth: Bool {
+        switch provider {
+        case .googleDrive, .oneDrive, .oneDriveBusiness, .sharepoint,
+             .dropbox, .box, .googleCloudStorage, .googlePhotos:
+            return true
+        default:
+            return false
+        }
     }
 
     var body: some View {
@@ -293,6 +341,11 @@ struct ConfigureSettingsStep: View {
                 .padding()
             }
 
+            // Enterprise OAuth Configuration (#161)
+            if supportsCustomOAuth {
+                enterpriseOAuthConfiguration
+            }
+
             // Instructions
             VStack(alignment: .leading, spacing: 12) {
                 Text("What will happen:")
@@ -336,6 +389,144 @@ struct ConfigureSettingsStep: View {
         }
     }
 
+    // MARK: - Enterprise OAuth Configuration (#161)
+    @ViewBuilder
+    private var enterpriseOAuthConfiguration: some View {
+        DisclosureGroup(
+            isExpanded: $showAdvancedOAuth,
+            content: {
+                VStack(spacing: 16) {
+                    // Enable custom OAuth toggle
+                    Toggle(isOn: useCustomOAuth) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Use Custom OAuth App")
+                                .font(.subheadline)
+                            Text("Use your organization's OAuth credentials")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.top, 8)
+
+                    if useCustomOAuth.wrappedValue {
+                        Divider()
+
+                        // Help text
+                        HStack {
+                            Image(systemName: "building.2.fill")
+                                .foregroundColor(.blue)
+                            Text(enterpriseOAuthHelpText)
+                                .font(.caption)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(8)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(6)
+
+                        // Client ID
+                        HStack {
+                            Text("Client ID")
+                                .frame(width: 100, alignment: .trailing)
+                            TextField("OAuth Client ID", text: customOAuthClientId)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
+                        // Client Secret
+                        HStack {
+                            Text("Client Secret")
+                                .frame(width: 100, alignment: .trailing)
+                            SecureField("OAuth Client Secret", text: customOAuthClientSecret)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
+                        // Optional: Custom Auth URL (for Azure AD / custom identity providers)
+                        if provider == .oneDriveBusiness || provider == .sharepoint {
+                            HStack {
+                                Text("Auth URL")
+                                    .frame(width: 100, alignment: .trailing)
+                                TextField("https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize", text: customOAuthAuthURL)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+
+                            HStack {
+                                Text("Token URL")
+                                    .frame(width: 100, alignment: .trailing)
+                                TextField("https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token", text: customOAuthTokenURL)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+
+                            HStack {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.secondary)
+                                Text("For Azure AD: Replace {tenant} with your tenant ID or domain")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        // Documentation links
+                        if let docURL = enterpriseOAuthDocURL {
+                            Link(destination: docURL) {
+                                HStack {
+                                    Image(systemName: "book.fill")
+                                    Text("View \(provider.displayName) OAuth documentation")
+                                }
+                                .font(.caption)
+                            }
+                        }
+                    }
+                }
+            },
+            label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "building.2.fill")
+                        .foregroundColor(.orange)
+                    Text("Enterprise Configuration")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Text("(Optional)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        )
+        .padding()
+        .background(Color(NSColor.controlBackgroundColor))
+        .cornerRadius(8)
+    }
+
+    /// Help text for enterprise OAuth configuration
+    private var enterpriseOAuthHelpText: String {
+        switch provider {
+        case .googleDrive, .googlePhotos, .googleCloudStorage:
+            return "Create a custom OAuth app in Google Cloud Console for higher rate limits or to comply with organization security policies."
+        case .oneDrive, .oneDriveBusiness, .sharepoint:
+            return "Register an Azure AD app for your organization to manage access centrally or when the default app is blocked."
+        case .dropbox:
+            return "Create a Dropbox App in the App Console for enterprise deployments with custom branding and rate limits."
+        case .box:
+            return "Register a custom Box app for enterprise integrations with your organization's security requirements."
+        default:
+            return "Use your organization's OAuth credentials for enterprise deployments."
+        }
+    }
+
+    /// Documentation URL for OAuth app registration
+    private var enterpriseOAuthDocURL: URL? {
+        switch provider {
+        case .googleDrive, .googlePhotos, .googleCloudStorage:
+            return URL(string: "https://rclone.org/drive/#making-your-own-client-id")
+        case .oneDrive, .oneDriveBusiness, .sharepoint:
+            return URL(string: "https://rclone.org/onedrive/#getting-your-own-client-id-and-key")
+        case .dropbox:
+            return URL(string: "https://rclone.org/dropbox/#get-your-own-dropbox-app-id")
+        case .box:
+            return URL(string: "https://rclone.org/box/#getting-your-own-box-client-id-and-key")
+        default:
+            return nil
+        }
+    }
+
     @ViewBuilder
     private var credentialsConfiguration: some View {
         VStack(spacing: 20) {
@@ -356,18 +547,28 @@ struct ConfigureSettingsStep: View {
                         .cornerRadius(6)
                     }
 
-                    // Server URL/Host field for Seafile, FileFabric, Quatrix (and other self-hosted providers)
-                    if isSeafile || isFileFabric || isQuatrix {
-                        HStack {
-                            Text(isQuatrix ? "Host" : "Server URL")
-                                .frame(width: 100, alignment: .trailing)
-                            TextField(
-                                isSeafile ? "https://cloud.seafile.com" :
-                                isQuatrix ? "yourcompany.quatrix.it" :
-                                "https://yourfabric.smestorage.com",
-                                text: serverURL
-                            )
-                            .textFieldStyle(.roundedBorder)
+                    // Server URL/Host field for Nextcloud, ownCloud, Seafile, FileFabric, Quatrix (#162)
+                    if isNextcloud || isOwncloud || isSeafile || isFileFabric || isQuatrix {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(isQuatrix ? "Host" : "Server URL")
+                                    .frame(width: 100, alignment: .trailing)
+                                TextField(
+                                    nextcloudURLPlaceholder,
+                                    text: serverURL
+                                )
+                                .textFieldStyle(.roundedBorder)
+                                .onChange(of: serverURL.wrappedValue) { _, newValue in
+                                    if isNextcloud || isOwncloud {
+                                        validateNextcloudURL(newValue)
+                                    }
+                                }
+                            }
+
+                            // Nextcloud/ownCloud URL validation feedback (#162)
+                            if isNextcloud || isOwncloud {
+                                nextcloudURLValidationView
+                            }
                         }
                     }
 
@@ -603,6 +804,10 @@ struct ConfigureSettingsStep: View {
             return "Mail.ru requires an App Password. Create one at: Settings → Security → App Passwords."
         case .quatrix:
             return "Enter your Quatrix host (e.g., yourcompany.quatrix.it) without https://. Generate an API key at your Quatrix profile under API Keys."
+        case .nextcloud:
+            return "Enter your Nextcloud server URL including https:// (e.g., https://cloud.example.com). Use your Nextcloud username and password, or an App Password if you have 2FA enabled."
+        case .owncloud:
+            return "Enter your ownCloud server URL including https:// (e.g., https://cloud.example.com). Use your ownCloud username and password."
         default:
             return nil
         }
@@ -645,8 +850,128 @@ struct ConfigureSettingsStep: View {
             return URL(string: "https://account.mail.ru/user/2-step-auth/passwords")
         case .quatrix:
             return URL(string: "https://docs.maytech.net/quatrix/quatrix-administration-guide/my-account/api-keys")
+        case .nextcloud:
+            return URL(string: "https://docs.nextcloud.com/server/latest/user_manual/en/files/access_webdav.html")
+        case .owncloud:
+            return URL(string: "https://doc.owncloud.com/server/next/user_manual/files/access_webdav.html")
         default:
             return nil
+        }
+    }
+
+    // MARK: - Nextcloud URL Validation Helpers (#162)
+
+    /// Placeholder text for the server URL field based on provider
+    private var nextcloudURLPlaceholder: String {
+        switch provider {
+        case .nextcloud:
+            return "https://cloud.example.com"
+        case .owncloud:
+            return "https://cloud.example.com"
+        case .seafile:
+            return "https://cloud.seafile.com"
+        case .quatrix:
+            return "yourcompany.quatrix.it"
+        case .filefabric:
+            return "https://yourfabric.smestorage.com"
+        default:
+            return "https://example.com"
+        }
+    }
+
+    /// Validates the Nextcloud/ownCloud server URL and updates validation state
+    private func validateNextcloudURL(_ urlString: String) {
+        // Empty URL
+        guard !urlString.trimmingCharacters(in: .whitespaces).isEmpty else {
+            serverURLValidation = .empty
+            return
+        }
+
+        let trimmed = urlString.trimmingCharacters(in: .whitespaces)
+
+        // Check for missing protocol
+        if !trimmed.lowercased().hasPrefix("http://") && !trimmed.lowercased().hasPrefix("https://") {
+            serverURLValidation = .invalid(reason: "URL must start with https:// (e.g., https://\(trimmed))")
+            return
+        }
+
+        // Check for http:// (insecure)
+        if trimmed.lowercased().hasPrefix("http://") && !trimmed.lowercased().hasPrefix("https://") {
+            serverURLValidation = .warning(message: "Using HTTP is not recommended. Consider using HTTPS for secure connections.")
+        }
+
+        // Try to parse as URL
+        guard let url = URL(string: trimmed) else {
+            serverURLValidation = .invalid(reason: "Invalid URL format. Please enter a valid server address.")
+            return
+        }
+
+        // Check for valid host
+        guard let host = url.host, !host.isEmpty else {
+            serverURLValidation = .invalid(reason: "URL must include a server address (e.g., cloud.example.com)")
+            return
+        }
+
+        // Check for common mistakes
+        if trimmed.contains("/remote.php/webdav") || trimmed.contains("/remote.php/dav") {
+            serverURLValidation = .warning(message: "Just enter the base URL without /remote.php/webdav - we'll add the WebDAV path automatically.")
+            return
+        }
+
+        // Check for trailing slash (minor warning)
+        if trimmed.hasSuffix("/") {
+            // Auto-clean: This is handled, just note it
+            serverURLValidation = .valid
+            return
+        }
+
+        // Check for localhost (common dev setup)
+        if host == "localhost" || host == "127.0.0.1" {
+            serverURLValidation = .warning(message: "Connecting to localhost. Make sure your server is running.")
+            return
+        }
+
+        // Valid URL
+        if serverURLValidation != .warning(message: "Using HTTP is not recommended. Consider using HTTPS for secure connections.") {
+            serverURLValidation = .valid
+        }
+    }
+
+    /// View showing URL validation status for Nextcloud/ownCloud
+    @ViewBuilder
+    private var nextcloudURLValidationView: some View {
+        switch serverURLValidation {
+        case .empty:
+            EmptyView()
+        case .invalid(let reason):
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundColor(.red)
+                Text(reason)
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.leading, 104)
+        case .warning(let message):
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                Text(message)
+                    .font(.caption)
+                    .foregroundColor(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.leading, 104)
+        case .valid:
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                Text("URL format looks good")
+                    .font(.caption)
+                    .foregroundColor(.green)
+            }
+            .padding(.leading, 104)
         }
     }
 }

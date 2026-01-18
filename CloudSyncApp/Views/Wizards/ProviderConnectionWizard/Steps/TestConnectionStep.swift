@@ -24,6 +24,12 @@ struct TestConnectionStep: View {
     let serverURL: String
     // Local Storage folder path (#167)
     var localFolderPath: String = ""
+    // Enterprise OAuth configuration (#161)
+    var useCustomOAuth: Bool = false
+    var customOAuthClientId: String = ""
+    var customOAuthClientSecret: String = ""
+    var customOAuthAuthURL: String = ""
+    var customOAuthTokenURL: String = ""
     @Binding var isConnecting: Bool
     @Binding var connectionError: String?
     @Binding var isConnected: Bool
@@ -269,11 +275,45 @@ struct TestConnectionStep: View {
         } catch {
             await MainActor.run {
                 testPhase = .failed
-                connectionError = "Failed to connect: \(error.localizedDescription)"
+                // Provide user-friendly error messages (#162)
+                connectionError = formatConnectionError(error)
                 isConnecting = false
                 progressTimer?.invalidate()
             }
         }
+    }
+
+    /// Formats connection errors with helpful guidance for common issues (#162)
+    private func formatConnectionError(_ error: Error) -> String {
+        let errorMessage = error.localizedDescription.lowercased()
+
+        // Nextcloud/ownCloud specific errors
+        if provider == .nextcloud || provider == .owncloud {
+            if errorMessage.contains("401") || errorMessage.contains("unauthorized") {
+                return "Authentication failed. Please check your username and password. If you have 2FA enabled, use an App Password instead."
+            }
+            if errorMessage.contains("404") || errorMessage.contains("not found") {
+                return "Server not found at this URL. Please verify the server address is correct and the server is running."
+            }
+            if errorMessage.contains("ssl") || errorMessage.contains("certificate") || errorMessage.contains("tls") {
+                return "SSL/TLS certificate error. The server may have an invalid or self-signed certificate."
+            }
+            if errorMessage.contains("timeout") || errorMessage.contains("timed out") {
+                return "Connection timed out. Please check your internet connection and verify the server is accessible."
+            }
+            if errorMessage.contains("connection refused") {
+                return "Connection refused. The server may be down or the URL may be incorrect."
+            }
+            if errorMessage.contains("host") || errorMessage.contains("dns") || errorMessage.contains("resolve") {
+                return "Could not resolve server address. Please check the server URL is correct."
+            }
+            if errorMessage.contains("webdav") {
+                return "WebDAV connection failed. Please verify your server has WebDAV enabled at /remote.php/webdav/"
+            }
+        }
+
+        // Generic error formatting
+        return "Failed to connect: \(error.localizedDescription)"
     }
 
     private func configureRemoteWithRclone() async throws {
@@ -304,11 +344,38 @@ struct TestConnectionStep: View {
                 remoteName: rcloneName
             )
         case .googleDrive:
-            try await rclone.setupGoogleDrive(remoteName: rcloneName)
+            // Support custom OAuth for enterprise (#161)
+            if useCustomOAuth && !customOAuthClientId.isEmpty {
+                try await rclone.setupGoogleDrive(
+                    remoteName: rcloneName,
+                    clientId: customOAuthClientId,
+                    clientSecret: customOAuthClientSecret
+                )
+            } else {
+                try await rclone.setupGoogleDrive(remoteName: rcloneName)
+            }
         case .dropbox:
-            try await rclone.setupDropbox(remoteName: rcloneName)
+            // Support custom OAuth for enterprise (#161)
+            if useCustomOAuth && !customOAuthClientId.isEmpty {
+                try await rclone.setupDropbox(
+                    remoteName: rcloneName,
+                    clientId: customOAuthClientId,
+                    clientSecret: customOAuthClientSecret
+                )
+            } else {
+                try await rclone.setupDropbox(remoteName: rcloneName)
+            }
         case .oneDrive:
-            try await rclone.setupOneDrive(remoteName: rcloneName)
+            // Support custom OAuth for enterprise (#161)
+            if useCustomOAuth && !customOAuthClientId.isEmpty {
+                try await rclone.setupOneDrive(
+                    remoteName: rcloneName,
+                    clientId: customOAuthClientId,
+                    clientSecret: customOAuthClientSecret
+                )
+            } else {
+                try await rclone.setupOneDrive(remoteName: rcloneName)
+            }
         case .s3:
             try await rclone.setupS3(remoteName: rcloneName, accessKey: username, secretKey: password)
         case .mega:
@@ -319,27 +386,46 @@ struct TestConnectionStep: View {
                 mfaCode: twoFactorCode.isEmpty ? nil : twoFactorCode
             )
         case .box:
-            try await rclone.setupBox(remoteName: rcloneName)
+            // Support custom OAuth for enterprise (#161)
+            if useCustomOAuth && !customOAuthClientId.isEmpty {
+                try await rclone.setupBox(
+                    remoteName: rcloneName,
+                    clientId: customOAuthClientId,
+                    clientSecret: customOAuthClientSecret
+                )
+            } else {
+                try await rclone.setupBox(remoteName: rcloneName)
+            }
         case .pcloud:
             try await rclone.setupPCloud(remoteName: rcloneName)
         case .webdav:
             try await rclone.setupWebDAV(remoteName: rcloneName, url: username, password: password)
         case .owncloud:
+            // Validate and normalize server URL (#162)
+            let normalizedOwncloudURL = normalizeNextcloudURL(serverURL)
+            guard !normalizedOwncloudURL.isEmpty else {
+                throw RcloneError.configurationFailed("Server URL is required for ownCloud")
+            }
             // Construct WebDAV URL: {baseURL}/remote.php/webdav/
-            let owncloudWebdavURL = username.hasSuffix("/") ? "\(username)remote.php/webdav/" : "\(username)/remote.php/webdav/"
+            let owncloudWebdavURL = normalizedOwncloudURL.hasSuffix("/") ? "\(normalizedOwncloudURL)remote.php/webdav/" : "\(normalizedOwncloudURL)/remote.php/webdav/"
             try await rclone.setupOwnCloud(
                 remoteName: rcloneName,
                 url: owncloudWebdavURL,
-                username: username,  // Note: username field is used for server URL in WebDAV providers
+                username: username,
                 password: password
             )
         case .nextcloud:
+            // Validate and normalize server URL (#162)
+            let normalizedURL = normalizeNextcloudURL(serverURL)
+            guard !normalizedURL.isEmpty else {
+                throw RcloneError.configurationFailed("Server URL is required for Nextcloud")
+            }
             // Construct WebDAV URL: {baseURL}/remote.php/webdav/
-            let nextcloudWebdavURL = username.hasSuffix("/") ? "\(username)remote.php/webdav/" : "\(username)/remote.php/webdav/"
+            let nextcloudWebdavURL = normalizedURL.hasSuffix("/") ? "\(normalizedURL)remote.php/webdav/" : "\(normalizedURL)/remote.php/webdav/"
             try await rclone.setupNextcloud(
                 remoteName: rcloneName,
                 url: nextcloudWebdavURL,
-                username: username,  // Note: username field is used for server URL in WebDAV providers
+                username: username,
                 password: password
             )
         case .sftp:
@@ -362,7 +448,16 @@ struct TestConnectionStep: View {
         case .jottacloud:
             try await rclone.setupJottacloud(remoteName: rcloneName, personalLoginToken: password)
         case .googlePhotos:
-            try await rclone.setupGooglePhotos(remoteName: rcloneName)
+            // Support custom OAuth for enterprise (#161)
+            if useCustomOAuth && !customOAuthClientId.isEmpty {
+                try await rclone.setupGooglePhotos(
+                    remoteName: rcloneName,
+                    clientId: customOAuthClientId,
+                    clientSecret: customOAuthClientSecret
+                )
+            } else {
+                try await rclone.setupGooglePhotos(remoteName: rcloneName)
+            }
         case .sugarsync:
             try await rclone.setupSugarSync(remoteName: rcloneName)
         case .opendrive:
@@ -411,6 +506,45 @@ struct TestConnectionStep: View {
         default:
             throw RcloneError.configurationFailed("Provider \(provider.displayName) not yet supported")
         }
+    }
+
+    // MARK: - Nextcloud URL Normalization (#162)
+
+    /// Normalizes a Nextcloud/ownCloud server URL for WebDAV configuration
+    /// - Adds https:// if no protocol specified
+    /// - Removes trailing slashes
+    /// - Removes any accidental /remote.php/webdav path that user might have entered
+    private func normalizeNextcloudURL(_ urlString: String) -> String {
+        var url = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Return empty if input is empty
+        guard !url.isEmpty else { return "" }
+
+        // Add https:// if no protocol
+        if !url.lowercased().hasPrefix("http://") && !url.lowercased().hasPrefix("https://") {
+            url = "https://\(url)"
+        }
+
+        // Remove any trailing /remote.php/webdav or /remote.php/dav paths
+        // Users sometimes paste the full WebDAV URL by mistake
+        let pathsToRemove = [
+            "/remote.php/webdav/",
+            "/remote.php/webdav",
+            "/remote.php/dav/",
+            "/remote.php/dav"
+        ]
+        for path in pathsToRemove {
+            if url.lowercased().hasSuffix(path.lowercased()) {
+                url = String(url.dropLast(path.count))
+            }
+        }
+
+        // Remove trailing slashes
+        while url.hasSuffix("/") {
+            url = String(url.dropLast())
+        }
+
+        return url
     }
 }
 

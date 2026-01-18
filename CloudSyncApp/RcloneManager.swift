@@ -1047,9 +1047,23 @@ class RcloneManager {
         return cleanedError.count > 150 ? String(cleanedError.prefix(150)) + "..." : cleanedError
     }
     
-    func setupGoogleDrive(remoteName: String) async throws {
+    func setupGoogleDrive(remoteName: String, clientId: String? = nil, clientSecret: String? = nil) async throws {
+        logger.info("Setting up Google Drive: \(remoteName, privacy: .public)")
+
         // Google Drive uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "drive")
+        var additionalParams: [String: String] = [:]
+
+        // Support custom OAuth app for enterprise users (#161)
+        if let clientId = clientId, !clientId.isEmpty,
+           let clientSecret = clientSecret, !clientSecret.isEmpty {
+            additionalParams["client_id"] = clientId
+            additionalParams["client_secret"] = clientSecret
+            logger.info("Using custom OAuth client for Google Drive")
+        } else {
+            logger.info("Using rclone's built-in Google Drive client ID")
+        }
+
+        try await createRemoteInteractive(name: remoteName, type: "drive", additionalParams: additionalParams)
     }
     
     func setupDropbox(remoteName: String, clientId: String? = nil, clientSecret: String? = nil) async throws {
@@ -1111,7 +1125,7 @@ class RcloneManager {
         logger.info("Dropbox remote '\(remoteName, privacy: .public)' configured successfully")
     }
     
-    func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal) async throws {
+    func setupOneDrive(remoteName: String, accountType: OneDriveAccountType = .personal, clientId: String? = nil, clientSecret: String? = nil) async throws {
         logger.info("Setting up OneDrive: \(remoteName, privacy: .public), type: \(accountType.rawValue, privacy: .public)")
 
         // OneDrive requires multiple steps:
@@ -1131,6 +1145,16 @@ class RcloneManager {
             "--config", configPath,
             "config_is_local", "true"  // Use local browser for auth
         ]
+
+        // Support custom OAuth app for enterprise users (#161)
+        if let clientId = clientId, !clientId.isEmpty,
+           let clientSecret = clientSecret, !clientSecret.isEmpty {
+            args.append(contentsOf: ["client_id", clientId])
+            args.append(contentsOf: ["client_secret", clientSecret])
+            logger.info("Using custom OAuth client for OneDrive")
+        } else {
+            logger.info("Using rclone's built-in OneDrive client ID")
+        }
 
         // Add drive_type based on account type
         switch accountType {
@@ -1268,9 +1292,23 @@ class RcloneManager {
         )
     }
     
-    func setupBox(remoteName: String) async throws {
-        // Box uses OAuth
-        try await createRemoteInteractive(name: remoteName, type: "box")
+    func setupBox(remoteName: String, clientId: String? = nil, clientSecret: String? = nil) async throws {
+        logger.info("Setting up Box: \(remoteName, privacy: .public)")
+
+        // Box uses OAuth - opens browser for authentication
+        var additionalParams: [String: String] = [:]
+
+        // Support custom OAuth app for enterprise users (#161)
+        if let clientId = clientId, !clientId.isEmpty,
+           let clientSecret = clientSecret, !clientSecret.isEmpty {
+            additionalParams["client_id"] = clientId
+            additionalParams["client_secret"] = clientSecret
+            logger.info("Using custom OAuth client for Box")
+        } else {
+            logger.info("Using rclone's built-in Box client ID")
+        }
+
+        try await createRemoteInteractive(name: remoteName, type: "box", additionalParams: additionalParams)
     }
     
     func setupPCloud(remoteName: String, username: String? = nil, password: String? = nil) async throws {
@@ -1836,15 +1874,29 @@ class RcloneManager {
     
     // MARK: - OAuth Services Expansion: Media & Consumer
 
-    func setupGooglePhotos(remoteName: String) async throws {
+    func setupGooglePhotos(remoteName: String, clientId: String? = nil, clientSecret: String? = nil) async throws {
+        logger.info("Setting up Google Photos: \(remoteName, privacy: .public)")
+
         // Google Photos uses OAuth - opens browser for authentication
         // CRITICAL: Must pass read_only=true to request photoslibrary.readonly scope
         // Without this, Google returns 403 PERMISSION_DENIED - insufficient authentication scopes
         // See: https://rclone.org/googlephotos/#standard-options
+        var additionalParams: [String: String] = ["read_only": "true"]
+
+        // Support custom OAuth app for enterprise users (#161)
+        if let clientId = clientId, !clientId.isEmpty,
+           let clientSecret = clientSecret, !clientSecret.isEmpty {
+            additionalParams["client_id"] = clientId
+            additionalParams["client_secret"] = clientSecret
+            logger.info("Using custom OAuth client for Google Photos")
+        } else {
+            logger.info("Using rclone's built-in Google Photos client ID")
+        }
+
         try await createRemoteInteractive(
             name: remoteName,
             type: "gphotos",
-            additionalParams: ["read_only": "true"]
+            additionalParams: additionalParams
         )
     }
 
