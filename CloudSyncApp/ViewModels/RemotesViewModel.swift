@@ -30,7 +30,7 @@ class RemotesViewModel: ObservableObject {
     }
     
     func loadRemotes() {
-        // Start with local storage
+        // Start with default local storage (user home directory)
         var loadedRemotes: [CloudRemote] = [
             CloudRemote(name: "Local Storage", type: .local, isConfigured: true, path: NSHomeDirectory())
         ]
@@ -38,6 +38,11 @@ class RemotesViewModel: ObservableObject {
         // Load saved remotes from UserDefaults first
         if let data = UserDefaults.standard.data(forKey: storageKey),
            let savedRemotes = try? JSONDecoder().decode([CloudRemote].self, from: data) {
+            // Add saved local storage remotes with custom paths (#167)
+            // These are user-added local storage folders with security-scoped bookmarks
+            let savedLocalRemotes = savedRemotes.filter { $0.type == .local && !$0.path.isEmpty && $0.path != NSHomeDirectory() }
+            loadedRemotes.append(contentsOf: savedLocalRemotes)
+
             // Add non-local saved remotes
             let savedCloudRemotes = savedRemotes.filter { $0.type != .local }
             loadedRemotes.append(contentsOf: savedCloudRemotes)
@@ -126,10 +131,16 @@ class RemotesViewModel: ObservableObject {
     }
     
     func removeRemote(_ remote: CloudRemote) {
-        // Also remove from rclone config
-        let rcloneName = remote.rcloneName
-        Task {
-            try? await RcloneManager.shared.deleteRemote(name: rcloneName)
+        // For local storage remotes with custom paths, remove the security-scoped bookmark (#167)
+        if remote.type == .local && !remote.path.isEmpty && remote.path != NSHomeDirectory() {
+            let bookmarkIdentifier = "local_storage_\(remote.rcloneName)"
+            SecurityScopedBookmarkManager.shared.removeBookmark(identifier: bookmarkIdentifier)
+        } else {
+            // For cloud remotes, also remove from rclone config
+            let rcloneName = remote.rcloneName
+            Task {
+                try? await RcloneManager.shared.deleteRemote(name: rcloneName)
+            }
         }
         remotes.removeAll { $0.id == remote.id }
         saveRemotes()

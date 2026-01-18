@@ -31,6 +31,11 @@ class ProviderConnectionWizardState: ObservableObject {
     // Server URL for self-hosted providers (Seafile, etc.)
     @Published var serverURL: String = ""
 
+    // Local Storage: security-scoped bookmark support (#167)
+    @Published var localFolderPath: String = ""
+    @Published var localFolderURL: URL?
+    @Published var localBookmarkCreated: Bool = false
+
     func reset() {
         currentStep = 0
         selectedProvider = nil
@@ -47,6 +52,9 @@ class ProviderConnectionWizardState: ObservableObject {
         useImplicitTLS = false
         skipCertVerify = false
         serverURL = ""
+        localFolderPath = ""
+        localFolderURL = nil
+        localBookmarkCreated = false
     }
 }
 
@@ -98,18 +106,28 @@ struct ProviderConnectionWizardView: View {
                     remoteName: $wizardState.remoteName
                 )
             case 1:
-                ConfigureSettingsStep(
-                    provider: wizardState.selectedProvider ?? .googleDrive,
-                    username: $wizardState.username,
-                    password: $wizardState.password,
-                    twoFactorCode: $wizardState.twoFactorCode,
-                    sshKeyFile: $wizardState.sshKeyFile,
-                    sshKeyPassphrase: $wizardState.sshKeyPassphrase,
-                    useFTPS: $wizardState.useFTPS,
-                    useImplicitTLS: $wizardState.useImplicitTLS,
-                    skipCertVerify: $wizardState.skipCertVerify,
-                    serverURL: $wizardState.serverURL
-                )
+                // Local Storage uses a special configuration step with security-scoped bookmarks (#167)
+                if wizardState.selectedProvider == .local {
+                    LocalStorageConfigStep(
+                        selectedFolderPath: $wizardState.localFolderPath,
+                        selectedFolderURL: $wizardState.localFolderURL,
+                        bookmarkCreated: $wizardState.localBookmarkCreated,
+                        remoteName: wizardState.remoteName
+                    )
+                } else {
+                    ConfigureSettingsStep(
+                        provider: wizardState.selectedProvider ?? .googleDrive,
+                        username: $wizardState.username,
+                        password: $wizardState.password,
+                        twoFactorCode: $wizardState.twoFactorCode,
+                        sshKeyFile: $wizardState.sshKeyFile,
+                        sshKeyPassphrase: $wizardState.sshKeyPassphrase,
+                        useFTPS: $wizardState.useFTPS,
+                        useImplicitTLS: $wizardState.useImplicitTLS,
+                        skipCertVerify: $wizardState.skipCertVerify,
+                        serverURL: $wizardState.serverURL
+                    )
+                }
             case 2:
                 TestConnectionStep(
                     provider: wizardState.selectedProvider ?? .googleDrive,
@@ -123,6 +141,7 @@ struct ProviderConnectionWizardView: View {
                     useImplicitTLS: wizardState.useImplicitTLS,
                     skipCertVerify: wizardState.skipCertVerify,
                     serverURL: wizardState.serverURL,
+                    localFolderPath: wizardState.localFolderPath,  // Local Storage support (#167)
                     isConnecting: $wizardState.isConnecting,
                     connectionError: $wizardState.connectionError,
                     isConnected: $wizardState.isConnected
@@ -164,14 +183,21 @@ struct ProviderConnectionWizardView: View {
     private func addConfiguredRemote() {
         guard let provider = wizardState.selectedProvider else { return }
         let rcloneName = wizardState.remoteName.lowercased().replacingOccurrences(of: " ", with: "_")
+
+        // For local storage, use the selected folder path (#167)
+        let remotePath = provider == .local ? wizardState.localFolderPath : ""
+
         var remote = CloudRemote(
             name: wizardState.remoteName,
             type: provider,
             isConfigured: true,
-            path: "",
+            path: remotePath,
             customRcloneName: rcloneName
         )
-        remote.accountName = wizardState.username
+
+        // For local storage, store the folder path as "account name" for display purposes
+        remote.accountName = provider == .local ? wizardState.localFolderPath : wizardState.username
+
         _ = remotesVM.addRemote(remote)
     }
 }

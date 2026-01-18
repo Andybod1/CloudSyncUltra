@@ -12,8 +12,9 @@ struct ChooseProviderStep: View {
     @Binding var remoteName: String
     @State private var searchText = ""
 
+    // Include local storage as a provider option (#167)
     private let supportedProviders = CloudProviderType.allCases
-        .filter { $0.isSupported && $0 != .local }
+        .filter { $0.isSupported }
         .sorted { $0.displayName < $1.displayName }
 
     private var filteredProviders: [CloudProviderType] {

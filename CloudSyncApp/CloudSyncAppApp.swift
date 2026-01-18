@@ -121,6 +121,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarController = StatusBarController()
         statusBarController?.setupMenuBar()
 
+        // Resolve security-scoped bookmarks for Local Storage access (#167)
+        Task { @MainActor in
+            _ = SecurityScopedBookmarkManager.shared.resolveAllBookmarks()
+        }
+
         // Request notification permissions on first launch
         Task { @MainActor in
             await NotificationManager.shared.requestPermission()
@@ -144,6 +149,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ScheduleManager.shared.stopScheduler()
         // Clear dock badge on app termination
         NotificationManager.shared.clearDockProgress()
+        // Release security-scoped resources (#167)
+        Task { @MainActor in
+            SecurityScopedBookmarkManager.shared.stopAccessingAll()
+        }
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

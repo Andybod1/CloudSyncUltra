@@ -10,8 +10,8 @@
 		01 /* CloudSyncAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02 /* CloudSyncAppApp.swift */; };
 		03 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04 /* ContentView.swift */; };
 		05 /* RcloneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06 /* RcloneManager.swift */; };
-		FIX001 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = FIX002 /* Fixtures */; };
 		05C65938403FAA1C275F694D /* TasksUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676F55F5D2D0390999318696 /* TasksUITests.swift */; };
+		065FD2B3EA5A7FF48C3FF97A /* SecurityScopedBookmarkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 776DBA28E3C0D088A021671F /* SecurityScopedBookmarkManager.swift */; };
 		07 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08 /* SyncManager.swift */; };
 		0853A8B6DCF0320F979C9F09 /* OAuthExpansionProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57298D30CEEFA6B8FCE7AB3 /* OAuthExpansionProvidersTests.swift */; };
 		09 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10 /* StatusBarController.swift */; };
@@ -25,7 +25,6 @@
 		19 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20 /* EncryptionManager.swift */; };
 		1A895E4AAA78AC9F4CE51364 /* JottacloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63BCA8D8C177E469BF4667C /* JottacloudProviderTests.swift */; };
 		1B162F32BC976843C403F875 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */; };
-		PWUI00000001000000000001 /* ProviderWizardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PWUI00000002000000000002 /* ProviderWizardUITests.swift */; };
 		1B886135514887EC390443F0 /* Phase1Week2ProvidersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7900A9FE676AF733C72749E /* Phase1Week2ProvidersTests.swift */; };
 		1E2C4260CDBD4302607AD61C /* HelpCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAAD6BF7230D609CD93447E /* HelpCategory.swift */; };
 		24C6CFBD2B9C48DD9DB46DD9 /* WizardProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778B4EFD43A54985A2E5C824 /* WizardProgressView.swift */; };
@@ -51,6 +50,7 @@
 		585137937773274EE2DB0388 /* TransferPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078683D70523A8FC2A01093F /* TransferPreview.swift */; };
 		594A3E4BB5CAD8296F41B5EF /* HelpManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F558D6C3377DEC3C817F705C /* HelpManager.swift */; };
 		5D33408EE5730FB66E7A7434 /* CloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE598E5C958E81790046D8C1 /* CloudProviderTests.swift */; };
+		5DA6CCF3F046BEC06F95D3A6 /* LocalStorageConfigStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BC9F9270A1AF6E05CD7A15 /* LocalStorageConfigStep.swift */; };
 		5E1191103A0838DD205D52EC /* SecureString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E993DCCAE5027CC85D02A70 /* SecureString.swift */; };
 		631B9EE64D50FDF1A7CF8114 /* AddRemoteViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11DA4CAA0CBE2C9F2F5FFA6 /* AddRemoteViewTests.swift */; };
 		676D68533A41294BC4FB5960 /* OnboardingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */; };
@@ -134,7 +134,9 @@
 		FB03 /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB04 /* FeedbackManager.swift */; };
 		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
 		FEE0B457B924834A99AEE7A8 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D49B2D17312CF790988F9C /* SecurityManager.swift */; };
+		FIX001 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = FIX002 /* Fixtures */; };
 		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
+		PWUI00000001000000000001 /* ProviderWizardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PWUI00000002000000000002 /* ProviderWizardUITests.swift */; };
 		SCHED001 /* ScheduleWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED101 /* ScheduleWizardView.swift */; };
 		SCHED002 /* SelectRemotesStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED102 /* SelectRemotesStep.swift */; };
 		SCHED003 /* ConfigureScheduleStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED103 /* ConfigureScheduleStep.swift */; };
@@ -179,6 +181,7 @@
 		08 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		10 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		10DDF97872B748A09114E13B /* ProviderConnectionWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ProviderConnectionWizard/ProviderConnectionWizardView.swift; sourceTree = SOURCE_ROOT; };
+		11BC9F9270A1AF6E05CD7A15 /* LocalStorageConfigStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocalStorageConfigStep.swift; path = CloudSyncApp/Views/Wizards/ProviderConnectionWizard/Steps/LocalStorageConfigStep.swift; sourceTree = SOURCE_ROOT; };
 		12 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1243CB7CF07E4EA6845D7C47 /* SuccessStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ProviderConnectionWizard/Steps/SuccessStep.swift; sourceTree = SOURCE_ROOT; };
 		14 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -219,6 +222,7 @@
 		6FDD46B253F69871C55FAE99 /* TransferViewStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/TransferViewStateTests.swift; sourceTree = SOURCE_ROOT; };
 		7114CE2ED36FBC45B7DA3621 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		75FBCB0B8634CE3A3883222C /* SidebarOrderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/SidebarOrderTests.swift; sourceTree = SOURCE_ROOT; };
+		776DBA28E3C0D088A021671F /* SecurityScopedBookmarkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SecurityScopedBookmarkManager.swift; path = CloudSyncApp/SecurityScopedBookmarkManager.swift; sourceTree = SOURCE_ROOT; };
 		778B4EFD43A54985A2E5C824 /* WizardProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/WizardProgressView.swift; sourceTree = SOURCE_ROOT; };
 		7C885DE1600F31A933247FA5 /* BandwidthThrottlingUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/BandwidthThrottlingUITests.swift; sourceTree = SOURCE_ROOT; };
 		7C9ED024095B67FD449DAD9D /* SyncManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/SyncManagerTests.swift; sourceTree = SOURCE_ROOT; };
@@ -274,12 +278,10 @@
 		C7DA7F1856757AB4C4C72C7A /* ErrorNotificationManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ErrorNotificationManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		C7DCC18765B1FACCAA965FF5 /* SyncTaskTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/SyncTaskTests.swift; sourceTree = SOURCE_ROOT; };
 		C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
-		PWUI00000002000000000002 /* ProviderWizardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderWizardUITests.swift; sourceTree = "<group>"; };
 		CB0886CF56CD5228242B90F9 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CMP02 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletionStepView.swift; path = CloudSyncApp/Views/Onboarding/CompletionStepView.swift; sourceTree = SOURCE_ROOT; };
 		D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/RcloneContractTests.swift; sourceTree = SOURCE_ROOT; };
 		D2D2881ED8DA0ABD6E7BFC23 /* ScheduleFrequencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ScheduleFrequencyTests.swift; sourceTree = SOURCE_ROOT; };
-		FIX002 /* Fixtures */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = CloudSyncAppTests/Fixtures; sourceTree = SOURCE_ROOT; };
 		D506FF630286532822C2F401 /* ProviderIconView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProviderIconView.swift; sourceTree = "<group>"; };
 		D63BCA8D8C177E469BF4667C /* JottacloudProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/JottacloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		DCC849189CAEEFB49851CF23 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Components.swift; path = CloudSyncApp/Components/Components.swift; sourceTree = SOURCE_ROOT; };
@@ -302,7 +304,9 @@
 		FB04 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackManager.swift; path = CloudSyncApp/FeedbackManager.swift; sourceTree = SOURCE_ROOT; };
 		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
 		FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
+		FIX002 /* Fixtures */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = CloudSyncAppTests/Fixtures; sourceTree = SOURCE_ROOT; };
 		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
+		PWUI00000002000000000002 /* ProviderWizardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderWizardUITests.swift; sourceTree = "<group>"; };
 		SCHED101 /* ScheduleWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/ScheduleWizardView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED102 /* SelectRemotesStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/SelectRemotesStep.swift; sourceTree = SOURCE_ROOT; };
 		SCHED103 /* ConfigureScheduleStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/ConfigureScheduleStep.swift; sourceTree = SOURCE_ROOT; };
@@ -441,6 +445,7 @@
 				FB04 /* FeedbackManager.swift */,
 				SUP02 /* SupportManager.swift */,
 				ANA04 /* AnalyticsManager.swift */,
+				776DBA28E3C0D088A021671F /* SecurityScopedBookmarkManager.swift */,
 			);
 			path = CloudSyncApp;
 			sourceTree = "<group>";
@@ -505,6 +510,7 @@
 				22 /* Products */,
 				17CE977B1A059C572FBF9159 /* Frameworks */,
 				1BFB43019B5CF02DA3491D14 /* CloudSyncAppTests */,
+				11BC9F9270A1AF6E05CD7A15 /* LocalStorageConfigStep.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -781,6 +787,8 @@
 				ANA03 /* AnalyticsManager.swift in Sources */,
 				ANA05 /* AnalyticsSettingsView.swift in Sources */,
 				ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */,
+				065FD2B3EA5A7FF48C3FF97A /* SecurityScopedBookmarkManager.swift in Sources */,
+				5DA6CCF3F046BEC06F95D3A6 /* LocalStorageConfigStep.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

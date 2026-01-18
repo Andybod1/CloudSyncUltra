@@ -149,7 +149,19 @@ class FileBrowserViewModel: ObservableObject {
 
         do {
             if remote.type == .local {
-                files = try loadLocalFiles(at: currentPath)
+                // For user-added local storage with custom paths, ensure bookmark access (#167)
+                if !remote.path.isEmpty && remote.path != NSHomeDirectory() {
+                    let bookmarkIdentifier = "local_storage_\(remote.rcloneName)"
+                    if let resolvedURL = SecurityScopedBookmarkManager.shared.resolveBookmark(identifier: bookmarkIdentifier) {
+                        // Use resolved URL path (might be different if folder was moved)
+                        files = try loadLocalFiles(at: resolvedURL.path)
+                    } else {
+                        // Bookmark failed to resolve - folder may have been moved/deleted
+                        throw LocalStorageError.bookmarkAccessFailed(remote.path)
+                    }
+                } else {
+                    files = try loadLocalFiles(at: currentPath)
+                }
             } else {
                 files = try await loadRemoteFiles(remote: remote, path: currentPath)
             }
@@ -440,5 +452,35 @@ class FileBrowserViewModel: ObservableObject {
     func onSearchQueryChanged() {
         currentPage = 1
         resetDisplayedFiles()
+    }
+}
+
+// MARK: - Local Storage Errors (#167)
+
+enum LocalStorageError: LocalizedError {
+    case bookmarkAccessFailed(String)
+    case folderNotFound(String)
+    case permissionDenied(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .bookmarkAccessFailed(let path):
+            return "Cannot access folder: \(path). The folder may have been moved or deleted. Please re-select the folder."
+        case .folderNotFound(let path):
+            return "Folder not found: \(path)"
+        case .permissionDenied(let path):
+            return "Permission denied for folder: \(path)"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .bookmarkAccessFailed:
+            return "Please remove this Local Storage and add it again using the folder picker."
+        case .folderNotFound:
+            return "The folder may have been deleted. Please select a different folder."
+        case .permissionDenied:
+            return "Please select the folder again to grant access."
+        }
     }
 }

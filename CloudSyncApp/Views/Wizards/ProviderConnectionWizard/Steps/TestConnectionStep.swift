@@ -22,6 +22,8 @@ struct TestConnectionStep: View {
     let skipCertVerify: Bool
     // Server URL for self-hosted providers (Seafile, etc.)
     let serverURL: String
+    // Local Storage folder path (#167)
+    var localFolderPath: String = ""
     @Binding var isConnecting: Bool
     @Binding var connectionError: String?
     @Binding var isConnected: Bool
@@ -280,6 +282,17 @@ struct TestConnectionStep: View {
         let rcloneName = remoteName.lowercased().replacingOccurrences(of: " ", with: "_")
 
         switch provider {
+        case .local:
+            // Local Storage: Verify folder access using security-scoped bookmark (#167)
+            guard !localFolderPath.isEmpty else {
+                throw RcloneError.configurationFailed("No folder selected for Local Storage")
+            }
+            // Verify folder exists and is accessible
+            guard FileManager.default.fileExists(atPath: localFolderPath) else {
+                throw RcloneError.configurationFailed("Selected folder does not exist: \(localFolderPath)")
+            }
+            // Note: rclone local remote doesn't need configuration, we just use the path directly
+
         case .icloud:
             // iCloud uses local folder, no rclone config needed
             break
