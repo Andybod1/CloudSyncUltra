@@ -1,0 +1,2 @@
+2024/01/15 10:30:00 ERROR : Failed to ls: directory not found
+2024/01/15 10:30:00 ERROR : remote:nonexistent: error listing: directory not found

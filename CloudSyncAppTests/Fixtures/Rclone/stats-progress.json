@@ -1,0 +1,29 @@
+{
+  "bytes": 52428800,
+  "checks": 10,
+  "deletedDirs": 0,
+  "deletes": 0,
+  "elapsedTime": 30.5,
+  "errors": 0,
+  "eta": 120,
+  "fatalError": false,
+  "renames": 0,
+  "retryError": false,
+  "speed": 1747626.67,
+  "totalBytes": 209715200,
+  "totalChecks": 50,
+  "totalTransfers": 20,
+  "transferTime": 30.0,
+  "transfers": 5,
+  "transferring": [
+    {
+      "name": "large_file.zip",
+      "size": 104857600,
+      "bytes": 26214400,
+      "eta": 60,
+      "percentage": 25,
+      "speed": 1747626.67,
+      "speedAvg": 1500000.0
+    }
+  ]
+}

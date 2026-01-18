@@ -1,0 +1,140 @@
+name: Mutation Testing
+
+on:
+  schedule:
+    # Run weekly on Saturday at 3am UTC
+    - cron: '0 3 * * 6'
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: 'Mutation score threshold (%)'
+        required: false
+        default: '60'
+        type: string
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  mutation-test:
+    name: Mutation Testing
+    runs-on: macos-14
+    timeout-minutes: 120  # 2 hours max for mutation testing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Install Dependencies
+        run: |
+          brew install rclone
+          # Install muter (mutation testing for Swift)
+          brew tap muter-mutation-testing/muter
+          brew install muter
+
+      - name: Cache DerivedData
+        uses: actions/cache@v5
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: mutation-${{ runner.os }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            mutation-${{ runner.os }}-
+
+      - name: Run Mutation Tests
+        id: muter
+        run: |
+          echo "🧬 Starting mutation testing..."
+          echo "This may take a while..."
+
+          # Run muter and capture output
+          muter run --output-json 2>&1 | tee muter_output.txt || true
+
+          # Check if muter produced results
+          if [ -f "muter-output/mutation-testing-report.json" ]; then
+            cp muter-output/mutation-testing-report.json mutation-results.json
+
+            # Extract mutation score using jq
+            if command -v jq &> /dev/null; then
+              SCORE=$(jq -r '.globalMutationScore // 0' mutation-results.json 2>/dev/null || echo "0")
+              KILLED=$(jq -r '.numberOfKilledMutants // 0' mutation-results.json 2>/dev/null || echo "0")
+              TOTAL=$(jq -r '.numberOfMutants // 0' mutation-results.json 2>/dev/null || echo "0")
+            else
+              # Fallback: extract from output
+              SCORE=$(grep -oE "Mutation Score: [0-9.]+" muter_output.txt | grep -oE "[0-9.]+" || echo "0")
+              KILLED=$(grep -oE "Killed: [0-9]+" muter_output.txt | grep -oE "[0-9]+" || echo "0")
+              TOTAL=$(grep -oE "Total: [0-9]+" muter_output.txt | grep -oE "[0-9]+" || echo "0")
+            fi
+
+            echo "mutation_score=$SCORE" >> $GITHUB_OUTPUT
+            echo "killed_mutants=$KILLED" >> $GITHUB_OUTPUT
+            echo "total_mutants=$TOTAL" >> $GITHUB_OUTPUT
+            echo "has_results=true" >> $GITHUB_OUTPUT
+
+            echo "📊 Mutation Score: ${SCORE}%"
+            echo "📊 Killed: ${KILLED}/${TOTAL} mutants"
+          else
+            echo "⚠️ No mutation results generated"
+            echo "has_results=false" >> $GITHUB_OUTPUT
+            echo "mutation_score=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Mutation Score
+        if: steps.muter.outputs.has_results == 'true'
+        run: |
+          SCORE=${{ steps.muter.outputs.mutation_score }}
+          THRESHOLD=${{ github.event.inputs.threshold || '60' }}
+          KILLED=${{ steps.muter.outputs.killed_mutants }}
+          TOTAL=${{ steps.muter.outputs.total_mutants }}
+
+          echo "### 🧬 Mutation Testing Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Mutation Score | **${SCORE}%** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Killed Mutants | ${KILLED} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Mutants | ${TOTAL} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Threshold | ${THRESHOLD}% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Convert score to integer for comparison
+          SCORE_INT=${SCORE%.*}
+          THRESHOLD_INT=${THRESHOLD%.*}
+
+          if [ "${SCORE_INT:-0}" -lt "${THRESHOLD_INT:-60}" ]; then
+            echo "⚠️ **Warning:** Mutation score (${SCORE}%) is below threshold (${THRESHOLD}%)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Consider improving test coverage to catch more mutations." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Mutation score meets threshold" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Mutation testing helps identify weak spots in your test suite by introducing small code changes (mutations) and checking if tests catch them.*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Mutation Report
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: mutation-report
+          path: |
+            mutation-results.json
+            muter_output.txt
+            muter-output/
+          retention-days: 30
+
+      - name: No Results Warning
+        if: steps.muter.outputs.has_results != 'true'
+        run: |
+          echo "### ⚠️ Mutation Testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "No mutation testing results were generated." >> $GITHUB_STEP_SUMMARY
+          echo "This may be due to:" >> $GITHUB_STEP_SUMMARY
+          echo "- Configuration issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Build failures" >> $GITHUB_STEP_SUMMARY
+          echo "- Timeout" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the workflow logs for details." >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "created": "2026-01-18",
+  "description": "Performance baselines for CloudSync Ultra",
+  "baselines": {
+    "testFileListParsing_100Files": {
+      "average_ms": 1,
+      "threshold_ms": 5,
+      "description": "Parse 100 files JSON response"
+    },
+    "testFileListParsing_1000Files": {
+      "average_ms": 10,
+      "threshold_ms": 50,
+      "description": "Parse 1000 files JSON response"
+    },
+    "testFileListParsing_10000Files": {
+      "average_ms": 100,
+      "threshold_ms": 300,
+      "description": "Parse 10000 files JSON response"
+    },
+    "testFileSorting_ByName_10000Files": {
+      "average_ms": 50,
+      "threshold_ms": 150,
+      "description": "Sort 10000 files by name"
+    },
+    "testFileSorting_BySize_10000Files": {
+      "average_ms": 30,
+      "threshold_ms": 100,
+      "description": "Sort 10000 files by size"
+    },
+    "testFileFiltering_ByExtension_10000Files": {
+      "average_ms": 5,
+      "threshold_ms": 20,
+      "description": "Filter 10000 files by extension"
+    }
+  },
+  "notes": [
+    "Thresholds set at 3-5x average to account for CI variance",
+    "Update baselines when significant performance improvements are made",
+    "All times in milliseconds"
+  ]
+}

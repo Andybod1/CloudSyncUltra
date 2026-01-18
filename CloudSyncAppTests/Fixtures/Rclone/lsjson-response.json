@@ -1,0 +1,26 @@
+[
+  {
+    "Path": "Documents/report.pdf",
+    "Name": "report.pdf",
+    "Size": 1048576,
+    "MimeType": "application/pdf",
+    "ModTime": "2024-01-15T10:30:00.000000000Z",
+    "IsDir": false
+  },
+  {
+    "Path": "Photos",
+    "Name": "Photos",
+    "Size": -1,
+    "MimeType": "inode/directory",
+    "ModTime": "2024-01-10T08:00:00.000000000Z",
+    "IsDir": true
+  },
+  {
+    "Path": "notes.txt",
+    "Name": "notes.txt",
+    "Size": 256,
+    "MimeType": "text/plain",
+    "ModTime": "2024-01-12T14:20:00.000000000Z",
+    "IsDir": false
+  }
+]

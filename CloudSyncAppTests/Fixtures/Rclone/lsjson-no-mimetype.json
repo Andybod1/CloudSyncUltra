@@ -1,0 +1,16 @@
+[
+  {
+    "Path": "backup.zip",
+    "Name": "backup.zip",
+    "Size": 5242880,
+    "ModTime": "2024-01-14T09:00:00.000000000Z",
+    "IsDir": false
+  },
+  {
+    "Path": "archive",
+    "Name": "archive",
+    "Size": -1,
+    "ModTime": "2024-01-13T16:45:00.000000000Z",
+    "IsDir": true
+  }
+]

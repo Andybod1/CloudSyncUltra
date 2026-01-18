@@ -31,6 +31,7 @@
 		2BA33583EAF6D48486872A43 /* TransferViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913A773063349BA1D4C769F8 /* TransferViewUITests.swift */; };
 		2C41CDE946A3A0F5E1E2F763 /* SubscriptionTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455BD415BDDCF311808B5CE /* SubscriptionTier.swift */; };
 		2CBA14FDB5D8407B9937F012 /* MultiThreadDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8C7CCAC4914E5A58E0B9D0 /* MultiThreadDownloadTests.swift */; };
+		2D83D8ECF1853A489D240CBE /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F9C303108B298BD53683C4 /* PerformanceTests.swift */; };
 		2FFF493F1645756320E99263 /* SyncManagerPhase2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8187EBA15FB8E1E9AF2508 /* SyncManagerPhase2Tests.swift */; };
 		3544C759F866635E5EF11EE9 /* SyncManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C9ED024095B67FD449DAD9D /* SyncManagerTests.swift */; };
 		35ECD63CA579DB0E5AC87055 /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8787F26DDBDE93A2675DDA33 /* SubscriptionView.swift */; };
@@ -85,6 +86,9 @@
 		ADD01 /* AddProviderStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD02 /* AddProviderStepView.swift */; };
 		ADD9BF99B774DB6B3BBF56EC /* RemoteFolderBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A03E1205F638454CD9C47F /* RemoteFolderBrowser.swift */; };
 		AF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0 /* DashboardView.swift */; };
+		ANA01 /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA02 /* AnalyticsEvent.swift */; };
+		ANA03 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA04 /* AnalyticsManager.swift */; };
+		ANA05 /* AnalyticsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA06 /* AnalyticsSettingsView.swift */; };
 		B041C2E9E82EAA4027C4BCDC /* MainWindowIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19E4FEDBCB418DE1806942D /* MainWindowIntegrationTests.swift */; };
 		B1 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2 /* TransferView.swift */; };
 		B1310D7EEC04969EAD432C6F /* MenuBarScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E321597BF2B2982570A05 /* MenuBarScheduleTests.swift */; };
@@ -114,6 +118,7 @@
 		E47CD2872F17ED03001E64FC /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47CD2842F17ED03001E64FC /* AppTheme.swift */; };
 		E47CD2882F17ED03001E64FC /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47CD2852F17ED03001E64FC /* ButtonStyles.swift */; };
 		E47CD2892F17ED03001E64FC /* CardStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47CD2862F17ED03001E64FC /* CardStyles.swift */; };
+		E6C4DF2C0D4782E3430A3C20 /* RcloneContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */; };
 		E79B69A17616C3EA513E86BB /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750EAC63CBC8D0EBA85D075 /* PaywallView.swift */; };
 		E93555A9C727135EBF3E404A /* DashboardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660A2D60774D78D930803712 /* DashboardUITests.swift */; };
 		F380524C70F44E5D037321B3 /* WorkflowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A48BBE0B7CF92DB356AB1FB /* WorkflowUITests.swift */; };
@@ -124,17 +129,14 @@
 		FB01 /* FeedbackCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB02 /* FeedbackCategory.swift */; };
 		FB03 /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB04 /* FeedbackManager.swift */; };
 		FB05 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06 /* FeedbackView.swift */; };
-		SUP01 /* SupportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP02 /* SupportManager.swift */; };
-		SUP03 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP04 /* SupportView.swift */; };
-		ANA01 /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA02 /* AnalyticsEvent.swift */; };
-		ANA03 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA04 /* AnalyticsManager.swift */; };
-		ANA05 /* AnalyticsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANA06 /* AnalyticsSettingsView.swift */; };
 		FEE0B457B924834A99AEE7A8 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D49B2D17312CF790988F9C /* SecurityManager.swift */; };
 		FSS01 /* FirstSyncStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSS02 /* FirstSyncStepView.swift */; };
 		SCHED001 /* ScheduleWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED101 /* ScheduleWizardView.swift */; };
 		SCHED002 /* SelectRemotesStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED102 /* SelectRemotesStep.swift */; };
 		SCHED003 /* ConfigureScheduleStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED103 /* ConfigureScheduleStep.swift */; };
 		SCHED004 /* ScheduleReviewStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHED104 /* ScheduleReviewStep.swift */; };
+		SUP01 /* SupportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP02 /* SupportManager.swift */; };
+		SUP03 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SUP04 /* SupportView.swift */; };
 		SV01 /* SchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SV02 /* SchedulesView.swift */; };
 		TRANS001 /* TransferWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS101 /* TransferWizardView.swift */; };
 		TRANS002 /* TransferSourceStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANS102 /* TransferSourceStep.swift */; };
@@ -245,6 +247,9 @@
 		AE598E5C958E81790046D8C1 /* CloudProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/CloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AF8EE54CC73F706C74ADE027 /* CrashReportViewer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrashReportViewer.swift; sourceTree = "<group>"; };
 		AFEC4CFC95280DF06508D2DC /* ScheduleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleRowView.swift; path = CloudSyncApp/Views/ScheduleRowView.swift; sourceTree = SOURCE_ROOT; };
+		ANA02 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsEvent.swift; path = CloudSyncApp/Models/AnalyticsEvent.swift; sourceTree = SOURCE_ROOT; };
+		ANA04 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsManager.swift; path = CloudSyncApp/AnalyticsManager.swift; sourceTree = SOURCE_ROOT; };
+		ANA06 /* AnalyticsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsSettingsView.swift; path = CloudSyncApp/Views/AnalyticsSettingsView.swift; sourceTree = SOURCE_ROOT; };
 		B0 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		B11DA4CAA0CBE2C9F2F5FFA6 /* AddRemoteViewTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/AddRemoteViewTests.swift; sourceTree = SOURCE_ROOT; };
 		B2 /* TransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
@@ -265,6 +270,7 @@
 		C9D6692B80F0AAC744308A41 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		CB0886CF56CD5228242B90F9 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CMP02 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletionStepView.swift; path = CloudSyncApp/Views/Onboarding/CompletionStepView.swift; sourceTree = SOURCE_ROOT; };
+		D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/RcloneContractTests.swift; sourceTree = SOURCE_ROOT; };
 		D2D2881ED8DA0ABD6E7BFC23 /* ScheduleFrequencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/ScheduleFrequencyTests.swift; sourceTree = SOURCE_ROOT; };
 		D506FF630286532822C2F401 /* ProviderIconView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProviderIconView.swift; sourceTree = "<group>"; };
 		D63BCA8D8C177E469BF4667C /* JottacloudProviderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/JottacloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -281,22 +287,20 @@
 		ECFF45298AC401F4D2887258 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainManager.swift; path = CloudSyncApp/KeychainManager.swift; sourceTree = SOURCE_ROOT; };
 		EEAAD6BF7230D609CD93447E /* HelpCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpCategory.swift; path = CloudSyncApp/Models/HelpCategory.swift; sourceTree = SOURCE_ROOT; };
 		EF64D6804F2A00547C7B4675 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1F9C303108B298BD53683C4 /* PerformanceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/PerformanceTests.swift; sourceTree = SOURCE_ROOT; };
 		F4547BACA8D0CFB390C1E064 /* Phase1Week1ProvidersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/Phase1Week1ProvidersTests.swift; sourceTree = SOURCE_ROOT; };
 		F558D6C3377DEC3C817F705C /* HelpManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HelpManager.swift; path = CloudSyncApp/HelpManager.swift; sourceTree = SOURCE_ROOT; };
 		FB02 /* FeedbackCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackCategory.swift; path = CloudSyncApp/Models/FeedbackCategory.swift; sourceTree = SOURCE_ROOT; };
 		FB04 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackManager.swift; path = CloudSyncApp/FeedbackManager.swift; sourceTree = SOURCE_ROOT; };
 		FB06 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackView.swift; path = CloudSyncApp/Views/FeedbackView.swift; sourceTree = SOURCE_ROOT; };
-		SUP02 /* SupportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportManager.swift; path = CloudSyncApp/SupportManager.swift; sourceTree = SOURCE_ROOT; };
-		SUP04 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportView.swift; path = CloudSyncApp/Views/SupportView.swift; sourceTree = SOURCE_ROOT; };
-		ANA02 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsEvent.swift; path = CloudSyncApp/Models/AnalyticsEvent.swift; sourceTree = SOURCE_ROOT; };
-		ANA04 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsManager.swift; path = CloudSyncApp/AnalyticsManager.swift; sourceTree = SOURCE_ROOT; };
-		ANA06 /* AnalyticsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsSettingsView.swift; path = CloudSyncApp/Views/AnalyticsSettingsView.swift; sourceTree = SOURCE_ROOT; };
 		FB6D4BA40F093273E2CEC341 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/OnboardingViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		FSS02 /* FirstSyncStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstSyncStepView.swift; path = CloudSyncApp/Views/Onboarding/FirstSyncStepView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED101 /* ScheduleWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/ScheduleWizardView.swift; sourceTree = SOURCE_ROOT; };
 		SCHED102 /* SelectRemotesStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/SelectRemotesStep.swift; sourceTree = SOURCE_ROOT; };
 		SCHED103 /* ConfigureScheduleStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/ConfigureScheduleStep.swift; sourceTree = SOURCE_ROOT; };
 		SCHED104 /* ScheduleReviewStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/ScheduleWizard/Steps/ScheduleReviewStep.swift; sourceTree = SOURCE_ROOT; };
+		SUP02 /* SupportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportManager.swift; path = CloudSyncApp/SupportManager.swift; sourceTree = SOURCE_ROOT; };
+		SUP04 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SupportView.swift; path = CloudSyncApp/Views/SupportView.swift; sourceTree = SOURCE_ROOT; };
 		SV02 /* SchedulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchedulesView.swift; path = CloudSyncApp/Views/SchedulesView.swift; sourceTree = SOURCE_ROOT; };
 		TRANS101 /* TransferWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/TransferWizardView.swift; sourceTree = SOURCE_ROOT; };
 		TRANS102 /* TransferSourceStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncApp/Views/Wizards/TransferWizard/Steps/TransferSourceStep.swift; sourceTree = SOURCE_ROOT; };
@@ -385,6 +389,8 @@
 				44288236563EB1F0789C060E /* ChunkSizeTests.swift */,
 				4FDF9B64CA91B6A75B7BD1BD /* TransferPreviewTests.swift */,
 				363AFE7F6CFC5D23D651F1BC /* PerformanceProfileTests.swift */,
+				D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */,
+				F1F9C303108B298BD53683C4 /* PerformanceTests.swift */,
 			);
 			path = CloudSyncAppTests;
 			sourceTree = SOURCE_ROOT;
@@ -807,6 +813,8 @@
 				3F339F7447DB8BDABE3E1A45 /* ChunkSizeTests.swift in Sources */,
 				C315EB8938B597F31192BB22 /* TransferPreviewTests.swift in Sources */,
 				94601C1CC9A6768D2C0D48AE /* PerformanceProfileTests.swift in Sources */,
+				E6C4DF2C0D4782E3430A3C20 /* RcloneContractTests.swift in Sources */,
+				2D83D8ECF1853A489D240CBE /* PerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
