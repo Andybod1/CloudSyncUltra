@@ -315,13 +315,18 @@ jobs:
         run: |
           chmod +x ./scripts/complexity-check.sh
 
-          # Run complexity check and capture output
-          ./scripts/complexity-check.sh --warn-only 2>&1 | tee complexity_output.txt
+          # Run complexity check and capture output (strip ANSI codes)
+          ./scripts/complexity-check.sh --warn-only 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee complexity_output.txt
 
-          # Extract counts
-          ERRORS=$(grep "Errors:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
-          WARNINGS=$(grep "Warnings:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
-          FILES=$(grep "Files checked:" complexity_output.txt | grep -oE '[0-9]+' || echo "0")
+          # Extract counts (use head -1 to ensure single value)
+          ERRORS=$(grep "Errors:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+          WARNINGS=$(grep "Warnings:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+          FILES=$(grep "Files checked:" complexity_output.txt | grep -oE '[0-9]+' | head -1 || echo "0")
+
+          # Ensure we have valid numbers (default to 0 if empty)
+          ERRORS="${ERRORS:-0}"
+          WARNINGS="${WARNINGS:-0}"
+          FILES="${FILES:-0}"
 
           echo "errors=$ERRORS" >> $GITHUB_OUTPUT
           echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
