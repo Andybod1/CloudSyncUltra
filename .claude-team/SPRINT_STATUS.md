@@ -1,100 +1,72 @@
-# Sprint: v2.0.40 - QA Infrastructure
+# Sprint: v2.0.41 - Enhancement Backlog
 
 **Started:** 2026-01-18
-**Completed:** 2026-01-18
-**Status:** ✅ COMPLETE
+**Status:** 🟡 PLANNED
 
 ---
 
 ## Sprint Goal
 
-Strengthen testing infrastructure with contract tests, performance baselines, and mutation testing.
+Clear enhancement backlog - Local Storage security, Nextcloud UX, Enterprise OAuth
 
 ---
 
-## Phase 1: Contract Testing
+## Priority 1: High Priority
 
-| # | Task | Worker | Size | Status |
-|---|------|--------|------|--------|
-| 1 | Create rclone JSON fixtures (lsjson, stats, errors) | Dev-1 | S | ✅ Done |
-| 2 | Implement RcloneContractTests.swift | Dev-1 | M | ✅ Done |
-| 3 | Add fixtures to test target in Xcode | Dev-1 | S | ✅ Done |
+| # | Issue | Title | Size | Status |
+|---|-------|-------|------|--------|
+| 167 | [Enhancement] | Local Storage security-scoped bookmarks | M | ⬜ Pending |
 
-## Phase 2: Performance Baselines
+**Details:** macOS sandboxing requires security-scoped bookmarks to persist access to user-selected folders across app launches. Without this, Local Storage connections break after restart.
 
-| # | Task | Worker | Size | Status |
-|---|------|--------|------|--------|
-| 4 | Create PerformanceTests.swift with measure blocks | Dev-2 | M | ✅ Done |
-| 5 | Create perf-baseline.json with thresholds | Dev-2 | S | ✅ Done |
-| 6 | Update performance.yml workflow | Dev-2 | S | ✅ Done |
+## Priority 2: Low Priority
 
-## Phase 3: Mutation Testing CI
-
-| # | Task | Worker | Size | Status |
-|---|------|--------|------|--------|
-| 7 | Create mutation-testing.yml workflow | Dev-3 | M | ✅ Done |
-| 8 | Configure weekly schedule + manual trigger | Dev-3 | S | ✅ Done |
-| 9 | Add mutation score to workflow summary | Dev-3 | S | ✅ Done |
+| # | Issue | Title | Size | Status |
+|---|-------|-------|------|--------|
+| 162 | [Enhancement] | Nextcloud UX Improvements | S | ⬜ Pending |
+| 161 | [Enhancement] | Enterprise OAuth Configuration UI | M | ⬜ Pending |
 
 ---
 
-## Deliverables
+## Task Breakdown
 
-### Contract Testing
-- ✅ `CloudSyncAppTests/Fixtures/Rclone/lsjson-response.json`
-- ✅ `CloudSyncAppTests/Fixtures/Rclone/lsjson-empty.json`
-- ✅ `CloudSyncAppTests/Fixtures/Rclone/stats-progress.json`
-- ✅ `CloudSyncAppTests/Fixtures/Rclone/error-not-found.txt`
-- ✅ `CloudSyncAppTests/RcloneContractTests.swift` (11 tests)
+### #167 Local Storage Security-Scoped Bookmarks (M)
+1. Add bookmark creation when user selects folder
+2. Store bookmark data in UserDefaults/Keychain
+3. Resolve bookmark on app launch to restore access
+4. Handle bookmark staleness (folder moved/deleted)
+5. Update LocalStorageConfigStep in wizard
 
-### Performance Baselines
-- ✅ `CloudSyncAppTests/PerformanceTests.swift` (13 tests)
-- ✅ `.claude-team/metrics/perf-baseline.json`
-- ✅ `.github/workflows/performance.yml` (>20% regression alerts)
+### #162 Nextcloud UX Improvements (S)
+1. Review Nextcloud wizard flow
+2. Add server URL validation
+3. Improve error messages
+4. Add connection status indicators
 
-### Mutation Testing
-- ✅ `.github/workflows/mutation-testing.yml` (weekly Saturday 3am UTC)
+### #161 Enterprise OAuth Configuration UI (M)
+1. Add custom OAuth client ID/secret fields
+2. Add custom auth/token endpoint fields
+3. Support self-hosted OAuth providers
+4. Add documentation/help text
 
 ---
 
 ## Progress Tracker
 
-- [x] Phase 1: Contract Testing (3/3)
-- [x] Phase 2: Performance Baselines (3/3)
-- [x] Phase 3: Mutation Testing CI (3/3)
+- [ ] Priority 1: #167 Local Storage (0/1)
+- [ ] Priority 2: #162 Nextcloud, #161 OAuth (0/2)
 
-**Total:** 9/9 tasks ✅
-
----
-
-## Success Criteria
-
-- [x] 10+ contract tests covering JSON parsing (11 tests)
-- [x] Performance baseline file created
-- [x] CI alerts on >20% performance regression
-- [x] Weekly mutation testing workflow runs
-- [x] Mutation score reported in workflow summary
-
----
-
-## QA Score Impact
-
-| Improvement | Points |
-|-------------|--------|
-| Contract testing | +3 |
-| Performance baselines | +4 |
-| Mutation testing | +3 |
-
-**QA Score:** 95/100 ✅
+**Total:** 0/3 issues
 
 ---
 
 ## Previous Sprint
 
-**v2.0.39** - Completed 2026-01-18
-- ✅ 8 provider bugs fixed
-- ✅ Flickr removed (no rclone backend)
-- ✅ Provider count: 41
+**v2.0.40** - Completed 2026-01-18
+- ✅ Contract Testing (11 tests)
+- ✅ Performance Baselines (13 tests)
+- ✅ Mutation Testing CI
+- ✅ QA Score: 95/100
 
 ---
 
