@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.41] - 2026-01-18
+
+### Added
+- **Local Storage Security-Scoped Bookmarks** (#167)
+  - SecurityScopedBookmarkManager for persistent folder access
+  - LocalStorageConfigStep wizard for folder selection
+  - Automatic bookmark resolution on app launch
+  - Stale bookmark detection and recovery
+- **Enterprise OAuth Configuration** (#161)
+  - Custom OAuth client ID/secret fields
+  - Custom auth/token endpoints for Azure AD
+  - Support for Google, OneDrive, Dropbox, Box
+  - Collapsible advanced configuration section
+
+### Improved
+- **Nextcloud UX** (#162)
+  - Real-time URL validation with visual feedback
+  - Auto-normalize URLs (add https://, remove trailing slashes)
+  - User-friendly error messages for common issues
+  - Provider instructions and documentation links
+
+### Changed
+- All enhancement backlog cleared (0 open issues)
+
+---
+
 ## [2.0.40] - 2026-01-18
 
 ### Added

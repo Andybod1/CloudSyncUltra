@@ -1,8 +1,8 @@
-# CloudSync Ultra - Sprint v2.0.40 Status
+# CloudSync Ultra - Sprint v2.0.41 Status
 
-**Version: v2.0.40**
+**Version: v2.0.41**
 
-## Current Sprint: v2.0.40 "Bug Fixes & S3-Compatible Providers"
+## Current Sprint: v2.0.41 "Bug Fixes & S3-Compatible Providers"
 **Duration:** 2026-01-18
 **Status:** ✅ SPRINT COMPLETE
 

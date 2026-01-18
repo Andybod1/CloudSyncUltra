@@ -1,7 +1,8 @@
 # Sprint: v2.0.41 - Enhancement Backlog
 
 **Started:** 2026-01-18
-**Status:** 🟡 PLANNED
+**Completed:** 2026-01-18
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -11,52 +12,51 @@ Clear enhancement backlog - Local Storage security, Nextcloud UX, Enterprise OAu
 
 ---
 
-## Priority 1: High Priority
+## Issues
 
-| # | Issue | Title | Size | Status |
-|---|-------|-------|------|--------|
-| 167 | [Enhancement] | Local Storage security-scoped bookmarks | M | ⬜ Pending |
-
-**Details:** macOS sandboxing requires security-scoped bookmarks to persist access to user-selected folders across app launches. Without this, Local Storage connections break after restart.
-
-## Priority 2: Low Priority
-
-| # | Issue | Title | Size | Status |
-|---|-------|-------|------|--------|
-| 162 | [Enhancement] | Nextcloud UX Improvements | S | ⬜ Pending |
-| 161 | [Enhancement] | Enterprise OAuth Configuration UI | M | ⬜ Pending |
+| # | Title | Size | Status |
+|---|-------|------|--------|
+| 167 | Local Storage security-scoped bookmarks | M | ✅ Done |
+| 162 | Nextcloud UX Improvements | S | ✅ Done |
+| 161 | Enterprise OAuth Configuration UI | M | ✅ Done |
 
 ---
 
-## Task Breakdown
+## Deliverables
 
-### #167 Local Storage Security-Scoped Bookmarks (M)
-1. Add bookmark creation when user selects folder
-2. Store bookmark data in UserDefaults/Keychain
-3. Resolve bookmark on app launch to restore access
-4. Handle bookmark staleness (folder moved/deleted)
-5. Update LocalStorageConfigStep in wizard
+### #167 Local Storage
+- ✅ SecurityScopedBookmarkManager.swift
+- ✅ LocalStorageConfigStep.swift
+- ✅ App launch bookmark resolution
+- ✅ Stale bookmark handling
 
-### #162 Nextcloud UX Improvements (S)
-1. Review Nextcloud wizard flow
-2. Add server URL validation
-3. Improve error messages
-4. Add connection status indicators
+### #162 Nextcloud UX
+- ✅ Real-time URL validation
+- ✅ URL normalization (https://, slashes)
+- ✅ User-friendly error messages
+- ✅ Provider documentation links
 
-### #161 Enterprise OAuth Configuration UI (M)
-1. Add custom OAuth client ID/secret fields
-2. Add custom auth/token endpoint fields
-3. Support self-hosted OAuth providers
-4. Add documentation/help text
+### #161 Enterprise OAuth
+- ✅ Custom OAuth client ID/secret fields
+- ✅ Custom auth/token endpoints
+- ✅ Collapsible advanced section
+- ✅ Provider-specific help text
 
 ---
 
 ## Progress Tracker
 
-- [ ] Priority 1: #167 Local Storage (0/1)
-- [ ] Priority 2: #162 Nextcloud, #161 OAuth (0/2)
+- [x] #167 Local Storage (1/1)
+- [x] #162 Nextcloud UX (1/1)
+- [x] #161 Enterprise OAuth (1/1)
 
-**Total:** 0/3 issues
+**Total:** 3/3 issues ✅
+
+---
+
+## Open Issues
+
+**None** - All issues closed! 🎉
 
 ---
 
