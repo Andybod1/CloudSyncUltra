@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# CloudSync Ultra - Batch Worker Launcher with Model Selection
+# Project Ops Kit - Batch Worker Launcher with Model Selection
 # Reads model assignments from WORKER_MODELS.conf
 
-SCRIPT_DIR="/Users/antti/Claude/.claude-team/scripts"
-TASKS_DIR="/Users/antti/Claude/.claude-team/tasks"
-TEAM_DIR="/Users/antti/Claude/.claude-team"
+# Auto-detect project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+TEAM_DIR="$REPO_DIR/.claude-team"
+TASKS_DIR="$TEAM_DIR/tasks"
 CONFIG_FILE="$TEAM_DIR/WORKER_MODELS.conf"
 
 GREEN='\033[0;32m'
@@ -15,8 +17,10 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║   CloudSync Ultra - Batch Worker Launcher  ║${NC}"
+echo -e "${BLUE}║   Project Ops Kit - Batch Worker Launcher  ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
+echo ""
+echo "Project: $REPO_DIR"
 echo ""
 
 # Default models - ALL USE OPUS
@@ -24,6 +28,7 @@ DEV1_MODEL="opus"
 DEV2_MODEL="opus"
 DEV3_MODEL="opus"
 QA_MODEL="opus"
+DEVOPS_MODEL="opus"
 
 # Read config file if exists
 if [ -f "$CONFIG_FILE" ]; then
@@ -61,6 +66,13 @@ if [ -s "$TASKS_DIR/TASK_QA.md" ]; then
     echo -e "${YELLOW}Launching QA (Testing) with ${QA_MODEL}...${NC}"
     "$SCRIPT_DIR/launch_single_worker.sh" QA "$QA_MODEL"
     LAUNCHED=$((LAUNCHED + 1))
+    sleep 3
+fi
+
+if [ -s "$TASKS_DIR/TASK_DEVOPS.md" ]; then
+    echo -e "${YELLOW}Launching Dev-Ops (Operations) with ${DEVOPS_MODEL}...${NC}"
+    "$SCRIPT_DIR/launch_single_worker.sh" DEVOPS "$DEVOPS_MODEL"
+    LAUNCHED=$((LAUNCHED + 1))
 fi
 
 echo ""
@@ -71,5 +83,5 @@ else
     echo -e "${GREEN}✅ Launched $LAUNCHED worker(s)!${NC}"
     echo ""
     echo "Monitor progress:"
-    echo "  cat /Users/antti/Claude/.claude-team/STATUS.md"
+    echo "  cat $TEAM_DIR/STATUS.md"
 fi

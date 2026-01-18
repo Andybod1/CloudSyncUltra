@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# Launch 4 Workers (Sonnet) for CloudSync Ultra
+# Project Ops Kit - Launch Multiple Workers
+# Opens 4 Terminal windows ready for worker assignment
 
-echo "🚀 Launching 4 Worker Agents..."
+# Auto-detect project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-osascript << 'EOF'
+echo "🚀 Launching 4 Worker Terminals..."
+
+osascript << EOF
 tell application "Terminal"
     activate
-    do script "cd ~/Claude && claude"
+    do script "cd $REPO_DIR && claude"
     delay 0.5
-    do script "cd ~/Claude && claude"
+    do script "cd $REPO_DIR && claude"
     delay 0.5
-    do script "cd ~/Claude && claude"
+    do script "cd $REPO_DIR && claude"
     delay 0.5
-    do script "cd ~/Claude && claude"
+    do script "cd $REPO_DIR && claude"
 end tell
 EOF
 
@@ -22,5 +27,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  4 WORKER TERMINALS OPENED"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Paste startup commands from Desktop Claude into each terminal."
+echo "Paste startup commands from Strategic Partner into each terminal."
+echo ""
+echo "Project: $REPO_DIR"
 echo ""

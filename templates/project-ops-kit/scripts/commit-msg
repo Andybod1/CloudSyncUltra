@@ -53,7 +53,7 @@ else
     echo "  fix: resolve crash on startup"
     echo "  docs: update README installation steps"
     echo ""
-    # Warning only - don't block commits yet
-    echo -e "${YELLOW}⚠ Proceeding anyway (warning only)${NC}"
-    exit 0
+    echo -e "${RED}✗ Commit rejected. Fix the message format and try again.${NC}"
+    echo -e "${YELLOW}Bypass (emergency only): git commit --no-verify${NC}"
+    exit 1
 fi

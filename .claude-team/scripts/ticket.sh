@@ -1,9 +1,14 @@
 #!/bin/bash
-# CloudSync Ultra - Ticket Helper Script
+# Project Ops Kit - Ticket Helper Script
 # Usage: ./ticket.sh [command] [args]
 
-REPO_DIR="/Users/antti/Claude"
+# Auto-detect project root (where .claude-team exists)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TICKETS_DIR="$REPO_DIR/.claude-team/tickets"
+
+# Ensure tickets dir exists
+mkdir -p "$TICKETS_DIR"
 
 case "$1" in
     "list"|"ls")
@@ -46,13 +51,22 @@ case "$1" in
             echo "Usage: ./ticket.sh idea \"Your idea here\""
             exit 1
         fi
+        # Create INBOX.md if it doesn't exist
+        if [ ! -f "$TICKETS_DIR/INBOX.md" ]; then
+            echo "# Ticket Inbox" > "$TICKETS_DIR/INBOX.md"
+            echo "" >> "$TICKETS_DIR/INBOX.md"
+        fi
         echo "- $2" >> "$TICKETS_DIR/INBOX.md"
         echo "💡 Added to inbox: $2"
         ;;
     
     "inbox")
         echo "📥 Inbox Contents:"
-        cat "$TICKETS_DIR/INBOX.md"
+        if [ -f "$TICKETS_DIR/INBOX.md" ]; then
+            cat "$TICKETS_DIR/INBOX.md"
+        else
+            echo "(empty)"
+        fi
         ;;
     
     "backup")
@@ -71,7 +85,7 @@ case "$1" in
         ;;
     
     "help"|"")
-        echo "CloudSync Ultra Ticket System"
+        echo "Project Ops Kit - Ticket System"
         echo ""
         echo "Commands:"
         echo "  list, ls     - List all open issues"
@@ -87,7 +101,7 @@ case "$1" in
         echo ""
         echo "Examples:"
         echo "  ./ticket.sh quick \"Add dark mode support\""
-        echo "  ./ticket.sh idea \"Maybe add iCloud sync?\""
+        echo "  ./ticket.sh idea \"Explore performance optimization\""
         echo "  ./ticket.sh view 42"
         ;;
     

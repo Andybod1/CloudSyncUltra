@@ -75,17 +75,51 @@ jobs:
             -project CloudSyncApp.xcodeproj \
             -scheme CloudSyncApp \
             -destination 'platform=macOS' \
-            -only-testing:CloudSyncAppTests \
+            -only-testing:CloudSyncAppTests/PerformanceTests \
+            -resultBundlePath PerfResults \
             2>&1 | tee test_output.txt || true
 
-          # Extract performance metrics
+          # Extract performance metrics from output
           grep -E "measured \[.*\] average:" test_output.txt > perf_metrics.txt || true
 
           if [ -s perf_metrics.txt ]; then
             echo "Found performance metrics:"
             cat perf_metrics.txt
+            echo "perf_found=true" >> $GITHUB_OUTPUT
           else
             echo "No performance test metrics found"
+            echo "perf_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Check against baseline
+      - name: Check Performance Baseline
+        if: steps.perf_tests.outputs.perf_found == 'true'
+        run: |
+          BASELINE_FILE=".claude-team/metrics/perf-baseline.json"
+
+          echo "### Performance Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "$BASELINE_FILE" ]; then
+            echo "Comparing against baseline..." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Test | Result |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+
+            # Parse and display metrics
+            while IFS= read -r line; do
+              TEST_NAME=$(echo "$line" | grep -oE "test[A-Za-z_0-9]+" | head -1)
+              AVG_TIME=$(echo "$line" | grep -oE "average: [0-9.]+" | sed 's/average: //')
+
+              if [ -n "$TEST_NAME" ] && [ -n "$AVG_TIME" ]; then
+                echo "| $TEST_NAME | ${AVG_TIME}s |" >> $GITHUB_STEP_SUMMARY
+              fi
+            done < perf_metrics.txt
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Baseline file: $BASELINE_FILE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No baseline file found - establishing initial metrics" >> $GITHUB_STEP_SUMMARY
           fi
 
       # Measure test execution time
