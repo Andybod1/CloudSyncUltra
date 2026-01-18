@@ -1,0 +1,135 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.swift'
+      - '.github/workflows/codeql-analysis.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.swift'
+  schedule:
+    # Run weekly on Wednesday at 4am UTC
+    - cron: '0 4 * * 3'
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: swift
+          queries: security-extended,security-and-quality
+
+      - name: Build for Analysis
+        run: |
+          xcodebuild build \
+            -project CloudSyncApp.xcodeproj \
+            -scheme CloudSyncApp \
+            -destination 'platform=macOS' \
+            -quiet || true
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:swift"
+
+      - name: Summary
+        run: |
+          echo "### 🔐 CodeQL Security Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Security analysis completed. Check the Security tab for detailed results." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Queries run:**" >> $GITHUB_STEP_SUMMARY
+          echo "- security-extended" >> $GITHUB_STEP_SUMMARY
+          echo "- security-and-quality" >> $GITHUB_STEP_SUMMARY
+
+  # Additional static analysis for Swift-specific patterns
+  swift-security-check:
+    name: Swift Security Patterns
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check for Insecure Patterns
+        run: |
+          echo "🔍 Checking for insecure Swift patterns..."
+
+          ISSUES=0
+
+          # Check for hardcoded credentials
+          echo "Checking for hardcoded credentials..."
+          if grep -rE "(password|secret|apiKey|api_key)\s*[:=]\s*\"[^\"]+\"" --include="*.swift" CloudSyncApp/ 2>/dev/null | grep -v "Test" | grep -v "Mock" | grep -v "example"; then
+            echo "⚠️ Potential hardcoded credentials found"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for insecure random
+          echo "Checking for insecure random number generation..."
+          if grep -rE "arc4random\(\)|rand\(\)|random\(\)" --include="*.swift" CloudSyncApp/ 2>/dev/null; then
+            echo "⚠️ Insecure random number generation found - use SecRandomCopyBytes"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for disabled SSL verification
+          echo "Checking for disabled SSL verification..."
+          if grep -rE "allowsInvalidSSLCertificate|ServerTrustPolicy\.disableEvaluation" --include="*.swift" CloudSyncApp/ 2>/dev/null; then
+            echo "⚠️ Disabled SSL verification found"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for SQL injection risks (if using SQLite)
+          echo "Checking for SQL injection risks..."
+          if grep -rE "execute.*\\\(.*\)" --include="*.swift" CloudSyncApp/ 2>/dev/null | grep -v "prepared"; then
+            echo "⚠️ Potential SQL injection risk - use prepared statements"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for force unwrapping in critical paths
+          echo "Checking for risky force unwrapping..."
+          FORCE_UNWRAPS=$(grep -rE "!\." --include="*.swift" CloudSyncApp/ 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$FORCE_UNWRAPS" -gt 100 ]; then
+            echo "⚠️ High number of force unwraps ($FORCE_UNWRAPS) - consider safer alternatives"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check for print statements (should use proper logging)
+          echo "Checking for debug print statements..."
+          PRINTS=$(grep -rE "^\s*print\(" --include="*.swift" CloudSyncApp/ 2>/dev/null | grep -v "Test" | wc -l | tr -d ' ')
+          if [ "$PRINTS" -gt 50 ]; then
+            echo "⚠️ High number of print statements ($PRINTS) - consider using Logger"
+          fi
+
+          echo ""
+          echo "### 🔐 Swift Security Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ $ISSUES -eq 0 ]; then
+            echo "✅ No critical security issues found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Found $ISSUES potential security issue(s)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Review the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+          fi

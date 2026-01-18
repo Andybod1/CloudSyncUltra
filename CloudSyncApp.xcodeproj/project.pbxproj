@@ -107,6 +107,7 @@
 		C12F52A4FE77EB07C3F45AFC /* AppTheme+ProviderColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC65A10946A6CD735FA94D79 /* AppTheme+ProviderColors.swift */; };
 		C253E3C82C46D2E49FC7BF0A /* BandwidthThrottlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73474A03B74243C017C410E /* BandwidthThrottlingTests.swift */; };
 		C315EB8938B597F31192BB22 /* TransferPreviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF9B64CA91B6A75B7BD1BD /* TransferPreviewTests.swift */; };
+		C4F9B2E1AEB04EC265AA316E /* SnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6FC62D70DAAFB022B73B65 /* SnapshotTests.swift */; };
 		C83C9D658C9DAD85749F1716 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */; };
 		CMP01 /* CompletionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CMP02 /* CompletionStepView.swift */; };
 		D4667DE4A7F57F4CE05DEF98 /* WorkflowIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFA5CB7FDFDE71D9E8867D4 /* WorkflowIntegrationTests.swift */; };
@@ -209,6 +210,7 @@
 		660A2D60774D78D930803712 /* DashboardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardUITests.swift; sourceTree = "<group>"; };
 		6739C5807A749256A49248B5 /* CloudSyncAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudSyncAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		676F55F5D2D0390999318696 /* TasksUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksUITests.swift; sourceTree = "<group>"; };
+		6B6FC62D70DAAFB022B73B65 /* SnapshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/SnapshotTests.swift; sourceTree = SOURCE_ROOT; };
 		6CFA5CB7FDFDE71D9E8867D4 /* WorkflowIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CloudSyncAppTests/WorkflowIntegrationTests.swift; sourceTree = SOURCE_ROOT; };
 		6DDA27334D60713D882DB6B0 /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WelcomeStepView.swift; path = CloudSyncApp/Views/Onboarding/WelcomeStepView.swift; sourceTree = SOURCE_ROOT; };
 		6F5E48E7AEC7D5E407F501B9 /* CloudSyncErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CloudSyncErrors.swift; path = CloudSyncApp/CloudSyncErrors.swift; sourceTree = SOURCE_ROOT; };
@@ -394,6 +396,7 @@
 				D27C9E2B0125B28E62731132 /* RcloneContractTests.swift */,
 				F1F9C303108B298BD53683C4 /* PerformanceTests.swift */,
 				6CFA5CB7FDFDE71D9E8867D4 /* WorkflowIntegrationTests.swift */,
+				6B6FC62D70DAAFB022B73B65 /* SnapshotTests.swift */,
 			);
 			path = CloudSyncAppTests;
 			sourceTree = SOURCE_ROOT;
@@ -819,6 +822,7 @@
 				E6C4DF2C0D4782E3430A3C20 /* RcloneContractTests.swift in Sources */,
 				2D83D8ECF1853A489D240CBE /* PerformanceTests.swift in Sources */,
 				D4667DE4A7F57F4CE05DEF98 /* WorkflowIntegrationTests.swift in Sources */,
+				C4F9B2E1AEB04EC265AA316E /* SnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

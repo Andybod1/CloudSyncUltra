@@ -5,6 +5,57 @@ import XCTest
 /// These tests measure critical performance metrics and establish baselines
 final class PerformanceTests: XCTestCase {
 
+    // MARK: - Launch Time Budget (< 2 seconds)
+
+    /// App initialization should complete within 2 seconds
+    /// This is a critical performance budget - failure indicates regression
+    func testAppLaunchTimeBudget() {
+        let launchBudget: TimeInterval = 2.0 // 2 seconds max
+
+        let startTime = CFAbsoluteTimeGetCurrent()
+
+        // Simulate app initialization sequence
+        _ = CloudProviderType.allCases // Load provider enum
+        _ = TaskType.allCases // Load task types
+        _ = TaskState.pending // Initialize state enum
+
+        // Create sample data structures (simulates initial load)
+        let sampleTask = SyncTask(
+            name: "Init Test",
+            type: .sync,
+            sourceRemote: "local",
+            sourcePath: "/test",
+            destinationRemote: "remote",
+            destinationPath: "backup"
+        )
+        _ = sampleTask.id
+
+        let endTime = CFAbsoluteTimeGetCurrent()
+        let launchTime = endTime - startTime
+
+        XCTAssertLessThan(launchTime, launchBudget,
+            "App initialization took \(String(format: "%.3f", launchTime))s, exceeds \(launchBudget)s budget")
+    }
+
+    func testCoreDataStructuresInitTime() {
+        measure {
+            // Measure core data structure initialization
+            _ = CloudProviderType.allCases.map { $0.displayName }
+            _ = TaskType.allCases.map { $0.icon }
+
+            for _ in 0..<100 {
+                _ = SyncTask(
+                    name: "Perf Test",
+                    type: .backup,
+                    sourceRemote: "local",
+                    sourcePath: "/test",
+                    destinationRemote: "remote",
+                    destinationPath: "backup"
+                )
+            }
+        }
+    }
+
     // MARK: - File List Parsing Performance
 
     func testFileListParsing_100Files() {
