@@ -7,7 +7,7 @@
 
 ## Sprint Goal
 
-Complete 10 integration studies to bring provider coverage to ~95%
+Complete ALL 14 remaining integration studies → 100% provider research complete
 
 ---
 
@@ -31,6 +31,15 @@ Complete 10 integration studies to bring provider coverage to ~95%
 | 151 | [Integration Study]: SugarSync | Architect-4 | S | ⬜ Pending |
 | 152 | [Integration Study]: OpenDrive | Architect-5 | S | ⬜ Pending |
 
+## Wave 3: Final 4 Studies (Parallel)
+
+| # | Title | Worker | Size | Status |
+|---|-------|--------|------|--------|
+| 158 | [Integration Study]: FileFabric | Architect-1 | M | ⬜ Pending |
+| 157 | [Integration Study]: Quatrix | Architect-2 | M | ⬜ Pending |
+| 154 | [Integration Study]: Premiumize.me | Architect-3 | S | ⬜ Pending |
+| 153 | [Integration Study]: Put.io | Architect-4 | S | ⬜ Pending |
+
 ---
 
 ## Worker Outputs
@@ -53,14 +62,23 @@ Complete 10 integration studies to bring provider coverage to ~95%
 | Architect-4 | #151 SugarSync | outputs/ARCH4_151_SUGARSYNC.md | ⬜ |
 | Architect-5 | #152 OpenDrive | outputs/ARCH5_152_OPENDRIVE.md | ⬜ |
 
+### Wave 3
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Architect-1 | #158 FileFabric | outputs/ARCH1_158_FILEFABRIC.md | ⬜ |
+| Architect-2 | #157 Quatrix | outputs/ARCH2_157_QUATRIX.md | ⬜ |
+| Architect-3 | #154 Premiumize.me | outputs/ARCH3_154_PREMIUMIZE.md | ⬜ |
+| Architect-4 | #153 Put.io | outputs/ARCH4_153_PUTIO.md | ⬜ |
+
 ---
 
 ## Progress Tracker
 
 - [ ] Wave 1: Studies (0/5)
 - [ ] Wave 2: Studies (0/5)
+- [ ] Wave 3: Studies (0/4)
 
-**Total:** 0/10 studies complete
+**Total:** 0/14 studies complete
 
 ---
 
@@ -69,19 +87,17 @@ Complete 10 integration studies to bring provider coverage to ~95%
 | Category | Providers | Count |
 |----------|-----------|-------|
 | Local/Protocol | Local Storage | 1 |
-| Enterprise Cloud | Azure Files, Alibaba OSS, Oracle Cloud | 3 |
-| Consumer Cloud | Yandex, Mail.ru, Flickr, SugarSync, OpenDrive | 5 |
+| Enterprise Cloud | Azure Files, Alibaba OSS, Oracle Cloud, FileFabric, Quatrix | 5 |
+| Consumer Cloud | Yandex, Mail.ru, Flickr, SugarSync, OpenDrive, Premiumize.me, Put.io | 7 |
 | Self-Hosted | Seafile | 1 |
 
 ---
 
-## Remaining After Sprint
+## After This Sprint
 
-4 research tickets will remain:
-- #158 FileFabric
-- #157 Quatrix
-- #154 Premiumize.me
-- #153 Put.io
+✅ **100% provider research complete**
+- All 14 remaining studies done
+- Ready to focus on implementation sprints
 
 ---
 
