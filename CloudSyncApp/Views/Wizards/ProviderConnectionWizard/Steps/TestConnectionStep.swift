@@ -13,6 +13,9 @@ struct TestConnectionStep: View {
     let username: String
     let password: String
     let twoFactorCode: String
+    // SFTP SSH key authentication
+    let sshKeyFile: String
+    let sshKeyPassphrase: String
     @Binding var isConnecting: Bool
     @Binding var connectionError: String?
     @Binding var isConnected: Bool
@@ -303,7 +306,13 @@ struct TestConnectionStep: View {
         case .webdav:
             try await rclone.setupWebDAV(remoteName: rcloneName, url: username, password: password)
         case .sftp:
-            try await rclone.setupSFTP(remoteName: rcloneName, host: username, password: password)
+            try await rclone.setupSFTP(
+                remoteName: rcloneName,
+                host: username,
+                password: password,
+                keyFile: sshKeyFile,
+                keyPassphrase: sshKeyPassphrase
+            )
         case .ftp:
             try await rclone.setupFTP(remoteName: rcloneName, host: username, password: password)
         case .jottacloud:
@@ -365,11 +374,13 @@ struct TestConnectionStep_Previews: PreviewProvider {
 
         var body: some View {
             TestConnectionStep(
-                provider: .googleDrive,
-                remoteName: "Google Drive",
-                username: "user@example.com",
+                provider: .sftp,
+                remoteName: "My SFTP Server",
+                username: "server.example.com",
                 password: "password",
                 twoFactorCode: "",
+                sshKeyFile: "",
+                sshKeyPassphrase: "",
                 isConnecting: $isConnecting,
                 connectionError: $connectionError,
                 isConnected: $isConnected

@@ -1,16 +1,15 @@
-# Sprint: v2.0.35 - Cloud Storage & Protocols
+# Sprint: v2.0.36 - Cloud Platforms & File Protocols
 
 **Started:** 2026-01-17
-**Completed:** 2026-01-17
 **Status:** ✅ COMPLETE
 
 ---
 
 ## Sprint Goal
 
-1. Implement MEGA 2FA support (from v2.0.34 study findings)
-2. Research S3-compatible cloud storage providers
-3. Research common file transfer protocols
+1. ✅ Implement SFTP SSH key authentication (from v2.0.35 study)
+2. ✅ Complete remaining medium-priority cloud storage studies
+3. ✅ Research additional file transfer protocols
 
 ---
 
@@ -18,59 +17,44 @@
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 160 | [Enhancement]: MEGA 2FA Support | Dev-1 | S | ✅ Done |
-| 126 | [Integration Study]: Amazon S3 | Architect-1 | M | ✅ Done |
-| 127 | [Integration Study]: Backblaze B2 | Architect-2 | M | ✅ Done |
-| 130 | [Integration Study]: Cloudflare R2 | Architect-3 | S | ✅ Done |
-| 142 | [Integration Study]: WebDAV | Architect-4 | M | ✅ Done |
-| 143 | [Integration Study]: SFTP | Architect-5 | M | ✅ Done |
+| 163 | [Enhancement]: SFTP SSH Key Authentication | Dev-1 | M | ✅ Complete |
+| 137 | [Integration Study]: Azure Blob Storage | Architect-1 | M | ✅ Complete |
+| 135 | [Integration Study]: Google Cloud Storage | Architect-2 | M | ✅ Complete |
+| 133 | [Integration Study]: Storj | Architect-3 | M | ✅ Complete |
+| 144 | [Integration Study]: FTP | Architect-4 | S | ✅ Complete |
+| 140 | [Integration Study]: ownCloud | Architect-5 | S | ✅ Complete |
 
-**Total Points:** 2S + 4M = ~5 story points
-
----
-
-## Results Summary
-
-### Implementation
-- **#160 MEGA 2FA** - Added optional TOTP code field to MEGA wizard
-
-### Integration Studies
-
-| Provider | Difficulty | Status | Notes |
-|----------|------------|--------|-------|
-| Amazon S3 | EASY | Already works | Full implementation complete |
-| Backblaze B2 | EASY | Already works | Native B2 API supported |
-| Cloudflare R2 | EASY | Already works | S3-compatible, zero egress fees |
-| WebDAV | EASY | Already works | Vendor-specific optimizations available |
-| SFTP | MEDIUM | Partially works | Needs SSH key authentication UI |
-
-### Key Finding
-**5 of 6 providers already work** in CloudSync Ultra with no code changes needed!
+**Total Points:** 4M + 2S = ~5 story points
 
 ---
 
-## Deliverables
+## Worker Outputs
 
-- `.claude-team/outputs/DEV1_COMPLETE.md` - MEGA 2FA implementation
-- `.claude-team/outputs/ARCHITECT1_S3.md` - Amazon S3 study
-- `.claude-team/outputs/ARCHITECT2_B2.md` - Backblaze B2 study
-- `.claude-team/outputs/ARCHITECT3_R2.md` - Cloudflare R2 study
-- `.claude-team/outputs/ARCHITECT4_WEBDAV.md` - WebDAV study
-- `.claude-team/outputs/ARCHITECT5_SFTP.md` - SFTP study
+| Worker | Task | Output File |
+|--------|------|-------------|
+| Dev-1 | SFTP SSH Key Auth #163 | `outputs/DEV1_COMPLETE.md` |
+| Architect-1 | Azure Blob Storage #137 | `outputs/ARCHITECT1_AZURE.md` |
+| Architect-2 | Google Cloud Storage #135 | `outputs/ARCHITECT2_GCS.md` |
+| Architect-3 | Storj #133 | `outputs/ARCHITECT3_STORJ.md` |
+| Architect-4 | FTP #144 | `outputs/ARCHITECT4_FTP.md` |
+| Architect-5 | ownCloud #140 | `outputs/ARCHITECT5_OWNCLOUD.md` |
 
 ---
 
-## Follow-up Tickets Created
+## Key Findings
 
-- **#163**: SFTP SSH Key Authentication Support (from study findings)
+- **All 5 cloud providers already work** with no code changes
+- SFTP SSH key authentication successfully implemented
+- Total 16 providers studied across sprints v2.0.34-v2.0.36
+- 14 of 16 providers work out of the box
 
 ---
 
 ## Previous Sprint
 
-**v2.0.34** - Completed 2026-01-17
-- ✅ #159: Google Photos OAuth Fix
-- ✅ #156, #155, #139, #146, #147: Enterprise Provider Studies
+**v2.0.35** - Completed 2026-01-17
+- ✅ #160: MEGA 2FA Support
+- ✅ #126, #127, #130, #142, #143: Cloud Storage & Protocol Studies
 
 ---
 

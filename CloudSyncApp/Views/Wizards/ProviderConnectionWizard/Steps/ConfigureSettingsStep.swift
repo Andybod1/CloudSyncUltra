@@ -12,6 +12,9 @@ struct ConfigureSettingsStep: View {
     @Binding var username: String
     @Binding var password: String
     @Binding var twoFactorCode: String
+    // SFTP SSH key authentication (default bindings for non-SFTP providers)
+    var sshKeyFile: Binding<String> = .constant("")
+    var sshKeyPassphrase: Binding<String> = .constant("")
 
     private var needsTwoFactor: Bool {
         provider == .protonDrive || provider == .mega
@@ -23,6 +26,10 @@ struct ConfigureSettingsStep: View {
 
     private var isICloud: Bool {
         provider == .icloud
+    }
+
+    private var isSFTP: Bool {
+        provider == .sftp
     }
 
     var body: some View {
@@ -317,6 +324,72 @@ struct ConfigureSettingsStep: View {
                 .padding()
             }
 
+            // SFTP SSH Key Authentication (optional)
+            if isSFTP {
+                GroupBox {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "key.fill")
+                                .font(.title2)
+                                .foregroundColor(.orange)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("SSH Key Authentication (Optional)")
+                                    .font(.headline)
+                                Text("Use an SSH key instead of or in addition to password")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+                        }
+
+                        Divider()
+
+                        // SSH Key File picker
+                        HStack {
+                            Text("Key File")
+                                .frame(width: 100, alignment: .trailing)
+                            TextField("No key file selected", text: sshKeyFile)
+                                .textFieldStyle(.roundedBorder)
+                                .disabled(true)
+                            Button("Browse...") {
+                                selectSSHKeyFile()
+                            }
+                            if !sshKeyFile.wrappedValue.isEmpty {
+                                Button {
+                                    sshKeyFile.wrappedValue = ""
+                                    sshKeyPassphrase.wrappedValue = ""
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
+                        // Key Passphrase field (only shown when key file is selected)
+                        if !sshKeyFile.wrappedValue.isEmpty {
+                            HStack {
+                                Text("Passphrase")
+                                    .frame(width: 100, alignment: .trailing)
+                                SecureField("Key passphrase (if encrypted)", text: sshKeyPassphrase)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+
+                            HStack {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.secondary)
+                                Text("Leave passphrase empty if your key is not encrypted")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding()
+                }
+            }
+
             // Security note
             HStack(spacing: 8) {
                 Image(systemName: "lock.fill")
@@ -345,8 +418,33 @@ struct ConfigureSettingsStep: View {
             return "Enter your AWS Access Key ID as username and Secret Access Key as password."
         case .mega:
             return "Use your MEGA email and password. If you have 2FA enabled, enter the current code from your authenticator app."
+        case .sftp:
+            return "Enter your SSH host and username. You can authenticate with password, SSH key, or both."
         default:
             return nil
+        }
+    }
+
+    /// Opens NSOpenPanel to select an SSH private key file
+    private func selectSSHKeyFile() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.message = "Select your SSH private key file"
+        panel.prompt = "Select Key"
+        panel.showsHiddenFiles = true
+
+        // Start in ~/.ssh directory if it exists
+        let sshDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".ssh")
+        if FileManager.default.fileExists(atPath: sshDir.path) {
+            panel.directoryURL = sshDir
+        }
+
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                sshKeyFile.wrappedValue = url.path
+            }
         }
     }
 
@@ -369,13 +467,17 @@ struct ConfigureSettingsStep_Previews: PreviewProvider {
         @State var username = ""
         @State var password = ""
         @State var twoFactorCode = ""
+        @State var sshKeyFile = ""
+        @State var sshKeyPassphrase = ""
 
         var body: some View {
             ConfigureSettingsStep(
-                provider: .protonDrive,
+                provider: .sftp,
                 username: $username,
                 password: $password,
-                twoFactorCode: $twoFactorCode
+                twoFactorCode: $twoFactorCode,
+                sshKeyFile: $sshKeyFile,
+                sshKeyPassphrase: $sshKeyPassphrase
             )
             .frame(width: 700, height: 600)
         }

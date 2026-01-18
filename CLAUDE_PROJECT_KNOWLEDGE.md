@@ -1,7 +1,7 @@
 # CloudSync Ultra - Project Knowledge
 
 > **For Claude Project Context** - Essential info for every conversation
-> **Version:** 2.0.35 | **Updated:** 2026-01-17
+> **Version:** 2.0.36 | **Updated:** 2026-01-17
 
 ---
 
@@ -136,17 +136,17 @@ gh issue view <number>
 
 ## Current State
 
-### Just Completed: v2.0.35 - Sprint "Cloud Storage & Protocols"
-- ✅ **MEGA 2FA Support** (#160) - Added optional TOTP code field
-- ✅ **Integration Studies Complete** - 6 provider research reports
-  - Amazon S3: Already works (EASY)
-  - Backblaze B2: Already works (EASY)
-  - Cloudflare R2: Already works (EASY)
-  - WebDAV: Already works (EASY)
-  - SFTP: Needs SSH key UI (MEDIUM)
-- ✅ **Key Finding:** 5 of 6 providers need no code changes
+### Just Completed: v2.0.36 - Sprint "Cloud Platforms & File Protocols"
+- ✅ **SFTP SSH Key Authentication** (#163) - SSH key file picker with passphrase support
+- ✅ **Integration Studies Complete** - 5 provider research reports
+  - Azure Blob Storage: Already works (EASY)
+  - Google Cloud Storage: Already works (EASY)
+  - Storj: Already works (EASY)
+  - FTP: Already works (EASY)
+  - ownCloud: Already works via WebDAV (EASY)
+- ✅ **Key Finding:** All 5 providers work with no code changes
 - ✅ **855 tests** (0 unexpected failures)
-- ✅ **New ticket:** #163 SFTP SSH Key Support
+- ✅ **Cumulative:** 16 providers studied, 14 work out-of-box
 
 ### Strategic: Billion Dollar Framework
 - Revenue target: $50M ARR within 3 years
@@ -155,10 +155,10 @@ gh issue view <number>
 - Solo founder: AI support, self-serve everything
 - See `.claude-team/planning/BILLION_DOLLAR_FRAMEWORK.md`
 
-### v2.0.27 (Previous)
-- ✅ **Quick Actions Menu** (#49) - Cmd+Shift+N shortcut
-- ✅ **Provider-Specific Chunk Sizes** (#73) - ChunkSizeConfig
-- ✅ **Transfer Preview** (#55) - Dry-run support
+### v2.0.35 (Previous)
+- ✅ **MEGA 2FA Support** (#160) - Two-factor authentication
+- ✅ **Integration Studies** - S3, B2, R2, WebDAV, SFTP
+- ✅ **Google Photos OAuth** (#159) - Read-only scope
 
 ---
 

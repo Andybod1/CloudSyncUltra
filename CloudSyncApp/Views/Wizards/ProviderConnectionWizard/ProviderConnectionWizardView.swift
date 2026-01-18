@@ -19,6 +19,10 @@ class ProviderConnectionWizardState: ObservableObject {
     @Published var connectionError: String?
     @Published var isConnected = false
 
+    // SFTP SSH key authentication
+    @Published var sshKeyFile: String = ""
+    @Published var sshKeyPassphrase: String = ""
+
     func reset() {
         currentStep = 0
         selectedProvider = nil
@@ -29,6 +33,8 @@ class ProviderConnectionWizardState: ObservableObject {
         isConnecting = false
         connectionError = nil
         isConnected = false
+        sshKeyFile = ""
+        sshKeyPassphrase = ""
     }
 }
 
@@ -84,7 +90,9 @@ struct ProviderConnectionWizardView: View {
                     provider: wizardState.selectedProvider ?? .googleDrive,
                     username: $wizardState.username,
                     password: $wizardState.password,
-                    twoFactorCode: $wizardState.twoFactorCode
+                    twoFactorCode: $wizardState.twoFactorCode,
+                    sshKeyFile: $wizardState.sshKeyFile,
+                    sshKeyPassphrase: $wizardState.sshKeyPassphrase
                 )
             case 2:
                 TestConnectionStep(
@@ -93,6 +101,8 @@ struct ProviderConnectionWizardView: View {
                     username: wizardState.username,
                     password: wizardState.password,
                     twoFactorCode: wizardState.twoFactorCode,
+                    sshKeyFile: wizardState.sshKeyFile,
+                    sshKeyPassphrase: wizardState.sshKeyPassphrase,
                     isConnecting: $wizardState.isConnecting,
                     connectionError: $wizardState.connectionError,
                     isConnected: $wizardState.isConnected

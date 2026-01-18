@@ -1289,15 +1289,39 @@ class RcloneManager {
         try await createRemote(name: remoteName, type: "webdav", parameters: params)
     }
     
-    func setupSFTP(remoteName: String, host: String, password: String, user: String = "", port: String = "22") async throws {
+    func setupSFTP(
+        remoteName: String,
+        host: String,
+        password: String = "",
+        user: String = "",
+        port: String = "22",
+        keyFile: String = "",
+        keyPassphrase: String = ""
+    ) async throws {
         var params: [String: String] = [
             "host": host,
-            "pass": password,
             "port": port
         ]
+
+        // Add user if provided
         if !user.isEmpty {
             params["user"] = user
         }
+
+        // Add password authentication if provided
+        if !password.isEmpty {
+            params["pass"] = password
+        }
+
+        // Add SSH key authentication if provided
+        if !keyFile.isEmpty {
+            params["key_file"] = keyFile
+            // Add key passphrase if the key is encrypted
+            if !keyPassphrase.isEmpty {
+                params["key_file_pass"] = keyPassphrase
+            }
+        }
+
         try await createRemote(name: remoteName, type: "sftp", parameters: params)
     }
     

@@ -1,30 +1,31 @@
-# CloudSync Ultra - Sprint v2.0.35 Status
+# CloudSync Ultra - Sprint v2.0.36 Status
 
-**Version: v2.0.35**
+**Version: v2.0.36**
 
-## Current Sprint: v2.0.35 "Cloud Storage & Protocols"
+## Current Sprint: v2.0.36 "Cloud Platforms & File Protocols"
 **Duration:** 2026-01-17
 **Status:** ✅ SPRINT COMPLETE
 
 ## Completed Tasks
 
-### MEGA 2FA Support (#160) ✅
+### SFTP SSH Key Authentication (#163) ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- Added optional 2FA/TOTP field to MEGA provider wizard
-- Updated `setupMega()` to pass MFA code to rclone
-- Follows existing ProtonDrive 2FA pattern
+- SSH key file picker (defaults to ~/.ssh/, shows hidden files)
+- Key passphrase support for encrypted keys
+- Updated RcloneManager with key_file and key_file_pass parameters
+- Follows existing provider wizard patterns
 
 ### Integration Studies Complete ✅
 **Completed:** 2026-01-17
 **Deliverables:**
-- Amazon S3 (#126): Already works, EASY
-- Backblaze B2 (#127): Already works, EASY
-- Cloudflare R2 (#130): Already works, EASY
-- WebDAV (#142): Already works, EASY
-- SFTP (#143): Partially works, needs SSH key UI (MEDIUM)
+- Azure Blob Storage (#137): Already works, EASY
+- Google Cloud Storage (#135): Already works, EASY
+- Storj (#133): Already works, EASY
+- FTP (#144): Already works, EASY
+- ownCloud (#140): Already works via WebDAV, EASY
 
-**Key Finding:** 5 of 6 providers already work with no code changes!
+**Key Finding:** All 5 providers already work with no code changes!
 
 ---
 
@@ -32,12 +33,12 @@
 
 | Task | Status |
 |------|--------|
-| MEGA 2FA Support #160 | ✅ DONE |
-| Amazon S3 Study #126 | ✅ DONE |
-| Backblaze B2 Study #127 | ✅ DONE |
-| Cloudflare R2 Study #130 | ✅ DONE |
-| WebDAV Study #142 | ✅ DONE |
-| SFTP Study #143 | ✅ DONE |
+| SFTP SSH Key Auth #163 | ✅ DONE |
+| Azure Blob Storage Study #137 | ✅ DONE |
+| Google Cloud Storage Study #135 | ✅ DONE |
+| Storj Study #133 | ✅ DONE |
+| FTP Study #144 | ✅ DONE |
+| ownCloud Study #140 | ✅ DONE |
 
 ---
 
@@ -46,7 +47,7 @@
 - **Tests:** 855 (0 unexpected failures)
 - **Build:** ✅ PASSING
 - **Health Score:** 75%
-- **Open Issues:** 26
+- **Open Issues:** 20
 
 ---
 

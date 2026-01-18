@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.36] - 2026-01-17
+
+### Added
+- **SFTP SSH Key Authentication** (#163) - Secure SSH key-based SFTP connections
+  - SSH key file picker (defaults to ~/.ssh/, shows hidden files)
+  - Key passphrase support for encrypted keys
+  - Updated RcloneManager with key_file and key_file_pass parameters
+
+### Research
+- **Cloud Storage & Protocol Integration Studies** (Sprint v2.0.36)
+  - Azure Blob Storage (#137): Already works, EASY
+  - Google Cloud Storage (#135): Already works, EASY
+  - Storj (#133): Already works, EASY
+  - FTP (#144): Already works, EASY
+  - ownCloud (#140): Already works via WebDAV, EASY
+  - Finding: All 5 providers already work with no code changes
+
+---
+
 ## [2.0.35] - 2026-01-17
 
 ### Added
