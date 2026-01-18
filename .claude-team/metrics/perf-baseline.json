@@ -1,7 +1,8 @@
 {
   "version": "1.0",
   "created": "2026-01-18",
-  "description": "Performance baselines for CloudSync Ultra",
+  "updated": "2026-01-18",
+  "description": "Performance baselines for CloudSync Ultra - measured on Apple Silicon",
   "baselines": {
     "testFileListParsing_100Files": {
       "average_ms": 1,
@@ -9,34 +10,60 @@
       "description": "Parse 100 files JSON response"
     },
     "testFileListParsing_1000Files": {
-      "average_ms": 10,
-      "threshold_ms": 50,
+      "average_ms": 5,
+      "threshold_ms": 25,
       "description": "Parse 1000 files JSON response"
     },
     "testFileListParsing_10000Files": {
-      "average_ms": 100,
-      "threshold_ms": 300,
+      "average_ms": 21,
+      "threshold_ms": 100,
       "description": "Parse 10000 files JSON response"
     },
     "testFileSorting_ByName_10000Files": {
-      "average_ms": 50,
-      "threshold_ms": 150,
+      "average_ms": 0.5,
+      "threshold_ms": 5,
       "description": "Sort 10000 files by name"
     },
     "testFileSorting_BySize_10000Files": {
-      "average_ms": 30,
-      "threshold_ms": 100,
+      "average_ms": 2,
+      "threshold_ms": 10,
       "description": "Sort 10000 files by size"
     },
     "testFileFiltering_ByExtension_10000Files": {
-      "average_ms": 5,
-      "threshold_ms": 20,
+      "average_ms": 1,
+      "threshold_ms": 5,
       "description": "Filter 10000 files by extension"
+    },
+    "testFileFiltering_DirectoriesOnly_10000Files": {
+      "average_ms": 0.2,
+      "threshold_ms": 2,
+      "description": "Filter 10000 files for directories"
+    },
+    "testFileListEncoding_1000Files": {
+      "average_ms": 4,
+      "threshold_ms": 20,
+      "description": "Encode 1000 files to JSON"
+    },
+    "testDateParsing_1000Dates": {
+      "average_ms": 28,
+      "threshold_ms": 100,
+      "description": "Parse 1000 ISO8601 date strings"
+    },
+    "testPathNormalization_1000Paths": {
+      "average_ms": 2,
+      "threshold_ms": 10,
+      "description": "Normalize 1000 file paths"
+    },
+    "testMemoryUsage_LargeFileList": {
+      "peak_memory_kb": 66923,
+      "threshold_kb": 100000,
+      "description": "Memory usage parsing 5000 files"
     }
   },
   "notes": [
+    "Baselines measured on Apple Silicon (arm64) - 2026-01-18",
     "Thresholds set at 3-5x average to account for CI variance",
     "Update baselines when significant performance improvements are made",
-    "All times in milliseconds"
+    "All times in milliseconds unless otherwise noted"
   ]
 }
