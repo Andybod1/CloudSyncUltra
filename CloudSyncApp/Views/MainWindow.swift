@@ -893,7 +893,8 @@ struct ConnectRemoteSheet: View {
         case .premiumizeme:
             try await rclone.setupPremiumizeme(remoteName: rcloneName)
         case .quatrix:
-            try await rclone.setupQuatrix(remoteName: rcloneName)
+            // Quatrix uses host + API key (legacy path - new wizard handles this properly)
+            try await rclone.setupQuatrix(remoteName: rcloneName, host: "", apiKey: password)
         case .filefabric:
             try await rclone.setupFileFabric(remoteName: rcloneName, serverURL: "")
 

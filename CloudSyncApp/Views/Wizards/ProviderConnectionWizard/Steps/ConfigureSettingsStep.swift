@@ -50,6 +50,10 @@ struct ConfigureSettingsStep: View {
         provider == .filefabric
     }
 
+    private var isQuatrix: Bool {
+        provider == .quatrix
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -352,21 +356,23 @@ struct ConfigureSettingsStep: View {
                         .cornerRadius(6)
                     }
 
-                    // Server URL field for Seafile, FileFabric (and other self-hosted providers)
-                    if isSeafile || isFileFabric {
+                    // Server URL/Host field for Seafile, FileFabric, Quatrix (and other self-hosted providers)
+                    if isSeafile || isFileFabric || isQuatrix {
                         HStack {
-                            Text("Server URL")
+                            Text(isQuatrix ? "Host" : "Server URL")
                                 .frame(width: 100, alignment: .trailing)
                             TextField(
-                                isSeafile ? "https://cloud.seafile.com" : "https://yourfabric.smestorage.com",
+                                isSeafile ? "https://cloud.seafile.com" :
+                                isQuatrix ? "yourcompany.quatrix.it" :
+                                "https://yourfabric.smestorage.com",
                                 text: serverURL
                             )
                             .textFieldStyle(.roundedBorder)
                         }
                     }
 
-                    // Username field (hide for Jottacloud)
-                    if provider != .jottacloud {
+                    // Username field (hide for Jottacloud and Quatrix)
+                    if provider != .jottacloud && !isQuatrix {
                         HStack {
                             Text("Username")
                                 .frame(width: 100, alignment: .trailing)
@@ -375,12 +381,13 @@ struct ConfigureSettingsStep: View {
                         }
                     }
 
-                    // Password field
+                    // Password/Token/API Key field
                     HStack {
-                        Text(provider == .jottacloud ? "Token" : "Password")
+                        Text(provider == .jottacloud ? "Token" : isQuatrix ? "API Key" : "Password")
                             .frame(width: 100, alignment: .trailing)
                         SecureField(
-                            provider == .jottacloud ? "Personal Login Token" : "Password",
+                            provider == .jottacloud ? "Personal Login Token" :
+                            isQuatrix ? "Quatrix API Key" : "Password",
                             text: $password
                         )
                         .textFieldStyle(.roundedBorder)
@@ -592,6 +599,10 @@ struct ConfigureSettingsStep: View {
             return "Enter your File Fabric server URL (e.g., https://yourfabric.smestorage.com), then authenticate via OAuth."
         case .alibabaOSS:
             return "Enter your Alibaba Cloud Access Key ID as username and Access Key Secret as password. Create keys in the RAM Console. Default region is Singapore (ap-southeast-1)."
+        case .mailRuCloud:
+            return "Mail.ru requires an App Password. Create one at: Settings → Security → App Passwords."
+        case .quatrix:
+            return "Enter your Quatrix host (e.g., yourcompany.quatrix.it) without https://. Generate an API key at your Quatrix profile under API Keys."
         default:
             return nil
         }
@@ -630,6 +641,10 @@ struct ConfigureSettingsStep: View {
             return URL(string: "https://aws.amazon.com/iam/")
         case .alibabaOSS:
             return URL(string: "https://ram.console.aliyun.com/")
+        case .mailRuCloud:
+            return URL(string: "https://account.mail.ru/user/2-step-auth/passwords")
+        case .quatrix:
+            return URL(string: "https://docs.maytech.net/quatrix/quatrix-administration-guide/my-account/api-keys")
         default:
             return nil
         }

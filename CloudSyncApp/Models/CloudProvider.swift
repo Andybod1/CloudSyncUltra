@@ -385,7 +385,7 @@ enum CloudProviderType: String, CaseIterable, Codable, Identifiable, Hashable {
         case .googleDrive, .dropbox, .oneDrive, .box, .yandexDisk,
              .googleCloudStorage, .oneDriveBusiness, .sharepoint,
              .googlePhotos, .sugarsync,
-             .putio, .premiumizeme, .quatrix, .filefabric, .pcloud:
+             .putio, .premiumizeme, .filefabric, .pcloud:
             return true
         default:
             return false

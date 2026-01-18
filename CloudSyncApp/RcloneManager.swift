@@ -1882,9 +1882,20 @@ class RcloneManager {
         try await createRemoteInteractive(name: remoteName, type: "premiumizeme")
     }
     
-    func setupQuatrix(remoteName: String) async throws {
-        // Quatrix uses OAuth - opens browser for authentication
-        try await createRemoteInteractive(name: remoteName, type: "quatrix")
+    func setupQuatrix(remoteName: String, host: String, apiKey: String) async throws {
+        // Quatrix uses API key authentication (not OAuth)
+        // Host format: yourcompany.quatrix.it (without https://)
+        // API key: Generate at https://<account>.quatrix.it/profile/api-keys
+        let params: [String: String] = [
+            "host": host,
+            "api_key": apiKey
+        ]
+
+        try await createRemote(
+            name: remoteName,
+            type: "quatrix",
+            parameters: params
+        )
     }
     
     func setupFileFabric(remoteName: String, serverURL: String) async throws {

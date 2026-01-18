@@ -363,7 +363,10 @@ struct TestConnectionStep: View {
         case .premiumizeme:
             try await rclone.setupPremiumizeme(remoteName: rcloneName)
         case .quatrix:
-            try await rclone.setupQuatrix(remoteName: rcloneName)
+            // Quatrix uses API key authentication (host + api_key)
+            // serverURL contains the host (e.g., yourcompany.quatrix.it)
+            // password contains the API key
+            try await rclone.setupQuatrix(remoteName: rcloneName, host: serverURL, apiKey: password)
         case .filefabric:
             try await rclone.setupFileFabric(remoteName: rcloneName, serverURL: serverURL)
         case .azureFiles:
