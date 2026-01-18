@@ -1,69 +1,96 @@
-# Sprint: v2.0.37 - Bug Fixes & S3-Compatible Providers
+# Sprint: v2.0.38 - Provider Research Blitz
 
 **Started:** 2026-01-18
-**Status:** ✅ COMPLETE
+**Status:** 🟡 PLANNING
 
 ---
 
 ## Sprint Goal
 
-1. ✅ Fix ownCloud wizard bug (HIGH priority)
-2. ✅ Add FTPS security support (MEDIUM priority)
-3. ✅ Complete S3-compatible provider studies
-4. ✅ QA verification of dev work
+Complete 10 integration studies to bring provider coverage to ~95%
 
 ---
 
-## Phase 1: Development & Research
+## Wave 1: First 5 Studies (Parallel)
 
 | # | Title | Worker | Size | Status |
 |---|-------|--------|------|--------|
-| 165 | [Bug]: ownCloud missing case in TestConnectionStep | Dev-1 | S | ✅ Complete |
-| 164 | [Enhancement]: FTPS Support + Security Warning | Dev-2 | S | ✅ Complete |
-| 129 | [Integration Study]: DigitalOcean Spaces | Architect-1 | S | ✅ Complete |
-| 128 | [Integration Study]: Wasabi | Architect-2 | S | ✅ Complete |
-| 131 | [Integration Study]: Scaleway Object Storage | Architect-3 | S | ✅ Complete |
-| 134 | [Integration Study]: Filebase | Architect-4 | S | ✅ Complete |
+| 145 | [Integration Study]: Local Storage | Architect-1 | S | ⬜ Pending |
+| 136 | [Integration Study]: Azure Files | Architect-2 | S | ⬜ Pending |
+| 148 | [Integration Study]: Yandex Disk | Architect-3 | S | ⬜ Pending |
+| 149 | [Integration Study]: Mail.ru Cloud | Architect-4 | S | ⬜ Pending |
+| 150 | [Integration Study]: Flickr | Architect-5 | S | ⬜ Pending |
 
-## Phase 2: QA Verification
+## Wave 2: Next 5 Studies (Parallel)
 
-| Task | Status |
-|------|--------|
-| Verify #165 ownCloud fix | ✅ Complete |
-| Verify #164 FTPS implementation | ✅ Complete |
-| Run full test suite (855 tests) | ✅ Complete |
-| Build & launch verification | ✅ Complete |
+| # | Title | Worker | Size | Status |
+|---|-------|--------|------|--------|
+| 141 | [Integration Study]: Seafile | Architect-1 | M | ⬜ Pending |
+| 138 | [Integration Study]: Alibaba Cloud OSS | Architect-2 | M | ⬜ Pending |
+| 132 | [Integration Study]: Oracle Cloud Object Storage | Architect-3 | M | ⬜ Pending |
+| 151 | [Integration Study]: SugarSync | Architect-4 | S | ⬜ Pending |
+| 152 | [Integration Study]: OpenDrive | Architect-5 | S | ⬜ Pending |
 
 ---
 
 ## Worker Outputs
 
-| Worker | Task | Output File |
-|--------|------|-------------|
-| Dev-1 | ownCloud Bug Fix #165 | `outputs/DEV1_COMPLETE.md` |
-| Dev-2 | FTPS Support #164 | `outputs/DEV2_COMPLETE.md` |
-| Architect-1 | DigitalOcean Spaces #129 | `outputs/ARCHITECT1_DIGITALOCEAN.md` |
-| Architect-2 | Wasabi #128 | `outputs/ARCHITECT2_WASABI.md` |
-| Architect-3 | Scaleway #131 | `outputs/ARCHITECT3_SCALEWAY.md` |
-| Architect-4 | Filebase #134 | `outputs/ARCHITECT4_FILEBASE.md` |
-| QA | Verification | `outputs/QA_COMPLETE.md` |
+### Wave 1
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Architect-1 | #145 Local Storage | outputs/ARCH1_145_LOCAL.md | ⬜ |
+| Architect-2 | #136 Azure Files | outputs/ARCH2_136_AZURE.md | ⬜ |
+| Architect-3 | #148 Yandex Disk | outputs/ARCH3_148_YANDEX.md | ⬜ |
+| Architect-4 | #149 Mail.ru | outputs/ARCH4_149_MAILRU.md | ⬜ |
+| Architect-5 | #150 Flickr | outputs/ARCH5_150_FLICKR.md | ⬜ |
+
+### Wave 2
+| Worker | Issue | Output File | Status |
+|--------|-------|-------------|--------|
+| Architect-1 | #141 Seafile | outputs/ARCH1_141_SEAFILE.md | ⬜ |
+| Architect-2 | #138 Alibaba OSS | outputs/ARCH2_138_ALIBABA.md | ⬜ |
+| Architect-3 | #132 Oracle Cloud | outputs/ARCH3_132_ORACLE.md | ⬜ |
+| Architect-4 | #151 SugarSync | outputs/ARCH4_151_SUGARSYNC.md | ⬜ |
+| Architect-5 | #152 OpenDrive | outputs/ARCH5_152_OPENDRIVE.md | ⬜ |
 
 ---
 
-## Key Findings
+## Progress Tracker
 
-- **All 4 S3-compatible providers** already fully implemented
-- **ownCloud/Nextcloud** wizard now working
-- **FTPS** security toggle added with plain FTP warning
-- **First sprint with QA phase** - two-phase execution successful
+- [ ] Wave 1: Studies (0/5)
+- [ ] Wave 2: Studies (0/5)
+
+**Total:** 0/10 studies complete
+
+---
+
+## Provider Categories
+
+| Category | Providers | Count |
+|----------|-----------|-------|
+| Local/Protocol | Local Storage | 1 |
+| Enterprise Cloud | Azure Files, Alibaba OSS, Oracle Cloud | 3 |
+| Consumer Cloud | Yandex, Mail.ru, Flickr, SugarSync, OpenDrive | 5 |
+| Self-Hosted | Seafile | 1 |
+
+---
+
+## Remaining After Sprint
+
+4 research tickets will remain:
+- #158 FileFabric
+- #157 Quatrix
+- #154 Premiumize.me
+- #153 Put.io
 
 ---
 
 ## Previous Sprint
 
-**v2.0.36** - Completed 2026-01-17
-- ✅ #163: SFTP SSH Key Authentication
-- ✅ #137, #135, #133, #144, #140: Cloud Storage & Protocol Studies
+**v2.0.37** - Completed 2026-01-18
+- ✅ #165: ownCloud wizard fix
+- ✅ #164: FTPS security support
+- ✅ #129, #128, #131, #134: S3-compatible provider studies
 
 ---
 
