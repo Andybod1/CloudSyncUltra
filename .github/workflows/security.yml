@@ -112,16 +112,6 @@ jobs:
             echo "ℹ️ No Package.swift found - skipping SPM audit"
           fi
 
-      # Check for known vulnerabilities using OSV database
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action/actions/scan@v2.3.2
-        continue-on-error: true  # Warning only for now
-        with:
-          scan-args: |-
-            --lockfile=Gemfile.lock
-            --recursive
-            ./
-
       - name: OSV Scanner Summary
         if: always()
         run: |
@@ -162,3 +152,16 @@ jobs:
           echo "- Dependency audit" >> $GITHUB_STEP_SUMMARY
           echo "- OSV vulnerability scan" >> $GITHUB_STEP_SUMMARY
           echo "- App security settings" >> $GITHUB_STEP_SUMMARY
+
+  # OSV Scanner as separate job using reusable workflow (v2.x requires this pattern)
+  osv-scan:
+    name: OSV Vulnerability Scan
+    permissions:
+      actions: read
+      security-events: write
+      contents: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.2"
+    with:
+      scan-args: |-
+        --recursive
+        ./
