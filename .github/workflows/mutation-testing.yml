@@ -117,7 +117,7 @@ jobs:
           echo "*Mutation testing helps identify weak spots in your test suite by introducing small code changes (mutations) and checking if tests catch them.*" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Mutation Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mutation-report
