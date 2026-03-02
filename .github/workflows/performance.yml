@@ -225,7 +225,7 @@ jobs:
           EOF
 
       - name: Upload Metrics
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: performance-metrics
           path: metrics/
